@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
-import 'kategori_sayfasi.dart'; // ✨ Köprü için gerekli ilk anahtar
+import 'kategori_sayfasi.dart';
 import 'dukkan_vitrini.dart';
 
 class PazarYeri extends StatelessWidget {
   final String secilenSehir;
   const PazarYeri({super.key, required this.secilenSehir});
 
-  // ✨ "EV YAPIMI" MÜHÜRLÜ ASİL LİSTE
   final List<Map<String, dynamic>> kategoriler = const [
     {"ad": "Ev Yemekleri", "ikon": Icons.soup_kitchen},
     {"ad": "Ev Yapımı Çikolata & Tatlı", "ikon": Icons.cake},
@@ -31,7 +30,7 @@ class PazarYeri extends StatelessWidget {
         children: [
           _buildAramaCubugu(),
 
-          // 🏮 ÇALIŞAN KATEGORİ BUTONLARI
+          // 🏮 KATEGORİ MODÜLÜ
           SizedBox(
             height: 120,
             child: ListView.builder(
@@ -57,22 +56,20 @@ class PazarYeri extends StatelessWidget {
             ),
           ),
 
-          // 🏪 DÜKKAN LİSTESİ
+          // 🏪 MODERN VİTRİN LİSTESİ (SİHİRLİ GEÇİŞLER BURADA)
           Expanded(
             child: ListView(
-              padding: const EdgeInsets.symmetric(horizontal: 15),
+              padding: const EdgeInsets.symmetric(horizontal: 0),
               children: [
-                _buildDukkanKarti(
+                _arenaVitrini(
                     context,
                     "KADIKÖY MANTI EVİ",
-                    "Ev Yemekleri",
-                    "Ev Hanımı Lezzeti",
+                    "Geleneksel El Mantısı ve Soslar",
                     "https://images.unsplash.com/photo-1534422298391-e4f8c170db76"),
-                _buildDukkanKarti(
+                _arenaVitrini(
                     context,
-                    "TURŞUCU HASAN USTA",
-                    "Ev Yapımı Turşu & Konserve",
-                    "Usta Şef Tarifi",
+                    "HASAN USTA TURŞULARI",
+                    "40 Yıllık Sirke ve Emekle",
                     "https://images.unsplash.com/photo-1589135410995-c60303e30252"),
               ],
             ),
@@ -82,7 +79,6 @@ class PazarYeri extends StatelessWidget {
     );
   }
 
-  // 🏥 İŞTE O SİHİRLİ "BEYİN" KODU BURAYA MONTE EDİLDİ:
   Widget _kategoriItem(BuildContext context, IconData ikon, String ad) {
     return GestureDetector(
       onTap: () {
@@ -137,67 +133,86 @@ class PazarYeri extends StatelessWidget {
     );
   }
 
-  Widget _buildDukkanKarti(BuildContext context, String ad, String tur,
-      String etiket, String gorsel) {
+  // ✨ FINAL TASARIM: NAVİGASYON VE "GEÇİŞ OKU" EKLENMİŞ VİTRİN
+  Widget _arenaVitrini(
+      BuildContext context, String baslik, String altBaslik, String gorselUrl) {
     return GestureDetector(
+      // 🚀 MUTFAK VE ŞEFLERİN OLDUĞU SAYFAYA GEÇİŞ KAPISI
       onTap: () {
         Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) => DukkanVitrini(dukkanAdi: ad)));
+          context,
+          MaterialPageRoute(
+            builder: (context) => DukkanVitrini(dukkanAdi: baslik),
+          ),
+        );
       },
       child: Container(
-        margin: const EdgeInsets.only(bottom: 20),
+        margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+        height: 180,
         decoration: BoxDecoration(
-          color: const Color(0xFF1A1A1A),
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: Colors.white.withOpacity(0.05)),
+          boxShadow: [
+            BoxShadow(
+                color: Colors.black.withOpacity(0.4),
+                blurRadius: 10,
+                offset: const Offset(0, 5))
+          ],
         ),
-        child: Column(
-          children: [
-            Stack(
-              children: [
-                ClipRRect(
-                  borderRadius:
-                      const BorderRadius.vertical(top: Radius.circular(20)),
-                  child: Image.network(gorsel,
-                      height: 160,
-                      width: double.infinity,
-                      fit: BoxFit.cover,
-                      errorBuilder: (c, e, s) => Container(
-                          height: 160,
-                          color: Colors.white10,
-                          child: const Icon(Icons.store,
-                              color: Color(0xFFFFB300)))),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(20),
+          child: Stack(
+            children: [
+              Positioned.fill(
+                child: Image.network(
+                  gorselUrl,
+                  fit: BoxFit.cover,
+                  errorBuilder: (c, e, s) => Container(color: Colors.white10),
                 ),
-                Positioned(
-                  top: 10,
-                  right: 10,
-                  child: Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                    decoration: BoxDecoration(
-                        color: const Color(0xFFFFB300),
-                        borderRadius: BorderRadius.circular(8)),
-                    child: Text(etiket,
-                        style: const TextStyle(
-                            color: Colors.black,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 10)),
+              ),
+              Positioned.fill(
+                child: Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        Colors.transparent,
+                        Colors.black.withOpacity(0.8)
+                      ],
+                    ),
                   ),
                 ),
-              ],
-            ),
-            ListTile(
-              title: Text(ad,
-                  style: const TextStyle(
-                      color: Colors.white, fontWeight: FontWeight.bold)),
-              subtitle: Text(tur,
-                  style: const TextStyle(color: Colors.white54, fontSize: 12)),
-              trailing:
-                  const Icon(Icons.chevron_right, color: Color(0xFFFFB300)),
-            ),
-          ],
+              ),
+              Positioned(
+                bottom: 20,
+                left: 20,
+                right: 20,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(baslik,
+                            style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold)),
+                        Text(altBaslik,
+                            style: const TextStyle(
+                                color: Color(0xFFFFB300),
+                                fontSize: 13,
+                                fontWeight: FontWeight.w500)),
+                      ],
+                    ),
+                    // ➡️ İŞTE O ŞIK GEÇİŞ SİMGESİ (ARROW)
+                    const Icon(Icons.arrow_forward_ios,
+                        color: Color(0xFFFFB300), size: 18),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
