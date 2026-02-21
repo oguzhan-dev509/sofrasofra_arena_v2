@@ -8,26 +8,28 @@ class Sepetim extends StatefulWidget {
 }
 
 class _SepetimState extends State<Sepetim> {
+  // 📜 Dinamik Liste Veri Tipleri Sabitlendi
   final List<Map<String, dynamic>> sepetUrunleri = [
     {
       "ad": "TRÜF MANTARLI RİZOTTO",
-      "fiyat": 450,
+      "fiyat": 450.0, // Double yapıldı
       "adet": 1,
-      "gorsel":
-          "https://invalid-link-provoke-error.com/rizotto.jpg" // Bilerek hatalı link
+      "gorsel": "https://images.unsplash.com/photo-1476124369491-e7addf5db371"
     },
     {
       "ad": "ÖZEL SOSLU MANTI",
-      "fiyat": 280,
+      "fiyat": 280.0, // Double yapıldı
       "adet": 2,
-      "gorsel":
-          "https://invalid-link-provoke-error.com/manti.jpg" // Bilerek hatalı link
+      "gorsel": "https://images.unsplash.com/photo-1534422298391-e4f8c170db76"
     },
   ];
 
+  // 💰 Hesaplama Fonksiyonu Tip Hataları Giderildi
   double get toplamTutar {
     return sepetUrunleri.fold(
-        0, (sum, item) => sum + (item['fiyat'] * item['adet']));
+        0.0,
+        (sum, item) =>
+            sum + ((item['fiyat'] as double) * (item['adet'] as int)));
   }
 
   @override
@@ -80,7 +82,6 @@ class _SepetimState extends State<Sepetim> {
               width: 80,
               height: 80,
               fit: BoxFit.cover,
-              // ✨ İŞTE O SİHİRLİ HATA KORUMASI:
               errorBuilder: (context, error, stackTrace) {
                 return Container(
                   width: 80,
@@ -119,8 +120,11 @@ class _SepetimState extends State<Sepetim> {
           icon: const Icon(Icons.remove_circle_outline,
               color: Colors.white54, size: 20),
           onPressed: () => setState(() {
-            if (sepetUrunleri[index]['adet'] > 1)
+            if (sepetUrunleri[index]['adet'] > 1) {
               sepetUrunleri[index]['adet']--;
+            } else {
+              sepetUrunleri.removeAt(index); // 🗑️ 1'den azsa ürünü silsin
+            }
           }),
         ),
         Text("${sepetUrunleri[index]['adet']}",
@@ -197,6 +201,12 @@ class _SepetimState extends State<Sepetim> {
               style: TextStyle(color: Colors.white54),
               textAlign: TextAlign.center,
             ),
+            const SizedBox(height: 20),
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("TAMAM",
+                  style: TextStyle(color: Color(0xFFFFB300))),
+            )
           ],
         ),
       ),

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:url_launcher/url_launcher.dart'; // Eğer burası hala kırmızıysa 'pub get' yapmalısın
+import 'package:url_launcher/url_launcher.dart';
 import 'dart:typed_data';
 
 class VitrinMerkezi extends StatefulWidget {
@@ -21,16 +21,21 @@ class _VitrinMerkeziState extends State<VitrinMerkezi> {
 
   // 📸 Fotoğraf İşlemi
   Future<void> _fotoIslem(int index, {bool profil = false}) async {
-    final ImagePicker picker = ImagePicker();
-    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
-    if (image != null) {
-      final Uint8List bytes = await image.readAsBytes();
-      setState(() {
-        if (profil)
-          _profilResmi = bytes;
-        else
-          _vitrinResimler[index] = bytes;
-      });
+    try {
+      final ImagePicker picker = ImagePicker();
+      final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+      if (image != null) {
+        final Uint8List bytes = await image.readAsBytes();
+        setState(() {
+          if (profil) {
+            _profilResmi = bytes;
+          } else {
+            _vitrinResimler[index] = bytes;
+          }
+        });
+      }
+    } catch (e) {
+      debugPrint("Fotoğraf seçme hatası: $e");
     }
   }
 
@@ -39,12 +44,12 @@ class _VitrinMerkeziState extends State<VitrinMerkezi> {
     setState(() => _vitrinResimler[index] = null);
   }
 
-  // 📺 Video Açma (Hatasız Versiyon)
+  // 📺 Video Açma (Mühürlü ve Hatasız)
   Future<void> _videoAc() async {
     final Uri url = Uri.parse(_youtubeLink);
     try {
-      if (await canLaunchUrl(url)) {
-        await launchUrl(url, mode: LaunchMode.externalApplication);
+      if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
+        throw Exception('Açamadık Kaptan: $url');
       }
     } catch (e) {
       debugPrint("YouTube Hatası: $e");
@@ -131,12 +136,10 @@ class _VitrinMerkeziState extends State<VitrinMerkezi> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
-        _miniButton(Icons.play_circle, "VİDEO AÇ", Colors.red,
-            () => _videoAc()), // İzle yerine Video Aç
+        _miniButton(Icons.play_circle, "VİDEO AÇ", Colors.red, _videoAc),
+        _miniButton(Icons.edit_note, "LİNK EKLE", Colors.orange, _linkGuncelle),
         _miniButton(
-            Icons.edit_note, "LİNK EKLE", Colors.orange, () => _linkGuncelle()),
-        _miniButton(Icons.menu_book, "TARİFİ YAZ", Colors.blueAccent,
-            () => _tarifGuncelle()),
+            Icons.menu_book, "TARİFİ YAZ", Colors.blueAccent, _tarifGuncelle),
         _miniButton(Icons.share, "PAYLAŞ", Colors.greenAccent, () {}),
       ],
     );

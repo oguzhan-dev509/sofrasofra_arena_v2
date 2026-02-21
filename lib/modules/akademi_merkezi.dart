@@ -4,21 +4,20 @@ import 'package:url_launcher/url_launcher.dart';
 class AkademiMerkezi extends StatelessWidget {
   const AkademiMerkezi({super.key});
 
-  // 📺 Eğitim Videosunu YouTube'da Açma Fonksiyonu
+  // 📺 Eğitim Videosunu YouTube'da Açma Fonksiyonu (Mühürlendi)
   Future<void> _egitimBaslat(String link) async {
     final Uri url = Uri.parse(link);
     try {
-      if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
-        debugPrint("Eğitim limanına ulaşılamadı!");
-      }
+      // Modern launchUrl kullanımı
+      await launchUrl(url, mode: LaunchMode.externalApplication);
     } catch (e) {
       debugPrint("Bağlantı Hatası: $e");
     }
   }
 
-  // ✨ Şefin link eklemesi için bir kutucuk (Dialog) açan fonksiyon
+  // ✨ Link ekleme kutucuğu (Dialog)
   void _linkEkle(BuildContext context, String egitimAdi) {
-    TextEditingController controller = TextEditingController();
+    final TextEditingController controller = TextEditingController();
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -90,7 +89,7 @@ class AkademiMerkezi extends StatelessWidget {
                 Icons.psychology,
                 "Trend",
                 "https://www.youtube.com"),
-            _buildSertifikaBolumu(context), // ✨ Context buraya eklendi
+            _buildSertifikaBolumu(context),
             const SizedBox(height: 50),
           ],
         ),
@@ -147,7 +146,6 @@ class AkademiMerkezi extends StatelessWidget {
         subtitle:
             Text(alt, style: const TextStyle(color: Colors.grey, fontSize: 12)),
         trailing: Row(
-          // ✨ Düzenleme butonu eklendi
           mainAxisSize: MainAxisSize.min,
           children: [
             IconButton(
@@ -175,7 +173,6 @@ class AkademiMerkezi extends StatelessWidget {
 
   Widget _buildSertifikaBolumu(BuildContext context) {
     return InkWell(
-      // ✨ Sertifika kısmını tıklanabilir yaptık
       onTap: () {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(

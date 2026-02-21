@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-// 🚀 DİĞER MODÜLLERLE BAĞLANTIYI KORUYORUZ
 import 'vitrin_merkezi.dart';
 import 'akademi_merkezi.dart';
 import 'sepetim.dart';
@@ -14,7 +13,7 @@ class KategoriSayfasi extends StatefulWidget {
 }
 
 class _KategoriSayfasiState extends State<KategoriSayfasi> {
-  // 📜 DİNAMİK ÜRÜN LİSTESİ (Veri Yazılabilir Yapı)
+  // 📜 DİNAMİK ÜRÜN LİSTESİ
   List<Map<String, String>> urunler = [
     {
       "ad": "El Açması Mantı",
@@ -30,13 +29,13 @@ class _KategoriSayfasiState extends State<KategoriSayfasi> {
     },
     {
       "ad": "Ev Yapımı Turşu",
-      "tarif": "Tarifi buraya ekleyin...",
+      "tarif": "Hasan Usta özel tarifi",
       "fiyat": "120 TL",
       "gorsel": ""
     },
     {
       "ad": "Süzme Yoğurt",
-      "tarif": "Tarifi buraya ekleyin...",
+      "tarif": "Taş gibi, doğal ve yoğun",
       "fiyat": "150 TL",
       "gorsel": ""
     },
@@ -72,8 +71,7 @@ class _KategoriSayfasiState extends State<KategoriSayfasi> {
                     gridDelegate:
                         const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 2,
-                      childAspectRatio:
-                          0.55, // ✍️ Yazı alanı için alanı biraz daha uzattık
+                      childAspectRatio: 0.58,
                       crossAxisSpacing: 15,
                       mainAxisSpacing: 15,
                     ),
@@ -96,20 +94,17 @@ class _KategoriSayfasiState extends State<KategoriSayfasi> {
       ),
       child: Column(
         children: [
-          // 🖼️ 1. KAT: TIKLANDIĞINDA "VİTRİNİM" MODÜLÜNE UÇAN ALAN
           Expanded(
             flex: 3,
             child: Stack(
               children: [
                 GestureDetector(
-                  // 🚀 KAPTAN, BURADA "VİTRİNİM" KAPISINI AÇIYORUZ:
                   onTap: () {
                     _bilgiGoster(context, "Premium Vitrin'e Geçiliyor...");
                     Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const VitrinMerkezi()),
-                    );
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const VitrinMerkezi()));
                   },
                   child: ClipRRect(
                     borderRadius:
@@ -119,11 +114,10 @@ class _KategoriSayfasiState extends State<KategoriSayfasi> {
                             height: double.infinity,
                             width: double.infinity,
                             fit: BoxFit.cover,
-                            errorBuilder: (c, e, s) => _kameraIkonu())
-                        : _kameraIkonu(),
+                            errorBuilder: (c, e, s) => _tabelaIkonu())
+                        : _tabelaIkonu(),
                   ),
                 ),
-                // 🗑️ SİLME BUTONU (Buradaki işlevi koruyoruz)
                 Positioned(
                   top: 10,
                   left: 10,
@@ -144,7 +138,6 @@ class _KategoriSayfasiState extends State<KategoriSayfasi> {
               ],
             ),
           ),
-          // ✍️ 2. KAT: YAZI VE FİYAT
           Expanded(
             flex: 2,
             child: Padding(
@@ -170,8 +163,12 @@ class _KategoriSayfasiState extends State<KategoriSayfasi> {
                           style: const TextStyle(
                               color: Color(0xFFFFB300),
                               fontWeight: FontWeight.bold)),
-                      const Icon(Icons.add_circle,
-                          color: Color(0xFFFFB300), size: 30),
+                      InkWell(
+                        onTap: () => _bilgiGoster(
+                            context, "${urun['ad']} sepete eklendi!"),
+                        child: const Icon(Icons.add_circle,
+                            color: Color(0xFFFFB300), size: 30),
+                      ),
                     ],
                   ),
                 ],
@@ -183,18 +180,8 @@ class _KategoriSayfasiState extends State<KategoriSayfasi> {
     );
   }
 
-  // 🛠️ MASAÜSTÜ DOSYALARI SİMÜLASYONU VE VERİ GİRİŞİ
-  void _dosyaSeciciAc(int index) {
-    _bilgiGoster(context, "Masaüstü/Dosyalar Açılıyor... Görsel Seçin.");
-    // Gerçek uygulamada buraya FilePicker() gelir.
-  }
-
-  void _tarifDuzenle(int index) {
-    _bilgiGoster(context, "Tarif Düzenleme Modu Aktif: Yazmaya Başlayın.");
-  }
-
-  // ✨ KAMERA İKONU TASARIMI (GÖLGESİZ)
-  Widget _kameraIkonu() {
+  // ✨ ASİL TABELA: "FontWeight.black" HATASI BURADA DÜZELTİLDİ (w900 YAPILDI)
+  Widget _tabelaIkonu() {
     return Container(
       width: double.infinity,
       height: double.infinity,
@@ -203,20 +190,21 @@ class _KategoriSayfasiState extends State<KategoriSayfasi> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.camera_alt, color: Color(0xFFFFB300), size: 40),
-            SizedBox(height: 5),
-            Text("GÖRSEL SEÇ",
+            Icon(Icons.auto_awesome, color: Color(0xFFFFB300), size: 24),
+            SizedBox(height: 8),
+            Text("ÜRÜNLERİ\nİNCELE",
+                textAlign: TextAlign.center,
                 style: TextStyle(
-                    color: Colors.white24,
-                    fontSize: 8,
-                    fontWeight: FontWeight.bold)),
+                    color: Color(0xFFFFB300),
+                    fontSize: 16,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 1.5)),
           ],
         ),
       ),
     );
   }
 
-  // --- YARDIMCI MODÜLLER ---
   void _bilgiGoster(BuildContext context, String mesaj) {
     ScaffoldMessenger.of(context).hideCurrentSnackBar();
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
