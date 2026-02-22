@@ -104,8 +104,8 @@ class AkademiMerkezi extends StatelessWidget {
       decoration: BoxDecoration(
         color: const Color(0xFF1A1A1A),
         border: Border(
-            bottom:
-                BorderSide(color: const Color(0xFFFFB300).withOpacity(0.3))),
+            bottom: BorderSide(
+                color: const Color(0xFFFFB300).withValues(alpha: 0.4))),
       ),
       child: const Column(
         crossAxisAlignment: CrossAxisAlignment.start,

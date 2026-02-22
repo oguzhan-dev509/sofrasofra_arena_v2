@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'modules/vitrin_merkezi.dart';
 import 'modules/akademi_merkezi.dart';
 import 'modules/pazar_yeri.dart';
-import 'modules/sepetim.dart';
+import 'package:sofrasofra_arena_v2/modules/sepetim.dart';
 
 void main() {
   runApp(const SofrasofraArena());

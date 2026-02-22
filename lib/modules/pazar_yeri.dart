@@ -1,18 +1,32 @@
 import 'package:flutter/material.dart';
-import 'kategori_sayfasi.dart';
 import 'dukkan_vitrini.dart';
 
-class PazarYeri extends StatelessWidget {
+class PazarYeri extends StatefulWidget {
   final String secilenSehir;
   const PazarYeri({super.key, required this.secilenSehir});
 
-  final List<Map<String, dynamic>> kategoriler = const [
-    {"ad": "Ev Yemekleri", "ikon": Icons.soup_kitchen},
-    {"ad": "Ev Yapımı Çikolata & Tatlı", "ikon": Icons.cake},
-    {"ad": "Ev Yapımı Süt Ürünleri", "ikon": Icons.water_drop},
-    {"ad": "Ev Yapımı Turşu & Konserve", "ikon": Icons.inventory_2},
-    {"ad": "Ev Yapımı Baharat & Sos", "ikon": Icons.grass},
-    {"ad": "Mahalle Kasabı", "ikon": Icons.restaurant},
+  @override
+  State<PazarYeri> createState() => _PazarYeriState();
+}
+
+class _PazarYeriState extends State<PazarYeri> {
+  // 🏪 DÜKKAN LİSTESİ (Hafif ve Net)
+  final List<Map<String, String>> dukkanListesi = [
+    {
+      "ad": "KADIKÖY MANTI EVİ",
+      "alt": "Geleneksel El Mantısı ve Soslar",
+      "img": "https://images.unsplash.com/photo-1534422298391-e4f8c170db76",
+    },
+    {
+      "ad": "HASAN USTA TURŞULARI",
+      "alt": "40 Yıllık Sirke ve Emekle",
+      "img": "https://images.unsplash.com/photo-1589135410995-c60303e30252",
+    },
+    {
+      "ad": "SÜTÇÜ ANA",
+      "alt": "Doğal Yayık Tereyağı ve Peynir",
+      "img": "https://images.unsplash.com/photo-1528498033053-35608b21ca07",
+    },
   ];
 
   @override
@@ -22,7 +36,8 @@ class PazarYeri extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Colors.black,
         elevation: 0,
-        title: Text("$secilenSehir ARENA PAZARI",
+        centerTitle: true,
+        title: Text("TÜRKİYE ARENA PAZARI", // İsim güncellendi
             style: const TextStyle(
                 color: Color(0xFFFFB300), fontWeight: FontWeight.bold)),
       ),
@@ -30,86 +45,32 @@ class PazarYeri extends StatelessWidget {
         children: [
           _buildAramaCubugu(),
 
-          // 🏮 KATEGORİ MODÜLÜ
-          SizedBox(
-            height: 120,
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: 10),
-              itemCount: kategoriler.length,
-              itemBuilder: (context, index) {
-                return _kategoriItem(context, kategoriler[index]['ikon'],
-                    kategoriler[index]['ad']);
-              },
-            ),
-          ),
-
           const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
             child: Align(
               alignment: Alignment.centerLeft,
               child: Text("GASTRONOMİ DÜKKANLARI",
                   style: TextStyle(
                       color: Color(0xFFFFB300),
                       fontSize: 14,
-                      fontWeight: FontWeight.bold)),
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1.2)),
             ),
           ),
 
-          // 🏪 MODERN VİTRİN LİSTESİ (SİHİRLİ GEÇİŞLER BURADA)
+          // 🏪 VİTRİN LİSTESİ
           Expanded(
-            child: ListView(
-              padding: const EdgeInsets.symmetric(horizontal: 0),
-              children: [
-                _arenaVitrini(
-                    context,
-                    "KADIKÖY MANTI EVİ",
-                    "Geleneksel El Mantısı ve Soslar",
-                    "https://images.unsplash.com/photo-1534422298391-e4f8c170db76"),
-                _arenaVitrini(
-                    context,
-                    "HASAN USTA TURŞULARI",
-                    "40 Yıllık Sirke ve Emekle",
-                    "https://images.unsplash.com/photo-1589135410995-c60303e30252"),
-              ],
+            child: ListView.builder(
+              itemCount: dukkanListesi.length,
+              padding: const EdgeInsets.only(bottom: 20),
+              itemBuilder: (context, index) {
+                final dukkan = dukkanListesi[index];
+                return _arenaVitrini(
+                    context, dukkan['ad']!, dukkan['alt']!, dukkan['img']!);
+              },
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _kategoriItem(BuildContext context, IconData ikon, String ad) {
-    return GestureDetector(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => KategoriSayfasi(kategoriAdi: ad),
-          ),
-        );
-      },
-      child: Container(
-        width: 110,
-        padding: const EdgeInsets.symmetric(horizontal: 5),
-        child: Column(
-          children: [
-            CircleAvatar(
-              backgroundColor: const Color(0xFF1A1A1A),
-              radius: 30,
-              child: Icon(ikon, color: const Color(0xFFFFB300), size: 28),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              ad,
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 10,
-                  fontWeight: FontWeight.bold),
-            ),
-          ],
-        ),
       ),
     );
   }
@@ -120,7 +81,7 @@ class PazarYeri extends StatelessWidget {
       child: TextField(
         style: const TextStyle(color: Colors.white),
         decoration: InputDecoration(
-          hintText: "Ürün veya dükkan ara...",
+          hintText: "Dükkan veya ürün ara...",
           hintStyle: const TextStyle(color: Colors.white24),
           prefixIcon: const Icon(Icons.search, color: Color(0xFFFFB300)),
           filled: true,
@@ -133,12 +94,11 @@ class PazarYeri extends StatelessWidget {
     );
   }
 
-  // ✨ FINAL TASARIM: NAVİGASYON VE "GEÇİŞ OKU" EKLENMİŞ VİTRİN
   Widget _arenaVitrini(
       BuildContext context, String baslik, String altBaslik, String gorselUrl) {
     return GestureDetector(
-      // 🚀 MUTFAK VE ŞEFLERİN OLDUĞU SAYFAYA GEÇİŞ KAPISI
       onTap: () {
+        // Hata veren dukkan_detay yerine direkt dukkan_vitrini'ne yönlendirdik
         Navigator.push(
           context,
           MaterialPageRoute(
@@ -147,19 +107,19 @@ class PazarYeri extends StatelessWidget {
         );
       },
       child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+        margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
         height: 180,
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(25),
           boxShadow: [
             BoxShadow(
-                color: Colors.black.withOpacity(0.4),
-                blurRadius: 10,
-                offset: const Offset(0, 5))
+                color: Colors.black.withOpacity(0.5),
+                blurRadius: 15,
+                offset: const Offset(0, 8))
           ],
         ),
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(25),
           child: Stack(
             children: [
               Positioned.fill(
@@ -177,7 +137,7 @@ class PazarYeri extends StatelessWidget {
                       end: Alignment.bottomCenter,
                       colors: [
                         Colors.transparent,
-                        Colors.black.withOpacity(0.8)
+                        Colors.black.withOpacity(0.9)
                       ],
                     ),
                   ),
@@ -190,24 +150,26 @@ class PazarYeri extends StatelessWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(baslik,
-                            style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold)),
-                        Text(altBaslik,
-                            style: const TextStyle(
-                                color: Color(0xFFFFB300),
-                                fontSize: 13,
-                                fontWeight: FontWeight.w500)),
-                      ],
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(baslik,
+                              style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold)),
+                          Text(altBaslik,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                  color: Color(0xFFFFB300),
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w400)),
+                        ],
+                      ),
                     ),
-                    // ➡️ İŞTE O ŞIK GEÇİŞ SİMGESİ (ARROW)
                     const Icon(Icons.arrow_forward_ios,
-                        color: Color(0xFFFFB300), size: 18),
+                        color: Color(0xFFFFB300), size: 16),
                   ],
                 ),
               ),

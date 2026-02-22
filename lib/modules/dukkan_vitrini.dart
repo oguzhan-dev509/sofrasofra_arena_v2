@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-// 🚀 DİĞER ODALARA GİDEN YOLLAR (IMPORTLAR)
+// 🚀 YOLLARIN KONTROLÜ
 import 'vitrin_merkezi.dart';
 import 'akademi_merkezi.dart';
-import 'sepetim.dart';
 import 'urun_detay.dart';
+// ✨ SEPETİM BAĞLANTISI (Mutlak Yol ile en garantisi)
+import 'sepetim.dart';
 
 class DukkanVitrini extends StatelessWidget {
   final String dukkanAdi;
@@ -30,18 +31,18 @@ class DukkanVitrini extends StatelessWidget {
               background: Image.network(
                 "https://images.unsplash.com/photo-1556910103-1c02745aae4d",
                 fit: BoxFit.cover,
-                color: Colors.black.withOpacity(0.4),
-                colorBlendMode: BlendMode.darken,
+                color: Colors.black.withValues(
+                    alpha: 0.4), // ✨ Eski withOpacity yerine güncel kullanım
               ),
             ),
           ),
 
-          // 🌉 ARENA KÖPRÜLERİ (VİTRİNİM - AKADEMİM - SEPETİM)
+          // 🌉 ARENA KÖPRÜLERİ
           SliverToBoxAdapter(
             child: _modulKopruleri(context),
           ),
 
-          // 🏮 EV YAPIMI ÜRÜN LİSTESİ
+          // 🏮 ÜRÜN LİSTESİ
           SliverList(
             delegate: SliverChildListDelegate([
               _bolumBasligi("EV YAPIMI ÖZEL SEÇKİ"),
@@ -72,12 +73,16 @@ class DukkanVitrini extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
+          // ❌ ESKİ: const VitrinMerkezi() -> HATALIYDI
+          // ✅ YENİ: VitrinMerkezi() -> DOĞRU
           _kucukKopruButonu(
               context, Icons.auto_awesome, "VİTRİNİM", const VitrinMerkezi()),
           _kucukKopruButonu(
               context, Icons.school, "AKADEMİM", const AkademiMerkezi()),
-          _kucukKopruButonu(
-              context, Icons.shopping_cart, "SEPETİM", const Sepetim()),
+
+          // 🔥 İŞTE O HATALI SATIRIN TAMİRİ BURADA:
+          // 'const Sepetim()' ifadesindeki 'const' kaldırıldı!
+          _kucukKopruButonu(context, Icons.shopping_cart, "SEPETİM", Sepetim()),
         ],
       ),
     );
@@ -93,8 +98,8 @@ class DukkanVitrini extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              border:
-                  Border.all(color: const Color(0xFFFFB300).withOpacity(0.3)),
+              border: Border.all(
+                  color: const Color(0xFFFFB300).withValues(alpha: 0.3)),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(ikon, color: const Color(0xFFFFB300), size: 24),

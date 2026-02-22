@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'dart:typed_data';
+import 'package:sofrasofra_arena_v2/sepet_kontrol.dart';
 
 class VitrinMerkezi extends StatefulWidget {
   const VitrinMerkezi({super.key});
@@ -14,12 +15,23 @@ class _VitrinMerkeziState extends State<VitrinMerkezi> {
   final List<Uint8List?> _vitrinResimler = List.generate(18, (index) => null);
   Uint8List? _profilResmi;
 
+  String _secilenKategori = "Tümü";
+
+  final List<Map<String, dynamic>> _kategoriler = const [
+    {"ad": "Tümü", "ikon": Icons.grid_view},
+    {"ad": "Ev Yapımı Yemekler", "ikon": Icons.soup_kitchen},
+    {"ad": "Ev Yapımı Çikolata & Tatlılar", "ikon": Icons.cake},
+    {"ad": "Ev Yapımı Süt Ürünleri", "ikon": Icons.water_drop},
+    {"ad": "Ev Yapımı Turşu ve Diğerleri", "ikon": Icons.inventory_2},
+    {"ad": "Ev Yapımı Baharat & Sos", "ikon": Icons.grass},
+    {"ad": "Kasap: Taze Et, Köy Tavuk, Yumurta", "ikon": Icons.restaurant},
+  ];
+
   String _sefAdi = "Şef Arda Türkmen";
   String _imzaYemek = "TRÜF MANTARLI RİZOTTO";
   String _youtubeLink = "https://www.youtube.com";
   String _tarifMetni = "";
 
-  // 📸 Fotoğraf İşlemi
   Future<void> _fotoIslem(int index, {bool profil = false}) async {
     try {
       final ImagePicker picker = ImagePicker();
@@ -39,12 +51,10 @@ class _VitrinMerkeziState extends State<VitrinMerkezi> {
     }
   }
 
-  // 🗑️ Silme
   void _fotoSil(int index) {
     setState(() => _vitrinResimler[index] = null);
   }
 
-  // 📺 Video Açma (Mühürlü ve Hatasız)
   Future<void> _videoAc() async {
     final Uri url = Uri.parse(_youtubeLink);
     try {
@@ -73,15 +83,73 @@ class _VitrinMerkeziState extends State<VitrinMerkezi> {
       body: SingleChildScrollView(
         child: Column(
           children: [
+            Container(
+              height: 120,
+              padding: const EdgeInsets.symmetric(vertical: 10),
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                itemCount: _kategoriler.length,
+                itemBuilder: (context, index) {
+                  bool secili = _secilenKategori == _kategoriler[index]['ad'];
+                  return GestureDetector(
+                    onTap: () => setState(
+                        () => _secilenKategori = _kategoriler[index]['ad']),
+                    child: Container(
+                      width: 120,
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      child: Column(
+                        children: [
+                          CircleAvatar(
+                            backgroundColor: secili
+                                ? const Color(0xFFFFB300)
+                                : const Color(0xFF1A1A1A),
+                            radius: 30,
+                            child: Icon(_kategoriler[index]['ikon'],
+                                color: secili
+                                    ? Colors.black
+                                    : const Color(0xFFFFB300),
+                                size: 26),
+                          ),
+                          const SizedBox(height: 6),
+                          Text(_kategoriler[index]['ad'],
+                              textAlign: TextAlign.center,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                  color: secili
+                                      ? const Color(0xFFFFB300)
+                                      : Colors.white38,
+                                  fontWeight: secili
+                                      ? FontWeight.bold
+                                      : FontWeight.normal,
+                                  fontSize: 11)),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+            const Divider(color: Colors.white10, height: 1),
             _buildSefHeader(),
             const SizedBox(height: 20),
             _buildActionButtons(),
             const SizedBox(height: 30),
             _buildGallerySection(),
-            const SizedBox(height: 50),
+            const SizedBox(height: 120),
           ],
         ),
       ),
+      floatingActionButton: SepetKontrol().sepetim.isNotEmpty
+          ? FloatingActionButton.extended(
+              backgroundColor: const Color(0xFFFFB300),
+              onPressed: () => _odemePaneliniAc(),
+              icon: const Icon(Icons.shopping_basket, color: Colors.black),
+              label: Text("${SepetKontrol().sepetim.length} ÜRÜN - ÖDEMEYE GİT",
+                  style: const TextStyle(
+                      color: Colors.black, fontWeight: FontWeight.bold)),
+            )
+          : null,
     );
   }
 
@@ -158,12 +226,16 @@ class _VitrinMerkeziState extends State<VitrinMerkezi> {
 
   Widget _buildGallerySection() {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 12),
       child: GridView.builder(
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 3, crossAxisSpacing: 10, mainAxisSpacing: 10),
+          crossAxisCount: 2,
+          crossAxisSpacing: 15,
+          mainAxisSpacing: 15,
+          childAspectRatio: 0.85,
+        ),
         itemCount: 18,
         itemBuilder: (context, index) {
           return Stack(
@@ -173,7 +245,8 @@ class _VitrinMerkeziState extends State<VitrinMerkezi> {
                 child: Container(
                   decoration: BoxDecoration(
                     color: const Color(0xFF1A1A1A),
-                    borderRadius: BorderRadius.circular(15),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: Colors.white10),
                     image: _vitrinResimler[index] != null
                         ? DecorationImage(
                             image: MemoryImage(_vitrinResimler[index]!),
@@ -183,28 +256,133 @@ class _VitrinMerkeziState extends State<VitrinMerkezi> {
                   child: _vitrinResimler[index] == null
                       ? const Center(
                           child: Icon(Icons.camera_alt,
-                              color: Colors.white24, size: 24))
+                              color: Colors.white24, size: 30))
                       : null,
+                ),
+              ),
+              Positioned(
+                bottom: 10,
+                right: 10,
+                child: GestureDetector(
+                  onTap: () {
+                    SepetKontrol().sepeteEkle(
+                        "Arena Ürünü ${index + 1}", 250, Icons.restaurant);
+                    setState(() {});
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                        content: Text("Ürün Sepete Eklendi!"),
+                        backgroundColor: Color(0xFFFFB300),
+                        duration: Duration(milliseconds: 500)));
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: const BoxDecoration(
+                        color: Color(0xFFFFB300), shape: BoxShape.circle),
+                    child: const Icon(Icons.add, color: Colors.black, size: 22),
+                  ),
                 ),
               ),
               if (_vitrinResimler[index] != null)
                 Positioned(
-                  top: 5,
-                  right: 5,
+                  top: 10,
+                  right: 10,
                   child: GestureDetector(
                     onTap: () => _fotoSil(index),
                     child: Container(
-                      padding: const EdgeInsets.all(4),
+                      padding: const EdgeInsets.all(6),
                       decoration: const BoxDecoration(
                           color: Colors.black54, shape: BoxShape.circle),
                       child: const Icon(Icons.delete_forever,
-                          color: Colors.red, size: 18),
+                          color: Colors.red, size: 20),
                     ),
                   ),
                 ),
             ],
           );
         },
+      ),
+    );
+  }
+
+  // ✨ GÜNCELLENEN ÖDEME PANELİ
+  void _odemePaneliniAc() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: const Color(0xFF1A1A1A),
+      shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(25))),
+      builder: (context) => Container(
+        padding: const EdgeInsets.all(25),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text("ARENA GÜVENLİ KASA",
+                style: TextStyle(
+                    color: Color(0xFFFFB300),
+                    fontWeight: FontWeight.bold,
+                    fontSize: 20)),
+            const SizedBox(height: 15),
+            Text("Toplam Tutar: ${SepetKontrol().toplamTutar} TL",
+                style: const TextStyle(color: Colors.white, fontSize: 18)),
+            const SizedBox(height: 25),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFFFFB300),
+                  minimumSize: const Size(double.infinity, 55),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15))),
+              onPressed: () {
+                // 1. Paneli kapat
+                Navigator.pop(context);
+                // 2. Sepeti boşalt
+                SepetKontrol().sepetiBosalt();
+                // 3. UI güncelle
+                setState(() {});
+                // 4. Başarı mesajını göster
+                _basariMesajiGoster(context);
+              },
+              child: const Text("ÖDEMEYI TAMAMLA",
+                  style: TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16)),
+            )
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ✨ YENİ: BAŞARI ONAY EKRANI
+  void _basariMesajiGoster(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: const Color(0xFF1A1A1A),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.check_circle_outline,
+                color: Color(0xFFFFB300), size: 80),
+            const SizedBox(height: 20),
+            const Text("SİPARİŞ ALINDI!",
+                style: TextStyle(
+                    color: Color(0xFFFFB300),
+                    fontWeight: FontWeight.bold,
+                    fontSize: 20)),
+            const SizedBox(height: 10),
+            const Text(
+                "Şef Arda Türkmen siparişinizi hazırlamaya başladı. Afiyet olsun!",
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Colors.white70, fontSize: 14)),
+            const SizedBox(height: 25),
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("ARENA'YA DÖN",
+                  style: TextStyle(color: Color(0xFFFFB300))),
+            )
+          ],
+        ),
       ),
     );
   }
