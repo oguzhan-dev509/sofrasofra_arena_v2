@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'vitrin_merkezi.dart';
 import 'akademi_merkezi.dart';
-import 'modules/sepetim.dart';
+import 'ev_lezzetleri_vitrini.dart';
 
 class KategoriSayfasi extends StatefulWidget {
   final String kategoriAdi;
