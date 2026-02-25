@@ -1,15 +1,38 @@
 import 'package:flutter/material.dart';
-import '../main.dart'; // Merkezi havuz için
+import 'dukkan_detay_sayfasi.dart';
 
-class RestoranlarVitrini extends StatelessWidget {
+class RestoranlarVitrini extends StatefulWidget {
   const RestoranlarVitrini({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    // 🚀 ÖNEMLİ: Satıcı panelindeki "Restoranlar" etiketiyle tam eşleşme sağlıyoruz
-    var yeniRestoranUrunleri =
-        arenaUrunHavuzu.where((u) => u['tip'] == "Restoranlar").toList();
+  State<RestoranlarVitrini> createState() => _RestoranlarVitriniState();
+}
 
+class _RestoranlarVitriniState extends State<RestoranlarVitrini> {
+  // 🍽️ RESTORAN VERİ SETİ
+  final List<Map<String, dynamic>> restoranlar = [
+    {
+      "ad": "Steakhouse Arena",
+      "puan": "4.9",
+      "sure": "30-40 dk",
+      "img": "https://images.unsplash.com/photo-1514356665931-1582855ed26c"
+    },
+    {
+      "ad": "Sushi Zen",
+      "puan": "4.7",
+      "sure": "45-55 dk",
+      "img": "https://images.unsplash.com/photo-1579871494447-9811cf80d66c"
+    },
+    {
+      "ad": "Bella Italia",
+      "puan": "4.8",
+      "sure": "25-35 dk",
+      "img": "https://images.unsplash.com/photo-1537047902294-62a40c20a6ae"
+    },
+  ];
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
@@ -17,129 +40,95 @@ class RestoranlarVitrini extends StatelessWidget {
         iconTheme: const IconThemeData(color: Color(0xFFFFB300)),
         title: const Text("ARENA RESTORANLARI",
             style: TextStyle(
-                color: Color(0xFFFFB300), fontSize: 12, letterSpacing: 2)),
+                color: Color(0xFFFFB300),
+                fontSize: 13,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 2)),
       ),
-      body: ListView(
+      body: ListView.builder(
         padding: const EdgeInsets.all(15),
-        children: [
-          // 🌟 1. KATMAN: Satıcıdan Gelen Canlı Veriler
-          if (yeniRestoranUrunleri.isNotEmpty) ...[
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 20, horizontal: 5),
-              child: Text("ÇARŞIDA YENİ EKLENENLER",
-                  style: TextStyle(
-                      color: Color(0xFFFFB300),
-                      fontWeight: FontWeight.bold,
-                      fontSize: 12)),
-            ),
-            ...yeniRestoranUrunleri
-                .map((urun) => _restoranUrunKarti(urun))
-                .toList(),
-            const SizedBox(height: 20),
-            const Divider(color: Colors.white10, thickness: 1),
-            const SizedBox(height: 20),
-          ],
-
-          // 🏠 2. KATMAN: Sabit Restoranlar (Artık Tıklanabilir!)
-          _buildRestoranCard(
-              context,
-              "Boğazın İncisi",
-              "Deniz Ürünleri & Modern Mutfak",
-              "4.9",
-              "https://images.unsplash.com/photo-1517248135467-4c7ed9d42c77"),
-          _buildRestoranCard(
-              context,
-              "Anadolu Ateşi",
-              "Geleneksel Kebap Kültürü",
-              "4.7",
-              "https://images.unsplash.com/photo-1555396273-367ea4eb4db5"),
-        ],
+        itemCount: restoranlar.length,
+        itemBuilder: (context, index) {
+          final res = restoranlar[index];
+          return _restoranKarti(context, res);
+        },
       ),
     );
   }
 
-  // Restoran Kartı Çizici
-  Widget _buildRestoranCard(
-      BuildContext context, String ad, String desc, String puan, String img) {
-    return InkWell(
-      onTap: () {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text("$ad Menüsü Hazırlanıyor..."),
-            backgroundColor: const Color(0xFF1A1A1A)));
-      },
+  Widget _restoranKarti(BuildContext context, Map<String, dynamic> res) {
+    return GestureDetector(
+      onTap: () => Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => DukkanDetaySayfasi(dukkanAdi: res["ad"]))),
       child: Container(
         margin: const EdgeInsets.only(bottom: 20),
         decoration: BoxDecoration(
-            color: const Color(0xFF0A0A0A),
-            border: Border.all(color: Colors.white10),
-            borderRadius: BorderRadius.circular(10)),
-        child: Column(children: [
-          ClipRRect(
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(10)),
-            child: Image.network(
-              img,
-              height: 180,
-              width: double.infinity,
-              fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) => Container(
+          color: const Color(0xFF0A0A0A),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: Colors.white.withAlpha(15)),
+        ),
+        child: Column(
+          children: [
+            // 📸 RESTORAN GÖRSELİ
+            ClipRRect(
+              borderRadius:
+                  const BorderRadius.vertical(top: Radius.circular(20)),
+              child: Image.network(
+                res["img"],
                 height: 180,
-                color: Colors.white10,
-                child: const Icon(Icons.restaurant_menu,
-                    color: Color(0xFFFFB300), size: 50),
+                width: double.infinity,
+                fit: BoxFit.cover,
+                errorBuilder: (c, e, s) => Container(
+                    height: 180,
+                    color: Colors.white10,
+                    child: const Icon(Icons.restaurant, color: Colors.white24)),
               ),
             ),
-          ),
-          ListTile(
-            title: Text(ad,
-                style: const TextStyle(
-                    color: Colors.white, fontWeight: FontWeight.bold)),
-            subtitle: Text(desc,
-                style: const TextStyle(color: Colors.white38, fontSize: 11)),
-            trailing: Row(mainAxisSize: MainAxisSize.min, children: [
-              const Icon(Icons.star, color: Color(0xFFFFB300), size: 16),
-              const SizedBox(width: 4),
-              Text(puan, style: const TextStyle(color: Colors.white))
-            ]),
-          )
-        ]),
-      ),
-    );
-  }
-
-  // Satıcıdan Gelen Ürün Kartı
-  Widget _restoranUrunKarti(Map<String, dynamic> urun) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      decoration: BoxDecoration(
-          color: const Color(0xFF0A0A0A),
-          border: Border.all(color: const Color(0xFFFFB300), width: 0.5),
-          borderRadius: BorderRadius.circular(10)),
-      child: ListTile(
-        contentPadding: const EdgeInsets.all(10),
-        leading: ClipRRect(
-          borderRadius: BorderRadius.circular(8),
-          child: Image.network(
-            urun['img'] ?? '',
-            width: 60,
-            height: 60,
-            fit: BoxFit.cover,
-            errorBuilder: (context, error, stackTrace) => Container(
-                width: 60,
-                height: 60,
-                color: Colors.white10,
-                child: const Icon(Icons.restaurant, color: Color(0xFFFFB300))),
-          ),
+            // 📝 RESTORAN BİLGİLERİ
+            Padding(
+              padding: const EdgeInsets.all(15),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(res["ad"],
+                          style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 15)),
+                      const SizedBox(height: 5),
+                      Text(res["sure"],
+                          style: const TextStyle(
+                              color: Colors.white38, fontSize: 11)),
+                    ],
+                  ),
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                    decoration: BoxDecoration(
+                        color: const Color(0xFFFFB300),
+                        borderRadius: BorderRadius.circular(10)),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.star, size: 14, color: Colors.black),
+                        const SizedBox(width: 4),
+                        Text(res["puan"],
+                            style: const TextStyle(
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 12)),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
-        title: Text(urun['ad'] ?? 'Yeni Ürün',
-            style: const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: 14)),
-        subtitle: Text(urun['dukkan'] ?? 'Restoran',
-            style: const TextStyle(color: Colors.white38, fontSize: 11)),
-        trailing: Text("${urun['fiyat']} ₺",
-            style: const TextStyle(
-                color: Color(0xFFFFB300), fontWeight: FontWeight.bold)),
       ),
     );
   }

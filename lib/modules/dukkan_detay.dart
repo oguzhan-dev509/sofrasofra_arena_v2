@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'package:sofrasofra_arena_v2/modules/sepetim.dart';
+// ignore_for_file: deprecated_member_use
 
 class DukkanDetay extends StatelessWidget {
   final String dukkanAdi;
@@ -9,7 +9,7 @@ class DukkanDetay extends StatelessWidget {
   const DukkanDetay(
       {super.key, required this.dukkanAdi, required this.kategori});
 
-  // 📝 Dükkana Özel Ürün Listesi - TAMİR EDİLDİ
+  // 📝 Dükkana Özel Ürün Listesi
   final List<Map<String, dynamic>> urunler = const [
     {
       "ad": "Saray Mantısı",
@@ -28,23 +28,31 @@ class DukkanDetay extends StatelessWidget {
       "fiyat": 120,
       "ozellik": "Acı ve Tatlı Dengesi",
       "ikon": Icons.local_drink
-    }, // ✨ Liquor yerine local_drink
+    },
   ];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
         backgroundColor: Colors.black,
+        elevation: 0,
         title: Text(dukkanAdi.toUpperCase(),
             style: const TextStyle(
-                color: Color(0xFFFFB300), fontWeight: FontWeight.bold)),
+                color: Color(0xFFFFB300),
+                fontWeight: FontWeight.bold,
+                fontSize: 14)),
         iconTheme: const IconThemeData(color: Color(0xFFFFB300)),
         actions: [
           IconButton(
             icon: const Icon(Icons.shopping_cart),
-            onPressed: () => Navigator.push(context,
-                MaterialPageRoute(builder: (context) => const Sepetim())),
+            onPressed: () {
+              // 🚀 Sepetim sayfası henüz hazır değilse hata vermemesi için Snackveya geçici bir uyarı
+              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                  content: Text("Sepet Modülü Hazırlanıyor..."),
+                  backgroundColor: Colors.white12));
+            },
           )
         ],
       ),
@@ -61,7 +69,8 @@ class DukkanDetay extends StatelessWidget {
                   style: TextStyle(
                       color: Colors.white38,
                       fontWeight: FontWeight.bold,
-                      letterSpacing: 1.5)),
+                      letterSpacing: 1.5,
+                      fontSize: 10)),
             ),
           ),
 
@@ -85,7 +94,9 @@ class DukkanDetay extends StatelessWidget {
       height: 150,
       decoration: BoxDecoration(
         gradient: LinearGradient(
-            colors: [const Color(0xFFFFB300).withOpacity(0.2), Colors.black]),
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [const Color(0xFFFFB300).withAlpha(50), Colors.black]),
       ),
       child: Center(
         child: Column(
@@ -93,8 +104,9 @@ class DukkanDetay extends StatelessWidget {
           children: [
             const Icon(Icons.store, color: Color(0xFFFFB300), size: 50),
             const SizedBox(height: 10),
-            Text("Hoş Geldiniz",
-                style: TextStyle(color: Colors.white.withOpacity(0.5))),
+            Text("Arena'ya Hoş Geldiniz",
+                style: TextStyle(
+                    color: Colors.white.withAlpha(100), fontSize: 12)),
           ],
         ),
       ),
@@ -122,10 +134,10 @@ class DukkanDetay extends StatelessWidget {
                     style: const TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
-                        fontSize: 16)),
+                        fontSize: 15)),
                 Text(urun['ozellik'],
                     style:
-                        const TextStyle(color: Colors.white38, fontSize: 12)),
+                        const TextStyle(color: Colors.white38, fontSize: 11)),
               ],
             ),
           ),
@@ -141,7 +153,8 @@ class DukkanDetay extends StatelessWidget {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                         content: Text("${urun['ad']} Sepete Uçtu!"),
-                        backgroundColor: const Color(0xFFFFB300)),
+                        backgroundColor: const Color(0xFFFFB300),
+                        duration: const Duration(seconds: 1)),
                   );
                 },
                 child: const Icon(Icons.add_circle,

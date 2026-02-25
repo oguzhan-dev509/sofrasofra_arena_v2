@@ -1,242 +1,135 @@
 import 'package:flutter/material.dart';
-import 'odeme_sayfasi.dart';
+import 'dart:io';
+import 'package:flutter/foundation.dart' show kIsWeb;
+import '../main.dart';
 
-class DukkanDetaySayfasi extends StatefulWidget {
+class DukkanDetaySayfasi extends StatelessWidget {
   final String dukkanAdi;
   const DukkanDetaySayfasi({super.key, required this.dukkanAdi});
 
   @override
-  State<DukkanDetaySayfasi> createState() => _DukkanDetaySayfasiState();
-}
-
-class _DukkanDetaySayfasiState extends State<DukkanDetaySayfasi> {
-  String seciliYontem = "GEL AL";
-
-  // 🍽️ SABİT MENÜ
-  final List<Map<String, dynamic>> yemekler = [
-    {
-      "ad": "Ev Yapımı Kıymalı Mantı",
-      "tarif": "40 yıllık reçete, süzme yoğurt ve özel tereyağlı sos ile.",
-      "fiyat": 150.0,
-      "img": "https://images.unsplash.com/photo-1543339308-43e59d6b73a6"
-    },
-    {
-      "ad": "Zeytinyağlı Yaprak Sarma",
-      "tarif": "İncecik kalem gibi sarılmış, bol limonlu ve taze nane aromalı.",
-      "fiyat": 120.0,
-      "img": "https://images.unsplash.com/photo-1601063411135-2623090fb585"
-    },
-    {
-      "ad": "Ev Baklavası",
-      "tarif": "70 kat ince hamur, bol cevizli ve tam kıvamında şerbetli.",
-      "fiyat": 200.0,
-      "img": "https://images.unsplash.com/photo-1519676867240-f031ee04a113"
-    },
-  ];
-
-  @override
   Widget build(BuildContext context) {
+    // 🔍 Havuzdan en güncel veriyi çekiyoruz
+    final dukkanVerisi = arenaUrunHavuzu.lastWhere(
+      (element) => element["dukkan"] == dukkanAdi,
+      orElse: () => {"urunler": [], "kategori": ""},
+    );
+    final List urunler = dukkanVerisi["urunler"];
+
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
-        title: Text(widget.dukkanAdi,
-            style: const TextStyle(
-                color: Color(0xFFFFB300),
-                fontWeight: FontWeight.bold,
-                fontSize: 16)),
         backgroundColor: Colors.black,
+        elevation: 0,
         iconTheme: const IconThemeData(color: Color(0xFFFFB300)),
-      ),
-      body: Column(
-        children: [
-          _yontemSeciciPanel(), // Sabit Panel
-
-          Expanded(
-            child: SingleChildScrollView(
-              // 🚀 Tüm sayfayı kaydırılabilir yapar
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // 🖼️ SİLİKON VADİSİ 18'Lİ GALERİ
-                  const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                    child: Text("DÜKKAN VİTRİNİ (18 KARE)",
-                        style: TextStyle(
-                            color: Color(0xFFFFB300),
-                            fontWeight: FontWeight.bold,
-                            fontSize: 11,
-                            letterSpacing: 1.5)),
-                  ),
-                  _galeriBolumu(),
-
-                  const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 20),
-                    child: Divider(color: Colors.white10, thickness: 1),
-                  ),
-
-                  // 🍽️ LEZZET MENÜSÜ
-                  const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 20),
-                    child: Text("GÜNLÜK TAZE MENÜ",
-                        style: TextStyle(
-                            color: Color(0xFFFFB300),
-                            fontWeight: FontWeight.bold,
-                            fontSize: 11,
-                            letterSpacing: 1.5)),
-                  ),
-                  const SizedBox(height: 15),
-
-                  // Yemek Kartlarını Buraya Diziyoruz
-                  ...yemekler
-                      .asMap()
-                      .entries
-                      .map((entry) => _musteriUrunKarti(entry.key))
-                      .toList(),
-
-                  const SizedBox(
-                      height: 100), // Alt barın altında kalmaması için boşluk
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-      bottomSheet: _altSatinAlmaBari(), // Alt barı buraya sabitledik
-    );
-  }
-
-  // 🖼️ 18 FOTOĞRAFLIK EFSANE GALERİ
-  Widget _galeriBolumu() {
-    return GridView.builder(
-      shrinkWrap: true, // 🚀 Hata önleyici: İçeriğe göre boyunu ayarlar
-      physics:
-          const NeverScrollableScrollPhysics(), // Kaydırmayı ana sayfaya bırakır
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 3, // 🚀 Senin istediğin 3'lü dizilim
-        crossAxisSpacing: 10,
-        mainAxisSpacing: 10,
-      ),
-      itemCount: 18, // 🚀 Tam 18 Fotoğraf Alanı
-      itemBuilder: (context, index) => Container(
-        decoration: BoxDecoration(
-          color: const Color(0xFF111111),
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: Colors.white10),
-        ),
-        child: const Icon(Icons.add_a_photo_outlined,
-            color: Colors.white12, size: 20),
-      ),
-    );
-  }
-
-  Widget _yontemSeciciPanel() {
-    return Padding(
-      padding: const EdgeInsets.all(15.0),
-      child: Container(
-        padding: const EdgeInsets.all(5),
-        decoration: BoxDecoration(
-            color: const Color(0xFF1A1A1A),
-            borderRadius: BorderRadius.circular(15)),
-        child: Row(
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _yontemButonu("GEL AL", Icons.storefront),
-            _yontemButonu("GÖTÜR", Icons.delivery_dining),
+            Text(dukkanAdi.toUpperCase(),
+                style: const TextStyle(
+                    color: Color(0xFFFFB300),
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                    letterSpacing: 2)),
+            Text(dukkanVerisi["kategori"].toString().toUpperCase(),
+                style: const TextStyle(color: Colors.white24, fontSize: 9)),
           ],
         ),
       ),
+      body: urunler.isEmpty
+          ? const Center(
+              child: Text("Lezzetler hazırlanıyor...",
+                  style: TextStyle(color: Colors.white10)))
+          : ListView.builder(
+              padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 20),
+              itemCount: urunler.length,
+              itemBuilder: (context, index) =>
+                  _premiumYemekKarti(context, urunler[index]),
+            ),
     );
   }
 
-  Widget _yontemButonu(String anaBaslik, IconData ikon) {
-    bool aktif = seciliYontem == anaBaslik;
-    return Expanded(
-      child: GestureDetector(
-        onTap: () => setState(() => seciliYontem = anaBaslik),
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 10),
-          decoration: BoxDecoration(
-            color: aktif ? const Color(0xFFFFB300) : Colors.transparent,
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(ikon,
-                  color: aktif ? Colors.black : Colors.white38, size: 18),
-              const SizedBox(width: 8),
-              Text(anaBaslik,
-                  style: TextStyle(
-                      color: aktif ? Colors.black : Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 13)),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _musteriUrunKarti(int index) {
-    var yemek = yemekler[index];
-    double fiyat =
-        (seciliYontem == "GEL AL") ? yemek["fiyat"] : yemek["fiyat"] + 40;
-
+  Widget _premiumYemekKarti(BuildContext context, Map urun) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-          color: const Color(0xFF0A0A0A),
-          borderRadius: BorderRadius.circular(15),
-          border: Border.all(color: Colors.white10)),
+      margin: const EdgeInsets.only(bottom: 30),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(10),
-            child: Image.network(yemek["img"],
-                width: 70, height: 70, fit: BoxFit.cover),
+          // 📸 ALTIN ÇERÇEVELİ GÖRSEL
+          Container(
+            width: 130, // 🚀 Görseli biraz daha büyüttük
+            height: 130,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: const Color(0xFFFFB300), width: 2),
+              boxShadow: [
+                BoxShadow(
+                    color: const Color(0xFFFFB300).withAlpha(40),
+                    blurRadius: 15)
+              ],
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(18),
+              child: urun["resimYolu"] != ""
+                  ? (kIsWeb
+                      ? Image.network(urun["resimYolu"], fit: BoxFit.cover)
+                      : Image.file(File(urun["resimYolu"]), fit: BoxFit.cover))
+                  : const Icon(Icons.restaurant, color: Colors.white10),
+            ),
           ),
-          const SizedBox(width: 15),
+          const SizedBox(width: 20),
+
+          // 📝 DETAYLAR VE FİYATLAR (TAM SENİN İSTEDİĞİN GİBİ)
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(yemek["ad"],
+                Text(urun["ad"].toString().toUpperCase(),
                     style: const TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
-                        fontSize: 14)),
-                const SizedBox(height: 4),
-                Text("${fiyat.toStringAsFixed(0)} TL",
+                        fontSize: 15,
+                        letterSpacing: 1)),
+                const SizedBox(height: 8),
+                Text(urun["tarif"],
+                    maxLines: 3,
                     style: const TextStyle(
-                        color: Color(0xFFFFB300), fontWeight: FontWeight.bold)),
+                        color: Colors.white54, fontSize: 11, height: 1.4)),
+                const SizedBox(height: 15),
+                Row(
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text("Gel-Al: ${urun["gelAlFiyat"]} ₺",
+                            style: const TextStyle(
+                                color: Color(0xFFFFB300),
+                                fontWeight: FontWeight.bold,
+                                fontSize: 13)),
+                        const SizedBox(height: 4),
+                        Text("Götür: ${urun["goturFiyat"]} ₺",
+                            style: const TextStyle(
+                                color: Colors.white38, fontSize: 11)),
+                      ],
+                    ),
+                    const Spacer(),
+                    // ➕ O MEŞHUR ARTI BUTONU
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                            color: const Color(0xFFFFB300), width: 1.5),
+                      ),
+                      child: const Icon(Icons.add,
+                          color: Color(0xFFFFB300), size: 24),
+                    ),
+                  ],
+                ),
               ],
             ),
           ),
-          const Icon(Icons.add_circle_outline,
-              color: Color(0xFFFFB300), size: 28),
         ],
-      ),
-    );
-  }
-
-  Widget _altSatinAlmaBari() {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: const BoxDecoration(
-          color: Color(0xFF1A1A1A),
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
-      child: ElevatedButton(
-        onPressed: () => Navigator.push(context,
-            MaterialPageRoute(builder: (context) => const OdemeSayfasi())),
-        style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFFFFB300),
-            minimumSize: const Size(double.infinity, 50),
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10))),
-        child: Text("ÖDEMEYE GEÇ (${seciliYontem})",
-            style: const TextStyle(
-                color: Colors.black, fontWeight: FontWeight.bold)),
       ),
     );
   }

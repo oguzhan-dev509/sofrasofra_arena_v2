@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:flutter/foundation.dart' show kIsWeb;
-import 'package:url_launcher/url_launcher.dart';
-import '../main.dart'; // Merkezi hafıza erişimi
+import '../main.dart';
 
 class VitrinMerkeziSayfasi extends StatefulWidget {
   const VitrinMerkeziSayfasi({super.key});
@@ -13,88 +12,19 @@ class VitrinMerkeziSayfasi extends StatefulWidget {
 }
 
 class _VitrinMerkeziSayfasiState extends State<VitrinMerkeziSayfasi> {
-  // --- ARENA PREMIUM VERİ SETİ ---
-  String _dukkanAdi = "TRÜF MANTARLI RİZOTTO";
-  String _altMesaj = "Şefin Masterpiece Serisi";
-  String _sefinNotu = "";
-  String _sefHikayesi = "Mutfak yolculuğum 15 yıl önce başladı...";
-  String _youtubeLink = "";
-  List<XFile?> _galeriResimleri = List.generate(18, (index) => null);
-  XFile? _profilResmi;
-  List<String> _yorumlar = [
-    "Ahmet Y.: 'Şefin sunumu tek kelimeyle harikaydı!'"
-  ];
+  String dukkanAdi = "SOFRASOFRA.COM";
+  String seciliKategori = "RESTORANLAR";
 
-  // --- YOUTUBE MOTORU ---
-  Future<void> _videoLinkiniAc() async {
-    if (_youtubeLink.isEmpty) {
-      _youtubeLinkEkle();
-      return;
-    }
-    final Uri url = Uri.parse(_youtubeLink);
-    if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("YouTube Linki Açılamadı!")));
-      }
-    }
-  }
-
-  void _youtubeLinkEkle() {
-    TextEditingController linkController =
-        TextEditingController(text: _youtubeLink);
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.black.withOpacity(0.95),
-      isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(30))),
-      builder: (context) => Padding(
-        padding: EdgeInsets.only(
-            bottom: MediaQuery.of(context).viewInsets.bottom,
-            left: 25,
-            right: 25,
-            top: 25),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(Icons.play_circle_fill,
-                color: Colors.redAccent, size: 50),
-            const SizedBox(height: 15),
-            const Text("YOUTUBE LİNKİNİ MÜHÜRLE",
-                style: TextStyle(
-                    color: Colors.redAccent,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 2)),
-            const SizedBox(height: 20),
-            TextField(
-                controller: linkController,
-                style: const TextStyle(color: Colors.white70),
-                decoration: InputDecoration(
-                    hintText: "YouTube linkini yapıştırın...",
-                    filled: true,
-                    fillColor: Colors.white10,
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(15)))),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.redAccent,
-                  minimumSize: const Size(double.infinity, 50)),
-              onPressed: () {
-                setState(() => _youtubeLink = linkController.text);
-                Navigator.pop(context);
-              },
-              child: const Text("VİTRİNE SABİTLE",
-                  style: TextStyle(
-                      color: Colors.white, fontWeight: FontWeight.bold)),
-            ),
-            const SizedBox(height: 30),
-          ],
-        ),
-      ),
-    );
-  }
+  final List<Map<String, dynamic>> _onSekizUrun = List.generate(
+      18,
+      (index) => {
+            "ad": "",
+            "tarif": "",
+            "gelAlFiyat": "",
+            "goturFiyat": "",
+            "resimYolu": "",
+            "teslimat": true
+          });
 
   @override
   Widget build(BuildContext context) {
@@ -102,352 +32,324 @@ class _VitrinMerkeziSayfasiState extends State<VitrinMerkeziSayfasi> {
       backgroundColor: Colors.black,
       appBar: AppBar(
         backgroundColor: Colors.black,
-        iconTheme: const IconThemeData(color: Color(0xFFFFB300)),
-        title: const Text("PREMIUM VİTRİN",
-            style: TextStyle(
-                color: Color(0xFFFFB300), letterSpacing: 3, fontSize: 14)),
-        actions: [
-          IconButton(
-              onPressed: _notDefteriniAc,
-              icon: const Icon(Icons.menu_book, color: Color(0xFFFFB300))),
-          IconButton(
-              onPressed: _ayarlariAc,
-              icon: const Icon(Icons.edit_note,
-                  color: Color(0xFFFFB300), size: 30)),
-        ],
+        elevation: 0,
+        title: Text(dukkanAdi,
+            style: const TextStyle(
+                color: Color(0xFFFFB300),
+                fontWeight: FontWeight.bold,
+                fontSize: 18)),
       ),
       body: SingleChildScrollView(
         child: Column(
           children: [
-            _premiumSefHeader(),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _imzaYemekAlani(),
-                  const SizedBox(height: 15),
-                  _misafirYorumAlani(),
-                  const SizedBox(height: 25),
-                  Row(children: [
-                    _yonetimButonu(
-                        _youtubeLink.isEmpty ? "YouTube Ekle" : "YouTube İzle",
-                        Icons.videocam,
-                        Colors.redAccent,
-                        _videoLinkiniAc),
-                    const SizedBox(width: 15),
-                    _yonetimButonu("Şef Hikayesi", Icons.person_search,
-                        Colors.blueAccent, _sefTanitimAc),
-                  ]),
-                  const SizedBox(height: 30),
-                  _bolumBasligi("ŞEFİN PORTFOLYOSU (18 Kare)"),
-                  const SizedBox(height: 15),
-                  _galeriIzgarasi(),
-                  const SizedBox(height: 50),
-                ],
-              ),
-            ),
+            _kategoriSeciciWidget(),
+            _hizliErisimBari(context),
+            const SizedBox(height: 10),
+            _urunGridiWidget(),
+            const SizedBox(height: 100),
           ],
         ),
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        backgroundColor: const Color(0xFFFFB300),
+        onPressed: _vitriniMuhurle,
+        icon: const Icon(Icons.send, color: Colors.black),
+        label: const Text("ARENA'YA GÖNDER",
+            style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
       ),
     );
   }
 
-  // --- PREMİUM BİLEŞENLER ---
-  Widget _galeriIzgarasi() => GridView.builder(
+  // 🧭 Kategori Seçici (ASCII Uyumlu)
+  Widget _kategoriSeciciWidget() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: ["EV LEZZETLERİ", "RESTORANLAR", "USTA ŞEFLER"].map((k) {
+        bool secili = seciliKategori == k;
+        return GestureDetector(
+          onTap: () => setState(() => seciliKategori = k),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
+            decoration: BoxDecoration(
+              color: secili ? const Color(0xFFFFB300) : Colors.transparent,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                  color: secili ? const Color(0xFFFFB300) : Colors.white10),
+            ),
+            child: Text(k,
+                style: TextStyle(
+                    color: secili ? Colors.black : Colors.white38,
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold)),
+          ),
+        );
+      }).toList(),
+    );
+  }
+
+  // 💳 Hızlı Erişim Barı
+  Widget _hizliErisimBari(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          _barButonWidget(
+              Icons.location_on, "ADRES", () => _adresGirisPenceresi(context)),
+          _barButonWidget(
+              Icons.credit_card, "ODEME", () => _odemePenceresiGoster(context)),
+        ],
+      ),
+    );
+  }
+
+  Widget _barButonWidget(IconData ikon, String metin, VoidCallback aksiyon) {
+    return ActionChip(
+      backgroundColor: Colors.white10,
+      avatar: Icon(ikon, color: const Color(0xFFFFB300), size: 16),
+      label: Text(metin,
+          style: const TextStyle(color: Colors.white, fontSize: 10)),
+      onPressed: aksiyon,
+    );
+  }
+
+  // 🖼️ Ürün Izgarası
+  Widget _urunGridiWidget() {
+    return GridView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 6, crossAxisSpacing: 8, mainAxisSpacing: 8),
-      itemCount: 18,
-      itemBuilder: (c, i) => Stack(children: [
-            GestureDetector(
-                onTap: () async {
-                  final r = await ImagePicker()
-                      .pickImage(source: ImageSource.gallery);
-                  if (r != null) setState(() => _galeriResimleri[i] = r);
-                },
-                child: Container(
-                    decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.05),
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: Colors.white10),
-                        image: _galeriResimleri[i] != null
-                            ? DecorationImage(
-                                image: kIsWeb
-                                    ? NetworkImage(_galeriResimleri[i]!.path)
-                                    : FileImage(File(_galeriResimleri[i]!.path))
-                                        as ImageProvider,
-                                fit: BoxFit.cover)
-                            : null),
-                    child: _galeriResimleri[i] == null
-                        ? const Icon(Icons.add_a_photo,
-                            color: Color(0xFFFFB300), size: 12)
-                        : null)),
-            if (_galeriResimleri[i] != null)
-              Positioned(
-                  right: -2,
-                  top: -2,
-                  child: InkWell(
-                      onTap: () => setState(() => _galeriResimleri[i] = null),
-                      child: const Icon(Icons.cancel,
-                          color: Colors.redAccent, size: 18))),
-          ]));
-
-  Widget _premiumSefHeader() => Padding(
       padding: const EdgeInsets.all(20),
-      child: Row(children: [
-        GestureDetector(
-            onTap: () async {
-              final r =
-                  await ImagePicker().pickImage(source: ImageSource.gallery);
-              if (r != null) setState(() => _profilResmi = r);
-            },
-            child: CircleAvatar(
-                radius: 40,
-                backgroundColor: Colors.white10,
-                backgroundImage: _profilResmi != null
-                    ? (kIsWeb
-                        ? NetworkImage(_profilResmi!.path)
-                        : FileImage(File(_profilResmi!.path)) as ImageProvider)
-                    : null,
-                child: _profilResmi == null
-                    ? const Icon(Icons.add_a_photo, color: Color(0xFFFFB300))
-                    : null)),
-        const SizedBox(width: 15),
-        Expanded(
-            child: SizedBox(
-                height: 80,
-                child: ListView.builder(
-                    scrollDirection: Axis.horizontal,
-                    itemCount: 6,
-                    itemBuilder: (c, i) => const Padding(
-                        padding: EdgeInsets.only(right: 10),
-                        child: CircleAvatar(
-                            radius: 25,
-                            backgroundColor: Colors.white10,
-                            child: Icon(Icons.workspace_premium,
-                                size: 15, color: Colors.white10))))))
-      ]));
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          crossAxisSpacing: 20,
+          mainAxisSpacing: 25,
+          childAspectRatio: 0.82),
+      itemCount: 18,
+      itemBuilder: (context, index) => _urunKaresiWidget(index),
+    );
+  }
 
-  Widget _yonetimButonu(String b, IconData i, Color r, VoidCallback e) =>
-      Expanded(
-          child: GestureDetector(
-              onTap: e,
-              child: Container(
-                  padding: const EdgeInsets.symmetric(vertical: 18),
+  // 🍱 Ürün Karesi (Genişletilmiş Bilgi Alanı + Silme Butonu)
+  Widget _urunKaresiWidget(int i) {
+    bool dolu = _onSekizUrun[i]["ad"].toString().isNotEmpty;
+    return GestureDetector(
+      onTap: () => _urunDetayFormuAc(i),
+      child: Column(
+        children: [
+          Expanded(
+            child: Stack(
+              children: [
+                Container(
                   decoration: BoxDecoration(
-                      color: r.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: r.withOpacity(0.3))),
-                  child: Column(children: [
-                    Icon(i, color: r, size: 28),
-                    const SizedBox(height: 5),
-                    Text(b,
-                        style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 10,
-                            fontWeight: FontWeight.bold))
-                  ]))));
+                    borderRadius: BorderRadius.circular(15),
+                    border: Border.all(
+                        color: const Color(0xFFFFB300),
+                        width: 5), // ✨ Kalın Altın Çerçeve
+                    boxShadow: dolu
+                        ? [
+                            BoxShadow(
+                                color: const Color(0xFFFFB300).withAlpha(40),
+                                blurRadius: 15)
+                          ]
+                        : null,
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(10),
+                    child: _onSekizUrun[i]["resimYolu"] == ""
+                        ? const Center(
+                            child: Icon(Icons.add_a_photo,
+                                color: Colors.white10, size: 30))
+                        : kIsWeb
+                            ? Image.network(_onSekizUrun[i]["resimYolu"],
+                                fit: BoxFit.cover, width: double.infinity)
+                            : Image.file(File(_onSekizUrun[i]["resimYolu"]),
+                                fit: BoxFit.cover, width: double.infinity),
+                  ),
+                ),
+                if (dolu)
+                  Positioned(
+                    top: 5,
+                    right: 5,
+                    child: GestureDetector(
+                      onTap: () => setState(() => _onSekizUrun[i] = {
+                            "ad": "",
+                            "tarif": "",
+                            "gelAlFiyat": "",
+                            "goturFiyat": "",
+                            "resimYolu": "",
+                            "teslimat": true
+                          }),
+                      child: Container(
+                          padding: const EdgeInsets.all(4),
+                          decoration: const BoxDecoration(
+                              color: Colors.redAccent, shape: BoxShape.circle),
+                          child: const Icon(Icons.close,
+                              color: Colors.white, size: 14)),
+                    ),
+                  ),
+                if (dolu)
+                  const Positioned(
+                      bottom: 8,
+                      right: 8,
+                      child:
+                          Icon(Icons.edit, color: Color(0xFFFFB300), size: 14)),
+              ],
+            ),
+          ),
+          const SizedBox(height: 10),
+          // 🚀 Genişletilmiş ve Görünen Bilgi Alanı
+          Text(dolu ? _onSekizUrun[i]["ad"].toUpperCase() : "BOS KUTU",
+              style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 11,
+                  fontWeight: FontWeight.bold),
+              maxLines: 1),
+          Text(dolu ? "${_onSekizUrun[i]["gelAlFiyat"]} TL" : "-",
+              style: const TextStyle(
+                  color: Color(0xFFFFB300),
+                  fontSize: 10,
+                  fontWeight: FontWeight.w600)),
+        ],
+      ),
+    );
+  }
 
-  Widget _imzaYemekAlani() =>
-      Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text(_dukkanAdi,
-            style: const TextStyle(
-                color: Colors.white,
-                fontSize: 20,
-                fontWeight: FontWeight.bold)),
-        Text(_altMesaj,
-            style: const TextStyle(color: Colors.white38, fontSize: 11))
-      ]);
+  // 📝 Ürün Giriş Formu
+  void _urunDetayFormuAc(int i) {
+    TextEditingController ad =
+        TextEditingController(text: _onSekizUrun[i]["ad"]);
+    TextEditingController tarif =
+        TextEditingController(text: _onSekizUrun[i]["tarif"]);
+    TextEditingController gelAl =
+        TextEditingController(text: _onSekizUrun[i]["gelAlFiyat"]);
+    TextEditingController gotur =
+        TextEditingController(text: _onSekizUrun[i]["goturFiyat"]);
+    bool teslim = _onSekizUrun[i]["teslimat"];
 
-  Widget _misafirYorumAlani() => GestureDetector(
-        onTap: _yorumYaz,
-        child: Container(
-          padding: const EdgeInsets.all(15),
-          decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.03),
-              borderRadius: BorderRadius.circular(15),
-              border: Border.all(color: Colors.white10)),
-          child: Column(children: [
-            Row(children: [
-              const Icon(Icons.star, color: Color(0xFFFFB300), size: 16),
-              const SizedBox(width: 5),
-              Text("4.9 (${_yorumlar.length} Yorum)",
-                  style: const TextStyle(color: Colors.white54, fontSize: 11)),
-              const Spacer(),
-              const Icon(Icons.add_comment, color: Color(0xFFFFB300), size: 16)
-            ]),
-            const Divider(color: Colors.white10, height: 20),
-            ..._yorumlar.take(1).map((y) => Text(y,
-                style: const TextStyle(
-                    color: Colors.white70,
-                    fontSize: 11,
-                    fontStyle: FontStyle.italic))),
-          ]),
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: const Color(0xFF0D0D0D),
+      shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(30))),
+      builder: (c) => StatefulBuilder(
+          builder: (context, setModal) => Padding(
+                padding: EdgeInsets.only(
+                    bottom: MediaQuery.of(c).viewInsets.bottom,
+                    left: 25,
+                    right: 25,
+                    top: 25),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Text("URUNU MUHURLE",
+                        style: TextStyle(
+                            color: Color(0xFFFFB300),
+                            fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 20),
+                    _inputWidget(ad, "Yemek Adi", Icons.restaurant),
+                    _inputWidget(tarif, "Tarif / Icerik", Icons.menu_book),
+                    Row(children: [
+                      Expanded(
+                          child:
+                              _inputWidget(gelAl, "Gel-Al", Icons.storefront)),
+                      const SizedBox(width: 15),
+                      Expanded(
+                          child: _inputWidget(
+                              gotur, "Gotur", Icons.delivery_dining)),
+                    ]),
+                    SwitchListTile(
+                      title: const Text("Teslimat Var mi?",
+                          style:
+                              TextStyle(color: Colors.white70, fontSize: 12)),
+                      value: teslim,
+                      activeColor: const Color(0xFFFFB300),
+                      onChanged: (v) => setModal(() => teslim = v),
+                    ),
+                    const SizedBox(height: 20),
+                    ElevatedButton(
+                      onPressed: () async {
+                        final r = await ImagePicker()
+                            .pickImage(source: ImageSource.gallery);
+                        if (r != null) {
+                          setState(() => _onSekizUrun[i] = {
+                                "ad": ad.text,
+                                "tarif": tarif.text,
+                                "gelAlFiyat": gelAl.text,
+                                "goturFiyat": gotur.text,
+                                "resimYolu": r.path,
+                                "teslimat": teslim
+                              });
+                          Navigator.pop(c);
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFFFFB300),
+                          minimumSize: const Size(double.infinity, 50)),
+                      child: const Text("RESIM SEC VE KAYDET",
+                          style: TextStyle(
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold)),
+                    ),
+                    const SizedBox(height: 30),
+                  ],
+                ),
+              )),
+    );
+  }
+
+  Widget _inputWidget(TextEditingController c, String h, IconData ikon) =>
+      Padding(
+        padding: const EdgeInsets.only(bottom: 12),
+        child: TextField(
+          controller: c,
+          style: const TextStyle(color: Colors.white),
+          decoration: InputDecoration(
+            prefixIcon: Icon(ikon, color: const Color(0xFFFFB300), size: 18),
+            hintText: h,
+            hintStyle: const TextStyle(color: Colors.white24),
+            filled: true,
+            fillColor: Colors.white10,
+            border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(15),
+                borderSide: BorderSide.none),
+          ),
         ),
       );
 
-  void _yorumYaz() {
-    TextEditingController c = TextEditingController();
+  // 💳 Ödeme Penceresi
+  void _odemePenceresiGoster(BuildContext context) {
     showModalBottomSheet(
-        context: context,
-        isScrollControlled: true,
-        backgroundColor: Colors.black.withOpacity(0.95),
-        builder: (context) => Padding(
-            padding: EdgeInsets.only(
-                bottom: MediaQuery.of(context).viewInsets.bottom,
-                left: 25,
-                right: 25,
-                top: 25),
-            child: Column(mainAxisSize: MainAxisSize.min, children: [
-              const Text("GURME YORUMU"),
-              const SizedBox(height: 15),
-              TextField(
-                  controller: c,
-                  style: const TextStyle(color: Colors.white),
-                  decoration: InputDecoration(
-                      filled: true,
-                      fillColor: Colors.white10,
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(15)))),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFFFB300)),
-                  onPressed: () {
-                    if (c.text.isNotEmpty)
-                      setState(() => _yorumlar.insert(0, "Gurme: '${c.text}'"));
-                    Navigator.pop(context);
-                  },
-                  child: const Text("YORUMU GÖNDER",
-                      style: TextStyle(color: Colors.black))),
-              const SizedBox(height: 30)
-            ])));
+      context: context,
+      backgroundColor: const Color(0xFF111111),
+      builder: (c) => Container(
+          padding: const EdgeInsets.all(30),
+          child: const Text("ODEME SISTEMI AKTIF",
+              style: TextStyle(color: Color(0xFFFFB300)))),
+    );
   }
 
-  void _notDefteriniAc() {
-    TextEditingController c = TextEditingController(text: _sefinNotu);
-    showModalBottomSheet(
+  // 📍 Adres Penceresi
+  void _adresGirisPenceresi(BuildContext context) {
+    showDialog(
         context: context,
-        isScrollControlled: true,
-        backgroundColor: Colors.black.withOpacity(0.95),
-        builder: (context) => Padding(
-            padding: EdgeInsets.only(
-                bottom: MediaQuery.of(context).viewInsets.bottom,
-                left: 25,
-                right: 25,
-                top: 25),
-            child: Column(mainAxisSize: MainAxisSize.min, children: [
-              const Text("ŞEFİN NOT DEFTERİ"),
-              const SizedBox(height: 15),
-              TextField(
-                  controller: c,
-                  maxLines: 5,
-                  style: const TextStyle(color: Colors.white),
-                  decoration: InputDecoration(
-                      filled: true,
-                      fillColor: Colors.white10,
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(15)))),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFFFB300)),
-                  onPressed: () {
-                    setState(() => _sefinNotu = c.text);
-                    Navigator.pop(context);
-                  },
-                  child: const Text("NOTU SAKLA",
-                      style: TextStyle(color: Colors.black))),
-              const SizedBox(height: 30)
-            ])));
+        builder: (c) => AlertDialog(
+                backgroundColor: const Color(0xFF111111),
+                title: const Text("ADRES"),
+                actions: [
+                  TextButton(
+                      onPressed: () => Navigator.pop(c),
+                      child: const Text("KAYDET"))
+                ]));
   }
 
-  void _ayarlariAc() {
-    TextEditingController ad = TextEditingController(text: _dukkanAdi);
-    TextEditingController alt = TextEditingController(text: _altMesaj);
-    showModalBottomSheet(
-        context: context,
-        isScrollControlled: true,
-        backgroundColor: Colors.black.withOpacity(0.95),
-        builder: (context) => Padding(
-            padding: EdgeInsets.only(
-                bottom: MediaQuery.of(context).viewInsets.bottom,
-                left: 25,
-                right: 25,
-                top: 25),
-            child: Column(mainAxisSize: MainAxisSize.min, children: [
-              const Text("VİTRİN AYARLARI"),
-              const SizedBox(height: 20),
-              TextField(
-                  controller: ad,
-                  style: const TextStyle(color: Colors.white),
-                  decoration:
-                      const InputDecoration(labelText: "Dükkan / İmza Yemek")),
-              const SizedBox(height: 15),
-              TextField(
-                  controller: alt,
-                  style: const TextStyle(color: Colors.white),
-                  decoration: const InputDecoration(labelText: "Kısa Tanıtım")),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFFFB300)),
-                  onPressed: () {
-                    setState(() {
-                      _dukkanAdi = ad.text.toUpperCase();
-                      _altMesaj = alt.text;
-                    });
-                    Navigator.pop(context);
-                  },
-                  child: const Text("VİTRİNİ GÜNCELLE")),
-              const SizedBox(height: 30)
-            ])));
+  void _vitriniMuhurle() {
+    arenaUrunHavuzu.add({
+      "dukkan": dukkanAdi,
+      "kategori": seciliKategori,
+      "urunler": _onSekizUrun.where((u) => u["ad"] != "").toList()
+    });
+    ScaffoldMessenger.of(context)
+        .showSnackBar(const SnackBar(content: Text("VİTRİN ARENA'DA CANLI!")));
   }
-
-  void _sefTanitimAc() {
-    TextEditingController h = TextEditingController(text: _sefHikayesi);
-    showModalBottomSheet(
-        context: context,
-        isScrollControlled: true,
-        backgroundColor: Colors.black.withOpacity(0.95),
-        builder: (context) => Padding(
-            padding: EdgeInsets.only(
-                bottom: MediaQuery.of(context).viewInsets.bottom,
-                left: 25,
-                right: 25,
-                top: 25),
-            child: Column(mainAxisSize: MainAxisSize.min, children: [
-              const Text("ŞEFİN HİKAYESİ"),
-              const SizedBox(height: 15),
-              TextField(
-                  controller: h,
-                  maxLines: 6,
-                  style: const TextStyle(color: Colors.white),
-                  decoration: InputDecoration(
-                      filled: true,
-                      fillColor: Colors.white10,
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(15)))),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blueAccent),
-                  onPressed: () {
-                    setState(() => _sefHikayesi = h.text);
-                    Navigator.pop(context);
-                  },
-                  child: const Text("HİKAYEYİ KAYDET",
-                      style: TextStyle(color: Colors.white))),
-              const SizedBox(height: 30)
-            ])));
-  }
-
-  Widget _bolumBasligi(String b) => Text(b,
-      style: const TextStyle(
-          color: Color(0xFFFFB300),
-          fontSize: 10,
-          fontWeight: FontWeight.bold,
-          letterSpacing: 2));
 }

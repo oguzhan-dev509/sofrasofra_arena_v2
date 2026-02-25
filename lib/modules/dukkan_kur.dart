@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:sofrasofra_arena_v2/lokasyon_merkezi.dart'; // V1'den getirdiğimiz atlas
+import '../main.dart'; // Merkezi hafıza bağlantısı
 
 class DukkanKurSayfasi extends StatefulWidget {
   const DukkanKurSayfasi({super.key});
@@ -11,15 +11,8 @@ class DukkanKurSayfasi extends StatefulWidget {
 class _DukkanKurSayfasiState extends State<DukkanKurSayfasi> {
   final TextEditingController _adController = TextEditingController();
   final TextEditingController _dukkanController = TextEditingController();
-  final TextEditingController _uzmanlikController = TextEditingController();
-
-  // ✨ YENİ: Dünkü 3'lü Segment Seçimi
-  String _secilenTur = "Ev Lezzetleri";
-  final List<String> _magazaTurleri = [
-    "Ev Lezzetleri",
-    "Restoran Menüleri",
-    "Usta Şefler"
-  ];
+  final TextEditingController _fiyatController = TextEditingController();
+  String secilenKategori = "Ev Lezzetleri";
 
   @override
   Widget build(BuildContext context) {
@@ -28,85 +21,69 @@ class _DukkanKurSayfasiState extends State<DukkanKurSayfasi> {
       appBar: AppBar(
         backgroundColor: Colors.black,
         iconTheme: const IconThemeData(color: Color(0xFFFFB300)),
-        title: const Text("DÜKKANIMI MÜHÜRLE",
+        title: const Text("DÜKKANINI ARENA'DA KUR",
             style: TextStyle(
-                color: Color(0xFFFFB300), fontWeight: FontWeight.bold)),
+                color: Color(0xFFFFB300),
+                fontSize: 13,
+                fontWeight: FontWeight.bold)),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(25.0),
+        padding: const EdgeInsets.all(25),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Icon(Icons.add_business, color: Color(0xFFFFB300), size: 60),
-            const SizedBox(height: 20),
-            const Text("ARENA'YA HOŞ GELDİN ŞEF!",
+            const Text("DÜKKAN BİLGİLERİ",
                 style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 24,
+                    color: Color(0xFFFFB300),
+                    fontSize: 11,
                     fontWeight: FontWeight.bold)),
+            const SizedBox(height: 20),
+
+            _inputAlan(
+                "DÜKKAN İSMİ", _dukkanController, "Örn: Hatice Ana Mutfağı"),
+            _inputAlan("İSTATİSTİK / BAŞLIK", _adController,
+                "Örn: 25 Yıllık Lezzet Çınarı"),
+
             const SizedBox(height: 10),
-            const Text(
-                "Dükkanını kur ve m_id kimliğini alarak Elite ağa katıl.",
-                style: TextStyle(color: Colors.grey, fontSize: 14)),
-            const SizedBox(height: 30),
-
-            // ✍️ AD SOYAD
-            _buildGirisAlani(
-                "Adınız Soyadınız (u_id sahibi)", Icons.person, _adController),
-            const SizedBox(height: 20),
-
-            // 🏛️ DÜKKAN ADI
-            _buildGirisAlani("Dükkanınızın Tabela Adı (m_ad)", Icons.store,
-                _dukkanController),
-            const SizedBox(height: 20),
-
-            // 🎯 MAĞAZA TÜRÜ SEÇİMİ (3 ANA KAPI)
-            const Text("Mağaza Kategorisi",
-                style: TextStyle(color: Color(0xFFFFB300), fontSize: 12)),
-            const SizedBox(height: 8),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              decoration: BoxDecoration(
-                color: const Color(0xFF1A1A1A),
-                borderRadius: BorderRadius.circular(15),
-                border:
-                    Border.all(color: const Color(0xFFFFB300).withOpacity(0.3)),
-              ),
-              child: DropdownButtonHideUnderline(
-                child: DropdownButton<String>(
-                  value: _secilenTur,
-                  dropdownColor: const Color(0xFF1A1A1A),
-                  style: const TextStyle(color: Colors.white),
-                  isExpanded: true,
-                  items: _magazaTurleri.map((String tur) {
-                    return DropdownMenuItem<String>(
-                        value: tur, child: Text(tur));
-                  }).toList(),
-                  onChanged: (yeni) => setState(() => _secilenTur = yeni!),
-                ),
-              ),
+            const Text("KATEGORİ SEÇİN",
+                style: TextStyle(color: Colors.white38, fontSize: 10)),
+            DropdownButton<String>(
+              value: secilenKategori,
+              isExpanded: true,
+              dropdownColor: Colors.black,
+              style: const TextStyle(color: Colors.white),
+              items: ["Ev Lezzetleri", "Restoranlar", "Usta Şefler"]
+                  .map((String value) => DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(value),
+                      ))
+                  .toList(),
+              onChanged: (String? newValue) {
+                setState(() {
+                  secilenKategori = newValue!;
+                });
+              },
             ),
-            const SizedBox(height: 20),
 
-            // 👨‍🍳 UZMANLIK
-            _buildGirisAlani("Uzmanlık (Tarif Bilgisi İçin)",
-                Icons.restaurant_menu, _uzmanlikController),
+            const SizedBox(height: 20),
+            _inputAlan("BAŞLANGIÇ FİYATI (₺)", _fiyatController, "0.00"),
+
             const SizedBox(height: 40),
 
-            // 🚀 KAYDI TAMAMLA
-            ElevatedButton(
-              onPressed: () => _kaydiTamamla(context),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFFFB300),
-                minimumSize: const Size(double.infinity, 60),
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15)),
+            // 🚀 DÜKKANI OLUŞTUR BUTONU
+            SizedBox(
+              width: double.infinity,
+              height: 55,
+              child: ElevatedButton(
+                onPressed: () => _dukkaniKaydet(context),
+                style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFFFFB300),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10))),
+                child: const Text("DÜKKANI ARENA'YA AÇ",
+                    style: TextStyle(
+                        color: Colors.black, fontWeight: FontWeight.bold)),
               ),
-              child: const Text("DÜKKANIMI AÇ VE MÜHÜRLE",
-                  style: TextStyle(
-                      color: Colors.black,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18)),
             ),
           ],
         ),
@@ -114,72 +91,48 @@ class _DukkanKurSayfasiState extends State<DukkanKurSayfasi> {
     );
   }
 
-  Widget _buildGirisAlani(
-      String etiket, IconData ikon, TextEditingController controller) {
-    return TextField(
-      controller: controller,
-      style: const TextStyle(color: Colors.white),
-      decoration: InputDecoration(
-        labelText: etiket,
-        labelStyle: const TextStyle(color: Colors.grey),
-        prefixIcon: Icon(ikon, color: const Color(0xFFFFB300)),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(15),
-          borderSide:
-              BorderSide(color: const Color(0xFFFFB300).withOpacity(0.3)),
+  Widget _inputAlan(String label, TextEditingController ctrl, String hint) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 20),
+      child: TextField(
+        controller: ctrl,
+        style: const TextStyle(color: Colors.white),
+        decoration: InputDecoration(
+          labelText: label,
+          labelStyle: const TextStyle(color: Color(0xFFFFB300), fontSize: 11),
+          hintText: hint,
+          hintStyle: const TextStyle(color: Colors.white10, fontSize: 11),
+          enabledBorder: const UnderlineInputBorder(
+              borderSide: BorderSide(color: Colors.white10)),
+          focusedBorder: const UnderlineInputBorder(
+              borderSide: BorderSide(color: Color(0xFFFFB300))),
         ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(15),
-          borderSide: const BorderSide(color: Color(0xFFFFB300)),
-        ),
-        filled: true,
-        fillColor: const Color(0xFF1A1A1A),
       ),
     );
   }
 
-  void _kaydiTamamla(BuildContext context) {
-    // 💡 BURASI KRİTİK: Dün konuştuğumuz m_acilis_tarihi burada mühürlenir
-    DateTime acilisTarihi = DateTime.now();
+  void _dukkaniKaydet(BuildContext context) {
+    if (_dukkanController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Lütfen Dükkan İsmini Giriniz!")));
+      return;
+    }
 
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: const Color(0xFF1A1A1A),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Icon(Icons.verified, color: Color(0xFFFFB300), size: 50),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text("${_dukkanController.text}",
-                style: const TextStyle(
-                    color: Color(0xFFFFB300),
-                    fontWeight: FontWeight.bold,
-                    fontSize: 20)),
-            const SizedBox(height: 10),
-            Text("Kategori: $_secilenTur",
-                style: const TextStyle(color: Colors.white70)),
-            Text(
-                "Açılış: ${acilisTarihi.day}/${acilisTarihi.month}/${acilisTarihi.year}",
-                style: const TextStyle(color: Colors.white54, fontSize: 12)),
-            const Divider(color: Colors.white10, height: 30),
-            const Text("Dükkanın m_id ile sisteme mühürlendi!",
-                textAlign: TextAlign.center,
-                style: TextStyle(color: Colors.white)),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              Navigator.pop(context);
-            },
-            child: const Text("ARENA'YA GİR",
-                style: TextStyle(
-                    color: Color(0xFFFFB300), fontWeight: FontWeight.bold)),
-          ),
-        ],
-      ),
-    );
+    setState(() {
+      arenaUrunHavuzu.add({
+        "ad": _adController.text,
+        "dukkan": _dukkanController.text,
+        "fiyat": _fiyatController.text,
+        "tip": secilenKategori,
+        "img":
+            "https://images.unsplash.com/photo-1555396273-367ea4eb4db5", // Varsayılan
+        "videoUrl": "",
+        "galeri": []
+      });
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Dükkanınız Başarıyla Kuruldu!")));
+    Navigator.pop(context);
   }
 }

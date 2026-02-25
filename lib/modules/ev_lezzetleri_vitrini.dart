@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dukkan_detay_sayfasi.dart';
-import '../main.dart'; // Hafızaya ulaşım
+import '../main.dart'; // 🚀 HAYATİ: main.dart'daki listeye ulaşmak için
 
 class EvLezzetleriVitrini extends StatefulWidget {
   const EvLezzetleriVitrini({super.key});
@@ -10,21 +10,21 @@ class EvLezzetleriVitrini extends StatefulWidget {
 }
 
 class _EvLezzetleriVitriniState extends State<EvLezzetleriVitrini> {
-  // 🧭 PASAJ NAVİGASYON BAŞLIĞI (Satıcı paneliyle uyumlu hale getirildi)
+  // 🧭 PASAJ NAVİGASYONU
   String seciliKategori = "EV YEMEKLERİ";
 
-  // 🧠 STATİK VERİ HAVUZU (Silinenler geri geldi!)
+  // 🏠 SABİT DÜKKAN LİSTESİ
   final List<Map<String, dynamic>> dukkanListesi = [
     {
       "ad": "Ayşe Hanım Mutfağı",
       "kat": "EV YEMEKLERİ",
-      "tarif": "Ev yapımı mantı ve sarmalar.",
+      "tarif": "Mantı ve ev sarmaları.",
       "img": "https://images.unsplash.com/photo-1543339308-43e59d6b73a6"
     },
     {
       "ad": "Zeynep Ev Tatlısı",
       "kat": "EV YAPIMI TATLI",
-      "tarif": "Gerçek ev yapımı lezzetler.",
+      "tarif": "Gerçek ev baklavası.",
       "img": "https://images.unsplash.com/photo-1589119908995-c6837fa14848"
     },
     {
@@ -43,11 +43,11 @@ class _EvLezzetleriVitriniState extends State<EvLezzetleriVitrini> {
 
   @override
   Widget build(BuildContext context) {
-    // 🔍 1. Statik dükkanları Pasaj kategorisine göre süz
+    // 🔍 1. Statik dükkanları süz
     var filtreliStatikDukkanlar =
         dukkanListesi.where((d) => d["kat"] == seciliKategori).toList();
 
-    // 🔍 2. Satıcıdan gelenleri süz
+    // 🔍 2. Satıcıdan (Arena Havuzu) gelenleri süz
     var saticiUrunleri =
         arenaUrunHavuzu.where((u) => u['tip'] == "Ev Lezzetleri").toList();
 
@@ -58,18 +58,18 @@ class _EvLezzetleriVitriniState extends State<EvLezzetleriVitrini> {
             style: TextStyle(
                 color: Color(0xFFFFB300),
                 fontWeight: FontWeight.bold,
-                fontSize: 16)),
+                fontSize: 14)),
         backgroundColor: Colors.black,
         iconTheme: const IconThemeData(color: Color(0xFFFFB300)),
       ),
       body: Column(
         children: [
-          _kategoriNavigasyonu(), // 🛠️ Butonlar artık çalışıyor
+          _kategoriNavigasyonu(),
           Expanded(
             child: ListView(
               padding: const EdgeInsets.all(12),
               children: [
-                // 🔥 SATICI ÜRÜNLERİ (Sadece Ev Yemeği kategorisinde gösterelim)
+                // 🔥 SATICI ÜRÜNLERİ (Hatalar Temizlendi)
                 if (saticiUrunleri.isNotEmpty &&
                     seciliKategori == "EV YEMEKLERİ") ...[
                   const Text("PASAJDA YENİ EKLENENLER",
@@ -78,20 +78,18 @@ class _EvLezzetleriVitriniState extends State<EvLezzetleriVitrini> {
                           fontSize: 10,
                           fontWeight: FontWeight.bold)),
                   const SizedBox(height: 10),
-                  ...saticiUrunleri
-                      .map((urun) => _yeniSaticiKarti(urun))
-                      .toList(),
+                  ...saticiUrunleri.map((urun) => _saticiKarti(urun)).toList(),
                   const Divider(
                       color: Colors.white10, thickness: 1, height: 30),
                 ],
 
-                // 🏠 STATİK DÜKKANLAR GRIDİ
+                // 🏠 ANA DÜKKANLAR GRIDİ
                 GridView.builder(
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 2,
-                      childAspectRatio: 0.65,
+                      childAspectRatio: 0.7,
                       crossAxisSpacing: 12,
                       mainAxisSpacing: 12),
                   itemCount: filtreliStatikDukkanlar.length,
@@ -118,15 +116,15 @@ class _EvLezzetleriVitriniState extends State<EvLezzetleriVitrini> {
     ];
 
     return SizedBox(
-      height: 110,
+      height: 100,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         itemCount: kategoriler.length,
         itemBuilder: (context, index) {
           bool seciliMi = seciliKategori == kategoriler[index]["ad"];
           return GestureDetector(
-            onTap: () => setState(() => seciliKategori =
-                kategoriler[index]["ad"]), // 🚀 Tıklayınca filtre değişir!
+            onTap: () =>
+                setState(() => seciliKategori = kategoriler[index]["ad"]),
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
               child: Column(
@@ -138,7 +136,7 @@ class _EvLezzetleriVitriniState extends State<EvLezzetleriVitrini> {
                         border: Border.all(
                             color: seciliMi
                                 ? const Color(0xFFFFB300)
-                                : Colors.white12,
+                                : Colors.white10,
                             width: 2)),
                     child: Icon(kategoriler[index]["ikon"],
                         color:
@@ -149,8 +147,7 @@ class _EvLezzetleriVitriniState extends State<EvLezzetleriVitrini> {
                   Text(kategoriler[index]["ad"],
                       style: TextStyle(
                           color: seciliMi ? Colors.white : Colors.white38,
-                          fontSize: 7,
-                          fontWeight: FontWeight.bold)),
+                          fontSize: 8)),
                 ],
               ),
             ),
@@ -160,32 +157,31 @@ class _EvLezzetleriVitriniState extends State<EvLezzetleriVitrini> {
     );
   }
 
-  Widget _yeniSaticiKarti(Map<String, dynamic> urun) {
-    return Card(
-      color: const Color(0xFF111111),
+  Widget _saticiKarti(Map<String, dynamic> urun) {
+    return Container(
       margin: const EdgeInsets.only(bottom: 12),
-      shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-          side: const BorderSide(color: Color(0xFFFFB300), width: 0.5)),
+      decoration: BoxDecoration(
+          color: const Color(0xFF0A0A0A),
+          border: Border.all(color: const Color(0xFFFFB300).withAlpha(40)),
+          borderRadius: BorderRadius.circular(10)),
       child: ListTile(
         leading: ClipRRect(
             borderRadius: BorderRadius.circular(8),
             child: Image.network(urun['img'],
-                width: 60,
-                height: 60,
+                width: 50,
+                height: 50,
                 fit: BoxFit.cover,
                 errorBuilder: (c, e, s) =>
-                    const Icon(Icons.restaurant, color: Color(0xFFFFB300)))),
+                    const Icon(Icons.fastfood, color: Color(0xFFFFB300)))),
         title: Text(urun['ad'],
             style: const TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.bold,
-                fontSize: 14)),
-        subtitle: Text(urun['dukkan'],
-            style: const TextStyle(color: Colors.white38, fontSize: 11)),
-        trailing: Text("${urun['fiyat']} ₺",
-            style: const TextStyle(
-                color: Color(0xFFFFB300), fontWeight: FontWeight.bold)),
+                fontSize: 13)),
+        subtitle: Text("${urun['fiyat']} ₺",
+            style: const TextStyle(color: Color(0xFFFFB300), fontSize: 12)),
+        trailing: const Icon(Icons.arrow_forward_ios,
+            color: Colors.white10, size: 12),
       ),
     );
   }
@@ -199,10 +195,9 @@ class _EvLezzetleriVitriniState extends State<EvLezzetleriVitrini> {
               builder: (context) => DukkanDetaySayfasi(dukkanAdi: ad))),
       child: Container(
         decoration: BoxDecoration(
-            color: const Color(0xFF1A1A1A),
+            color: const Color(0xFF0A0A0A),
             borderRadius: BorderRadius.circular(15),
-            border:
-                Border.all(color: const Color(0xFFFFB300).withOpacity(0.2))),
+            border: Border.all(color: Colors.white10)),
         child: Column(
           children: [
             Expanded(
@@ -214,7 +209,7 @@ class _EvLezzetleriVitriniState extends State<EvLezzetleriVitrini> {
                         width: double.infinity,
                         errorBuilder: (c, e, s) => const Icon(Icons.store)))),
             Padding(
-                padding: const EdgeInsets.all(8.0),
+                padding: const EdgeInsets.all(10.0),
                 child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -228,7 +223,7 @@ class _EvLezzetleriVitriniState extends State<EvLezzetleriVitrini> {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
-                              color: Colors.white60, fontSize: 8))
+                              color: Colors.white38, fontSize: 8))
                     ])),
           ],
         ),
