@@ -50,19 +50,21 @@ class KategoriSayfasi extends StatelessWidget {
               Icons.restaurant_menu,
               const EvLezzetleriVitrini(),
             ),
-            _kategoriButonu(
-              context,
-              "USTA ŞEFLER",
-              "Profesyonel gastronomi deneyimi",
-              Icons.star_border_purple500,
-              const SefVitrini(),
-            ),
+
             _kategoriButonu(
               context,
               "RESTORANLAR",
               "Arena'nın seçkin işletmeleri",
               Icons.storefront,
               const RestoranlarVitrini(),
+            ),
+
+            _kategoriButonu(
+              context,
+              "USTA ŞEFLER",
+              "Profesyonel gastronomi deneyimi",
+              Icons.star_border_purple500,
+              const SefVitrini(),
             ),
           ],
         ),

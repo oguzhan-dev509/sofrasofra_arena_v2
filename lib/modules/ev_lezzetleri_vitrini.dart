@@ -1,230 +1,226 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+// NOT: Eğer alttaki import hata verirse klasör yolunu kontrol et
+// import '../theme/app_theme.dart';
 import 'dukkan_detay_sayfasi.dart';
-import '../main.dart'; // 🚀 HAYATİ: main.dart'daki listeye ulaşmak için
 
-class EvLezzetleriVitrini extends StatefulWidget {
-  const EvLezzetleriVitrini({super.key});
-
-  @override
-  State<EvLezzetleriVitrini> createState() => _EvLezzetleriVitriniState();
+// 🎨 GÜVENLİ TEMA TANIMLARI (AppTheme hatasını önlemek için)
+class AppTheme {
+  static const Color gold = Color(0xFFFFB300);
+  static const Color card = Color(0xFF111111);
+  static const Color text = Colors.white;
 }
 
-class _EvLezzetleriVitriniState extends State<EvLezzetleriVitrini> {
-  // 🧭 PASAJ NAVİGASYONU
-  String seciliKategori = "EV YEMEKLERİ";
-
-  // 🏠 SABİT DÜKKAN LİSTESİ
-  final List<Map<String, dynamic>> dukkanListesi = [
-    {
-      "ad": "Ayşe Hanım Mutfağı",
-      "kat": "EV YEMEKLERİ",
-      "tarif": "Mantı ve ev sarmaları.",
-      "img": "https://images.unsplash.com/photo-1543339308-43e59d6b73a6"
-    },
-    {
-      "ad": "Zeynep Ev Tatlısı",
-      "kat": "EV YAPIMI TATLI",
-      "tarif": "Gerçek ev baklavası.",
-      "img": "https://images.unsplash.com/photo-1589119908995-c6837fa14848"
-    },
-    {
-      "ad": "Sütçü Fatma Abla",
-      "kat": "SÜT ÜRÜNLERİ",
-      "tarif": "Günlük taze köy sütü.",
-      "img": "https://images.unsplash.com/photo-1550583724-125581f77833"
-    },
-    {
-      "ad": "Emine Teyze Turşuları",
-      "kat": "TURŞULAR",
-      "tarif": "Kütür kütür ev turşusu.",
-      "img": "https://images.unsplash.com/photo-1589119908995-c6837fa14848"
-    },
-  ];
+class EvLezzetleriVitriniPage extends StatelessWidget {
+  const EvLezzetleriVitriniPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // 🔍 1. Statik dükkanları süz
-    var filtreliStatikDukkanlar =
-        dukkanListesi.where((d) => d["kat"] == seciliKategori).toList();
-
-    // 🔍 2. Satıcıdan (Arena Havuzu) gelenleri süz
-    var saticiUrunleri =
-        arenaUrunHavuzu.where((u) => u['tip'] == "Ev Lezzetleri").toList();
-
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
-        title: const Text("EV LEZZETLER PASAJI",
+        title: const Text("EV LEZZETLERİ",
             style: TextStyle(
-                color: Color(0xFFFFB300),
-                fontWeight: FontWeight.bold,
-                fontSize: 14)),
+                color: AppTheme.gold,
+                fontSize: 16,
+                fontWeight: FontWeight.bold)),
         backgroundColor: Colors.black,
-        iconTheme: const IconThemeData(color: Color(0xFFFFB300)),
+        elevation: 0,
+        iconTheme: const IconThemeData(color: AppTheme.gold),
       ),
-      body: Column(
-        children: [
-          _kategoriNavigasyonu(),
-          Expanded(
-            child: ListView(
-              padding: const EdgeInsets.all(12),
-              children: [
-                // 🔥 SATICI ÜRÜNLERİ (Hatalar Temizlendi)
-                if (saticiUrunleri.isNotEmpty &&
-                    seciliKategori == "EV YEMEKLERİ") ...[
-                  const Text("PASAJDA YENİ EKLENENLER",
-                      style: TextStyle(
-                          color: Color(0xFFFFB300),
-                          fontSize: 10,
-                          fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 10),
-                  ...saticiUrunleri.map((urun) => _saticiKarti(urun)).toList(),
-                  const Divider(
-                      color: Colors.white10, thickness: 1, height: 30),
-                ],
+      body: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+        stream: FirebaseFirestore.instance
+            .collection('urunler')
+            .where('tip', isEqualTo: 'Ev Lezzetleri')
+            .where('onayDurumu', isEqualTo: 'onaylandi')
+            .orderBy('kayitTarihi', descending: true)
+            .snapshots(),
+        builder: (context, snap) {
+          if (snap.hasError) {
+            return _EmptyState(text: "❌ Hata: ${snap.error}");
+          }
+          if (snap.connectionState == ConnectionState.waiting) {
+            return const Center(
+                child: CircularProgressIndicator(color: AppTheme.gold));
+          }
 
-                // 🏠 ANA DÜKKANLAR GRIDİ
-                GridView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      childAspectRatio: 0.7,
-                      crossAxisSpacing: 12,
-                      mainAxisSpacing: 12),
-                  itemCount: filtreliStatikDukkanlar.length,
-                  itemBuilder: (context, index) {
-                    var dukkan = filtreliStatikDukkanlar[index];
-                    return _arenaDukkanKarti(
-                        context, dukkan["ad"], dukkan["tarif"], dukkan["img"]);
-                  },
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+          final docs = snap.data?.docs ?? [];
+          if (docs.isEmpty) {
+            return const _EmptyState(text: "Henüz ev lezzeti satıcısı yok.");
+          }
 
-  Widget _kategoriNavigasyonu() {
-    final List<Map<String, dynamic>> kategoriler = [
-      {"ad": "EV YEMEKLERİ", "ikon": Icons.restaurant_menu},
-      {"ad": "EV YAPIMI TATLI", "ikon": Icons.cake},
-      {"ad": "SÜT ÜRÜNLERİ", "ikon": Icons.local_drink},
-      {"ad": "TURŞULAR", "ikon": Icons.egg_alt_outlined},
-    ];
+          return ListView.builder(
+            padding: const EdgeInsets.all(16),
+            itemCount: docs.length,
+            itemBuilder: (context, i) {
+              final d = docs[i].data();
+              final urunAd = (d['ad'] ?? '').toString();
+              final dukkan = (d['dukkan'] ?? '').toString();
+              final img = (d['img'] ?? '').toString();
+              final kategori = (d['kategori'] ?? '').toString();
 
-    return SizedBox(
-      height: 100,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        itemCount: kategoriler.length,
-        itemBuilder: (context, index) {
-          bool seciliMi = seciliKategori == kategoriler[index]["ad"];
-          return GestureDetector(
-            onTap: () =>
-                setState(() => seciliKategori = kategoriler[index]["ad"]),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-              child: Column(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                            color: seciliMi
-                                ? const Color(0xFFFFB300)
-                                : Colors.white10,
-                            width: 2)),
-                    child: Icon(kategoriler[index]["ikon"],
-                        color:
-                            seciliMi ? const Color(0xFFFFB300) : Colors.white38,
-                        size: 24),
-                  ),
-                  const SizedBox(height: 6),
-                  Text(kategoriler[index]["ad"],
-                      style: TextStyle(
-                          color: seciliMi ? Colors.white : Colors.white38,
-                          fontSize: 8)),
-                ],
-              ),
-            ),
+              final fiyatRaw = d['fiyat'];
+              String fiyatText =
+                  fiyatRaw?.toString() ?? d['gelAlFiyat']?.toString() ?? '';
+
+              return _UrunCard(
+                urunAd: urunAd,
+                dukkan: dukkan,
+                img: img,
+                kategori: kategori,
+                fiyatText: fiyatText,
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => DukkanDetaySayfasi(dukkanAdi: dukkan),
+                    ),
+                  );
+                },
+              );
+            },
           );
         },
       ),
     );
   }
+}
 
-  Widget _saticiKarti(Map<String, dynamic> urun) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      decoration: BoxDecoration(
-          color: const Color(0xFF0A0A0A),
-          border: Border.all(color: const Color(0xFFFFB300).withAlpha(40)),
-          borderRadius: BorderRadius.circular(10)),
-      child: ListTile(
-        leading: ClipRRect(
-            borderRadius: BorderRadius.circular(8),
-            child: Image.network(urun['img'],
-                width: 50,
-                height: 50,
-                fit: BoxFit.cover,
-                errorBuilder: (c, e, s) =>
-                    const Icon(Icons.fastfood, color: Color(0xFFFFB300)))),
-        title: Text(urun['ad'],
-            style: const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: 13)),
-        subtitle: Text("${urun['fiyat']} ₺",
-            style: const TextStyle(color: Color(0xFFFFB300), fontSize: 12)),
-        trailing: const Icon(Icons.arrow_forward_ios,
-            color: Colors.white10, size: 12),
+class _UrunCard extends StatelessWidget {
+  final String urunAd;
+  final String dukkan;
+  final String img;
+  final String kategori;
+  final String fiyatText;
+  final VoidCallback onTap;
+
+  const _UrunCard({
+    required this.urunAd,
+    required this.dukkan,
+    required this.img,
+    required this.kategori,
+    required this.fiyatText,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 14),
+        decoration: BoxDecoration(
+          color: AppTheme.card,
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(color: AppTheme.gold.withOpacity(0.35)),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ClipRRect(
+              borderRadius:
+                  const BorderRadius.vertical(top: Radius.circular(18)),
+              child: AspectRatio(
+                aspectRatio: 16 / 9,
+                child: (img.isEmpty || !img.startsWith('http'))
+                    ? Container(
+                        color: Colors.black26,
+                        child: const Center(
+                          child: Icon(Icons.image_not_supported,
+                              color: AppTheme.gold),
+                        ),
+                      )
+                    : Image.network(
+                        img,
+                        key: ValueKey(img),
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, __, ___) => Container(
+                          color: Colors.black26,
+                          child: const Center(
+                            child:
+                                Icon(Icons.broken_image, color: AppTheme.gold),
+                          ),
+                        ),
+                      ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(14),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    urunAd.isEmpty ? dukkan : urunAd,
+                    style: const TextStyle(
+                      color: AppTheme.text,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  if (kategori.isNotEmpty)
+                    Text(
+                      kategori,
+                      style: TextStyle(color: AppTheme.text.withOpacity(0.75)),
+                    ),
+                  const SizedBox(height: 10),
+                  Row(
+                    children: [
+                      const Icon(Icons.store, color: AppTheme.gold, size: 14),
+                      const SizedBox(width: 5),
+                      Expanded(
+                        child: Text(
+                          dukkan,
+                          style:
+                              TextStyle(color: AppTheme.text.withOpacity(0.7)),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      if (fiyatText.isNotEmpty)
+                        Text(
+                          "$fiyatText ₺",
+                          style: const TextStyle(
+                            color: AppTheme.gold,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                          ),
+                        ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
+}
 
-  Widget _arenaDukkanKarti(
-      BuildContext context, String ad, String tarif, String img) {
-    return GestureDetector(
-      onTap: () => Navigator.push(
-          context,
-          MaterialPageRoute(
-              builder: (context) => DukkanDetaySayfasi(dukkanAdi: ad))),
+// 🛡️ EKSİK OLABİLECEK _EmptyState WIDGET'I
+class _EmptyState extends StatelessWidget {
+  final String text;
+  const _EmptyState({required this.text});
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
       child: Container(
+        padding: const EdgeInsets.all(20),
+        margin: const EdgeInsets.all(25),
         decoration: BoxDecoration(
-            color: const Color(0xFF0A0A0A),
-            borderRadius: BorderRadius.circular(15),
-            border: Border.all(color: Colors.white10)),
+          color: AppTheme.card,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: Colors.redAccent.withOpacity(0.3)),
+        ),
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Expanded(
-                child: ClipRRect(
-                    borderRadius:
-                        const BorderRadius.vertical(top: Radius.circular(15)),
-                    child: Image.network(img,
-                        fit: BoxFit.cover,
-                        width: double.infinity,
-                        errorBuilder: (c, e, s) => const Icon(Icons.store)))),
-            Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(ad,
-                          style: const TextStyle(
-                              color: Color(0xFFFFB300),
-                              fontWeight: FontWeight.bold,
-                              fontSize: 11)),
-                      const SizedBox(height: 4),
-                      Text(tarif,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                              color: Colors.white38, fontSize: 8))
-                    ])),
+            const Icon(Icons.info_outline, color: AppTheme.gold, size: 30),
+            const SizedBox(height: 10),
+            Text(text,
+                textAlign: TextAlign.center,
+                style: const TextStyle(color: AppTheme.text, fontSize: 13)),
           ],
         ),
       ),

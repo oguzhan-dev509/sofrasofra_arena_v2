@@ -1,22 +1,33 @@
 name: sofrasofra_arena_v2
-description: "Dünya Gastronomi Merkezi - Arena"
-publish_to: 'none'
-version: 1.0.0+1
+description: Sofrasofra Arena
+
+publish_to: "none"
 
 environment:
-  sdk: '>=3.2.3 <4.0.0'
+  sdk: ">=3.0.0 <4.0.0"
 
 dependencies:
   flutter:
     sdk: flutter
-  cupertino_icons: ^1.0.8
-  image_picker: ^1.0.7
-  url_launcher: ^6.3.1
+
+  cupertino_icons: ^1.0.6
+
+  # Firebase (uyumlu ve stabil kombinasyon)
+  firebase_core: ^2.25.4
+  firebase_auth: ^4.17.4
+  cloud_firestore: ^4.15.9
+  firebase_storage: ^11.7.7
+
+  image_picker: ^1.2.1
+  url_launcher: ^6.3.2
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^3.0.0
+  flutter_lints: ^3.0.1
 
 flutter:
   uses-material-design: true
+
+  assets:
+    - assets/ilceler.json
