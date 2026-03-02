@@ -1,6 +1,8 @@
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'hizli_yemek_ekle.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class SefYonetimPaneli extends StatefulWidget {
   const SefYonetimPaneli({super.key});
@@ -10,39 +12,67 @@ class SefYonetimPaneli extends StatefulWidget {
 }
 
 class _SefYonetimPaneliState extends State<SefYonetimPaneli> {
-  // 📝 PRESTİJ KONTROLCÜLERİ (5 Madde İçin)
-  final _adController = TextEditingController();
-  final _uzmanlikController = TextEditingController();
-  final _bioController = TextEditingController(); // 01. Madde
-  final _youtubeController = TextEditingController(); // 02. Madde
-  final _danismanlikController = TextEditingController(); // 04. Madde
-  final _rezervasyonLinkController = TextEditingController(); // 05. Madde
-  final _saatUcretiController = TextEditingController();
-
-  List<String> _secilenDersler = [];
+  // 📸 Veri Motoru
+  Uint8List? _profilBytes;
+  final List<Uint8List?> _vitrinBytesList = List.generate(18, (_) => null);
+  final ImagePicker _picker = ImagePicker();
   bool _isSaving = false;
 
-  // 🔥 ARENA'YA 5 MADDELİK MÜHÜR BASMA
-  Future<void> _arenaYayinla() async {
-    if (_adController.text.isEmpty) return;
+  // 📝 Kontrolcüler
+  final _adController = TextEditingController();
+  final _uzmanlikController = TextEditingController();
+  final _bioController = TextEditingController();
+  final _youtubeController = TextEditingController();
+  final _danismanlikController = TextEditingController();
+  final _rezervasyonController = TextEditingController();
+  final _kursDetayController = TextEditingController();
+
+  List<String> _secilenDersler = [];
+
+  // 📷 FOTO SEÇME (WEB UYUMLU)
+  Future<void> _fotoSec(int index, {bool isProfil = false}) async {
+    try {
+      final XFile? image = await _picker.pickImage(
+          source: ImageSource.gallery, imageQuality: 70);
+      if (image != null) {
+        final Uint8List bytes = await image.readAsBytes();
+        setState(() {
+          if (isProfil) {
+            _profilBytes = bytes;
+          } else {
+            _vitrinBytesList[index] = bytes;
+          }
+        });
+      }
+    } catch (e) {
+      debugPrint("Foto hatası: $e");
+    }
+  }
+
+  // 🚀 MÜHÜRLEME FONKSİYONU
+  Future<void> _sefProfiliniMuhurle() async {
+    if (_adController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Lütfen Şef Adını giriniz.")));
+      return;
+    }
     setState(() => _isSaving = true);
     try {
       await FirebaseFirestore.instance.collection('urunler').add({
         "dukkan": _adController.text.trim().toUpperCase(),
-        "kategori": _uzmanlikController.text.trim(),
-        "bio": _bioController.text.trim(), // 01
-        "akadem_mufredat": _secilenDersler, // 02
-        "youtube_url": _youtubeController.text.trim(), // 02
-        "danismanlik_notu": _danismanlikController.text.trim(), // 04
-        "rezervasyon_url": _rezervasyonLinkController.text.trim(), // 05
-        "saat_ucreti": _saatUcretiController.text.trim(),
+        "akadem_mufredat": _secilenDersler,
+        "youtube_url": _youtubeController.text.trim(),
+        "kurs_ilani": _kursDetayController.text.trim(),
+        "bio": _bioController.text.trim(),
         "tip": "Usta Sefler",
         "onayDurumu": "onaylandi",
         "kayitTarihi": FieldValue.serverTimestamp(),
       });
       if (mounted)
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-            content: Text("✅ 5 PRESTİJ MADDESİ ARENA'DA CANLI!")));
+            content: Text("✅ ŞEF AKADEMİSİ VE VİTRİN MÜHÜRLENDİ!")));
+    } catch (e) {
+      debugPrint("Hata: $e");
     } finally {
       if (mounted) setState(() => _isSaving = false);
     }
@@ -50,176 +80,221 @@ class _SefYonetimPaneliState extends State<SefYonetimPaneli> {
 
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: 3,
-      child: Scaffold(
+    const Color goldColor = Color(0xFFFFB300);
+
+    return Scaffold(
+      backgroundColor: Colors.black,
+      appBar: AppBar(
         backgroundColor: Colors.black,
-        appBar: AppBar(
-          backgroundColor: Colors.black,
-          title: const Text("ELİTE ŞEF KOMUTA MERKEZİ",
-              style: TextStyle(
-                  color: Color(0xFFFFB300),
-                  fontSize: 13,
-                  fontWeight: FontWeight.bold)),
-          bottom: const TabBar(
-            indicatorColor: Color(0xFFFFB300),
-            tabs: [
-              Tab(text: "PRESTİJ"),
-              Tab(text: "AKADEMİ"),
-              Tab(text: "HİZMETLER")
-            ],
-          ),
-        ),
-        body: Column(
+        title: const Text("USTA ŞEF KOMUTA MERKEZİ",
+            style: TextStyle(
+                color: goldColor, fontSize: 13, fontWeight: FontWeight.bold)),
+      ),
+      // 🎓 ASILI BUTON: KURS İLANI
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () => _kursIlanDialog(),
+        backgroundColor: goldColor,
+        icon: const Icon(Icons.bolt, color: Colors.black),
+        label: const Text("HIZLI KURS İLANI VER",
+            style: TextStyle(
+                color: Colors.black,
+                fontWeight: FontWeight.bold,
+                fontSize: 11)),
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(25),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Expanded(
-              child: TabBarView(
-                children: [
-                  _prestijSekmesi(), // 01 & Bio
-                  _akademiSekmesi(), // 02 & Müfredat
-                  _hizmetlerSekmesi(), // 04 & 05 Danışmanlık ve Rezervasyon
-                ],
+            // ✨ ŞEF PROFİL İKONU (Instagram Stili)
+            Center(
+              child: GestureDetector(
+                onTap: () => _fotoSec(0, isProfil: true),
+                child: Container(
+                  width: 100,
+                  height: 100,
+                  decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(color: goldColor, width: 2),
+                      color: const Color(0xFF111111)),
+                  child: ClipOval(
+                    child: _profilBytes != null
+                        ? Image.memory(_profilBytes!, fit: BoxFit.cover)
+                        : const Icon(Icons.add_a_photo,
+                            color: goldColor, size: 30),
+                  ),
+                ),
               ),
             ),
-            _altAksiyonlar(),
+            const SizedBox(height: 30),
+
+            _buildInput(_adController, "ŞEF ADI SOYADI", Icons.badge),
+            _buildInput(
+                _uzmanlikController, "UZMANLIK ALANI", Icons.auto_awesome),
+            _buildInput(
+                _bioController, "BİYOGRAFİ / HİKAYENİZ", Icons.history_edu,
+                maxLines: 3),
+
+            // 🎥 VİDEO URL VE YAYINLAMA İKONU
+            _buildInput(
+              _youtubeController,
+              "AKADEMİ VİDEO URL",
+              Icons.play_circle_fill,
+              suffix: IconButton(
+                  icon: const Icon(Icons.send_rounded, color: goldColor),
+                  onPressed: () =>
+                      launchUrl(Uri.parse(_youtubeController.text))),
+            ),
+
+            const SizedBox(height: 20),
+            const Text("🎓 AKADEMİ MÜFREDATI (TAM LİSTE)",
+                style: TextStyle(
+                    color: goldColor,
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold)),
+            const SizedBox(height: 10),
+            _mufredatWidget(),
+
+            const SizedBox(height: 30),
+            _buildInput(_danismanlikController, "DANIŞMANLIK DETAYLARI",
+                Icons.psychology,
+                maxLines: 2),
+            _buildInput(_rezervasyonController, "REZERVASYON/WHATSAPP LİNK",
+                Icons.event_available),
+
+            const SizedBox(height: 40),
+            const Divider(color: Colors.white10),
+            const Text("📸 İMZA TABAKLAR VİTRİNİ (18 ADET)",
+                style: TextStyle(
+                    color: goldColor,
+                    fontSize: 11,
+                    fontWeight: FontWeight.bold)),
+            const SizedBox(height: 15),
+
+            // 📸 18'Lİ VİTRİN GRİD
+            _vitrinGrid(goldColor),
+
+            const SizedBox(height: 50),
+
+            // 🚀 MÜHÜRLEME BUTONU
+            ElevatedButton(
+              onPressed: _isSaving ? null : _sefProfiliniMuhurle,
+              style: ElevatedButton.styleFrom(
+                  backgroundColor: goldColor,
+                  minimumSize: const Size(double.infinity, 55),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15))),
+              child: _isSaving
+                  ? const CircularProgressIndicator(color: Colors.black)
+                  : const Text("ŞEF PROFİLİNİ MÜHÜRLE",
+                      style: TextStyle(
+                          color: Colors.black, fontWeight: FontWeight.bold)),
+            ),
+            const SizedBox(height: 50),
           ],
         ),
       ),
     );
   }
 
-  Widget _prestijSekmesi() {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(25),
-      child: Column(
-        children: [
-          _buildInput(_adController, "ŞEF ADI SOYADI", Icons.badge),
-          _buildInput(_uzmanlikController, "MUTFAK EKOLÜ (Örn: Modern Anadolu)",
-              Icons.auto_awesome),
-          _buildInput(
-              _bioController, "ŞEFİN HİKAYESİ (01. MADDE)", Icons.history_edu,
-              maxLines: 4),
-        ],
-      ),
-    );
+  // 📝 KURS İLANI PENCERESİ
+  void _kursIlanDialog() {
+    showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+              backgroundColor: const Color(0xFF111111),
+              title: const Text("Kurs İlanı Ver",
+                  style: TextStyle(color: Color(0xFFFFB300), fontSize: 14)),
+              content: TextField(
+                  controller: _kursDetayController,
+                  maxLines: 5,
+                  style: const TextStyle(color: Colors.white, fontSize: 12),
+                  decoration: const InputDecoration(
+                      hintText: "Detayları yazın...",
+                      hintStyle: TextStyle(color: Colors.white24))),
+              actions: [
+                TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text("KAYDET",
+                        style: TextStyle(color: Color(0xFFFFB300))))
+              ],
+            ));
   }
 
-  Widget _akademiSekmesi() {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(25),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildInput(_youtubeController, "AKADEMİ TANITIM VİDEOSU (URL)",
-              Icons.play_circle_fill),
-          const SizedBox(height: 10),
-          const Text("🎓 MÜFREDAT SEÇİMİ (02. MADDE)",
-              style: TextStyle(
-                  color: Color(0xFFFFB300),
-                  fontSize: 10,
-                  fontWeight: FontWeight.bold)),
-          const SizedBox(height: 15),
-
-          // 👨‍🍳 AŞÇILIK EĞİTİMLERİ (GERİ GELDİ)
-          _dersGrubu("AŞÇILIK", [
-            "Osmanlı Saray Mutfağı",
-            "Yöresel Mutfaklar",
-            "Dünya Mutfağı",
-            "Tabak Dizayn",
-            "Hijyen & Sağlık"
-          ]),
-          const SizedBox(height: 15),
-
-          // 🍰 PASTACILIK EĞİTİMLERİ (GERİ GELDİ)
-          _dersGrubu("PASTACILIK", [
-            "Çikolata Sanatı",
-            "Pasta Teknikleri",
-            "Sütlü Tatlılar",
-            "Börek Çeşitleri"
-          ]),
-          const SizedBox(height: 15),
-
-          // 💼 KAFE & İŞLETME (GERİ GELDİ)
-          _dersGrubu("İŞLETME",
-              ["Maliyet Hesaplama", "Menü & Reçete", "Satış & İş Akışı"]),
-        ],
-      ),
-    );
-  }
-
-  // 🧠 DANIŞMANLIK İKONU DÜZELTİLMİŞ HALİ (Hizmetler Sekmesi İçin)
-  Widget _hizmetlerSekmesi() {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(25),
-      child: Column(
-        children: [
-          _buildInput(_danismanlikController,
-              "DANIŞMANLIK DETAYLARI (04. MADDE)", Icons.psychology,
-              maxLines: 3), // ✅ Küçük harf 'p' ile düzeldi
-          _buildInput(
-              _rezervasyonLinkController,
-              "ŞEFİN MASASI REZERVASYON URL (05. MADDE)",
-              Icons.event_available),
-          _buildInput(_saatUcretiController, "SAAT ÜCRETİ (₺)", Icons.payments),
-        ],
-      ),
-    );
-  }
-
-  Widget _dersGrubu(String baslik, List<String> dersler) {
+  // 🎓 MÜFREDAT LİSTESİ
+  Widget _mufredatWidget() {
     return Wrap(
       spacing: 8,
-      children: dersler
-          .map((ders) => FilterChip(
-                label: Text(ders, style: const TextStyle(fontSize: 10)),
-                selected: _secilenDersler.contains(ders),
-                onSelected: (v) => setState(() => v
-                    ? _secilenDersler.add(ders)
-                    : _secilenDersler.remove(ders)),
-                selectedColor: const Color(0xFFFFB300),
+      runSpacing: 8,
+      children: [
+        "Osmanlı Mutf.",
+        "Tabak Tasarım",
+        "Maliyet Hes.",
+        "Çikolata San.",
+        "Dünya Mutf.",
+        "Hijyen Eğit.",
+        "Yöresel Tatlar",
+        "Pastacılık Tekn.",
+        "Sos Teknikleri",
+        "Et Pişirme"
+      ]
+          .map((e) => FilterChip(
+                label: Text(e,
+                    style: const TextStyle(fontSize: 9, color: Colors.white70)),
+                selected: _secilenDersler.contains(e),
+                onSelected: (v) => setState(() =>
+                    v ? _secilenDersler.add(e) : _secilenDersler.remove(e)),
                 backgroundColor: Colors.white10,
+                selectedColor: const Color(0xFFFFB300).withOpacity(0.3),
               ))
           .toList(),
     );
   }
 
-  Widget _altAksiyonlar() {
-    return Padding(
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        children: [
-          OutlinedButton.icon(
-            onPressed: () => Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => HizliYemekEkle(
-                        tip: "Usta Sef", dukkanAdi: _adController.text))),
-            icon: const Icon(Icons.add_a_photo, color: Color(0xFFFFB300)),
-            label: const Text("İMZA MUTFAĞI FOTOĞRAFLARI (03. MADDE)",
-                style: TextStyle(color: Colors.white, fontSize: 10)),
-            style: OutlinedButton.styleFrom(
-                side: const BorderSide(color: Color(0xFFFFB300)),
-                minimumSize: const Size(double.infinity, 50)),
+  // 🖼️ VİTRİN GRİD
+  Widget _vitrinGrid(Color goldColor) {
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 3, crossAxisSpacing: 10, mainAxisSpacing: 10),
+      itemCount: 18,
+      itemBuilder: (context, index) => Stack(children: [
+        GestureDetector(
+          onTap: () => _fotoSec(index),
+          child: Container(
+            decoration: BoxDecoration(
+                color: const Color(0xFF0D0D0D),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                    color: _vitrinBytesList[index] != null
+                        ? goldColor
+                        : Colors.white.withOpacity(0.05))),
+            child: ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: _vitrinBytesList[index] != null
+                    ? Image.memory(_vitrinBytesList[index]!, fit: BoxFit.cover)
+                    : const Icon(Icons.add_a_photo_outlined,
+                        color: Color(0xFFFFB300), size: 20)),
           ),
-          const SizedBox(height: 10),
-          ElevatedButton(
-            onPressed: _isSaving ? null : _arenaYayinla,
-            style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFFFB300),
-                minimumSize: const Size(double.infinity, 55)),
-            child: _isSaving
-                ? const CircularProgressIndicator(color: Colors.black)
-                : const Text("ARENA'DA YAYINLA",
-                    style: TextStyle(
-                        color: Colors.black, fontWeight: FontWeight.bold)),
-          ),
-        ],
-      ),
+        ),
+        if (_vitrinBytesList[index] != null)
+          Positioned(
+              top: 4,
+              right: 4,
+              child: GestureDetector(
+                  onTap: () => setState(() => _vitrinBytesList[index] = null),
+                  child: const CircleAvatar(
+                      radius: 8,
+                      backgroundColor: Colors.redAccent,
+                      child:
+                          Icon(Icons.close, size: 10, color: Colors.white)))),
+      ]),
     );
   }
 
   Widget _buildInput(TextEditingController c, String h, IconData i,
-      {int maxLines = 1}) {
+      {int maxLines = 1, Widget? suffix}) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 15),
       child: TextField(
@@ -227,15 +302,15 @@ class _SefYonetimPaneliState extends State<SefYonetimPaneli> {
         maxLines: maxLines,
         style: const TextStyle(color: Colors.white, fontSize: 13),
         decoration: InputDecoration(
-          prefixIcon: Icon(i, color: const Color(0xFFFFB300), size: 18),
-          hintText: h,
-          hintStyle: const TextStyle(color: Colors.white24, fontSize: 11),
-          filled: true,
-          fillColor: const Color(0xFF111111),
-          border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide.none),
-        ),
+            prefixIcon: Icon(i, color: const Color(0xFFFFB300), size: 18),
+            suffixIcon: suffix,
+            hintText: h,
+            hintStyle: const TextStyle(color: Colors.white24, fontSize: 11),
+            filled: true,
+            fillColor: const Color(0xFF111111),
+            border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide.none)),
       ),
     );
   }

@@ -1,5 +1,8 @@
+import 'dart:typed_data'; // ✅ Web/Masaüstü için bytes desteği
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:cloud_firestore/cloud_firestore.dart'; // ✅ Firestore bağlantısı
+import 'package:flutter/foundation.dart' show kIsWeb; // ✅ Web kontrolü
 
 class RestoranYonetimPaneli extends StatefulWidget {
   const RestoranYonetimPaneli({super.key});
@@ -9,50 +12,83 @@ class RestoranYonetimPaneli extends StatefulWidget {
 }
 
 class _RestoranYonetimPaneliState extends State<RestoranYonetimPaneli> {
-  // 📝 KONTROLCÜLER (Visual & Data Logic)
-  final _dukkanAdController = TextEditingController();
-  final _urunAdController = TextEditingController();
-  final _fiyatController = TextEditingController();
-  final _stokController = TextEditingController();
-  final _gorselUrlController = TextEditingController();
+  // 📸 Profil ve Vitrin Fotoğrafları (Bytes)
+  Uint8List? _profilBytes; // ✨ 00. Madde: Profil İkonu
+  final List<Uint8List?> _vitrinBytesList = List.generate(18, (_) => null);
 
-  String _secilenKategori = 'Ana Yemek';
+  final ImagePicker _picker = ImagePicker();
   bool _isSaving = false;
 
-  Future<void> _urunEkle() async {
-    if (_dukkanAdController.text.isEmpty || _urunAdController.text.isEmpty) {
+  // 📝 Kontrolcüler
+  final _restoranAdiController = TextEditingController();
+  final _bioController = TextEditingController();
+  final _fiyatController = TextEditingController();
+  final _teknikController = TextEditingController();
+
+  // 📷 PROFİL FOTOĞRAFI SEÇME (Instagram Stili)
+  Future<void> _profilSec() async {
+    try {
+      final XFile? image = await _picker.pickImage(
+          source: ImageSource.gallery, imageQuality: 50);
+      if (image != null) {
+        final Uint8List bytes = await image.readAsBytes();
+        setState(() => _profilBytes = bytes);
+      }
+    } catch (e) {
+      debugPrint("Profil seçme hatası: $e");
+    }
+  }
+
+  // 📷 VİTRİN FOTOĞRAFI SEÇME (Web/Masaüstü Uyumlu)
+  Future<void> _fotoSec(int index) async {
+    try {
+      final XFile? image = await _picker.pickImage(
+          source: ImageSource.gallery, imageQuality: 70);
+      if (image != null) {
+        final Uint8List bytes = await image.readAsBytes();
+        setState(() => _vitrinBytesList[index] = bytes);
+      }
+    } catch (e) {
+      debugPrint("Fotoğraf seçme hatası: $e");
+    }
+  }
+
+  // ❌ FOTOĞRAF SİLME (Tek Tek)
+  void _fotoSil(int index) {
+    setState(() => _vitrinBytesList[index] = null);
+  }
+
+  // 🚀 FÜZE ATEŞLEME: ARENA'DA YAYINLA (Firestore Mühürleme)
+  Future<void> _yayinla() async {
+    if (_restoranAdiController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text("⚠️ LÜTFEN DÜKKAN VE ÜRÜN ADINI BOŞ BIRAKMAYIN!")),
-      );
+          const SnackBar(content: Text("Lütfen Restoran Adını girin.")));
       return;
     }
 
     setState(() => _isSaving = true);
 
     try {
+      // 📝 Not: Fotoğraf URL'ye çevirme işlemi (Storage) buraya eklenecek.
+      // Şu an sadece metin verilerini mühürlüyoruz.
+
       await FirebaseFirestore.instance.collection('urunler').add({
-        "dukkan": _dukkanAdController.text.trim().toUpperCase(),
-        "ad": _urunAdController.text.trim().toUpperCase(),
+        "dukkan": _restoranAdiController.text.trim().toUpperCase(),
+        "tarif": _bioController.text.trim(),
         "fiyat": double.tryParse(_fiyatController.text) ?? 0.0,
-        "stok": int.tryParse(_stokController.text) ?? 0,
-        "kategori": _secilenKategori,
-        "img": _gorselUrlController.text.trim().isEmpty
-            ? "https://images.unsplash.com/photo-1546069901-ba9599a7e63c"
-            : _gorselUrlController.text.trim(),
+        "teknik": _teknikController.text.trim(),
         "tip": "Restoran",
-        "eklenmeTarihi": FieldValue.serverTimestamp(),
+        "onayDurumu": "onaylandi", // ✅ Direkt onaylı gidiyor
+        "isActive": true,
+        "kayitTarihi": FieldValue.serverTimestamp(),
       });
 
       if (mounted) {
-        _urunAdController.clear();
-        _fiyatController.clear();
-        _stokController.clear();
         ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("✅ ÜRÜN ARENA'YA MÜHÜRLENDİ!")));
+            const SnackBar(content: Text("✅ VİTRİN ARENA'DA CANLI!")));
       }
     } catch (e) {
-      debugPrint("Hata: $e");
+      debugPrint("Yayınlama hatası: $e");
     } finally {
       if (mounted) setState(() => _isSaving = false);
     }
@@ -60,70 +96,175 @@ class _RestoranYonetimPaneliState extends State<RestoranYonetimPaneli> {
 
   @override
   Widget build(BuildContext context) {
+    const Color goldColor = Color(0xFFFFB300);
+
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
         backgroundColor: Colors.black,
         elevation: 0,
-        centerTitle: true,
-        title: const Text("RESTORAN YÖNETİMİ",
+        title: const Text("RESTORAN VİTRİN YÖNETİMİ",
             style: TextStyle(
-                color: Color(0xFFFFB300),
-                fontSize: 13,
-                fontWeight: FontWeight.bold,
-                letterSpacing: 1)),
-        iconTheme: const IconThemeData(color: Color(0xFFFFB300)),
+                color: goldColor, fontSize: 13, fontWeight: FontWeight.bold)),
+        iconTheme: const IconThemeData(color: goldColor),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(25),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 🏢 DÜKKAN İSMİ (SILICON VALLEY STANDARD)
-            _buildInput(
-                _dukkanAdController, "DÜKKAN İSMİ", Icons.store_mall_directory),
-            const SizedBox(height: 10),
+            // ✨ INSTAGRAM STİLİ PROFİL İKONU VE BAŞLIK (En Üstte)
+            Row(
+              children: [
+                GestureDetector(
+                  onTap: _profilSec,
+                  child: Container(
+                    width: 60,
+                    height: 60,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(color: goldColor, width: 2),
+                      color: const Color(0xFF111111),
+                    ),
+                    child: ClipOval(
+                      child: _profilBytes != null
+                          ? Image.memory(_profilBytes!, fit: BoxFit.cover)
+                          : const Icon(Icons.person_add_alt_1_outlined,
+                              color: goldColor, size: 25),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 15),
+                const Expanded(
+                  child: Text("👨‍🍳 RESTORAN KİMLİĞİ",
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w900)),
+                ),
+              ],
+            ),
+            const SizedBox(height: 30),
 
-            // 🍴 ÜRÜN BİLGİLERİ
-            _buildInput(_urunAdController, "ÜRÜN ADI", Icons.restaurant_menu),
+            // 📝 1. BÖLÜM: BİLGİLER VE LİSTELER
+            _buildInput(_restoranAdiController, "RESTORAN ADI / ŞEFİN ADI",
+                Icons.restaurant),
+            _buildInput(_bioController,
+                "YEMEK AKI / ŞEFİN HİKAYESİ (01. MADDE)", Icons.history_edu,
+                maxLines: 3),
             Row(
               children: [
                 Expanded(
-                    child: _buildInput(
-                        _fiyatController, "FİYAT (₺)", Icons.payments)),
-                const SizedBox(width: 10),
+                    child: _buildInput(_fiyatController, "ORTALAMA FİYAT (₺)",
+                        Icons.payments)),
+                const SizedBox(width: 15),
                 Expanded(
-                    child: _buildInput(
-                        _stokController, "STOK ADEDİ", Icons.inventory_2)),
+                    child: _buildInput(_teknikController, "MUTFAK TARZI",
+                        Icons.auto_fix_high)),
               ],
             ),
-            _buildInput(_gorselUrlController, "GÖRSEL URL (MENÜ FOTOĞRAFI)",
-                Icons.image),
 
             const SizedBox(height: 20),
-
-            // 🔘 KATEGORİ SEÇİCİ (GÖRSELDEKİ GİBİ ŞIK)
-            _buildKategoriSecici(),
+            const Text("🎓 AKADEMİ MÜFREDATI",
+                style: TextStyle(
+                    color: goldColor,
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold)),
+            const SizedBox(height: 10),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                "Osmanlı Mutf.",
+                "Yöresel Mutf.",
+                "Dünya Mutf.",
+                "Çikolata San.",
+                "Pasta Tekn.",
+                "Sütlü Tatlı."
+              ].map((e) => _buildChip(e)).toList(),
+            ),
 
             const SizedBox(height: 40),
+            const Divider(color: Colors.white10),
+            const SizedBox(height: 20),
 
-            // 🔥 MÜHÜRLEME BUTONU
-            ElevatedButton(
-              onPressed: _isSaving ? null : _urunEkle,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFFFB300),
-                minimumSize: const Size(double.infinity, 60),
-                shape: RoundedRectangleBorder(
-                    borderRadius:
-                        BorderRadius.circular(30)), // Daha yuvarlak ve modern
-                elevation: 5,
+            // ✨ 2. BÖLÜM: 18'Lİ ALTIN VİTRİN (ALTTA)
+            const Text("📸 RESTORAN VİTRİNİ (18 FOTOĞRAF)",
+                style: TextStyle(
+                    color: goldColor,
+                    fontSize: 11,
+                    fontWeight: FontWeight.bold)),
+            const SizedBox(height: 15),
+            GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 3,
+                crossAxisSpacing: 10,
+                mainAxisSpacing: 10,
               ),
+              itemCount: 18,
+              itemBuilder: (context, index) => Stack(
+                children: [
+                  GestureDetector(
+                    onTap: () => _fotoSec(index),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF0D0D0D),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: _vitrinBytesList[index] != null
+                              ? goldColor
+                              : Colors.white.withOpacity(0.05),
+                          width: _vitrinBytesList[index] != null ? 1.5 : 1,
+                        ),
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(10),
+                        child: _vitrinBytesList[index] != null
+                            ? Image.memory(_vitrinBytesList[index]!,
+                                fit: BoxFit.cover,
+                                width: double.infinity,
+                                height: double.infinity)
+                            : const Icon(Icons.add_a_photo_outlined,
+                                color: goldColor, size: 20),
+                      ),
+                    ),
+                  ),
+                  if (_vitrinBytesList[index] != null)
+                    Positioned(
+                      top: 5,
+                      right: 5,
+                      child: GestureDetector(
+                        onTap: () => _fotoSil(index),
+                        child: Container(
+                          padding: const EdgeInsets.all(3),
+                          decoration: const BoxDecoration(
+                              color: Colors.redAccent, shape: BoxShape.circle),
+                          child: const Icon(Icons.close,
+                              color: Colors.white, size: 10),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 50),
+
+            // 🚀 AKTİF YAYINLAMA BUTONU
+            ElevatedButton(
+              onPressed: _isSaving ? null : _yayinla, // ✅ Canlandırıldı
+              style: ElevatedButton.styleFrom(
+                  backgroundColor: goldColor,
+                  minimumSize: const Size(double.infinity, 55),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15))),
               child: _isSaving
                   ? const CircularProgressIndicator(color: Colors.black)
-                  : const Text("MENÜYE EKLE",
+                  : const Text("VİTRİNİ ARENA'DA YAYINLA",
                       style: TextStyle(
-                          color: Colors.black,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 15)),
+                          color: Colors.black, fontWeight: FontWeight.bold)),
             ),
           ],
         ),
@@ -131,52 +272,30 @@ class _RestoranYonetimPaneliState extends State<RestoranYonetimPaneli> {
     );
   }
 
-  Widget _buildKategoriSecici() {
-    List<String> kategoriler = ['Ana Yemek', 'Aparatif', 'İçecek', 'Tatlı'];
-    return Wrap(
-      spacing: 12,
-      runSpacing: 10,
-      alignment: WrapAlignment.center,
-      children: kategoriler
-          .map((k) => ChoiceChip(
-                label: Text(k, style: const TextStyle(fontSize: 11)),
-                selected: _secilenKategori == k,
-                onSelected: (val) => setState(() => _secilenKategori = k),
-                selectedColor: const Color(0xFFFFB300),
-                backgroundColor: const Color(0xFF1A1A1A),
-                labelStyle: TextStyle(
-                    color:
-                        _secilenKategori == k ? Colors.black : Colors.white70),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10)),
-              ))
-          .toList(),
-    );
-  }
+  Widget _buildChip(String label) => FilterChip(
+      label: Text(label,
+          style: const TextStyle(fontSize: 10, color: Colors.white70)),
+      onSelected: (v) {},
+      backgroundColor: Colors.white10);
 
-  Widget _buildInput(TextEditingController c, String h, IconData i) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 15),
-      child: TextField(
-        controller: c,
-        style: const TextStyle(color: Colors.white, fontSize: 14),
-        decoration: InputDecoration(
-          prefixIcon: Icon(i, color: const Color(0xFFFFB300), size: 20),
-          hintText: h,
-          hintStyle: const TextStyle(color: Colors.white24, fontSize: 12),
-          filled: true,
-          fillColor: const Color(0xFF111111),
-          contentPadding: const EdgeInsets.symmetric(vertical: 18),
-          enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(15),
-              borderSide: BorderSide(color: Colors.white.withOpacity(0.05))),
-          focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(15),
-              borderSide: const BorderSide(color: Color(0xFFFFB300))),
+  Widget _buildInput(TextEditingController c, String h, IconData i,
+          {int maxLines = 1}) =>
+      Padding(
+        padding: const EdgeInsets.only(bottom: 15),
+        child: TextField(
+          controller: c,
+          maxLines: maxLines,
+          style: const TextStyle(color: Colors.white, fontSize: 13),
+          decoration: InputDecoration(
+            prefixIcon: Icon(i, color: const Color(0xFFFFB300), size: 18),
+            hintText: h,
+            hintStyle: const TextStyle(color: Colors.white24, fontSize: 11),
+            filled: true,
+            fillColor: const Color(0xFF111111),
+            border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide.none),
+          ),
         ),
-      ),
-    );
-  }
+      );
 }
