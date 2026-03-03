@@ -75,12 +75,12 @@ class KategoriSayfasi extends StatelessWidget {
   Widget _kategoriButonu(BuildContext context, String baslik, String altBaslik,
       IconData ikon, Widget hedef) {
     return GestureDetector(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => hedef),
-        );
-      },
+     onTap: () {
+  Navigator.push(
+    context,
+    MaterialPageRoute(builder: (context) => const SefItibarSayfasi(sefUid: 'test_id')),
+  );
+},
       child: Container(
         margin: const EdgeInsets.only(bottom: 15),
         padding: const EdgeInsets.all(20),

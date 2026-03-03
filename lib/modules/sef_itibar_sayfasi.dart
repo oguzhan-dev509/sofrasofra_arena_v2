@@ -1,220 +1,153 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'sef_akademi_dersleri.dart'; // ✅ Yeni oluşturduğumuz sayfa
 
 class SefItibarSayfasi extends StatelessWidget {
-  final String sefAdi;
-  const SefItibarSayfasi({super.key, required this.sefAdi});
+  final String dukkanId;
+  const SefItibarSayfasi({super.key, required this.dukkanId});
+
+  static const gold = Color(0xFFFFB300);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
-      // 🛰️ Canlı Veri Dinleyici: Şefin tüm verilerini (müfredat dahil) buradan alıyoruz
-      body: StreamBuilder<QuerySnapshot>(
+      appBar: AppBar(
+        backgroundColor: Colors.black,
+        iconTheme: const IconThemeData(color: gold),
+        title: const Text("ŞEF İTİBAR PROFİLİ",
+            style: TextStyle(color: gold, fontSize: 13)),
+      ),
+      body: StreamBuilder<DocumentSnapshot>(
         stream: FirebaseFirestore.instance
             .collection('urunler')
-            .where('dukkan', isEqualTo: sefAdi)
-            .where('tip', isEqualTo: 'Usta Sefler')
-            .limit(1)
+            .doc(dukkanId)
             .snapshots(),
         builder: (context, snapshot) {
-          if (!snapshot.hasData)
-            return const Center(
-                child: CircularProgressIndicator(color: Color(0xFFFFB300)));
+          if (snapshot.connectionState == ConnectionState.waiting)
+            return const Center(child: CircularProgressIndicator(color: gold));
 
-          // Şefin verilerini paketliyoruz
-          final data = snapshot.data!.docs.isNotEmpty
-              ? snapshot.data!.docs.first.data() as Map<String, dynamic>
-              : <String, dynamic>{};
+          final data = snapshot.data?.data() as Map<String, dynamic>? ?? {};
+          final String ad =
+              (data['dukkan'] ?? data['dukkanAdi'] ?? "Usta Şef").toString();
+          final String uzman =
+              (data['uzmanlik'] ?? "Gastronomi Uzmanı").toString();
+          final String resim =
+              (data['img'] ?? "https://picsum.photos/200").toString();
 
-          return CustomScrollView(
-            slivers: [
-              _buildSliverAppBar(),
-              SliverToBoxAdapter(
-                child: Column(
-                  children: [
-                    const SizedBox(height: 20),
-                    _buildPrestijRozetleri(),
-                    const SizedBox(height: 30),
-                    _buildVideoKapak(context, data['youtube_url']),
-                    const SizedBox(height: 30),
+          // 🎓 Müfredat Listesi
+          final List<String> mufredat = [
+            "Osmanlı",
+            "Tabak Tasarım",
+            "Dünya Mutf.",
+            "Maliyet"
+          ];
 
-                    // 🍴 01. İMZA MUTFAĞI
-                    _buildEliteCategory(
-                        context,
-                        "01",
-                        "SEFIN IMZA MUTFAGI",
-                        "Sadece en seckin receteler.",
-                        Icons.auto_awesome_outlined,
-                        onTap: () => _uyariGoster(context, "Imza Mutfagi")),
+          return SingleChildScrollView(
+            child: Column(
+              children: [
+                const SizedBox(height: 30),
+                _ustProfil(ad, uzman, resim),
+                const SizedBox(height: 30),
+                _itibarMetrikleri(data), // 📊 Dinamik Metrikler
+                const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 40, vertical: 20),
+                    child: Divider(color: Colors.white10)),
 
-                    // 🎓 02. ŞEF AKADEMİSİ (AKTİF!)
-                    _buildEliteCategory(
-                        context,
-                        "02",
-                        "SEF AKADEMISI",
-                        "Gastronomi teknik egitimleri.",
-                        Icons.school_outlined, onTap: () {
-                      // 🚀 İşte o meşhur geçiş!
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => SefAkademiDersleri(
-                            sefAdi: sefAdi,
-                            dersler: data['akadem_mufredat'] ?? [],
-                          ),
-                        ),
-                      );
-                    }),
+                const Text("🎓 AKADEMİ MÜFREDATI",
+                    style: TextStyle(
+                        color: gold,
+                        fontSize: 11,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 1.5)),
+                const SizedBox(height: 20),
 
-                    _buildEliteCategory(
-                        context,
-                        "03",
-                        "OZEL DAVET ARSIVI",
-                        "Seckin etkinlik portfolyosu.",
-                        Icons.history_edu_outlined,
-                        onTap: () => _uyariGoster(context, "Davet Arsivi")),
+                _mufredatCiz(mufredat),
 
-                    _buildEliteCategory(
-                        context,
-                        "04",
-                        "MUTFAK DANISMANLIGI",
-                        "Profesyonel mentorluk.",
-                        Icons.business_center_outlined,
-                        onTap: () => _uyariGoster(context, "Danismanlik")),
-
-                    _buildEliteCategory(context, "05", "SEFIN MASASI",
-                        "Size ozel rezervasyon.", Icons.event_seat_outlined,
-                        onTap: () => _uyariGoster(context, "Sefin Masasi")),
-
-                    const SizedBox(height: 50),
-                  ],
-                ),
-              ),
-            ],
+                const SizedBox(height: 40),
+                _sefHikayesi(ad, uzman), // 🛡️ HATAYI DÜZELTEN FONKSİYON BURADA
+                const SizedBox(height: 40),
+              ],
+            ),
           );
         },
       ),
     );
   }
 
-  // --- UI BİLEŞENLERİ ---
-
-  // lib/modules/sef_itibar_sayfasi.dart içindeki ilgili bölümü bununla değiştir:
-
-  Widget _buildSliverAppBar() {
-    return SliverAppBar(
-      expandedHeight: 250,
-      pinned: true,
-      backgroundColor: Colors.black,
-      iconTheme: const IconThemeData(color: Color(0xFFFFB300)),
-      flexibleSpace: FlexibleSpaceBar(
-        title: Text(sefAdi.toUpperCase(),
-            style: const TextStyle(
-                color: Color(0xFFFFB300),
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-                letterSpacing: 2)),
-        background: Stack(
-          fit: StackFit.expand,
-          children: [
-            // ✅ Hata Veren Kısım Düzeltildi: Opacity artık çakışmayacak
-            Opacity(
-              opacity: 0.4,
-              child: Image.network(
-                  "https://images.unsplash.com/photo-1583394293214-28dea15ee548",
-                  fit: BoxFit.cover),
-            ),
-            const DecoratedBox(
+  Widget _mufredatCiz(List<String> liste) {
+    return Wrap(
+      spacing: 10,
+      runSpacing: 10,
+      alignment: WrapAlignment.center,
+      children: liste
+          .map((e) => Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
                 decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                        begin: Alignment.bottomCenter,
-                        end: Alignment.topCenter,
-                        colors: [Colors.black, Colors.transparent]))),
-          ],
-        ),
-      ),
+                  color: const Color(0xFF111111),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.white10),
+                ),
+                child: Text(e,
+                    style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold)),
+              ))
+          .toList(),
     );
   }
 
-  Widget _buildPrestijRozetleri() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: [
-        _singleBadge(Icons.verified, "ONAYLI"),
-        _singleBadge(Icons.star, "9.8 PUAN"),
-        _singleBadge(Icons.timer, "15 YIL"),
-      ],
-    );
+  Widget _ustProfil(String ad, String uzman, String resim) {
+    return Column(children: [
+      CircleAvatar(
+          radius: 62,
+          backgroundColor: gold,
+          child:
+              CircleAvatar(radius: 60, backgroundImage: NetworkImage(resim))),
+      const SizedBox(height: 15),
+      Text(ad,
+          style: const TextStyle(
+              color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold)),
+      Text(uzman, style: const TextStyle(color: Colors.white38, fontSize: 13)),
+    ]);
   }
 
-  Widget _singleBadge(IconData icon, String text) {
-    return Column(
-      children: [
-        Icon(icon, color: const Color(0xFFFFB300), size: 18),
-        const SizedBox(height: 5),
-        Text(text,
-            style: const TextStyle(
-                color: Colors.white38, fontSize: 8, letterSpacing: 1)),
-      ],
-    );
+  Widget _itibarMetrikleri(Map<String, dynamic> data) {
+    final String puan =
+        (data['itibar_puani'] ?? data['puan'] ?? "4.9").toString();
+    final String mezun =
+        (data['mezun_sayisi'] ?? data['mezun'] ?? "12").toString();
+    final String muhur =
+        (data['muhur_sayisi'] ?? data['muhur'] ?? "24").toString();
+
+    return Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
+      _metrik("İTİBAR", puan, Icons.star),
+      _metrik("MEZUN", mezun, Icons.school),
+      _metrik("MÜHÜR", muhur, Icons.workspace_premium),
+    ]);
   }
 
-  Widget _buildVideoKapak(BuildContext context, String? ytUrl) {
+  Widget _metrik(String l, String v, IconData i) {
+    return Column(children: [
+      Icon(i, color: gold, size: 20),
+      const SizedBox(height: 5),
+      Text(v,
+          style: const TextStyle(
+              color: Colors.white, fontWeight: FontWeight.bold)),
+      Text(l, style: const TextStyle(color: Colors.white38, fontSize: 9)),
+    ]);
+  }
+
+  // 🛡️ İŞTE KAYIP OLAN VE HATAYI GİDEREN FONKSİYON:
+  Widget _sefHikayesi(String ad, String uzman) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Container(
-        height: 180,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(15),
-          image: const DecorationImage(
-              image: NetworkImage(
-                  "https://images.unsplash.com/photo-1556910103-1c02745aae4d"),
-              fit: BoxFit.cover,
-              opacity: 0.5),
-        ),
-        child: const Center(
-            child: Icon(Icons.play_circle_fill,
-                color: Color(0xFFFFB300), size: 50)),
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 30),
+      child: Text(
+          "$ad, Arena standartlarında $uzman mühürlü bir şeftir. Akademi bünyesinde yeni nesil şefler yetiştirmektedir.",
+          textAlign: TextAlign.center,
+          style: const TextStyle(
+              color: Colors.white70, fontSize: 13, height: 1.5)),
     );
-  }
-
-  Widget _buildEliteCategory(BuildContext context, String index, String baslik,
-      String alt, IconData ikon,
-      {VoidCallback? onTap}) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-      child: InkWell(
-        onTap: onTap,
-        child: Container(
-          decoration: BoxDecoration(
-              color: const Color(0xFF0A0A0A),
-              borderRadius: BorderRadius.circular(4),
-              border: Border.all(color: Colors.white.withOpacity(0.05))),
-          child: ListTile(
-            leading: Text(index,
-                style: const TextStyle(color: Color(0xFFFFB300), fontSize: 18)),
-            title: Text(baslik,
-                style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold)),
-            subtitle: Text(alt,
-                style: const TextStyle(
-                    color: Colors.white38,
-                    fontSize: 10,
-                    fontStyle: FontStyle.italic)),
-            trailing: Icon(ikon, color: const Color(0xFFFFB300), size: 18),
-          ),
-        ),
-      ),
-    );
-  }
-
-  void _uyariGoster(BuildContext context, String sayfa) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text("$sayfa yakinda Arena'da!")));
   }
 }

@@ -1,72 +1,74 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class SefAkademiDersleri extends StatelessWidget {
-  final String sefAdi;
-  final List<dynamic> dersler; // Firestore'dan gelen akadem_mufredat listesi
-
-  const SefAkademiDersleri(
-      {super.key, required this.sefAdi, required this.dersler});
+  const SefAkademiDersleri({super.key});
 
   @override
   Widget build(BuildContext context) {
+    const Color gold = Color(0xFFFFB300);
+
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
         backgroundColor: Colors.black,
-        iconTheme: const IconThemeData(color: Color(0xFFFFB300)),
-        title: Text("$sefAdi AKADEMİSİ",
-            style: const TextStyle(
-                color: Color(0xFFFFB300),
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-                letterSpacing: 1.5)),
+        iconTheme: const IconThemeData(color: gold),
+        title: const Text("AKADEMİ DERS PROGRAMI",
+            style: TextStyle(
+                color: gold, fontSize: 13, fontWeight: FontWeight.bold)),
       ),
-      body: dersler.isEmpty
-          ? _bosDersUyari()
-          : ListView.builder(
-              padding: const EdgeInsets.all(20),
-              itemCount: dersler.length,
-              itemBuilder: (context, index) {
-                return _dersKarti(index + 1, dersler[index].toString());
-              },
-            ),
-    );
-  }
+      body: StreamBuilder<QuerySnapshot>(
+        // 📡 Dersler koleksiyonunu dinliyoruz
+        stream: FirebaseFirestore.instance.collection('dersler').snapshots(),
+        builder: (context, snapshot) {
+          // ⏳ Yüklenme durumu kontrolü
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator(color: gold));
+          }
 
-  Widget _bosDersUyari() {
-    return const Center(
-      child: Text("Şef henüz eğitim müfredatını güncellemedi.",
-          style: TextStyle(color: Colors.white24, fontSize: 13)),
-    );
-  }
+          // ❌ Veri yoksa veya hata varsa
+          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+            return const Center(
+              child: Text("Henüz ders içeriği eklenmedi.",
+                  style: TextStyle(color: Colors.white38)),
+            );
+          }
 
-  Widget _dersKarti(int sira, String dersAdi) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      decoration: BoxDecoration(
-        color: const Color(0xFF0A0A0A),
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: Colors.white.withOpacity(0.05)),
-      ),
-      child: ListTile(
-        leading: CircleAvatar(
-          backgroundColor: const Color(0xFFFFB300).withOpacity(0.1),
-          child: Text(sira.toString(),
-              style: const TextStyle(
-                  color: Color(0xFFFFB300), fontWeight: FontWeight.bold)),
-        ),
-        title: Text(dersAdi.toUpperCase(),
-            style: const TextStyle(
-                color: Colors.white,
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-                letterSpacing: 1)),
-        subtitle: const Text("Eğitimi İzlemek İçin Tıklayın",
-            style: TextStyle(color: Colors.white24, fontSize: 9)),
-        trailing: const Icon(Icons.play_circle_outline,
-            color: Color(0xFFFFB300), size: 20),
-        onTap: () {
-          // Burada şefin genel akademi videosuna veya derse özel videoya yönlendirme yapılabilir
+          // ✅ Veri varsa listele
+          return ListView.builder(
+            padding: const EdgeInsets.all(15),
+            itemCount: snapshot.data!.docs.length,
+            itemBuilder: (context, index) {
+              final m =
+                  snapshot.data!.docs[index].data() as Map<String, dynamic>;
+
+              return Container(
+                margin: const EdgeInsets.only(bottom: 10),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.05),
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: Colors.white10),
+                ),
+                child: ListTile(
+                  leading:
+                      const Icon(Icons.play_circle_fill, color: gold, size: 30),
+                  title: Text(
+                    (m['baslik'] ?? "İsimsiz Eğitim").toString().toUpperCase(),
+                    style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold),
+                  ),
+                  subtitle: Text(
+                    m['sure'] ?? "Süre Belirtilmedi",
+                    style: const TextStyle(color: Colors.white38, fontSize: 11),
+                  ),
+                  trailing: const Icon(Icons.lock_outline,
+                      color: Colors.white24, size: 16),
+                ),
+              );
+            },
+          );
         },
       ),
     );

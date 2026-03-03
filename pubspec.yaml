@@ -10,14 +10,15 @@ dependencies:
   flutter:
     sdk: flutter
 
-  cupertino_icons: ^1.0.6
+  cupertino_icons: ^1.0.8
 
-  # Firebase (uyumlu ve stabil kombinasyon)
-  firebase_core: ^2.25.4
-  firebase_auth: ^4.17.4
-  cloud_firestore: ^4.15.9
+  # Firebase - Terminalin İstediği En Uyumlu Versiyonlar
+  firebase_core: ^2.32.0
+  firebase_auth: ^4.20.0
+  cloud_firestore: ^4.17.5
   firebase_storage: ^11.7.7
-
+  
+  # Medya ve Fonksiyon Araçları
   image_picker: ^1.2.1
   url_launcher: ^6.3.2
 
