@@ -4,7 +4,6 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:image_picker/image_picker.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 
 class VitrinMerkeziSayfasi extends StatefulWidget {
   const VitrinMerkeziSayfasi({super.key});
@@ -34,8 +33,7 @@ class _VitrinMerkeziSayfasiState extends State<VitrinMerkeziSayfasi> {
   ];
   String seciliEvAltKategori = "EV YEMEKLER";
 
-  late List<Map<String, dynamic>>
-      _onSekizUrun; // final kaldırıldı, resetleme için
+  late List<Map<String, dynamic>> _onSekizUrun; // resetleme için late
 
   bool _gonderiliyor = false;
 
@@ -66,7 +64,7 @@ class _VitrinMerkeziSayfasiState extends State<VitrinMerkeziSayfasi> {
       SettableMetadata(contentType: 'image/jpeg'),
     );
 
-    return await snap.ref.getDownloadURL();
+    return snap.ref.getDownloadURL();
   }
 
   @override
@@ -79,7 +77,6 @@ class _VitrinMerkeziSayfasiState extends State<VitrinMerkeziSayfasi> {
         title: Text(
           dukkanAdi,
           style: const TextStyle(
-            // const eklendi
             color: _gold,
             fontWeight: FontWeight.w900,
             fontSize: 18,
@@ -274,7 +271,9 @@ class _VitrinMerkeziSayfasiState extends State<VitrinMerkeziSayfasi> {
                     boxShadow: dolu
                         ? [
                             BoxShadow(
-                                color: _gold.withAlpha(40), blurRadius: 15)
+                              color: _gold.withAlpha(40),
+                              blurRadius: 15,
+                            )
                           ]
                         : null,
                   ),
@@ -398,7 +397,7 @@ class _VitrinMerkeziSayfasiState extends State<VitrinMerkeziSayfasi> {
 
                     final bytes = await x.readAsBytes();
 
-                    // 1) UI preview hemen (setState modal dışında çalışmalı)
+                    // UI preview
                     setState(() {
                       _onSekizUrun[i] = {
                         "ad": ad.text.trim(),
@@ -411,17 +410,16 @@ class _VitrinMerkeziSayfasiState extends State<VitrinMerkeziSayfasi> {
                       };
                     });
 
-                    // 2) Storage upload -> https URL
                     final url = await _uploadImageBytesToStorage(bytes);
 
-                    debugPrint("✅ UPLOAD OK url=$url");
+                    // ✅ async sonrası context kullanımı: c.mounted kontrolü
+                    if (!c.mounted) return;
 
-                    // 3) Ürüne URL yaz
                     setState(() {
                       _onSekizUrun[i]["resimUrl"] = url;
                     });
 
-                    if (mounted) Navigator.pop(c);
+                    Navigator.pop(c);
                   } catch (e) {
                     debugPrint("❌ Resim hatası: $e");
                   }
@@ -508,7 +506,8 @@ class _VitrinMerkeziSayfasiState extends State<VitrinMerkeziSayfasi> {
     if (urunler.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-            content: Text("Gönderilecek ürün yok. En az 1 ürün ekleyin.")),
+          content: Text("Gönderilecek ürün yok. En az 1 ürün ekleyin."),
+        ),
       );
       return;
     }
@@ -519,7 +518,6 @@ class _VitrinMerkeziSayfasiState extends State<VitrinMerkeziSayfasi> {
       final fs = FirebaseFirestore.instance;
       final batch = fs.batch();
 
-      // Etiketleme Mantığı: Tip ve Kategori
       final tip = _tipMetni();
       final kategori = _kategoriMetni();
 
@@ -533,14 +531,14 @@ class _VitrinMerkeziSayfasiState extends State<VitrinMerkeziSayfasi> {
         batch.set(doc, {
           "ad": (u["ad"] ?? "").toString().trim(),
           "tarif": (u["tarif"] ?? "").toString().trim(),
-          "dukkan": dukkanAdi, // DÜKKAN ADI BURADA GİDİYOR
+          "dukkan": dukkanAdi,
           "fiyat": fiyatNum,
           "gelAlFiyat": (u["gelAlFiyat"] ?? "").toString().trim(),
           "goturFiyat": (u["goturFiyat"] ?? "").toString().trim(),
           "teslimat": u["teslimat"] == true,
           "img": img,
           "tip": tip,
-          "kategori": kategori, // ALT KATEGORİ BURADA GİDİYOR
+          "kategori": kategori,
           "onayDurumu": "onaylandi",
           "isActive": true,
           "kayitTarihi": FieldValue.serverTimestamp(),

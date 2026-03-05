@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'ev_lezzetleri_vitrini.dart';
-import 'sef_vitrini.dart';
 import 'restoranlar_vitrini.dart';
+import 'sef_vitrini.dart';
 
 class KategoriSayfasi extends StatelessWidget {
   const KategoriSayfasi({super.key});
+
+  static const Color gold = Color(0xFFFFB300);
 
   @override
   Widget build(BuildContext context) {
@@ -13,18 +15,18 @@ class KategoriSayfasi extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Colors.black,
         elevation: 0,
-        iconTheme: const IconThemeData(color: Color(0xFFFFB300)),
+        iconTheme: const IconThemeData(color: gold),
         title: const Text(
           "ARENA KATEGORİLERİ",
           style: TextStyle(
-            color: Color(0xFFFFB300),
+            color: gold,
             letterSpacing: 2,
             fontSize: 13,
             fontWeight: FontWeight.bold,
           ),
         ),
       ),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -39,48 +41,50 @@ class KategoriSayfasi extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 5),
-            const Divider(color: Color(0xFFFFB300), thickness: 0.5),
+            const Divider(color: gold, thickness: 0.5),
             const SizedBox(height: 25),
-
-            // 🚀 KATEGORİ BUTONLARI
             _kategoriButonu(
-              context,
-              "EV LEZZETLERİ",
-              "Anne eli değmiş taze ürünler",
-              Icons.restaurant_menu,
-              const EvLezzetleriVitrini(),
+              context: context,
+              baslik: "EV LEZZETLERİ",
+              altBaslik: "Anne eli değmiş taze ürünler",
+              ikon: Icons.restaurant_menu,
+              hedef: const EvLezzetleriVitrini(),
             ),
-
             _kategoriButonu(
-              context,
-              "RESTORANLAR",
-              "Arena'nın seçkin işletmeleri",
-              Icons.storefront,
-              const RestoranlarVitrini(),
+              context: context,
+              baslik: "RESTORANLAR",
+              altBaslik: "Arena'nın seçkin işletmeleri",
+              ikon: Icons.storefront,
+              hedef: const RestoranlarVitrini(),
             ),
-
             _kategoriButonu(
-              context,
-              "USTA ŞEFLER",
-              "Profesyonel gastronomi deneyimi",
-              Icons.star_border_purple500,
-              const SefVitrini(),
+              context: context,
+              baslik: "USTA ŞEFLER",
+              altBaslik: "Profesyonel gastronomi deneyimi",
+              ikon: Icons.star_border_purple500,
+              hedef: const SefVitrini(),
             ),
+            const SizedBox(height: 10),
           ],
         ),
       ),
     );
   }
 
-  Widget _kategoriButonu(BuildContext context, String baslik, String altBaslik,
-      IconData ikon, Widget hedef) {
+  Widget _kategoriButonu({
+    required BuildContext context,
+    required String baslik,
+    required String altBaslik,
+    required IconData ikon,
+    required Widget hedef,
+  }) {
     return GestureDetector(
-     onTap: () {
-  Navigator.push(
-    context,
-    MaterialPageRoute(builder: (context) => const SefItibarSayfasi(sefUid: 'test_id')),
-  );
-},
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => hedef),
+        );
+      },
       child: Container(
         margin: const EdgeInsets.only(bottom: 15),
         padding: const EdgeInsets.all(20),
@@ -94,10 +98,10 @@ class KategoriSayfasi extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: const Color(0xFFFFB300).withAlpha(30),
+                color: gold.withAlpha(30),
                 shape: BoxShape.circle,
               ),
-              child: Icon(ikon, color: const Color(0xFFFFB300), size: 24),
+              child: Icon(ikon, color: gold, size: 24),
             ),
             const SizedBox(width: 20),
             Expanded(
@@ -123,8 +127,11 @@ class KategoriSayfasi extends StatelessWidget {
                 ],
               ),
             ),
-            const Icon(Icons.arrow_forward_ios,
-                color: Colors.white10, size: 14),
+            const Icon(
+              Icons.arrow_forward_ios,
+              color: Colors.white10,
+              size: 14,
+            ),
           ],
         ),
       ),

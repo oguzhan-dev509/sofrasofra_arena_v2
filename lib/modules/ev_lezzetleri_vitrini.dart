@@ -1,16 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-// NOT: Eğer alttaki import hata verirse klasör yolunu kontrol et
-// import '../theme/app_theme.dart';
 import 'dukkan_detay_sayfasi.dart';
 
-// 🎨 GÜVENLİ TEMA TANIMLARI (AppTheme hatasını önlemek için)
+// 🎨 Basit tema
 class AppTheme {
   static const Color gold = Color(0xFFFFB300);
   static const Color card = Color(0xFF111111);
   static const Color text = Colors.white;
 }
 
+// ✅ KategoriSayfasi hedefi: const EvLezzetleriVitrini()
+class EvLezzetleriVitrini extends StatelessWidget {
+  const EvLezzetleriVitrini({super.key});
+
+  @override
+  Widget build(BuildContext context) => const EvLezzetleriVitriniPage();
+}
+
+// ✅ main.dart eski çağrılar kırılmasın diye: const EvLezzetleriVitriniPage()
 class EvLezzetleriVitriniPage extends StatelessWidget {
   const EvLezzetleriVitriniPage({super.key});
 
@@ -19,11 +26,14 @@ class EvLezzetleriVitriniPage extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
-        title: const Text("EV LEZZETLERİ",
-            style: TextStyle(
-                color: AppTheme.gold,
-                fontSize: 16,
-                fontWeight: FontWeight.bold)),
+        title: const Text(
+          "EV LEZZETLERİ",
+          style: TextStyle(
+            color: AppTheme.gold,
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
         backgroundColor: Colors.black,
         elevation: 0,
         iconTheme: const IconThemeData(color: AppTheme.gold),
@@ -39,9 +49,11 @@ class EvLezzetleriVitriniPage extends StatelessWidget {
           if (snap.hasError) {
             return _EmptyState(text: "❌ Hata: ${snap.error}");
           }
+
           if (snap.connectionState == ConnectionState.waiting) {
             return const Center(
-                child: CircularProgressIndicator(color: AppTheme.gold));
+              child: CircularProgressIndicator(color: AppTheme.gold),
+            );
           }
 
           final docs = snap.data?.docs ?? [];
@@ -54,14 +66,19 @@ class EvLezzetleriVitriniPage extends StatelessWidget {
             itemCount: docs.length,
             itemBuilder: (context, i) {
               final d = docs[i].data();
-              final urunAd = (d['ad'] ?? '').toString();
-              final dukkan = (d['dukkan'] ?? '').toString();
-              final img = (d['img'] ?? '').toString();
-              final kategori = (d['kategori'] ?? '').toString();
 
-              final fiyatRaw = d['fiyat'];
-              String fiyatText =
-                  fiyatRaw?.toString() ?? d['gelAlFiyat']?.toString() ?? '';
+              final urunAd = (d['ad'] ?? '').toString().trim();
+              final dukkan = (d['dukkan'] ?? '').toString().trim();
+
+              // ✅ URL bazen newline/boşluklu gelebiliyor → temizle
+              final img = (d['img'] ?? '')
+                  .toString()
+                  .replaceAll(RegExp(r'\s+'), '')
+                  .trim();
+
+              final kategori = (d['kategori'] ?? '').toString().trim();
+
+              final fiyatText = _pickPriceText(d);
 
               return _UrunCard(
                 urunAd: urunAd,
@@ -84,6 +101,19 @@ class EvLezzetleriVitriniPage extends StatelessWidget {
       ),
     );
   }
+
+  String _pickPriceText(Map<String, dynamic> d) {
+    final fiyat = d['fiyat'];
+    final gelAlFiyat = d['gelAlFiyat'];
+
+    if (fiyat != null && fiyat.toString().trim().isNotEmpty) {
+      return fiyat.toString().trim();
+    }
+    if (gelAlFiyat != null && gelAlFiyat.toString().trim().isNotEmpty) {
+      return gelAlFiyat.toString().trim();
+    }
+    return '';
+  }
 }
 
 class _UrunCard extends StatelessWidget {
@@ -105,6 +135,12 @@ class _UrunCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final hasImg = img.isNotEmpty &&
+        (img.startsWith('http://') || img.startsWith('https://'));
+
+    // withOpacity yerine: Colors.white10 zaten sabit renkler
+    final borderColor = const Color(0xFFFFB300).withAlpha(90);
+
     return InkWell(
       onTap: onTap,
       child: Container(
@@ -112,7 +148,7 @@ class _UrunCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: AppTheme.card,
           borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: AppTheme.gold.withOpacity(0.35)),
+          border: Border.all(color: borderColor),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -122,12 +158,14 @@ class _UrunCard extends StatelessWidget {
                   const BorderRadius.vertical(top: Radius.circular(18)),
               child: AspectRatio(
                 aspectRatio: 16 / 9,
-                child: (img.isEmpty || !img.startsWith('http'))
+                child: !hasImg
                     ? Container(
                         color: Colors.black26,
                         child: const Center(
-                          child: Icon(Icons.image_not_supported,
-                              color: AppTheme.gold),
+                          child: Icon(
+                            Icons.image_not_supported,
+                            color: AppTheme.gold,
+                          ),
                         ),
                       )
                     : Image.network(
@@ -141,6 +179,19 @@ class _UrunCard extends StatelessWidget {
                                 Icon(Icons.broken_image, color: AppTheme.gold),
                           ),
                         ),
+                        loadingBuilder: (context, child, progress) {
+                          if (progress == null) return child;
+                          return const Center(
+                            child: SizedBox(
+                              width: 22,
+                              height: 22,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: AppTheme.gold,
+                              ),
+                            ),
+                          );
+                        },
                       ),
               ),
             ),
@@ -150,7 +201,7 @@ class _UrunCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    urunAd.isEmpty ? dukkan : urunAd,
+                    (urunAd.isEmpty ? dukkan : urunAd),
                     style: const TextStyle(
                       color: AppTheme.text,
                       fontSize: 18,
@@ -161,7 +212,10 @@ class _UrunCard extends StatelessWidget {
                   if (kategori.isNotEmpty)
                     Text(
                       kategori,
-                      style: TextStyle(color: AppTheme.text.withOpacity(0.75)),
+                      style: const TextStyle(
+                        color: Colors.white70,
+                        fontSize: 12,
+                      ),
                     ),
                   const SizedBox(height: 10),
                   Row(
@@ -171,8 +225,10 @@ class _UrunCard extends StatelessWidget {
                       Expanded(
                         child: Text(
                           dukkan,
-                          style:
-                              TextStyle(color: AppTheme.text.withOpacity(0.7)),
+                          style: const TextStyle(
+                            color: Colors.white70,
+                            fontSize: 12,
+                          ),
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
@@ -197,10 +253,9 @@ class _UrunCard extends StatelessWidget {
   }
 }
 
-// 🛡️ EKSİK OLABİLECEK _EmptyState WIDGET'I
 class _EmptyState extends StatelessWidget {
   final String text;
-  const _EmptyState({required this.text});
+  const _EmptyState({super.key, required this.text});
 
   @override
   Widget build(BuildContext context) {
@@ -211,16 +266,18 @@ class _EmptyState extends StatelessWidget {
         decoration: BoxDecoration(
           color: AppTheme.card,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.redAccent.withOpacity(0.3)),
+          border: Border.all(color: Colors.redAccent),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             const Icon(Icons.info_outline, color: AppTheme.gold, size: 30),
             const SizedBox(height: 10),
-            Text(text,
-                textAlign: TextAlign.center,
-                style: const TextStyle(color: AppTheme.text, fontSize: 13)),
+            Text(
+              text,
+              textAlign: TextAlign.center,
+              style: const TextStyle(color: AppTheme.text, fontSize: 13),
+            ),
           ],
         ),
       ),
