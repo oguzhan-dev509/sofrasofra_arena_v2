@@ -1,9 +1,11 @@
+import 'dart:convert';
 import 'dart:typed_data';
 
-import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show rootBundle;
 import 'package:image_picker/image_picker.dart';
 
 class UrunEklemeSayfasi extends StatefulWidget {
@@ -14,28 +16,64 @@ class UrunEklemeSayfasi extends StatefulWidget {
 }
 
 class _UrunEklemeSayfasiState extends State<UrunEklemeSayfasi> {
-  // Form
-  final TextEditingController _sefAdiController = TextEditingController();
+  final TextEditingController _dukkanController = TextEditingController();
+  final TextEditingController _urunAdiController = TextEditingController();
   final TextEditingController _uzmanlikController = TextEditingController();
   final TextEditingController _videoController = TextEditingController();
   final TextEditingController _resimUrlController = TextEditingController();
 
-  // Görsel
-  Uint8List? _webResimVerisi; // galeriden seçilen resim bytes (web için)
-  String? _seciliUrl; // kullanıcı elle URL yapıştırdıysa buraya alınır
+  Uint8List? _webResimVerisi;
+  String? _seciliUrl;
 
   bool _yukleniyor = false;
 
-  static const String tipValue = "Usta Sefler";
+  String _tip = "Usta Sefler";
+  String _sehir = "";
+  String _ilce = "";
+
+  Map<String, List<String>> _ilcelerMap = {};
+  bool _lokasyonYukleniyor = true;
+
   static const Color gold = Color(0xFFFFB300);
 
   @override
+  void initState() {
+    super.initState();
+    _ilceleriYukle();
+  }
+
+  @override
   void dispose() {
-    _sefAdiController.dispose();
+    _dukkanController.dispose();
+    _urunAdiController.dispose();
     _uzmanlikController.dispose();
     _videoController.dispose();
     _resimUrlController.dispose();
     super.dispose();
+  }
+
+  Future<void> _ilceleriYukle() async {
+    try {
+      final raw = await rootBundle.loadString('assets/ilceler.json');
+      final Map<String, dynamic> decoded = jsonDecode(raw);
+
+      final map = decoded.map((k, v) {
+        final list = (v as List).map((e) => e.toString()).toList();
+        return MapEntry(k.toString(), list);
+      });
+
+      if (!mounted) return;
+      setState(() {
+        _ilcelerMap = Map<String, List<String>>.from(map);
+        _lokasyonYukleniyor = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _lokasyonYukleniyor = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("❌ İl/İlçe listesi yüklenemedi: $e")),
+      );
+    }
   }
 
   bool _isHttpUrl(String s) {
@@ -43,7 +81,6 @@ class _UrunEklemeSayfasiState extends State<UrunEklemeSayfasi> {
     return t.startsWith("http://") || t.startsWith("https://");
   }
 
-  // 📸 Foto seç (Web uyumlu)
   Future<void> _dosyaGezgininiAc() async {
     try {
       final picker = ImagePicker();
@@ -56,42 +93,37 @@ class _UrunEklemeSayfasiState extends State<UrunEklemeSayfasi> {
 
       final bytes = await image.readAsBytes();
 
+      if (!mounted) return;
       setState(() {
         _webResimVerisi = bytes;
-        _seciliUrl = null; // URL varsa temizle
+        _seciliUrl = null;
         _resimUrlController.clear();
       });
 
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("✅ Fotoğraf seçildi.")),
-        );
-      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("✅ Fotoğraf seçildi.")),
+      );
     } catch (e) {
-      debugPrint("Foto seçim hatası: $e");
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("❌ Foto seçim hatası: $e")),
-        );
-      }
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("❌ Foto seçim hatası: $e")),
+      );
     }
   }
 
-  // 🔗 URL ekle
   void _urlEkle() {
     final url = _resimUrlController.text.trim();
 
     if (!_isHttpUrl(url)) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text("❌ Geçerli bir http/https resim linki gir.")),
+        const SnackBar(content: Text("❌ Geçerli http/https resim linki gir.")),
       );
       return;
     }
 
     setState(() {
       _seciliUrl = url;
-      _webResimVerisi = null; // bytes varsa temizle
+      _webResimVerisi = null;
     });
 
     _resimUrlController.clear();
@@ -101,12 +133,12 @@ class _UrunEklemeSayfasiState extends State<UrunEklemeSayfasi> {
     );
   }
 
-  // ☁️ Storage'a yükle (bytes -> downloadURL)
   Future<String> _bulutaYukle(String uid, Uint8List bytes) async {
-    final dosyaAdi = "sef_${DateTime.now().millisecondsSinceEpoch}.jpg";
+    final dosyaAdi = "urun_${DateTime.now().millisecondsSinceEpoch}.jpg";
+
     final ref = FirebaseStorage.instance
         .ref()
-        .child("sef_resimleri")
+        .child("urun_resimleri")
         .child(uid)
         .child(dosyaAdi);
 
@@ -114,31 +146,53 @@ class _UrunEklemeSayfasiState extends State<UrunEklemeSayfasi> {
       bytes,
       SettableMetadata(contentType: "image/jpeg"),
     );
+
     final snap = await task;
     return await snap.ref.getDownloadURL();
   }
 
-  // ✅ ARENA'DA YAYINLA
   Future<void> _arenadaYayinla() async {
-    final sefAdi = _sefAdiController.text.trim();
+    final dukkan = _dukkanController.text.trim();
+    final urunAdi = _urunAdiController.text.trim();
     final uzmanlik = _uzmanlikController.text.trim();
     final videoUrl = _videoController.text.trim();
 
-    // 1) Şef adı zorunlu
-    if (sefAdi.isEmpty) {
+    if (dukkan.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("❌ Şef adı zorunludur!")),
+        const SnackBar(content: Text("❌ Dükkan / Şef adı zorunlu.")),
       );
       return;
     }
 
-    // 2) FOTO ZORUNLU ✅
-    final bool fotoVar = (_webResimVerisi != null) ||
-        (_seciliUrl != null && _seciliUrl!.isNotEmpty);
-    if (!fotoVar) {
+    if (_sehir.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("❌ Şehir seçmek zorunlu.")),
+      );
+      return;
+    }
+
+    if (_tip == "Ev Lezzetleri" && _ilce.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("❌ Ev Lezzetleri için ilçe zorunlu.")),
+      );
+      return;
+    }
+
+    if (_tip == "Ev Lezzetleri" && urunAdi.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-            content: Text("❌ Foto eklemeden Arena’da yayınlayamazsın.")),
+          content: Text("❌ Ev Lezzetleri için ürün/yemek adı zorunlu."),
+        ),
+      );
+      return;
+    }
+
+    final bool fotoVar = (_webResimVerisi != null) ||
+        (_seciliUrl != null && _seciliUrl!.isNotEmpty);
+
+    if (!fotoVar) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("❌ Foto eklemelisin.")),
       );
       return;
     }
@@ -147,12 +201,10 @@ class _UrunEklemeSayfasiState extends State<UrunEklemeSayfasi> {
 
     try {
       final user = FirebaseAuth.instance.currentUser;
-      if (user == null) {
-        throw Exception("Oturum bulunamadı (Anon login çalışmıyor olabilir).");
-      }
+      if (user == null) throw Exception("Oturum bulunamadı.");
+
       final uid = user.uid;
 
-      // 3) img belirle (önce bytes -> storage, yoksa url)
       String imgUrl;
       if (_webResimVerisi != null) {
         imgUrl = await _bulutaYukle(uid, _webResimVerisi!);
@@ -160,26 +212,23 @@ class _UrunEklemeSayfasiState extends State<UrunEklemeSayfasi> {
         imgUrl = _seciliUrl!.trim();
       }
 
-      // 4) img garanti: http/https olmalı
-      if (!_isHttpUrl(imgUrl) || imgUrl.length < 10) {
-        throw Exception("img URL hatalı üretildi. (img boş olamaz)");
+      if (!_isHttpUrl(imgUrl)) {
+        throw Exception("img URL geçersiz üretildi.");
       }
 
-      // 5) Firestore yaz (bio kesinlikle yok)
       await FirebaseFirestore.instance.collection('urunler').add({
-        "img": imgUrl, // ✅ kritik
-        "dukkan": sefAdi.toUpperCase(), // kart başlığı
+        "ad": (_tip == "Ev Lezzetleri") ? urunAdi : "",
+        "img": imgUrl,
+        "dukkan": dukkan,
+        "dukkanId": uid,
+        "sehir": _sehir,
+        "ilce": _ilce,
         "uzmanlik": uzmanlik,
         "videoUrl": videoUrl,
-
-        "dukkanId": uid,
-
-        "tip": tipValue, // ✅ kritik
-        "kategori": "USTA ŞEFLER",
-
+        "tip": _tip,
+        "kategori": _tip.toUpperCase(),
         "onayDurumu": "onaylandi",
         "isActive": true,
-
         "kayitTarihi": FieldValue.serverTimestamp(),
         "createdAt": FieldValue.serverTimestamp(),
       });
@@ -187,7 +236,7 @@ class _UrunEklemeSayfasiState extends State<UrunEklemeSayfasi> {
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("✅ Şef profili Arena’da mühürlendi!")),
+        const SnackBar(content: Text("✅ Arena’da yayınlandı!")),
       );
 
       Navigator.pop(context);
@@ -206,12 +255,15 @@ class _UrunEklemeSayfasiState extends State<UrunEklemeSayfasi> {
     final bool fotoSecildi = _webResimVerisi != null ||
         (_seciliUrl != null && _seciliUrl!.isNotEmpty);
 
+    final ilceler =
+        _sehir.isEmpty ? <String>[] : (_ilcelerMap[_sehir] ?? <String>[]);
+
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
         backgroundColor: Colors.black,
         title: const Text(
-          "ŞEF YÖNETİM MERKEZİ",
+          "ÜRÜN YÖNETİM MERKEZİ",
           style: TextStyle(color: gold, fontSize: 13),
         ),
         iconTheme: const IconThemeData(color: gold),
@@ -221,14 +273,120 @@ class _UrunEklemeSayfasiState extends State<UrunEklemeSayfasi> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            _input("ŞEF ADI", _sefAdiController),
+            DropdownButtonFormField<String>(
+              dropdownColor: Colors.black,
+              value: _tip,
+              style: const TextStyle(color: Colors.white),
+              items: const [
+                DropdownMenuItem(
+                  value: "Usta Sefler",
+                  child: Text("Usta Şefler"),
+                ),
+                DropdownMenuItem(
+                  value: "Restoranlar",
+                  child: Text("Restoranlar"),
+                ),
+                DropdownMenuItem(
+                  value: "Ev Lezzetleri",
+                  child: Text("Ev Lezzetleri"),
+                ),
+              ],
+              onChanged: _yukleniyor
+                  ? null
+                  : (v) {
+                      if (v == null) return;
+                      setState(() {
+                        _tip = v;
+                        if (_tip != "Ev Lezzetleri") {
+                          _urunAdiController.clear();
+                        }
+                      });
+                    },
+              decoration: const InputDecoration(
+                labelText: "TİP",
+                labelStyle: TextStyle(color: Colors.white24, fontSize: 11),
+                enabledBorder: UnderlineInputBorder(
+                  borderSide: BorderSide(color: Colors.white24),
+                ),
+                focusedBorder: UnderlineInputBorder(
+                  borderSide: BorderSide(color: gold),
+                ),
+              ),
+            ),
+            const SizedBox(height: 15),
+            DropdownButtonFormField<String>(
+              dropdownColor: Colors.black,
+              value: _sehir.isEmpty ? null : _sehir,
+              style: const TextStyle(color: Colors.white),
+              items: _ilcelerMap.keys
+                  .map((k) => DropdownMenuItem(value: k, child: Text(k)))
+                  .toList(),
+              onChanged: (_yukleniyor || _lokasyonYukleniyor)
+                  ? null
+                  : (v) {
+                      if (v == null) return;
+                      setState(() {
+                        _sehir = v;
+                        _ilce = "";
+                      });
+                    },
+              decoration: InputDecoration(
+                labelText: _lokasyonYukleniyor
+                    ? "ŞEHİR (Yükleniyor...)"
+                    : "ŞEHİR (ZORUNLU)",
+                labelStyle: const TextStyle(
+                  color: Colors.white24,
+                  fontSize: 11,
+                ),
+                enabledBorder: const UnderlineInputBorder(
+                  borderSide: BorderSide(color: Colors.white24),
+                ),
+                focusedBorder: const UnderlineInputBorder(
+                  borderSide: BorderSide(color: gold),
+                ),
+              ),
+            ),
             const SizedBox(height: 12),
-            _input("UZMANLIK", _uzmanlikController),
+            DropdownButtonFormField<String>(
+              dropdownColor: Colors.black,
+              value: _ilce.isEmpty ? null : _ilce,
+              style: const TextStyle(color: Colors.white),
+              items: ilceler
+                  .map((x) => DropdownMenuItem(value: x, child: Text(x)))
+                  .toList(),
+              onChanged: (_yukleniyor || _lokasyonYukleniyor || _sehir.isEmpty)
+                  ? null
+                  : (v) {
+                      if (v == null) return;
+                      setState(() => _ilce = v);
+                    },
+              decoration: InputDecoration(
+                labelText: (_tip == "Ev Lezzetleri")
+                    ? "İLÇE (ZORUNLU)"
+                    : "İLÇE (OPSİYONEL)",
+                labelStyle: const TextStyle(
+                  color: Colors.white24,
+                  fontSize: 11,
+                ),
+                enabledBorder: const UnderlineInputBorder(
+                  borderSide: BorderSide(color: Colors.white24),
+                ),
+                focusedBorder: const UnderlineInputBorder(
+                  borderSide: BorderSide(color: gold),
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+            _input("DÜKKAN / ŞEF ADI", _dukkanController),
+            if (_tip == "Ev Lezzetleri") ...[
+              const SizedBox(height: 12),
+              _input("YEMEK / ÜRÜN ADI", _urunAdiController),
+            ],
+            const SizedBox(height: 12),
+            _input("UZMANLIK (opsiyonel)", _uzmanlikController),
             const SizedBox(height: 12),
             _input("YOUTUBE (opsiyonel)", _videoController),
             const SizedBox(height: 18),
-
-            // URL ekleme satırı
             Row(
               children: [
                 Expanded(
@@ -236,8 +394,11 @@ class _UrunEklemeSayfasiState extends State<UrunEklemeSayfasi> {
                     controller: _resimUrlController,
                     style: const TextStyle(color: Colors.white),
                     decoration: const InputDecoration(
-                      hintText: "Resim linki yapıştır (https://...)",
-                      hintStyle: TextStyle(color: Colors.white24, fontSize: 12),
+                      hintText: "Resim linki (http/https)",
+                      hintStyle: TextStyle(
+                        color: Colors.white24,
+                        fontSize: 12,
+                      ),
                       enabledBorder: UnderlineInputBorder(
                         borderSide: BorderSide(color: Colors.white24),
                       ),
@@ -253,47 +414,21 @@ class _UrunEklemeSayfasiState extends State<UrunEklemeSayfasi> {
                 ),
               ],
             ),
-
             const SizedBox(height: 14),
-
-            // Foto seç
             _medyaKutusu(
               fotoSecildi ? "✅ FOTO HAZIR" : "FOTOĞRAF SEÇ",
               Icons.add_photo_alternate,
               Colors.blue,
               _yukleniyor ? null : _dosyaGezgininiAc,
             ),
-
-            const SizedBox(height: 16),
-
-            // Küçük önizleme bilgi
-            if (_seciliUrl != null && _seciliUrl!.isNotEmpty)
-              Text(
-                "Link: ${_seciliUrl!}",
-                style: const TextStyle(color: Colors.white38, fontSize: 11),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-
-            if (_webResimVerisi != null) ...[
-              const SizedBox(height: 10),
-              ClipRRect(
-                borderRadius: BorderRadius.circular(12),
-                child: Image.memory(
-                  _webResimVerisi!,
-                  height: 160,
-                  fit: BoxFit.cover,
-                ),
-              ),
-            ],
-
-            const SizedBox(height: 22),
-
+            const SizedBox(height: 25),
             SizedBox(
               height: 50,
               child: ElevatedButton(
                 onPressed: _yukleniyor ? null : _arenadaYayinla,
-                style: ElevatedButton.styleFrom(backgroundColor: gold),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: gold,
+                ),
                 child: _yukleniyor
                     ? const SizedBox(
                         width: 18,
@@ -338,7 +473,7 @@ class _UrunEklemeSayfasiState extends State<UrunEklemeSayfasi> {
       child: Container(
         padding: const EdgeInsets.all(15),
         decoration: BoxDecoration(
-          border: Border.all(color: c.withOpacity(0.35)),
+          border: Border.all(color: c.withValues(alpha: 0.35)),
           borderRadius: BorderRadius.circular(12),
           color: const Color(0xFF0A0A0A),
         ),
@@ -346,9 +481,14 @@ class _UrunEklemeSayfasiState extends State<UrunEklemeSayfasi> {
           children: [
             Icon(i, color: c),
             const SizedBox(width: 10),
-            Text(t,
-                style: TextStyle(
-                    color: c, fontSize: 11, fontWeight: FontWeight.bold)),
+            Text(
+              t,
+              style: TextStyle(
+                color: c,
+                fontSize: 11,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ],
         ),
       ),

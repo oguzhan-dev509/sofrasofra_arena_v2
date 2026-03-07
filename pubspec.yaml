@@ -1,6 +1,5 @@
 name: sofrasofra_arena_v2
 description: Sofrasofra Arena
-
 publish_to: "none"
 
 environment:
@@ -12,13 +11,13 @@ dependencies:
 
   cupertino_icons: ^1.0.8
 
-  # Firebase - Terminalin İstediği En Uyumlu Versiyonlar
+  # Firebase
   firebase_core: ^2.32.0
   firebase_auth: ^4.20.0
   cloud_firestore: ^4.17.5
   firebase_storage: ^11.7.7
-  
-  # Medya ve Fonksiyon Araçları
+
+  # Medya ve yardımcı paketler
   image_picker: ^1.2.1
   url_launcher: ^6.3.2
 

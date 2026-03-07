@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'dukkan_detay_sayfasi.dart';
 
 class RestoranlarVitrini extends StatefulWidget {
   const RestoranlarVitrini({super.key});
@@ -58,10 +57,11 @@ class _RestoranlarVitriniState extends State<RestoranlarVitrini> {
 
   Widget _restoranKarti(BuildContext context, Map<String, dynamic> res) {
     return GestureDetector(
-      onTap: () => Navigator.push(
-          context,
-          MaterialPageRoute(
-              builder: (context) => DukkanDetaySayfasi(dukkanAdi: res["ad"]))),
+      onTap: () {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Detay sayfası yakında eklenecek.")),
+        );
+      },
       child: Container(
         margin: const EdgeInsets.only(bottom: 20),
         decoration: BoxDecoration(

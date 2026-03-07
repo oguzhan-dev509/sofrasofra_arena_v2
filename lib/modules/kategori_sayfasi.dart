@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'ev_lezzetleri_vitrini.dart';
-import 'restoranlar_vitrini.dart';
-import 'sef_vitrini.dart';
+
+import 'vitrinler/ev_lezzetleri_vitrini.dart';
+import 'vitrinler/sef_vitrini.dart';
+import 'vitrinler/restoranlar_vitrini.dart';
 
 class KategoriSayfasi extends StatelessWidget {
   const KategoriSayfasi({super.key});

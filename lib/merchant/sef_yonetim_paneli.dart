@@ -24,7 +24,6 @@ class _SefYonetimPaneliState extends State<SefYonetimPaneli> {
   final _youtubeController = TextEditingController();
   final _danismanlikController = TextEditingController();
   final _rezervasyonController = TextEditingController();
-  final _kursDetayController = TextEditingController();
 
   final List<String> _secilenDersler = [];
 

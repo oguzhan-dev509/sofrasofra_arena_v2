@@ -1,21 +1,19 @@
 import 'dart:convert';
 
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
-
-import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 
 import 'firebase_options.dart';
 
 // Modüller
-import 'package:sofrasofra_arena_v2/modules/ev_lezzetleri_vitrini.dart';
-import 'modules/sef_vitrini.dart';
-import 'modules/restoranlar_vitrini.dart';
+import 'modules/vitrinler/ev_lezzetleri_vitrini.dart';
+import 'modules/vitrinler/restoranlar_vitrini.dart';
+import 'modules/vitrinler/sef_vitrini.dart';
 
 // Satıcı + test
-import 'merchant/merchant_dashboard.dart';
 import 'firestore_test_page.dart';
+import 'merchant/merchant_dashboard.dart';
 
 final ValueNotifier<String?> selectedSehir = ValueNotifier<String?>(null);
 final ValueNotifier<String?> selectedIlce = ValueNotifier<String?>(null);
@@ -37,15 +35,6 @@ Future<void> main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-
-  try {
-    final cred = await FirebaseAuth.instance.signInAnonymously();
-    // ignore: avoid_print
-    print("✅ ANON LOGIN UID: ${cred.user?.uid}");
-  } catch (e) {
-    // ignore: avoid_print
-    print("❌ Anonymous login failed: $e");
-  }
 
   runApp(const SofrasofraZirve());
 }
@@ -136,8 +125,6 @@ class _GirisEkraniState extends State<GirisEkrani> {
                 ),
               ),
               const SizedBox(height: 20),
-
-              // Şehir seçici
               _secimKutusu(
                 icon: Icons.location_on,
                 text: sehir ?? "ŞEHİR SEÇİNİZ",
@@ -146,15 +133,12 @@ class _GirisEkraniState extends State<GirisEkrani> {
                   if (secim != null) {
                     setState(() {
                       _secilenSehir = secim;
-                      _secilenIlce = null; // şehir değişince ilçe sıfır
+                      _secilenIlce = null;
                     });
                   }
                 },
               ),
-
               const SizedBox(height: 14),
-
-              // İlçe seçici
               _secimKutusu(
                 icon: Icons.location_city,
                 text: _lokasyonYukleniyor
@@ -177,21 +161,22 @@ class _GirisEkraniState extends State<GirisEkrani> {
                   }
                 },
               ),
-
               const SizedBox(height: 32),
-
               ElevatedButton(
                 onPressed: () {
                   if (_secilenSehir == null) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
-                          content: Text("Lütfen önce şehir seçiniz.")),
+                        content: Text("Lütfen önce şehir seçiniz."),
+                      ),
                     );
                     return;
                   }
                   if (_secilenIlce == null) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text("Lütfen ilçe seçiniz.")),
+                      const SnackBar(
+                        content: Text("Lütfen ilçe seçiniz."),
+                      ),
                     );
                     return;
                   }
@@ -199,8 +184,10 @@ class _GirisEkraniState extends State<GirisEkrani> {
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFFFFB300),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 40,
+                    vertical: 15,
+                  ),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(5),
                   ),
@@ -213,15 +200,14 @@ class _GirisEkraniState extends State<GirisEkrani> {
                   ),
                 ),
               ),
-
               const SizedBox(height: 26),
-
               TextButton(
                 onPressed: () {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (_) => const MerchantDashboard()),
+                      builder: (_) => const MerchantDashboard(),
+                    ),
                   );
                 },
                 child: Text(
@@ -233,15 +219,14 @@ class _GirisEkraniState extends State<GirisEkrani> {
                   ),
                 ),
               ),
-
               const SizedBox(height: 8),
-
               TextButton(
                 onPressed: () {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (_) => const FirestoreTestPage()),
+                      builder: (_) => const FirestoreTestPage(),
+                    ),
                   );
                 },
                 child: Text(
@@ -270,7 +255,9 @@ class _GirisEkraniState extends State<GirisEkrani> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 12),
         decoration: BoxDecoration(
-          border: Border.all(color: const Color(0xFFFFB300).withAlpha(128)),
+          border: Border.all(
+            color: const Color(0xFFFFB300).withAlpha(128),
+          ),
           borderRadius: BorderRadius.circular(5),
         ),
         child: Row(
@@ -442,9 +429,7 @@ class _GirisEkraniState extends State<GirisEkrani> {
   }
 
   Future<String?> _ilceSeciciGoster(BuildContext context, String sehir) async {
-    // JSON anahtarı "ISTANBUL" vs UI "İSTANBUL" olabiliyor.
     final key = sehir.replaceAll("İ", "I");
-
     final ilceler = _ilcelerMap[key] ?? _ilcelerMap[sehir] ?? <String>[];
 
     if (ilceler.isEmpty) {
@@ -539,8 +524,6 @@ class _GirisEkraniState extends State<GirisEkrani> {
               ),
             ),
             const SizedBox(height: 25),
-
-            // 1. Ev Lezzetleri
             _menuButonu(
               context,
               "EV LEZZETLERİ",
@@ -548,8 +531,6 @@ class _GirisEkraniState extends State<GirisEkrani> {
               _tryBuildEvLezzetleri(sehir, ilce),
             ),
             const Divider(color: Colors.white10),
-
-            // 2. Restoranlar
             _menuButonu(
               context,
               "RESTORANLAR",
@@ -557,8 +538,6 @@ class _GirisEkraniState extends State<GirisEkrani> {
               _tryBuildRestoranlar(sehir, ilce),
             ),
             const Divider(color: Colors.white10),
-
-            // 3. Usta Şefler
             _menuButonu(
               context,
               "USTA ŞEFLER",
@@ -571,32 +550,16 @@ class _GirisEkraniState extends State<GirisEkrani> {
     );
   }
 
-  // Sayfaların parametreli/parametresiz olma ihtimaline karşı güvenli builderlar:
   Widget _tryBuildEvLezzetleri(String sehir, String ilce) {
-    try {
-      // Eğer sen sayfayı parametreli yaptıysan bunu kullan:
-      // ignore: unnecessary_cast
-      return (const EvLezzetleriVitriniPage() as Widget);
-    } catch (_) {
-      // Parametresiz eski hali varsa:
-      return const EvLezzetleriVitriniPage();
-    }
+    return const EvLezzetleriVitrini();
   }
 
   Widget _tryBuildRestoranlar(String sehir, String ilce) {
-    try {
-      return (const RestoranlarVitrini() as Widget);
-    } catch (_) {
-      return const RestoranlarVitrini();
-    }
+    return const RestoranlarVitrini();
   }
 
   Widget _tryBuildSefler(String sehir, String ilce) {
-    try {
-      return (const SefVitrini() as Widget);
-    } catch (_) {
-      return const SefVitrini();
-    }
+    return const SefVitrini();
   }
 
   Widget _menuButonu(

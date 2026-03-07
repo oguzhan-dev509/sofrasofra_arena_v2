@@ -1,9 +1,10 @@
 import 'dart:typed_data';
-import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
-import 'package:image_picker/image_picker.dart';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 
 class VitrinMerkeziSayfasi extends StatefulWidget {
   const VitrinMerkeziSayfasi({super.key});
@@ -20,9 +21,7 @@ class _VitrinMerkeziSayfasiState extends State<VitrinMerkeziSayfasi> {
 
   final ImagePicker _picker = ImagePicker();
 
-  // 🔥 DÜKKAN ADI (Burası satış tarafına 'dukkan' etiketiyle gider)
   String dukkanAdi = "SOFRASOFRA.COM";
-
   String seciliKategori = "RESTORANLAR";
 
   final List<String> evAltKategoriler = const [
@@ -31,9 +30,10 @@ class _VitrinMerkeziSayfasiState extends State<VitrinMerkeziSayfasi> {
     "EV YAPIMI SÜT ÜRÜNLERİ",
     "EV YAPIMI TURŞU VE DİĞERLERİ",
   ];
+
   String seciliEvAltKategori = "EV YEMEKLER";
 
-  late List<Map<String, dynamic>> _onSekizUrun; // resetleme için late
+  late List<Map<String, dynamic>> _onSekizUrun;
 
   bool _gonderiliyor = false;
 
@@ -53,7 +53,6 @@ class _VitrinMerkeziSayfasiState extends State<VitrinMerkeziSayfasi> {
         "teslimat": true,
       };
 
-  // ✅ Storage upload helper
   Future<String> _uploadImageBytesToStorage(Uint8List bytes) async {
     final ts = DateTime.now().millisecondsSinceEpoch;
     final ref =
@@ -104,7 +103,9 @@ class _VitrinMerkeziSayfasiState extends State<VitrinMerkeziSayfasi> {
                 width: 16,
                 height: 16,
                 child: CircularProgressIndicator(
-                    strokeWidth: 2, color: Colors.black),
+                  strokeWidth: 2,
+                  color: Colors.black,
+                ),
               )
             : const Icon(Icons.send, color: Colors.black),
         label: Text(
@@ -117,8 +118,6 @@ class _VitrinMerkeziSayfasiState extends State<VitrinMerkeziSayfasi> {
       ),
     );
   }
-
-  // ---------------- UI ----------------
 
   Widget _kategoriSeciciWidget() {
     final kategoriler = ["EV LEZZETLERİ", "RESTORANLAR", "USTA ŞEFLER"];
@@ -217,8 +216,10 @@ class _VitrinMerkeziSayfasiState extends State<VitrinMerkeziSayfasi> {
     return ActionChip(
       backgroundColor: Colors.white10,
       avatar: Icon(ikon, color: _gold, size: 16),
-      label: Text(metin,
-          style: const TextStyle(color: Colors.white, fontSize: 10)),
+      label: Text(
+        metin,
+        style: const TextStyle(color: Colors.white, fontSize: 10),
+      ),
       onPressed: aksiyon,
     );
   }
@@ -247,10 +248,17 @@ class _VitrinMerkeziSayfasiState extends State<VitrinMerkeziSayfasi> {
 
     Widget imgWidget;
     if (bytes != null) {
-      imgWidget =
-          Image.memory(bytes, fit: BoxFit.cover, width: double.infinity);
+      imgWidget = Image.memory(
+        bytes,
+        fit: BoxFit.cover,
+        width: double.infinity,
+      );
     } else if (url.startsWith("http")) {
-      imgWidget = Image.network(url, fit: BoxFit.cover, width: double.infinity);
+      imgWidget = Image.network(
+        url,
+        fit: BoxFit.cover,
+        width: double.infinity,
+      );
     } else {
       imgWidget = const Center(
         child: Icon(Icons.add_a_photo, color: Colors.white10, size: 30),
@@ -271,9 +279,9 @@ class _VitrinMerkeziSayfasiState extends State<VitrinMerkeziSayfasi> {
                     boxShadow: dolu
                         ? [
                             BoxShadow(
-                              color: _gold.withAlpha(40),
+                              color: _gold.withValues(alpha: 0.16),
                               blurRadius: 15,
-                            )
+                            ),
                           ]
                         : null,
                   ),
@@ -294,8 +302,11 @@ class _VitrinMerkeziSayfasiState extends State<VitrinMerkeziSayfasi> {
                           color: Colors.redAccent,
                           shape: BoxShape.circle,
                         ),
-                        child: const Icon(Icons.close,
-                            color: Colors.white, size: 14),
+                        child: const Icon(
+                          Icons.close,
+                          color: Colors.white,
+                          size: 14,
+                        ),
                       ),
                     ),
                   ),
@@ -334,8 +345,6 @@ class _VitrinMerkeziSayfasiState extends State<VitrinMerkeziSayfasi> {
     );
   }
 
-  // ---------------- Form ----------------
-
   void _urunDetayFormuAc(int i) {
     final ad = TextEditingController(text: _onSekizUrun[i]["ad"]);
     final tarif = TextEditingController(text: _onSekizUrun[i]["tarif"]);
@@ -371,10 +380,15 @@ class _VitrinMerkeziSayfasiState extends State<VitrinMerkeziSayfasi> {
               Row(
                 children: [
                   Expanded(
-                      child: _inputWidget(gelAl, "Gel-Al", Icons.storefront)),
+                    child: _inputWidget(gelAl, "Gel-Al", Icons.storefront),
+                  ),
                   const SizedBox(width: 15),
                   Expanded(
-                    child: _inputWidget(gotur, "Götür", Icons.delivery_dining),
+                    child: _inputWidget(
+                      gotur,
+                      "Götür",
+                      Icons.delivery_dining,
+                    ),
                   ),
                 ],
               ),
@@ -397,7 +411,6 @@ class _VitrinMerkeziSayfasiState extends State<VitrinMerkeziSayfasi> {
 
                     final bytes = await x.readAsBytes();
 
-                    // UI preview
                     setState(() {
                       _onSekizUrun[i] = {
                         "ad": ad.text.trim(),
@@ -412,7 +425,6 @@ class _VitrinMerkeziSayfasiState extends State<VitrinMerkeziSayfasi> {
 
                     final url = await _uploadImageBytesToStorage(bytes);
 
-                    // ✅ async sonrası context kullanımı: c.mounted kontrolü
                     if (!c.mounted) return;
 
                     setState(() {
@@ -444,27 +456,26 @@ class _VitrinMerkeziSayfasiState extends State<VitrinMerkeziSayfasi> {
     );
   }
 
-  Widget _inputWidget(TextEditingController c, String h, IconData ikon) =>
-      Padding(
-        padding: const EdgeInsets.only(bottom: 12),
-        child: TextField(
-          controller: c,
-          style: const TextStyle(color: Colors.white),
-          decoration: InputDecoration(
-            prefixIcon: Icon(ikon, color: _gold, size: 18),
-            hintText: h,
-            hintStyle: const TextStyle(color: Colors.white24),
-            filled: true,
-            fillColor: Colors.white10,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(15),
-              borderSide: BorderSide.none,
-            ),
+  Widget _inputWidget(TextEditingController c, String h, IconData ikon) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: TextField(
+        controller: c,
+        style: const TextStyle(color: Colors.white),
+        decoration: InputDecoration(
+          prefixIcon: Icon(ikon, color: _gold, size: 18),
+          hintText: h,
+          hintStyle: const TextStyle(color: Colors.white24),
+          filled: true,
+          fillColor: Colors.white10,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(15),
+            borderSide: BorderSide.none,
           ),
         ),
-      );
-
-  // ---------------- Modals ----------------
+      ),
+    );
+  }
 
   void _odemePenceresiGoster(BuildContext context) {
     showModalBottomSheet(
@@ -495,8 +506,6 @@ class _VitrinMerkeziSayfasiState extends State<VitrinMerkeziSayfasi> {
       ),
     );
   }
-
-  // ---------------- Firestore ----------------
 
   Future<void> _vitriniMuhurleFirestore() async {
     final urunler = _onSekizUrun

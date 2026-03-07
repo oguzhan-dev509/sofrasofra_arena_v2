@@ -1,283 +1,191 @@
-import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'dukkan_detay_sayfasi.dart';
+import 'package:flutter/material.dart';
 
-// 🎨 Basit tema
-class AppTheme {
-  static const Color gold = Color(0xFFFFB300);
-  static const Color card = Color(0xFF111111);
-  static const Color text = Colors.white;
-}
-
-// ✅ KategoriSayfasi hedefi: const EvLezzetleriVitrini()
 class EvLezzetleriVitrini extends StatelessWidget {
   const EvLezzetleriVitrini({super.key});
 
-  @override
-  Widget build(BuildContext context) => const EvLezzetleriVitriniPage();
-}
+  static const Color _bg = Color(0xFFFDF5E6);
+  static const Color _brown = Colors.brown;
 
-// ✅ main.dart eski çağrılar kırılmasın diye: const EvLezzetleriVitriniPage()
-class EvLezzetleriVitriniPage extends StatelessWidget {
-  const EvLezzetleriVitriniPage({super.key});
+  Query<Map<String, dynamic>> _query() {
+    return FirebaseFirestore.instance
+        .collection('urunler')
+        .where(FieldPath.documentId, isEqualTo: 'OZyXTfzobkNxoOE96xex');
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: _bg,
       appBar: AppBar(
         title: const Text(
-          "EV LEZZETLERİ",
-          style: TextStyle(
-            color: AppTheme.gold,
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-          ),
+          "MAHALLE MUTFAĞI",
+          style: TextStyle(color: _brown, fontWeight: FontWeight.bold),
         ),
-        backgroundColor: Colors.black,
+        backgroundColor: Colors.transparent,
         elevation: 0,
-        iconTheme: const IconThemeData(color: AppTheme.gold),
+        iconTheme: const IconThemeData(color: _brown),
       ),
       body: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-        stream: FirebaseFirestore.instance
-            .collection('urunler')
-            .where('tip', isEqualTo: 'Ev Lezzetleri')
-            .where('onayDurumu', isEqualTo: 'onaylandi')
-            .orderBy('kayitTarihi', descending: true)
-            .snapshots(),
+        stream: _query().snapshots(),
         builder: (context, snap) {
           if (snap.hasError) {
-            return _EmptyState(text: "❌ Hata: ${snap.error}");
-          }
-
-          if (snap.connectionState == ConnectionState.waiting) {
-            return const Center(
-              child: CircularProgressIndicator(color: AppTheme.gold),
+            return _CenterInfo(
+              icon: Icons.error_outline,
+              title: "Hata",
+              message: snap.error.toString(),
             );
+          }
+          if (snap.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
           }
 
           final docs = snap.data?.docs ?? [];
-          if (docs.isEmpty) {
-            return const _EmptyState(text: "Henüz ev lezzeti satıcısı yok.");
+
+          debugPrint("✅ EV DOC COUNT: ${docs.length}");
+          if (docs.isNotEmpty) {
+            final d = docs.first.data();
+            debugPrint(
+                "✅ EV FIRST DOC FIELDS: tip=${d['tip']} onayDurumu=${d['onayDurumu']} isActive=${d['isActive']}");
           }
 
-          return ListView.builder(
-            padding: const EdgeInsets.all(16),
+          if (docs.isEmpty) {
+            return const _CenterInfo(
+              icon: Icons.info_outline,
+              title: "Henüz ev lezzeti yok.",
+              message:
+                  "Firestore’da tip='Ev Lezzetleri', onayDurumu='onaylandi', isActive=true kaydı bulunamadı.",
+            );
+          }
+
+          return GridView.builder(
+            padding: const EdgeInsets.all(15),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              childAspectRatio: 0.72,
+              crossAxisSpacing: 15,
+              mainAxisSpacing: 15,
+            ),
             itemCount: docs.length,
-            itemBuilder: (context, i) {
-              final d = docs[i].data();
+            itemBuilder: (context, index) {
+              final data = docs[index].data();
+              final ad = (data['ad'] ?? '').toString();
+              final dukkan = (data['dukkan'] ?? '').toString();
+              final img = (data['img'] ?? '').toString();
 
-              final urunAd = (d['ad'] ?? '').toString().trim();
-              final dukkan = (d['dukkan'] ?? '').toString().trim();
-
-              // ✅ URL bazen newline/boşluklu gelebiliyor → temizle
-              final img = (d['img'] ?? '')
-                  .toString()
-                  .replaceAll(RegExp(r'\s+'), '')
-                  .trim();
-
-              final kategori = (d['kategori'] ?? '').toString().trim();
-
-              final fiyatText = _pickPriceText(d);
-
-              return _UrunCard(
-                urunAd: urunAd,
-                dukkan: dukkan,
-                img: img,
-                kategori: kategori,
-                fiyatText: fiyatText,
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => DukkanDetaySayfasi(dukkanAdi: dukkan),
-                    ),
-                  );
-                },
-              );
+              return _EvKarti(ad: ad, dukkan: dukkan, img: img);
             },
           );
         },
       ),
     );
   }
-
-  String _pickPriceText(Map<String, dynamic> d) {
-    final fiyat = d['fiyat'];
-    final gelAlFiyat = d['gelAlFiyat'];
-
-    if (fiyat != null && fiyat.toString().trim().isNotEmpty) {
-      return fiyat.toString().trim();
-    }
-    if (gelAlFiyat != null && gelAlFiyat.toString().trim().isNotEmpty) {
-      return gelAlFiyat.toString().trim();
-    }
-    return '';
-  }
 }
 
-class _UrunCard extends StatelessWidget {
-  final String urunAd;
+class _EvKarti extends StatelessWidget {
+  final String ad;
   final String dukkan;
   final String img;
-  final String kategori;
-  final String fiyatText;
-  final VoidCallback onTap;
 
-  const _UrunCard({
-    required this.urunAd,
+  const _EvKarti({
+    required this.ad,
     required this.dukkan,
     required this.img,
-    required this.kategori,
-    required this.fiyatText,
-    required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    final hasImg = img.isNotEmpty &&
-        (img.startsWith('http://') || img.startsWith('https://'));
-
-    // withOpacity yerine: Colors.white10 zaten sabit renkler
-    final borderColor = const Color(0xFFFFB300).withAlpha(90);
-
-    return InkWell(
-      onTap: onTap,
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 14),
-        decoration: BoxDecoration(
-          color: AppTheme.card,
-          borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: borderColor),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            ClipRRect(
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(22),
+        boxShadow: [
+          BoxShadow(color: Colors.black.withOpacity(0.06), blurRadius: 10)
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Expanded(
+            child: ClipRRect(
               borderRadius:
-                  const BorderRadius.vertical(top: Radius.circular(18)),
-              child: AspectRatio(
-                aspectRatio: 16 / 9,
-                child: !hasImg
-                    ? Container(
-                        color: Colors.black26,
+                  const BorderRadius.vertical(top: Radius.circular(22)),
+              child: (img.trim().isEmpty)
+                  ? Container(
+                      color: Colors.black12,
+                      child: const Center(
+                          child:
+                              Icon(Icons.image, size: 40, color: Colors.brown)),
+                    )
+                  : Image.network(
+                      img,
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) => Container(
+                        color: Colors.black12,
                         child: const Center(
-                          child: Icon(
-                            Icons.image_not_supported,
-                            color: AppTheme.gold,
-                          ),
+                          child: Icon(Icons.broken_image,
+                              size: 36, color: Colors.brown),
                         ),
-                      )
-                    : Image.network(
-                        img,
-                        key: ValueKey(img),
-                        fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => Container(
-                          color: Colors.black26,
-                          child: const Center(
-                            child:
-                                Icon(Icons.broken_image, color: AppTheme.gold),
-                          ),
-                        ),
-                        loadingBuilder: (context, child, progress) {
-                          if (progress == null) return child;
-                          return const Center(
-                            child: SizedBox(
-                              width: 22,
-                              height: 22,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: AppTheme.gold,
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(14),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    (urunAd.isEmpty ? dukkan : urunAd),
-                    style: const TextStyle(
-                      color: AppTheme.text,
-                      fontSize: 18,
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  if (kategori.isNotEmpty)
-                    Text(
-                      kategori,
-                      style: const TextStyle(
-                        color: Colors.white70,
-                        fontSize: 12,
                       ),
                     ),
-                  const SizedBox(height: 10),
-                  Row(
-                    children: [
-                      const Icon(Icons.store, color: AppTheme.gold, size: 14),
-                      const SizedBox(width: 5),
-                      Expanded(
-                        child: Text(
-                          dukkan,
-                          style: const TextStyle(
-                            color: Colors.white70,
-                            fontSize: 12,
-                          ),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      if (fiyatText.isNotEmpty)
-                        Text(
-                          "$fiyatText ₺",
-                          style: const TextStyle(
-                            color: AppTheme.gold,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 14,
-                          ),
-                        ),
-                    ],
-                  ),
-                ],
-              ),
             ),
-          ],
-        ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(10),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  ad.isEmpty ? "İsimsiz Ürün" : ad,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  dukkan.isEmpty ? "-" : dukkan,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(fontSize: 11, color: Colors.brown),
+                ),
+              ],
+            ),
+          )
+        ],
       ),
     );
   }
 }
 
-class _EmptyState extends StatelessWidget {
-  final String text;
-  const _EmptyState({super.key, required this.text});
+class _CenterInfo extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String message;
+
+  const _CenterInfo({
+    required this.icon,
+    required this.title,
+    required this.message,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: Container(
-        padding: const EdgeInsets.all(20),
-        margin: const EdgeInsets.all(25),
-        decoration: BoxDecoration(
-          color: AppTheme.card,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.redAccent),
-        ),
+      child: Padding(
+        padding: const EdgeInsets.all(18),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.info_outline, color: AppTheme.gold, size: 30),
+            Icon(icon, color: Colors.brown, size: 34),
             const SizedBox(height: 10),
-            Text(
-              text,
-              textAlign: TextAlign.center,
-              style: const TextStyle(color: AppTheme.text, fontSize: 13),
-            ),
+            Text(title,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                    color: Colors.brown, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 6),
+            Text(message,
+                textAlign: TextAlign.center,
+                style: const TextStyle(color: Colors.brown, fontSize: 12)),
           ],
         ),
       ),
