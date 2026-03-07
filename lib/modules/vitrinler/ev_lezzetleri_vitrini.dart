@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:sofrasofra_arena_v2/modules/urun_detay.dart';
+import 'package:sofrasofra_arena_v2/services/sepet_service.dart';
 import '../../cart/sepet_sayfasi.dart';
 import '../../orders/musteri_siparis_takip_sayfasi.dart';
 import '../../merchant/satici_siparis_paneli.dart';
@@ -34,6 +35,15 @@ class EvLezzetleriVitrini extends StatelessWidget {
         .trim();
 
     return ad.isNotEmpty && dukkan.isNotEmpty && img.isNotEmpty;
+  }
+
+  double _readPrice(dynamic value) {
+    if (value == null) return 0;
+    if (value is num) return value.toDouble();
+    if (value is String) {
+      return double.tryParse(value.replaceAll(',', '.').trim()) ?? 0;
+    }
+    return 0;
   }
 
   @override
@@ -148,10 +158,11 @@ class EvLezzetleriVitrini extends StatelessWidget {
                   crossAxisCount: crossAxisCount,
                   crossAxisSpacing: 16,
                   mainAxisSpacing: 16,
-                  childAspectRatio: width < 700 ? 0.95 : 0.78,
+                  childAspectRatio: width < 700 ? 0.95 : 0.82,
                 ),
                 itemBuilder: (context, index) {
-                  final data = docs[index].data();
+                  final doc = docs[index];
+                  final data = doc.data();
 
                   final String ad =
                       (data['ad'] ?? data['urunAdi'] ?? data['yemekAdi'] ?? '')
@@ -174,14 +185,17 @@ class EvLezzetleriVitrini extends StatelessWidget {
                           .trim();
 
                   final dynamic fiyatRaw = data['fiyat'] ?? data['gelAlFiyat'];
-                  final String fiyatText = fiyatRaw == null
-                      ? ''
-                      : fiyatRaw.toString().replaceAll('.0', '');
+                  final double fiyat = _readPrice(fiyatRaw);
+                  final String fiyatText =
+                      fiyat <= 0 ? '' : fiyat.toStringAsFixed(0);
 
                   final String img =
                       (data['img'] ?? data['imgUrl'] ?? data['resim'] ?? '')
                           .toString()
                           .trim();
+
+                  final String tip =
+                      (data['tip'] ?? 'Ev Lezzetleri').toString().trim();
 
                   final String konum = [
                     if (ilce.isNotEmpty) ilce,
@@ -213,6 +227,25 @@ class EvLezzetleriVitrini extends StatelessWidget {
                         ),
                       );
                     },
+                    onAddToCart: () async {
+                      await SepetService.sepeteEkle(
+                        urunId: doc.id,
+                        urunAdi: ad,
+                        dukkanAdi: dukkan,
+                        kategori: tip,
+                        img: img,
+                        fiyat: fiyat,
+                      );
+
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('$ad sepete eklendi.'),
+                            backgroundColor: Colors.brown,
+                          ),
+                        );
+                      }
+                    },
                   );
                 },
               );
@@ -241,6 +274,7 @@ class _EvLezzetiKarti extends StatelessWidget {
   final String priceText;
   final String imgUrl;
   final VoidCallback onTap;
+  final VoidCallback onAddToCart;
 
   const _EvLezzetiKarti({
     required this.title,
@@ -250,6 +284,7 @@ class _EvLezzetiKarti extends StatelessWidget {
     required this.priceText,
     required this.imgUrl,
     required this.onTap,
+    required this.onAddToCart,
   });
 
   static const Color _brown = Colors.brown;
@@ -380,16 +415,38 @@ class _EvLezzetiKarti extends StatelessWidget {
                               ),
                             ),
                           ),
-                          Container(
-                            decoration: BoxDecoration(
-                              color: _brown.withValues(alpha: 0.08),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            padding: const EdgeInsets.all(8),
-                            child: const Icon(
-                              Icons.favorite_border,
-                              size: 18,
-                              color: _brown,
+                          const SizedBox(width: 8),
+                          InkWell(
+                            onTap: onAddToCart,
+                            borderRadius: BorderRadius.circular(12),
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: _gold,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 8,
+                              ),
+                              child: const Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    Icons.add_shopping_cart,
+                                    size: 18,
+                                    color: Colors.black,
+                                  ),
+                                  SizedBox(width: 6),
+                                  Text(
+                                    'Sepete Ekle',
+                                    style: TextStyle(
+                                      color: Colors.black,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         ],

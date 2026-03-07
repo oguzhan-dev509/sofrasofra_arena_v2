@@ -1,39 +1,73 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import '../orders/musteri_siparis_takip_sayfasi.dart';
 import '../services/order_service.dart';
 
-class SepetSayfasi extends StatelessWidget {
+class SepetSayfasi extends StatefulWidget {
   const SepetSayfasi({super.key});
 
+  @override
+  State<SepetSayfasi> createState() => _SepetSayfasiState();
+}
+
+class _SepetSayfasiState extends State<SepetSayfasi> {
   final String userId = 'demo_user';
+  bool _siparisOlusturuluyor = false;
 
   Stream<QuerySnapshot<Map<String, dynamic>>> _sepetStream() {
     return FirebaseFirestore.instance
         .collection('sepet')
         .doc(userId)
         .collection('items')
-        .orderBy('addedAt', descending: true)
         .snapshots();
   }
 
-  Future<void> _adetArtir(String urunId, int mevcutAdet) async {
+  QueryDocumentSnapshot<Map<String, dynamic>>? _findDocByUrunId(
+    List<QueryDocumentSnapshot<Map<String, dynamic>>> docs,
+    String urunId,
+  ) {
+    for (final doc in docs) {
+      final data = doc.data();
+      final currentId =
+          (data['urunId'] ?? data['productId'] ?? data['id'] ?? doc.id)
+              .toString();
+      if (currentId == urunId) return doc;
+    }
+    return null;
+  }
+
+  Future<void> _adetArtir(
+    String urunId,
+    int mevcutAdet,
+    List<QueryDocumentSnapshot<Map<String, dynamic>>> docs,
+  ) async {
+    final targetDoc = _findDocByUrunId(docs, urunId);
+    if (targetDoc == null) return;
+
     await FirebaseFirestore.instance
         .collection('sepet')
         .doc(userId)
         .collection('items')
-        .doc(urunId)
+        .doc(targetDoc.id)
         .update({
       'adet': mevcutAdet + 1,
       'addedAt': FieldValue.serverTimestamp(),
     });
   }
 
-  Future<void> _adetAzalt(String urunId, int mevcutAdet) async {
+  Future<void> _adetAzalt(
+    String urunId,
+    int mevcutAdet,
+    List<QueryDocumentSnapshot<Map<String, dynamic>>> docs,
+  ) async {
+    final targetDoc = _findDocByUrunId(docs, urunId);
+    if (targetDoc == null) return;
+
     final docRef = FirebaseFirestore.instance
         .collection('sepet')
         .doc(userId)
         .collection('items')
-        .doc(urunId);
+        .doc(targetDoc.id);
 
     if (mevcutAdet <= 1) {
       await docRef.delete();
@@ -45,13 +79,167 @@ class SepetSayfasi extends StatelessWidget {
     }
   }
 
-  Future<void> _urunuSil(String urunId) async {
+  Future<void> _urunuSil(
+    String urunId,
+    List<QueryDocumentSnapshot<Map<String, dynamic>>> docs,
+  ) async {
+    final targetDoc = _findDocByUrunId(docs, urunId);
+    if (targetDoc == null) return;
+
     await FirebaseFirestore.instance
         .collection('sepet')
         .doc(userId)
         .collection('items')
-        .doc(urunId)
+        .doc(targetDoc.id)
         .delete();
+  }
+
+  Future<void> _sepetiTemizle(
+    List<QueryDocumentSnapshot<Map<String, dynamic>>> docs,
+  ) async {
+    final batch = FirebaseFirestore.instance.batch();
+
+    for (final doc in docs) {
+      batch.delete(doc.reference);
+    }
+
+    await batch.commit();
+  }
+
+  Future<void> _siparisiTamamla(
+    BuildContext context,
+    List<QueryDocumentSnapshot<Map<String, dynamic>>> docs,
+  ) async {
+    if (_siparisOlusturuluyor || docs.isEmpty) return;
+
+    setState(() {
+      _siparisOlusturuluyor = true;
+    });
+
+    try {
+      final List<Map<String, dynamic>> items = docs.map((doc) {
+        final data = doc.data();
+
+        final urunId = _readString(
+          data,
+          ['urunId', 'productId', 'id'],
+          fallback: doc.id,
+        );
+
+        final urunAdi = _readString(
+          data,
+          ['urunAdi', 'ad', 'isim', 'title', 'name', 'yemekAdi'],
+          fallback: 'Ürün',
+        );
+
+        final dukkanAdi = _readString(
+          data,
+          ['dukkanAdi', 'dukkan', 'saticiAdi', 'sellerName', 'magazaAdi'],
+          fallback: 'Dükkan',
+        );
+
+        final kategori = _readString(
+          data,
+          ['kategori', 'category'],
+          fallback: 'Ev Lezzetleri',
+        );
+
+        final img = _readString(
+          data,
+          ['img', 'imageUrl', 'foto', 'gorselUrl'],
+        );
+
+        final fiyat = _asDouble(
+          data['fiyat'] ??
+              data['price'] ??
+              data['birimFiyat'] ??
+              data['unitPrice'] ??
+              0,
+        );
+
+        final adet = _asInt(
+          data['adet'] ?? data['quantity'] ?? data['qty'] ?? 1,
+        );
+
+        final saticiId = _readString(
+          data,
+          ['saticiId', 'sellerId', 'dukkanId', 'merchantId'],
+          fallback: dukkanAdi
+              .toLowerCase()
+              .replaceAll('ı', 'i')
+              .replaceAll('ş', 's')
+              .replaceAll('ğ', 'g')
+              .replaceAll('ç', 'c')
+              .replaceAll('ö', 'o')
+              .replaceAll('ü', 'u')
+              .replaceAll(' ', '_'),
+        );
+
+        return {
+          'urunId': urunId,
+          'urunAdi': urunAdi,
+          'dukkanAdi': dukkanAdi,
+          'kategori': kategori,
+          'img': img,
+          'fiyat': fiyat,
+          'adet': adet,
+          'saticiId': saticiId,
+        };
+      }).toList();
+
+      final sonuc = await OrderService.siparisOlustur(
+        kullaniciId: userId,
+        items: items,
+        odemeDurumu: 'beklemede',
+        odemeYontemi: 'kapida_odeme',
+        paraBirimi: 'TRY',
+        adres: 'Kadıköy / İstanbul',
+        teslimatTipi: 'standart',
+      );
+
+      await _sepetiTemizle(docs);
+
+      if (!mounted) return;
+
+      final siparisNo = (sonuc['siparisNo'] ?? '').toString();
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: const Color(0xFF1E1E1E),
+          content: Text(
+            siparisNo.isNotEmpty
+                ? 'Sipariş oluşturuldu: $siparisNo'
+                : 'Sipariş başarıyla oluşturuldu.',
+            style: const TextStyle(color: Colors.white),
+          ),
+        ),
+      );
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (_) => const MusteriSiparisTakipSayfasi(),
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: Colors.red.shade700,
+          content: Text(
+            'Sipariş oluşturulamadı: $e',
+            style: const TextStyle(color: Colors.white),
+          ),
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _siparisOlusturuluyor = false;
+        });
+      }
+    }
   }
 
   double _toplamHesapla(
@@ -61,12 +249,75 @@ class SepetSayfasi extends StatelessWidget {
 
     for (final doc in docs) {
       final data = doc.data();
-      final fiyat = (data['fiyat'] ?? 0).toDouble();
-      final adet = (data['adet'] ?? 0).toInt();
+      final fiyat = _asDouble(
+        data['fiyat'] ??
+            data['price'] ??
+            data['birimFiyat'] ??
+            data['unitPrice'] ??
+            0,
+      );
+      final adet = _asInt(
+        data['adet'] ?? data['quantity'] ?? data['qty'] ?? 0,
+      );
       toplam += fiyat * adet;
     }
 
     return toplam;
+  }
+
+  double _asDouble(dynamic value) {
+    if (value == null) return 0;
+    if (value is double) return value;
+    if (value is int) return value.toDouble();
+    if (value is num) return value.toDouble();
+    if (value is String) {
+      return double.tryParse(value.replaceAll(',', '.')) ?? 0;
+    }
+    return 0;
+  }
+
+  int _asInt(dynamic value) {
+    if (value == null) return 0;
+    if (value is int) return value;
+    if (value is num) return value.toInt();
+    if (value is String) return int.tryParse(value) ?? 0;
+    return 0;
+  }
+
+  String _readString(
+    Map<String, dynamic> data,
+    List<String> keys, {
+    String fallback = '',
+  }) {
+    for (final key in keys) {
+      final value = data[key];
+      if (value != null && value.toString().trim().isNotEmpty) {
+        return value.toString().trim();
+      }
+    }
+    return fallback;
+  }
+
+  List<QueryDocumentSnapshot<Map<String, dynamic>>> _sortDocs(
+    List<QueryDocumentSnapshot<Map<String, dynamic>>> docs,
+  ) {
+    final sorted = [...docs];
+    sorted.sort((a, b) {
+      final aData = a.data();
+      final bData = b.data();
+
+      final aTs = aData['addedAt'];
+      final bTs = bData['addedAt'];
+
+      DateTime aTime = DateTime.fromMillisecondsSinceEpoch(0);
+      DateTime bTime = DateTime.fromMillisecondsSinceEpoch(0);
+
+      if (aTs is Timestamp) aTime = aTs.toDate();
+      if (bTs is Timestamp) bTime = bTs.toDate();
+
+      return bTime.compareTo(aTime);
+    });
+    return sorted;
   }
 
   @override
@@ -89,13 +340,19 @@ class SepetSayfasi extends StatelessWidget {
         stream: _sepetStream(),
         builder: (context, snapshot) {
           if (snapshot.hasError) {
+            final err = snapshot.error?.toString() ?? 'Bilinmeyen hata';
+            debugPrint('❌ SEPET STREAM ERROR: $err');
+
             return Center(
               child: Padding(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(24),
                 child: Text(
-                  'Sepet hatası: ${snapshot.error}',
-                  style: const TextStyle(color: Colors.white),
+                  'Sepet yüklenirken hata oluştu.\n\n$err',
                   textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    color: Colors.white70,
+                    fontSize: 14,
+                  ),
                 ),
               ),
             );
@@ -109,7 +366,7 @@ class SepetSayfasi extends StatelessWidget {
             );
           }
 
-          final docs = snapshot.data?.docs ?? [];
+          final docs = _sortDocs(snapshot.data?.docs ?? []);
 
           if (docs.isEmpty) {
             return const Center(
@@ -134,14 +391,50 @@ class SepetSayfasi extends StatelessWidget {
                   itemBuilder: (context, index) {
                     final item = docs[index].data();
 
-                    final urunId =
-                        (item['urunId'] ?? docs[index].id).toString();
-                    final urunAdi = (item['urunAdi'] ?? 'Ürün').toString();
-                    final dukkanAdi = (item['dukkanAdi'] ?? '').toString();
-                    final kategori = (item['kategori'] ?? '').toString();
-                    final img = (item['img'] ?? '').toString();
-                    final fiyat = (item['fiyat'] ?? 0).toDouble();
-                    final adet = (item['adet'] ?? 1).toInt();
+                    final urunId = _readString(
+                      item,
+                      ['urunId', 'productId', 'id'],
+                      fallback: docs[index].id,
+                    );
+
+                    final urunAdi = _readString(
+                      item,
+                      ['urunAdi', 'ad', 'isim', 'title', 'name', 'yemekAdi'],
+                      fallback: 'Ürün',
+                    );
+
+                    final dukkanAdi = _readString(
+                      item,
+                      [
+                        'dukkanAdi',
+                        'dukkan',
+                        'saticiAdi',
+                        'sellerName',
+                        'magazaAdi'
+                      ],
+                    );
+
+                    final kategori = _readString(
+                      item,
+                      ['kategori', 'category'],
+                    );
+
+                    final img = _readString(
+                      item,
+                      ['img', 'imageUrl', 'foto', 'gorselUrl'],
+                    );
+
+                    final fiyat = _asDouble(
+                      item['fiyat'] ??
+                          item['price'] ??
+                          item['birimFiyat'] ??
+                          item['unitPrice'] ??
+                          0,
+                    );
+
+                    final adet = _asInt(
+                      item['adet'] ?? item['quantity'] ?? item['qty'] ?? 1,
+                    );
 
                     return Card(
                       color: const Color(0xFF161616),
@@ -234,7 +527,8 @@ class SepetSayfasi extends StatelessWidget {
                                     children: [
                                       _adetButonu(
                                         icon: Icons.remove,
-                                        onTap: () => _adetAzalt(urunId, adet),
+                                        onTap: () =>
+                                            _adetAzalt(urunId, adet, docs),
                                       ),
                                       Padding(
                                         padding: const EdgeInsets.symmetric(
@@ -251,11 +545,13 @@ class SepetSayfasi extends StatelessWidget {
                                       ),
                                       _adetButonu(
                                         icon: Icons.add,
-                                        onTap: () => _adetArtir(urunId, adet),
+                                        onTap: () =>
+                                            _adetArtir(urunId, adet, docs),
                                       ),
                                       const Spacer(),
                                       IconButton(
-                                        onPressed: () => _urunuSil(urunId),
+                                        onPressed: () =>
+                                            _urunuSil(urunId, docs),
                                         icon: const Icon(
                                           Icons.delete_outline,
                                           color: Colors.redAccent,
@@ -311,52 +607,34 @@ class SepetSayfasi extends StatelessWidget {
                         width: double.infinity,
                         height: 52,
                         child: ElevatedButton(
-                          onPressed: () async {
-                            try {
-                              final siparisId =
-                                  await OrderService.siparisOlustur(
-                                userId: 'demo_user',
-                                musteriAdSoyad: 'Mehmet Hazret',
-                                adres: 'Kadıköy / İstanbul',
-                                telefon: '0555 555 55 55',
-                                odemeYontemi: 'kapida_odeme',
-                              );
-
-                              if (context.mounted) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(
-                                      'Sipariş oluşturuldu: $siparisId',
-                                    ),
-                                  ),
-                                );
-                              }
-                            } catch (e) {
-                              if (context.mounted) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(
-                                      'Sipariş oluşturulamadı: $e',
-                                    ),
-                                  ),
-                                );
-                              }
-                            }
-                          },
+                          onPressed: _siparisOlusturuluyor
+                              ? null
+                              : () => _siparisiTamamla(context, docs),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFFFFB300),
                             foregroundColor: Colors.black,
+                            disabledBackgroundColor: Colors.grey.shade700,
+                            disabledForegroundColor: Colors.white70,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(14),
                             ),
                           ),
-                          child: const Text(
-                            'Siparişi Tamamla',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
+                          child: _siparisOlusturuluyor
+                              ? const SizedBox(
+                                  width: 22,
+                                  height: 22,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2.4,
+                                    color: Colors.black,
+                                  ),
+                                )
+                              : const Text(
+                                  'Siparişi Tamamla',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
                         ),
                       ),
                     ],
