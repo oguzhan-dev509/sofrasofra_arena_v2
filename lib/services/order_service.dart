@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 
 class OrderItemInput {
   final String urunId;
@@ -33,7 +34,6 @@ class OrderItemInput {
       'toplam': toplam,
       if (gorselUrl != null) 'gorselUrl': gorselUrl,
       if (kategori != null) 'kategori': kategori,
-      if (extra != null) 'extra': extra,
     };
   }
 
@@ -45,11 +45,13 @@ class OrderItemInput {
 
       final String urunId =
           _readString(map, ['urunId', 'id', 'productId'], fallback: '');
+
       final String urunAdi = _readString(
         map,
         ['urunAdi', 'ad', 'isim', 'title', 'yemekAdi', 'name'],
         fallback: 'Ürün',
       );
+
       final String saticiId = _readString(
         map,
         ['saticiId', 'sellerId', 'dukkanId', 'merchantId'],
@@ -70,6 +72,7 @@ class OrderItemInput {
 
       final String? gorselUrl =
           _readNullableString(map, ['gorselUrl', 'img', 'imageUrl', 'foto']);
+
       final String? kategori =
           _readNullableString(map, ['kategori', 'category']);
 
@@ -166,7 +169,8 @@ class SellerOrderGroup {
   });
 
   double get araToplam {
-    return items.fold<double>(0, (sum, item) => sum + item.toplam);
+    return items.fold<double>(
+        0, (toplamDeger, item) => toplamDeger + item.toplam);
   }
 }
 
@@ -176,6 +180,8 @@ class OrderService {
 
   final FirebaseFirestore _firestore;
 
+  // Şimdilik mevcut dosyayı kırmamak için isimleri koruyoruz.
+  // İstersen sonra bunları siparisler / saticiSiparisleri olarak standardize ederiz.
   static const String _ordersCollection = 'orders';
   static const String _sellerOrdersCollection = 'sellerOrders';
   static const String _countersCollection = 'counters';
@@ -303,118 +309,150 @@ class OrderService {
               fiyat: e.fiyat < 0 ? 0 : e.fiyat,
               gorselUrl: e.gorselUrl,
               kategori: e.kategori,
-              extra: e.extra,
+              extra: null,
             ))
         .toList();
 
     final sellerGroups = splitOrdersBySeller(cleanItems);
 
-    return _firestore.runTransaction<Map<String, dynamic>>((transaction) async {
-      final String siparisNo =
-          await _generateSiparisNoInTransaction(transaction);
+    try {
+      debugPrint('🟡 createOrder başladı');
+      debugPrint('🟡 kullaniciId: $kullaniciId');
+      debugPrint('🟡 cleanItems: ${cleanItems.length}');
+      debugPrint('🟡 sellerGroups: ${sellerGroups.length}');
 
-      final DocumentReference<Map<String, dynamic>> orderRef =
-          _firestore.collection(_ordersCollection).doc();
+      return await _firestore
+          .runTransaction<Map<String, dynamic>>((transaction) async {
+        final String siparisNo =
+            await _generateSiparisNoInTransaction(transaction);
 
-      final List<String> sellerOrderIds = <String>[];
+        final orderRef = _firestore.collection(_ordersCollection).doc();
+        final List<String> sellerOrderIds = <String>[];
 
-      final double araToplam = _roundMoney(
-        cleanItems.fold<double>(0, (sum, item) => sum + item.toplam),
-      );
-
-      final double normalizedTeslimatUcreti = _roundMoney(teslimatUcreti);
-      final double normalizedIndirimTutari = _roundMoney(indirimTutari);
-      final double toplamTutar = _roundMoney(
-        araToplam + normalizedTeslimatUcreti - normalizedIndirimTutari,
-      );
-
-      transaction.set(orderRef, {
-        'siparisNo': siparisNo,
-        'kullaniciId': kullaniciId,
-        'araToplam': araToplam,
-        'teslimatUcreti': normalizedTeslimatUcreti,
-        'indirimTutari': normalizedIndirimTutari,
-        'toplamTutar': toplamTutar < 0 ? 0 : toplamTutar,
-        'odemeDurumu': odemeDurumu,
-        'paraBirimi': paraBirimi,
-        'saticiSayisi': sellerGroups.length,
-        'itemSayisi': cleanItems.length,
-        'createdAt': FieldValue.serverTimestamp(),
-        'updatedAt': FieldValue.serverTimestamp(),
-        if (ekstraOrderMeta != null) 'meta': ekstraOrderMeta,
-      });
-
-      for (final item in cleanItems) {
-        final itemRef = orderRef.collection('items').doc();
-        transaction.set(itemRef, {
-          ...item.toMap(),
-          'orderId': orderRef.id,
-          'siparisNo': siparisNo,
-          'createdAt': FieldValue.serverTimestamp(),
-          'updatedAt': FieldValue.serverTimestamp(),
-        });
-      }
-
-      for (final group in sellerGroups) {
-        final String saticiId = group.saticiId;
-        final double subAraToplam = _roundMoney(group.araToplam);
-
-        final String finalTeslimatTipi =
-            sellerDeliveryTypes?[saticiId] ?? 'standart';
-
-        final double finalKomisyonOrani =
-            sellerCommissionRates?[saticiId] ?? 0.0;
-
-        final double komisyonTutari = calculateCommission(
-          araToplam: subAraToplam,
-          komisyonOrani: finalKomisyonOrani,
+        final double araToplam = _roundMoney(
+          cleanItems.fold<double>(0, (sum, item) => sum + item.toplam),
         );
 
-        final double netKazanc = _roundMoney(subAraToplam - komisyonTutari);
+        final double normalizedTeslimatUcreti = _roundMoney(teslimatUcreti);
+        final double normalizedIndirimTutari = _roundMoney(indirimTutari);
+        final double toplamTutar = _roundMoney(
+          araToplam + normalizedTeslimatUcreti - normalizedIndirimTutari,
+        );
 
-        final sellerOrderRef =
-            _firestore.collection(_sellerOrdersCollection).doc();
-
-        sellerOrderIds.add(sellerOrderRef.id);
-
-        transaction.set(sellerOrderRef, {
-          'orderId': orderRef.id,
+        transaction.set(orderRef, {
           'siparisNo': siparisNo,
           'kullaniciId': kullaniciId,
-          'saticiId': saticiId,
-          'teslimatTipi': finalTeslimatTipi,
-          'komisyonOrani': finalKomisyonOrani,
-          'komisyonTutari': komisyonTutari,
-          'netKazanc': netKazanc,
-          'araToplam': subAraToplam,
+          'araToplam': araToplam,
+          'teslimatUcreti': normalizedTeslimatUcreti,
+          'indirimTutari': normalizedIndirimTutari,
+          'toplamTutar': toplamTutar < 0 ? 0 : toplamTutar,
           'odemeDurumu': odemeDurumu,
+          'status': 'pending',
+          'statusUpdatedAt': FieldValue.serverTimestamp(),
           'paraBirimi': paraBirimi,
-          'durum': 'olusturuldu',
-          'itemSayisi': group.items.length,
+          'saticiSayisi': sellerGroups.length,
+          'itemSayisi': cleanItems.length,
           'createdAt': FieldValue.serverTimestamp(),
           'updatedAt': FieldValue.serverTimestamp(),
+          if (ekstraOrderMeta != null) 'meta': ekstraOrderMeta,
         });
 
-        for (final item in group.items) {
-          final sellerItemRef = sellerOrderRef.collection('items').doc();
-          transaction.set(sellerItemRef, {
+        final timelineRef = _firestore.collection('orderTimeline').doc();
+
+        transaction.set(timelineRef, {
+          'orderId': orderRef.id,
+          'siparisNo': siparisNo,
+          'status': 'pending',
+          'actorType': 'system',
+          'actorId': 'system',
+          'note': 'Sipariş oluşturuldu',
+          'createdAt': FieldValue.serverTimestamp(),
+        });
+
+        // Ana sipariş item'ları — TEK KEZ yazılıyor
+        for (final item in cleanItems) {
+          final itemRef = orderRef.collection('items').doc();
+          transaction.set(itemRef, {
             ...item.toMap(),
             'orderId': orderRef.id,
-            'sellerOrderId': sellerOrderRef.id,
             'siparisNo': siparisNo,
             'createdAt': FieldValue.serverTimestamp(),
             'updatedAt': FieldValue.serverTimestamp(),
           });
         }
-      }
 
-      return {
-        'success': true,
-        'orderId': orderRef.id,
-        'siparisNo': siparisNo,
-        'sellerOrderIds': sellerOrderIds,
-      };
-    });
+        debugPrint('🟢 main order hazır: ${orderRef.id}');
+        debugPrint('🟢 main order items hazır: ${cleanItems.length}');
+
+        for (final group in sellerGroups) {
+          final String saticiId = group.saticiId;
+          final double subAraToplam = _roundMoney(group.araToplam);
+
+          final String finalTeslimatTipi =
+              sellerDeliveryTypes?[saticiId] ?? 'standart';
+
+          final double finalKomisyonOrani =
+              sellerCommissionRates?[saticiId] ?? 0.0;
+
+          final double komisyonTutari = calculateCommission(
+            araToplam: subAraToplam,
+            komisyonOrani: finalKomisyonOrani,
+          );
+
+          final double netKazanc = _roundMoney(subAraToplam - komisyonTutari);
+
+          final sellerOrderRef =
+              _firestore.collection(_sellerOrdersCollection).doc();
+
+          sellerOrderIds.add(sellerOrderRef.id);
+
+          transaction.set(sellerOrderRef, {
+            'orderId': orderRef.id,
+            'siparisNo': siparisNo,
+            'kullaniciId': kullaniciId,
+            'saticiId': saticiId,
+            'teslimatTipi': finalTeslimatTipi,
+            'komisyonOrani': finalKomisyonOrani,
+            'komisyonTutari': komisyonTutari,
+            'netKazanc': netKazanc,
+            'araToplam': subAraToplam,
+            'odemeDurumu': odemeDurumu,
+            'paraBirimi': paraBirimi,
+            'durum': 'olusturuldu',
+            'status': 'pending',
+            'statusUpdatedAt': FieldValue.serverTimestamp(),
+            'itemSayisi': group.items.length,
+            'createdAt': FieldValue.serverTimestamp(),
+            'updatedAt': FieldValue.serverTimestamp(),
+          });
+
+          for (final item in group.items) {
+            final sellerItemRef = sellerOrderRef.collection('items').doc();
+            transaction.set(sellerItemRef, {
+              ...item.toMap(),
+              'orderId': orderRef.id,
+              'sellerOrderId': sellerOrderRef.id,
+              'siparisNo': siparisNo,
+              'createdAt': FieldValue.serverTimestamp(),
+              'updatedAt': FieldValue.serverTimestamp(),
+            });
+          }
+        }
+
+        debugPrint('🟢 seller orders hazır: ${sellerOrderIds.length}');
+
+        return {
+          'success': true,
+          'orderId': orderRef.id,
+          'siparisNo': siparisNo,
+          'sellerOrderIds': sellerOrderIds,
+        };
+      });
+    } catch (e, st) {
+      debugPrint('❌ OrderService.createOrder ERROR: $e');
+      debugPrint('❌ OrderService.createOrder STACK: $st');
+      rethrow;
+    }
   }
 
   Future<String> _generateSiparisNoInTransaction(
@@ -454,15 +492,10 @@ class OrderService {
 
   List<OrderItemInput> _normalizeItems(dynamic rawItems) {
     if (rawItems == null) return <OrderItemInput>[];
-
-    if (rawItems is List<OrderItemInput>) {
-      return rawItems;
-    }
-
+    if (rawItems is List<OrderItemInput>) return rawItems;
     if (rawItems is List) {
       return rawItems.map((e) => OrderItemInput.fromDynamic(e)).toList();
     }
-
     throw Exception('Ürün listesi bekleniyordu.');
   }
 

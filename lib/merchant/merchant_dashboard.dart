@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'sef_yonetim_paneli.dart';
 import 'restoran_yonetim_paneli.dart';
+import 'teslimat_ayarlar_sayfasi.dart';
 import '../modules/vitrinler/ev_lezzetleri_vitrini.dart';
 
 class MerchantDashboard extends StatelessWidget {
@@ -45,7 +46,13 @@ class MerchantDashboard extends StatelessWidget {
             context,
             "EV LEZZETLERİ",
             Icons.home_work_rounded,
-            EvLezzetleriVitrini(),
+            const EvLezzetleriVitrini(),
+          ),
+          _buildCard(
+            context,
+            "TESLİMAT AYARLARI",
+            Icons.local_shipping_rounded,
+            const TeslimatAyarlariSayfasi(),
           ),
         ],
       ),

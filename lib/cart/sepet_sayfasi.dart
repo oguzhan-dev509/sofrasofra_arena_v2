@@ -16,7 +16,7 @@ class _SepetSayfasiState extends State<SepetSayfasi> {
 
   Stream<QuerySnapshot<Map<String, dynamic>>> _sepetStream() {
     return FirebaseFirestore.instance
-        .collection('sepet')
+        .collection('sepetler')
         .doc(userId)
         .collection('items')
         .snapshots();
@@ -45,7 +45,7 @@ class _SepetSayfasiState extends State<SepetSayfasi> {
     if (targetDoc == null) return;
 
     await FirebaseFirestore.instance
-        .collection('sepet')
+        .collection('sepetler')
         .doc(userId)
         .collection('items')
         .doc(targetDoc.id)
@@ -64,7 +64,7 @@ class _SepetSayfasiState extends State<SepetSayfasi> {
     if (targetDoc == null) return;
 
     final docRef = FirebaseFirestore.instance
-        .collection('sepet')
+        .collection('sepetler')
         .doc(userId)
         .collection('items')
         .doc(targetDoc.id);
@@ -87,7 +87,7 @@ class _SepetSayfasiState extends State<SepetSayfasi> {
     if (targetDoc == null) return;
 
     await FirebaseFirestore.instance
-        .collection('sepet')
+        .collection('sepetler')
         .doc(userId)
         .collection('items')
         .doc(targetDoc.id)
@@ -107,7 +107,6 @@ class _SepetSayfasiState extends State<SepetSayfasi> {
   }
 
   Future<void> _siparisiTamamla(
-    BuildContext context,
     List<QueryDocumentSnapshot<Map<String, dynamic>>> docs,
   ) async {
     if (_siparisOlusturuluyor || docs.isEmpty) return;
@@ -192,9 +191,16 @@ class _SepetSayfasiState extends State<SepetSayfasi> {
         items: items,
         odemeDurumu: 'beklemede',
         odemeYontemi: 'kapida_odeme',
+        odemeTipi: 'kapida_odeme',
         paraBirimi: 'TRY',
-        adres: 'Kadıköy / İstanbul',
+        adres: {
+          'acikAdres': 'Kadıköy / İstanbul',
+          'ilce': 'Kadıköy',
+          'sehir': 'İstanbul',
+          'telefon': '0555 555 55 55',
+        },
         teslimatTipi: 'standart',
+        siparisNotu: 'Sepet ekranından oluşturuldu',
       );
 
       await _sepetiTemizle(docs);
@@ -242,7 +248,7 @@ class _SepetSayfasiState extends State<SepetSayfasi> {
     }
   }
 
-  double _toplamHesapla(
+  double _araToplamHesapla(
     List<QueryDocumentSnapshot<Map<String, dynamic>>> docs,
   ) {
     double toplam = 0;
@@ -259,9 +265,26 @@ class _SepetSayfasiState extends State<SepetSayfasi> {
       final adet = _asInt(
         data['adet'] ?? data['quantity'] ?? data['qty'] ?? 0,
       );
+
       toplam += fiyat * adet;
     }
 
+    return toplam;
+  }
+
+  double _teslimatUcretiHesapla(double araToplam) {
+    if (araToplam <= 0) return 0;
+    return 35;
+  }
+
+  int _toplamUrunAdedi(
+    List<QueryDocumentSnapshot<Map<String, dynamic>>> docs,
+  ) {
+    int toplam = 0;
+    for (final doc in docs) {
+      final data = doc.data();
+      toplam += _asInt(data['adet'] ?? data['quantity'] ?? data['qty'] ?? 0);
+    }
     return toplam;
   }
 
@@ -320,6 +343,8 @@ class _SepetSayfasiState extends State<SepetSayfasi> {
     return sorted;
   }
 
+  String _price(double value) => '${value.toStringAsFixed(0)} ₺';
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -332,6 +357,7 @@ class _SepetSayfasiState extends State<SepetSayfasi> {
             fontWeight: FontWeight.bold,
           ),
         ),
+        centerTitle: true,
         backgroundColor: Colors.black,
         iconTheme: const IconThemeData(color: Color(0xFFFFB300)),
         elevation: 0,
@@ -369,24 +395,106 @@ class _SepetSayfasiState extends State<SepetSayfasi> {
           final docs = _sortDocs(snapshot.data?.docs ?? []);
 
           if (docs.isEmpty) {
-            return const Center(
-              child: Text(
-                'Sepetiniz şu anda boş.',
-                style: TextStyle(
-                  color: Colors.white70,
-                  fontSize: 16,
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      width: 88,
+                      height: 88,
+                      decoration: BoxDecoration(
+                        color: const Color(0x22FFB300),
+                        borderRadius: BorderRadius.circular(24),
+                        border: Border.all(color: const Color(0x44FFB300)),
+                      ),
+                      child: const Icon(
+                        Icons.shopping_bag_outlined,
+                        size: 40,
+                        color: Color(0xFFFFB300),
+                      ),
+                    ),
+                    const SizedBox(height: 18),
+                    const Text(
+                      'Sepetiniz şu anda boş',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    const Text(
+                      'Beğendiğiniz ürünleri sepete eklediğinizde burada görüntülenecek.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Colors.white60,
+                        fontSize: 14,
+                        height: 1.4,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             );
           }
 
-          final toplam = _toplamHesapla(docs);
+          final araToplam = _araToplamHesapla(docs);
+          final teslimatUcreti = _teslimatUcretiHesapla(araToplam);
+          final genelToplam = araToplam + teslimatUcreti;
+          final toplamUrun = _toplamUrunAdedi(docs);
 
           return Column(
             children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 12,
+                  ),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF111111),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: const Color(0x22FFB300)),
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 7,
+                        ),
+                        decoration: BoxDecoration(
+                          color: const Color(0x22FFB300),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Text(
+                          '$toplamUrun ürün',
+                          style: const TextStyle(
+                            color: Color(0xFFFFB300),
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                      const Spacer(),
+                      const Text(
+                        'Kapıda Ödeme',
+                        style: TextStyle(
+                          color: Colors.white70,
+                          fontSize: 13,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 8),
               Expanded(
                 child: ListView.builder(
-                  padding: const EdgeInsets.all(12),
+                  padding: const EdgeInsets.fromLTRB(12, 4, 12, 12),
                   itemCount: docs.length,
                   itemBuilder: (context, index) {
                     final item = docs[index].data();
@@ -410,7 +518,7 @@ class _SepetSayfasiState extends State<SepetSayfasi> {
                         'dukkan',
                         'saticiAdi',
                         'sellerName',
-                        'magazaAdi'
+                        'magazaAdi',
                       ],
                     );
 
@@ -436,45 +544,54 @@ class _SepetSayfasiState extends State<SepetSayfasi> {
                       item['adet'] ?? item['quantity'] ?? item['qty'] ?? 1,
                     );
 
-                    return Card(
-                      color: const Color(0xFF161616),
-                      margin: const EdgeInsets.only(bottom: 12),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14),
-                        side: const BorderSide(
-                          color: Color(0x33FFB300),
+                    final satirToplami = fiyat * adet;
+
+                    return Container(
+                      margin: const EdgeInsets.only(bottom: 14),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF151515),
+                        borderRadius: BorderRadius.circular(18),
+                        border: Border.all(
+                          color: const Color(0x33FFB300),
                         ),
+                        boxShadow: const [
+                          BoxShadow(
+                            color: Color(0x22000000),
+                            blurRadius: 10,
+                            offset: Offset(0, 4),
+                          ),
+                        ],
                       ),
                       child: Padding(
-                        padding: const EdgeInsets.all(10),
+                        padding: const EdgeInsets.all(12),
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             ClipRRect(
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius: BorderRadius.circular(14),
                               child: img.isNotEmpty
                                   ? Image.network(
                                       img,
-                                      width: 86,
-                                      height: 86,
+                                      width: 92,
+                                      height: 92,
                                       fit: BoxFit.cover,
                                       errorBuilder:
                                           (context, error, stackTrace) {
                                         return Container(
-                                          width: 86,
-                                          height: 86,
-                                          color: Colors.grey.shade800,
+                                          width: 92,
+                                          height: 92,
+                                          color: Colors.grey.shade900,
                                           child: const Icon(
-                                            Icons.image_not_supported,
+                                            Icons.image_not_supported_outlined,
                                             color: Colors.white54,
                                           ),
                                         );
                                       },
                                     )
                                   : Container(
-                                      width: 86,
-                                      height: 86,
-                                      color: Colors.grey.shade800,
+                                      width: 92,
+                                      height: 92,
+                                      color: Colors.grey.shade900,
                                       child: const Icon(
                                         Icons.fastfood,
                                         color: Colors.white54,
@@ -492,15 +609,17 @@ class _SepetSayfasiState extends State<SepetSayfasi> {
                                       color: Colors.white,
                                       fontSize: 16,
                                       fontWeight: FontWeight.bold,
+                                      height: 1.2,
                                     ),
                                   ),
-                                  const SizedBox(height: 4),
+                                  const SizedBox(height: 5),
                                   if (dukkanAdi.isNotEmpty)
                                     Text(
                                       dukkanAdi,
                                       style: const TextStyle(
                                         color: Color(0xFFFFB300),
                                         fontSize: 13,
+                                        fontWeight: FontWeight.w600,
                                       ),
                                     ),
                                   if (kategori.isNotEmpty) ...[
@@ -508,21 +627,33 @@ class _SepetSayfasiState extends State<SepetSayfasi> {
                                     Text(
                                       kategori,
                                       style: const TextStyle(
-                                        color: Colors.white70,
+                                        color: Colors.white60,
                                         fontSize: 12,
                                       ),
                                     ),
                                   ],
-                                  const SizedBox(height: 8),
-                                  Text(
-                                    '${fiyat.toStringAsFixed(0)} ₺',
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
                                   const SizedBox(height: 10),
+                                  Row(
+                                    children: [
+                                      Text(
+                                        '${fiyat.toStringAsFixed(0)} ₺ x $adet',
+                                        style: const TextStyle(
+                                          color: Colors.white70,
+                                          fontSize: 13,
+                                        ),
+                                      ),
+                                      const Spacer(),
+                                      Text(
+                                        _price(satirToplami),
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 12),
                                   Row(
                                     children: [
                                       _adetButonu(
@@ -549,12 +680,40 @@ class _SepetSayfasiState extends State<SepetSayfasi> {
                                             _adetArtir(urunId, adet, docs),
                                       ),
                                       const Spacer(),
-                                      IconButton(
-                                        onPressed: () =>
-                                            _urunuSil(urunId, docs),
-                                        icon: const Icon(
-                                          Icons.delete_outline,
-                                          color: Colors.redAccent,
+                                      InkWell(
+                                        onTap: () => _urunuSil(urunId, docs),
+                                        borderRadius: BorderRadius.circular(10),
+                                        child: Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 10,
+                                            vertical: 8,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: Colors.red.withOpacity(0.10),
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                            border: Border.all(
+                                              color:
+                                                  Colors.red.withOpacity(0.25),
+                                            ),
+                                          ),
+                                          child: const Row(
+                                            children: [
+                                              Icon(
+                                                Icons.delete_outline,
+                                                color: Colors.redAccent,
+                                                size: 18,
+                                              ),
+                                              SizedBox(width: 6),
+                                              Text(
+                                                'Sil',
+                                                style: TextStyle(
+                                                  color: Colors.redAccent,
+                                                  fontWeight: FontWeight.w600,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
                                         ),
                                       ),
                                     ],
@@ -570,9 +729,9 @@ class _SepetSayfasiState extends State<SepetSayfasi> {
                 ),
               ),
               Container(
-                padding: const EdgeInsets.fromLTRB(16, 14, 16, 18),
+                padding: const EdgeInsets.fromLTRB(14, 10, 14, 18),
                 decoration: const BoxDecoration(
-                  color: Color(0xFF111111),
+                  color: Color(0xFF101010),
                   border: Border(
                     top: BorderSide(color: Color(0x22FFB300)),
                   ),
@@ -582,41 +741,59 @@ class _SepetSayfasiState extends State<SepetSayfasi> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Row(
-                        children: [
-                          const Text(
-                            'Toplam',
-                            style: TextStyle(
-                              color: Colors.white70,
-                              fontSize: 16,
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(14),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF171717),
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: const Color(0x22FFB300)),
+                        ),
+                        child: Column(
+                          children: [
+                            _ozetSatiri(
+                              'Ara Toplam',
+                              _price(araToplam),
+                              valueColor: Colors.white,
                             ),
-                          ),
-                          const Spacer(),
-                          Text(
-                            '${toplam.toStringAsFixed(0)} ₺',
-                            style: const TextStyle(
-                              color: Color(0xFFFFB300),
-                              fontSize: 22,
-                              fontWeight: FontWeight.bold,
+                            const SizedBox(height: 10),
+                            _ozetSatiri(
+                              'Teslimat Ücreti',
+                              _price(teslimatUcreti),
+                              valueColor: Colors.white70,
                             ),
-                          ),
-                        ],
+                            const Padding(
+                              padding: EdgeInsets.symmetric(vertical: 12),
+                              child: Divider(
+                                color: Color(0x22FFB300),
+                                height: 1,
+                              ),
+                            ),
+                            _ozetSatiri(
+                              'Genel Toplam',
+                              _price(genelToplam),
+                              isStrong: true,
+                              valueColor: const Color(0xFFFFB300),
+                            ),
+                          ],
+                        ),
                       ),
                       const SizedBox(height: 14),
                       SizedBox(
                         width: double.infinity,
-                        height: 52,
+                        height: 56,
                         child: ElevatedButton(
                           onPressed: _siparisOlusturuluyor
                               ? null
-                              : () => _siparisiTamamla(context, docs),
+                              : () => _siparisiTamamla(docs),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFFFFB300),
                             foregroundColor: Colors.black,
-                            disabledBackgroundColor: Colors.grey.shade700,
+                            disabledBackgroundColor: Colors.grey,
                             disabledForegroundColor: Colors.white70,
+                            elevation: 0,
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(14),
+                              borderRadius: BorderRadius.circular(16),
                             ),
                           ),
                           child: _siparisOlusturuluyor
@@ -654,13 +831,13 @@ class _SepetSayfasiState extends State<SepetSayfasi> {
   }) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(8),
+      borderRadius: BorderRadius.circular(10),
       child: Container(
-        width: 34,
-        height: 34,
+        width: 36,
+        height: 36,
         decoration: BoxDecoration(
           color: const Color(0x22FFB300),
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(10),
           border: Border.all(color: const Color(0x66FFB300)),
         ),
         child: Icon(
@@ -669,6 +846,35 @@ class _SepetSayfasiState extends State<SepetSayfasi> {
           size: 18,
         ),
       ),
+    );
+  }
+
+  Widget _ozetSatiri(
+    String label,
+    String value, {
+    bool isStrong = false,
+    Color valueColor = Colors.white,
+  }) {
+    return Row(
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            color: isStrong ? Colors.white : Colors.white70,
+            fontSize: isStrong ? 16 : 14,
+            fontWeight: isStrong ? FontWeight.bold : FontWeight.w500,
+          ),
+        ),
+        const Spacer(),
+        Text(
+          value,
+          style: TextStyle(
+            color: valueColor,
+            fontSize: isStrong ? 20 : 15,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ],
     );
   }
 }
