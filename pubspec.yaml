@@ -9,23 +9,28 @@ dependencies:
   flutter:
     sdk: flutter
 
-  cupertino_icons: ^1.0.8
-
   # Firebase
-  firebase_core: ^2.32.0
-  firebase_auth: ^4.20.0
-  cloud_firestore: ^4.17.5
-  firebase_storage: ^11.7.7
+  firebase_core: ^2.0.0
+  firebase_auth: ^4.0.0
+  cloud_firestore: ^4.0.0
+  firebase_storage: ^11.0.0
 
-  # Medya ve yardımcı paketler
-  image_picker: ^1.2.1
-  url_launcher: ^6.3.2
+  # Media
+  image_picker: ^1.0.7
+
+  # Harita sistemi
+  flutter_map: ^7.0.2
+  latlong2: ^0.9.1
+  http: ^1.2.1
+  flutter_map_cancellable_tile_provider: ^3.0.2
+
+  # URL açma
+  url_launcher: ^6.2.6
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^3.0.1
-
+  flutter_lints: ^3.0.2
 flutter:
   uses-material-design: true
 

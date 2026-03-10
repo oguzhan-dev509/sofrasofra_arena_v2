@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
+import 'kurye_service.dart';
 
 class OrderItemInput {
   final String urunId;
@@ -186,7 +187,7 @@ class OrderService {
   static const String _sellerOrdersCollection = 'sellerOrders';
   static const String _countersCollection = 'counters';
   static const String _siparisNoDoc = 'siparisNo';
-
+  static const String _kuryeAtamaKuyruguCollection = 'kuryeAtamaKuyrugu';
   static Future<Map<String, dynamic>> siparisOlustur({
     dynamic kullaniciId,
     dynamic userId,
@@ -321,13 +322,14 @@ class OrderService {
       debugPrint('🟡 cleanItems: ${cleanItems.length}');
       debugPrint('🟡 sellerGroups: ${sellerGroups.length}');
 
-      return await _firestore
+      final result = await _firestore
           .runTransaction<Map<String, dynamic>>((transaction) async {
         final String siparisNo =
             await _generateSiparisNoInTransaction(transaction);
 
         final orderRef = _firestore.collection(_ordersCollection).doc();
         final List<String> sellerOrderIds = <String>[];
+        final List<String> queueIds = <String>[];
 
         final double araToplam = _roundMoney(
           cleanItems.fold<double>(0, (sum, item) => sum + item.toplam),
@@ -369,7 +371,6 @@ class OrderService {
           'createdAt': FieldValue.serverTimestamp(),
         });
 
-        // Ana sipariş item'ları — TEK KEZ yazılıyor
         for (final item in cleanItems) {
           final itemRef = orderRef.collection('items').doc();
           transaction.set(itemRef, {
@@ -437,17 +438,71 @@ class OrderService {
               'updatedAt': FieldValue.serverTimestamp(),
             });
           }
+
+          final bool kuryeGerekli = finalTeslimatTipi == 'teslimat' ||
+              finalTeslimatTipi == 'gel_al_ve_teslimat' ||
+              finalTeslimatTipi == 'platform_teslimat' ||
+              finalTeslimatTipi == 'kurye';
+
+          if (kuryeGerekli) {
+            final kuryeAtamaRef =
+                _firestore.collection(_kuryeAtamaKuyruguCollection).doc();
+
+            transaction.set(kuryeAtamaRef, {
+              'orderId': orderRef.id,
+              'sellerOrderId': sellerOrderRef.id,
+              'siparisNo': siparisNo,
+              'kullaniciId': kullaniciId,
+              'saticiId': saticiId,
+              'status': 'waiting_assignment',
+              'durum': 'atama_bekliyor',
+              'teslimatTipi': finalTeslimatTipi,
+              'kuryeAtamaDurumu': 'beklemede',
+              'kuryeId': null,
+              'kuryeAdi': null,
+              'atanmaZamani': null,
+              'kabulZamani': null,
+              'tamamlanmaZamani': null,
+              'createdAt': FieldValue.serverTimestamp(),
+              'updatedAt': FieldValue.serverTimestamp(),
+            });
+
+            queueIds.add(kuryeAtamaRef.id);
+          }
         }
 
         debugPrint('🟢 seller orders hazır: ${sellerOrderIds.length}');
+        debugPrint('🟢 queue hazır: ${queueIds.length}');
 
         return {
           'success': true,
           'orderId': orderRef.id,
           'siparisNo': siparisNo,
           'sellerOrderIds': sellerOrderIds,
+          'queueIds': queueIds,
         };
       });
+
+      final List<String> queueIds =
+          (result['queueIds'] as List<dynamic>? ?? <dynamic>[])
+              .map((e) => e.toString())
+              .toList();
+
+      if (queueIds.isNotEmpty) {
+        final kuryeService = KuryeService(firestore: _firestore);
+
+        for (final queueId in queueIds) {
+          try {
+            await kuryeService.bekleyenKuryeAtamasiniOtomatikYap(
+              queueId: queueId,
+            );
+          } catch (e) {
+            debugPrint('⚠️ Kurye otomatik atama tetiklenemedi: $queueId - $e');
+          }
+        }
+      }
+
+      return result;
     } catch (e, st) {
       debugPrint('❌ OrderService.createOrder ERROR: $e');
       debugPrint('❌ OrderService.createOrder STACK: $st');

@@ -14,6 +14,9 @@ import 'modules/vitrinler/sef_vitrini.dart';
 // Satıcı + test
 import 'firestore_test_page.dart';
 import 'merchant/merchant_dashboard.dart';
+import 'admin/satici_onay_merkezi.dart';
+import 'admin/admin_paneli_sayfasi.dart';
+import 'admin/admin_dashboard.dart';
 
 final ValueNotifier<String?> selectedSehir = ValueNotifier<String?>(null);
 final ValueNotifier<String?> selectedIlce = ValueNotifier<String?>(null);
@@ -71,10 +74,36 @@ class _GirisEkraniState extends State<GirisEkrani> {
   Map<String, List<String>> _ilcelerMap = {};
   bool _lokasyonYukleniyor = true;
 
+  int _adminTapSayisi = 0;
+  DateTime? _sonAdminTapZamani;
+
   @override
   void initState() {
     super.initState();
     _ilceleriYukle();
+  }
+
+  void _gizliAdminTiklandi() {
+    final now = DateTime.now();
+
+    if (_sonAdminTapZamani == null ||
+        now.difference(_sonAdminTapZamani!) > const Duration(seconds: 3)) {
+      _adminTapSayisi = 0;
+    }
+
+    _sonAdminTapZamani = now;
+    _adminTapSayisi++;
+
+    if (_adminTapSayisi >= 5) {
+      _adminTapSayisi = 0;
+
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => const AdminDashboard(),
+        ),
+      );
+    }
   }
 
   Future<void> _ilceleriYukle() async {
@@ -115,13 +144,16 @@ class _GirisEkraniState extends State<GirisEkrani> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Text(
-                "SOFRASOFRA ARENA",
-                style: TextStyle(
-                  color: Color(0xFFFFB300),
-                  fontSize: 28,
-                  fontWeight: FontWeight.w900,
-                  letterSpacing: 3,
+              GestureDetector(
+                onTap: _gizliAdminTiklandi,
+                child: const Text(
+                  "SOFRASOFRA ARENA",
+                  style: TextStyle(
+                    color: Color(0xFFFFB300),
+                    fontSize: 28,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 3,
+                  ),
                 ),
               ),
               const SizedBox(height: 20),
@@ -238,6 +270,7 @@ class _GirisEkraniState extends State<GirisEkrani> {
                   ),
                 ),
               ),
+              const SizedBox(height: 8),
             ],
           ),
         ),
