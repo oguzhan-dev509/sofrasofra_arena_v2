@@ -1,10 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
+import '../courier/kurye_paneli.dart';
 import '../firestore_test_page.dart';
 import 'kurye_yonetimi.dart';
 import 'satici_onay_merkezi.dart';
 import 'siparis_yonetimi.dart';
+import 'kurye_basvurulari.dart';
 
 class AdminDashboard extends StatelessWidget {
   const AdminDashboard({super.key});
@@ -78,10 +80,27 @@ class AdminDashboard extends StatelessWidget {
           _yonetimKart(
             context: context,
             icon: Icons.delivery_dining,
+            baslik: 'Kurye Paneli',
+            aciklama:
+                'Kurye profil kartı, aktif görevler, WhatsApp, navigasyon ve teslim akışı.',
+            hedef: const KuryePaneli(),
+          ),
+          _yonetimKart(
+            context: context,
+            icon: Icons.delivery_dining,
             baslik: 'Kurye Yönetimi',
             aciklama:
                 'Teslimat modeli, bölge bazlı operasyon ve kurye izleme alanı.',
             hedef: const KuryeYonetimi(),
+          ),
+          const SizedBox(height: 12),
+          const SizedBox(height: 12),
+          _yonetimKart(
+            context: context,
+            icon: Icons.assignment_ind,
+            baslik: 'Kurye Başvuruları',
+            aciklama: 'Mahalle kurye başvurularını incele, onayla ve reddet.',
+            hedef: const KuryeBasvurulariSayfasi(),
           ),
           const SizedBox(height: 12),
           const _YakindaKart(

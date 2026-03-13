@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../orders/musteri_siparis_takip_sayfasi.dart';
-import '../services/order_service.dart';
+import '../services/sepet_service.dart';
 
 class SepetSayfasi extends StatefulWidget {
   const SepetSayfasi({super.key});
@@ -116,106 +116,24 @@ class _SepetSayfasiState extends State<SepetSayfasi> {
     });
 
     try {
-      final List<Map<String, dynamic>> items = docs.map((doc) {
-        final data = doc.data();
-
-        final urunId = _readString(
-          data,
-          ['urunId', 'productId', 'id'],
-          fallback: doc.id,
-        );
-
-        final urunAdi = _readString(
-          data,
-          ['urunAdi', 'ad', 'isim', 'title', 'name', 'yemekAdi'],
-          fallback: 'Ürün',
-        );
-
-        final dukkanAdi = _readString(
-          data,
-          ['dukkanAdi', 'dukkan', 'saticiAdi', 'sellerName', 'magazaAdi'],
-          fallback: 'Dükkan',
-        );
-
-        final kategori = _readString(
-          data,
-          ['kategori', 'category'],
-          fallback: 'Ev Lezzetleri',
-        );
-
-        final img = _readString(
-          data,
-          ['img', 'imageUrl', 'foto', 'gorselUrl'],
-        );
-
-        final fiyat = _asDouble(
-          data['fiyat'] ??
-              data['price'] ??
-              data['birimFiyat'] ??
-              data['unitPrice'] ??
-              0,
-        );
-
-        final adet = _asInt(
-          data['adet'] ?? data['quantity'] ?? data['qty'] ?? 1,
-        );
-
-        final saticiId = _readString(
-          data,
-          ['saticiId', 'sellerId', 'dukkanId', 'merchantId'],
-          fallback: dukkanAdi
-              .toLowerCase()
-              .replaceAll('ı', 'i')
-              .replaceAll('ş', 's')
-              .replaceAll('ğ', 'g')
-              .replaceAll('ç', 'c')
-              .replaceAll('ö', 'o')
-              .replaceAll('ü', 'u')
-              .replaceAll(' ', '_'),
-        );
-
-        return {
-          'urunId': urunId,
-          'urunAdi': urunAdi,
-          'dukkanAdi': dukkanAdi,
-          'kategori': kategori,
-          'img': img,
-          'fiyat': fiyat,
-          'adet': adet,
-          'saticiId': saticiId,
-        };
-      }).toList();
-
-      final sonuc = await OrderService.siparisOlustur(
-        kullaniciId: userId,
-        items: items,
-        odemeDurumu: 'beklemede',
-        odemeYontemi: 'kapida_odeme',
-        odemeTipi: 'kapida_odeme',
-        paraBirimi: 'TRY',
-        adres: {
-          'acikAdres': 'Kadıköy / İstanbul',
-          'ilce': 'Kadıköy',
-          'sehir': 'İstanbul',
-          'telefon': '0555 555 55 55',
-        },
-        teslimatTipi: 'standart',
-        siparisNotu: 'Sepet ekranından oluşturuldu',
+      final orderId = await SepetService.siparisiTamamla(
+        musteriAd: 'Mehmet',
+        musteriTelefon: '0555 555 55 55',
+        teslimatAdresi: 'Kadıköy / İstanbul',
+        sehir: 'istanbul',
+        ilce: 'kadikoy',
+        not: 'Sepet ekranından oluşturuldu',
+        lat: 40.991,
+        lng: 29.028,
       );
 
-      await _sepetiTemizle(docs);
-
       if (!mounted) return;
-
-      final siparisNo = (sonuc['siparisNo'] ?? '').toString();
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           backgroundColor: const Color(0xFF1E1E1E),
           content: Text(
-            siparisNo.isNotEmpty
-                ? 'Sipariş oluşturuldu: $siparisNo'
-                : 'Sipariş başarıyla oluşturuldu.',
+            'Sipariş oluşturuldu: $orderId',
             style: const TextStyle(color: Colors.white),
           ),
         ),
@@ -274,7 +192,7 @@ class _SepetSayfasiState extends State<SepetSayfasi> {
 
   double _teslimatUcretiHesapla(double araToplam) {
     if (araToplam <= 0) return 0;
-    return 35;
+    return 25;
   }
 
   int _toplamUrunAdedi(

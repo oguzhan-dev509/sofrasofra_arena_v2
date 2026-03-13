@@ -4,6 +4,7 @@ import 'sef_yonetim_paneli.dart';
 import 'restoran_yonetim_paneli.dart';
 import 'teslimat_ayarlar_sayfasi.dart';
 import '../modules/vitrinler/ev_lezzetleri_vitrini.dart';
+import '../courier/kurye_paneli.dart';
 
 class MerchantDashboard extends StatelessWidget {
   const MerchantDashboard({super.key});

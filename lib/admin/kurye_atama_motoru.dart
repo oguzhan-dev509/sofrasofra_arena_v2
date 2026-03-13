@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
+import '../services/otomatik_kurye_atama_servisi.dart';
 import '../services/kurye_mesafe_hesaplayici.dart';
 
 class KuryeAtamaMotoru extends StatefulWidget {
@@ -17,13 +18,10 @@ class _KuryeAtamaMotoruState extends State<KuryeAtamaMotoru> {
   bool _sadeceAtanmamislar = true;
 
   Stream<QuerySnapshot<Map<String, dynamic>>> _siparisStream() {
-    Query<Map<String, dynamic>> query = _firestore.collection('orders');
-
-    if (_durumFiltre != 'tum') {
-      query = query.where('status', isEqualTo: _durumFiltre);
-    }
-
-    return query.snapshots();
+    return _firestore
+        .collection('orders')
+        .where(FieldPath.documentId, isEqualTo: 'test_order_2')
+        .snapshots();
   }
 
   Future<List<Map<String, dynamic>>> _uygunKuryeleriGetir() async {
@@ -32,24 +30,32 @@ class _KuryeAtamaMotoruState extends State<KuryeAtamaMotoru> {
     final uygunlar = snapshot.docs.where((doc) {
       final data = doc.data();
 
-      final isActive = (data['isActive'] ?? false) == true;
-      final uygunluk = (data['uygunlukDurumu'] ?? data['availability'] ?? '')
+      final bool aktifMi =
+          (data['aktifMi'] == true) || (data['isActive'] == true);
+
+      final String uygunluk = (data['uygunluk'] ??
+              data['uygunlukDurumu'] ??
+              data['availability'] ??
+              '')
           .toString()
           .trim()
           .toLowerCase();
 
-      final lat = _toDouble(data['lat']);
-      final lng = _toDouble(data['lng']);
+      final double? lat = _toDouble(data['lat']);
+      final double? lng = _toDouble(data['lng']);
 
-      final konumVar = lat != null && lng != null;
-      final musait = uygunluk == 'musait' || uygunluk == 'available';
+      final bool konumVar = lat != null && lng != null;
+      final bool musait = uygunluk == 'musait' ||
+          uygunluk == 'müsait' ||
+          uygunluk == 'available';
 
-      return isActive && musait && konumVar;
+      return aktifMi && musait && konumVar;
     }).map((doc) {
       final data = doc.data();
       return {
         'id': doc.id,
-        'ad': (data['ad'] ?? data['name'] ?? 'Kurye').toString(),
+        'ad': (data['adSoyad'] ?? data['ad'] ?? data['name'] ?? 'Kurye')
+            .toString(),
         'telefon': (data['telefon'] ?? data['phone'] ?? '').toString(),
         'lat': _toDouble(data['lat']),
         'lng': _toDouble(data['lng']),
@@ -65,8 +71,8 @@ class _KuryeAtamaMotoruState extends State<KuryeAtamaMotoru> {
   Future<List<KuryeMesafeSonucu>> _siparisIcinOneriler(
     Map<String, dynamic> siparisData,
   ) async {
-    final siparisLat = _toDouble(siparisData['lat']);
-    final siparisLng = _toDouble(siparisData['lng']);
+    final double? siparisLat = _toDouble(siparisData['lat']);
+    final double? siparisLng = _toDouble(siparisData['lng']);
 
     if (siparisLat == null || siparisLng == null) {
       return [];
@@ -82,56 +88,115 @@ class _KuryeAtamaMotoruState extends State<KuryeAtamaMotoru> {
     );
   }
 
-  Future<Map<String, dynamic>?> _kuryeDetayGetir(String kuryeId) async {
-    final doc = await _firestore.collection('couriers').doc(kuryeId).get();
-    if (!doc.exists) return null;
-
-    final data = doc.data() ?? {};
-    return {
-      'id': doc.id,
-      'ad': (data['ad'] ?? data['name'] ?? 'Kurye').toString(),
-      'telefon': (data['telefon'] ?? data['phone'] ?? '').toString(),
-      'sehir': (data['sehir'] ?? data['city'] ?? '').toString(),
-      'ilce': (data['ilce'] ?? '').toString(),
-      'aracTipi': (data['aracTipi'] ?? data['vehicleType'] ?? '').toString(),
-    };
-  }
-
   Future<void> _kuryeAta({
     required String siparisId,
     required String kuryeId,
   }) async {
     try {
-      final kurye = await _kuryeDetayGetir(kuryeId);
+      final orderRef = _firestore.collection('orders').doc(siparisId);
+      final courierRef = _firestore.collection('couriers').doc(kuryeId);
 
-      if (kurye == null) {
-        throw Exception('Kurye bulunamadı.');
-      }
+      await _firestore.runTransaction((transaction) async {
+        final orderSnap = await transaction.get(orderRef);
+        final courierSnap = await transaction.get(courierRef);
 
-      await _firestore.collection('orders').doc(siparisId).update({
-        'courierId': kurye['id'],
-        'courierName': kurye['ad'],
-        'courierPhone': kurye['telefon'],
-        'courierAssignedAt': FieldValue.serverTimestamp(),
-        'courierAssignmentType': 'manual_suggestion',
-        'updatedAt': FieldValue.serverTimestamp(),
+        if (!orderSnap.exists) {
+          throw Exception('Sipariş bulunamadı.');
+        }
+
+        if (!courierSnap.exists) {
+          throw Exception('Kurye bulunamadı.');
+        }
+
+        final orderData = orderSnap.data() as Map<String, dynamic>;
+        final courierData = courierSnap.data() as Map<String, dynamic>;
+
+        final String mevcutAssignmentStatus =
+            (orderData['assignmentStatus'] ?? '')
+                .toString()
+                .trim()
+                .toLowerCase();
+
+        if (mevcutAssignmentStatus == 'assigned') {
+          throw Exception('Bu sipariş zaten atanmış.');
+        }
+
+        if (mevcutAssignmentStatus == 'completed') {
+          throw Exception('Bu sipariş zaten tamamlanmış.');
+        }
+
+        final int aktifSiparis = (courierData['aktifSiparis'] is int)
+            ? courierData['aktifSiparis'] as int
+            : int.tryParse('${courierData['aktifSiparis'] ?? 0}') ?? 0;
+
+        final String kuryeAdi =
+            (courierData['adSoyad'] ?? 'Kurye').toString().trim();
+
+        final String kuryeTelefon =
+            (courierData['telefon'] ?? '').toString().trim();
+
+        transaction.update(orderRef, {
+          'assignedCourierId': kuryeId,
+          'assignedCourierName': kuryeAdi,
+          'courierPhone': kuryeTelefon,
+          'assignmentAt': FieldValue.serverTimestamp(),
+          'assignmentStatus': 'assigned',
+          'courierAssignmentType': 'manual_suggestion',
+          'status': 'on_the_way',
+          'updatedAt': FieldValue.serverTimestamp(),
+        });
+
+        transaction.update(courierRef, {
+          'aktifSiparis': aktifSiparis + 1,
+          'uygunluk': 'Görevde',
+          'updatedAt': FieldValue.serverTimestamp(),
+        });
       });
 
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('${kurye['ad']} siparişe atandı.'),
-          backgroundColor: Colors.green,
+        const SnackBar(
+          content: Text('Kurye başarıyla atandı.'),
         ),
       );
+
+      setState(() {});
     } catch (e) {
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Kurye atanamadı: $e'),
-          backgroundColor: Colors.redAccent,
+          content: Text('Kurye atama hatası: $e'),
+        ),
+      );
+    }
+  }
+
+  Future<void> _otomatikAta({
+    required String siparisId,
+  }) async {
+    try {
+      final bool sonuc =
+          await OtomatikKuryeAtamaServisi.sipariseKuryeAta(orderId: siparisId);
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            sonuc ? 'Kurye otomatik atandı.' : 'Uygun kurye bulunamadı.',
+          ),
+        ),
+      );
+
+      setState(() {});
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Otomatik atama hatası: $e'),
         ),
       );
     }
@@ -141,14 +206,14 @@ class _KuryeAtamaMotoruState extends State<KuryeAtamaMotoru> {
     required String siparisId,
     required Map<String, dynamic> siparisData,
   }) async {
-    await showModalBottomSheet(
+    await showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
       backgroundColor: const Color(0xFF111111),
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(22)),
       ),
-      builder: (context) {
+      builder: (sheetContext) {
         return Padding(
           padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
           child: FutureBuilder<List<KuryeMesafeSonucu>>(
@@ -232,7 +297,8 @@ class _KuryeAtamaMotoruState extends State<KuryeAtamaMotoru> {
                             width: 46,
                             height: 46,
                             decoration: BoxDecoration(
-                              color: const Color(0xFFFFB300).withOpacity(0.15),
+                              color: const Color(0xFFFFB300)
+                                  .withValues(alpha: 0.15),
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: const Icon(
@@ -264,13 +330,29 @@ class _KuryeAtamaMotoruState extends State<KuryeAtamaMotoru> {
                               ],
                             ),
                           ),
+                          const SizedBox(width: 8),
+                          ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.grey.shade900,
+                              foregroundColor: const Color(0xFFFFB300),
+                              side: const BorderSide(
+                                color: Color(0xFFFFB300),
+                              ),
+                            ),
+                            onPressed: () async {
+                              Navigator.of(sheetContext).pop();
+                              await _otomatikAta(siparisId: siparisId);
+                            },
+                            child: const Text('Otomatik Ata'),
+                          ),
+                          const SizedBox(width: 8),
                           ElevatedButton(
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFFFFB300),
                               foregroundColor: Colors.black,
                             ),
                             onPressed: () async {
-                              Navigator.pop(context);
+                              Navigator.of(sheetContext).pop();
                               await _kuryeAta(
                                 siparisId: siparisId,
                                 kuryeId: item.kuryeId,
@@ -353,6 +435,22 @@ class _KuryeAtamaMotoruState extends State<KuryeAtamaMotoru> {
     if (value is double) return value;
     if (value is int) return value.toDouble();
     return double.tryParse(value.toString());
+  }
+
+  bool _durumaUyuyor(Map<String, dynamic> data) {
+    if (_durumFiltre == 'tum') return true;
+
+    final status = (data['status'] ?? '').toString().trim().toLowerCase();
+
+    if (_durumFiltre == 'hazirlaniyor') {
+      return status == 'hazirlaniyor' || status == 'preparing';
+    }
+
+    if (_durumFiltre == 'yolda') {
+      return status == 'yolda' || status == 'on_the_way';
+    }
+
+    return status == _durumFiltre;
   }
 
   @override
@@ -459,11 +557,13 @@ class _KuryeAtamaMotoruState extends State<KuryeAtamaMotoru> {
 
                 var docs = snapshot.data?.docs ?? [];
 
+                docs = docs.where((doc) => _durumaUyuyor(doc.data())).toList();
+
                 if (_sadeceAtanmamislar) {
                   docs = docs.where((doc) {
                     final data = doc.data();
                     final courierId =
-                        (data['courierId'] ?? '').toString().trim();
+                        (data['assignedCourierId'] ?? '').toString().trim();
                     return courierId.isEmpty;
                   }).toList();
                 }
@@ -484,18 +584,17 @@ class _KuryeAtamaMotoruState extends State<KuryeAtamaMotoru> {
                     final doc = docs[index];
                     final data = doc.data();
 
-                    final adres = (data['adres'] ?? '').toString();
-                    final status = (data['status'] ?? '').toString();
-                    final vendorName =
+                    final String adres = (data['adres'] ?? '').toString();
+                    final String status = (data['status'] ?? '').toString();
+                    final String vendorName =
                         (data['vendorName'] ?? data['saticiAdi'] ?? '-')
                             .toString();
-                    final courierName =
-                        (data['courierName'] ?? '').toString().trim();
+                    final String courierName =
+                        (data['assignedCourierName'] ?? '').toString().trim();
 
-                    final lat = _toDouble(data['lat']);
-                    final lng = _toDouble(data['lng']);
-
-                    final konumHazir = lat != null && lng != null;
+                    final double? lat = _toDouble(data['lat']);
+                    final double? lng = _toDouble(data['lng']);
+                    final bool konumHazir = lat != null && lng != null;
 
                     return Container(
                       margin: const EdgeInsets.only(bottom: 12),
@@ -523,7 +622,7 @@ class _KuryeAtamaMotoruState extends State<KuryeAtamaMotoru> {
                                   height: 50,
                                   decoration: BoxDecoration(
                                     color: const Color(0xFFFFB300)
-                                        .withOpacity(0.15),
+                                        .withValues(alpha: 0.15),
                                     borderRadius: BorderRadius.circular(14),
                                   ),
                                   child: const Icon(
@@ -571,8 +670,8 @@ class _KuryeAtamaMotoruState extends State<KuryeAtamaMotoru> {
                                   ),
                                   decoration: BoxDecoration(
                                     color: courierName.isEmpty
-                                        ? Colors.orange.withOpacity(0.18)
-                                        : Colors.green.withOpacity(0.18),
+                                        ? Colors.orange.withValues(alpha: 0.18)
+                                        : Colors.green.withValues(alpha: 0.18),
                                     borderRadius: BorderRadius.circular(30),
                                     border: Border.all(
                                       color: courierName.isEmpty
@@ -649,7 +748,7 @@ class _KuryeAtamaMotoruState extends State<KuryeAtamaMotoru> {
   }
 
   Widget _filtreChip(String value, String label) {
-    final secili = _durumFiltre == value;
+    final bool secili = _durumFiltre == value;
 
     return ChoiceChip(
       label: Text(label),

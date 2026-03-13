@@ -17,6 +17,7 @@ import 'merchant/merchant_dashboard.dart';
 import 'admin/satici_onay_merkezi.dart';
 import 'admin/admin_paneli_sayfasi.dart';
 import 'admin/admin_dashboard.dart';
+import 'courier/kurye_mobil_paneli.dart';
 
 final ValueNotifier<String?> selectedSehir = ValueNotifier<String?>(null);
 final ValueNotifier<String?> selectedIlce = ValueNotifier<String?>(null);
