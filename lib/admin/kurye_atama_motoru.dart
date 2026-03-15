@@ -15,12 +15,12 @@ class _KuryeAtamaMotoruState extends State<KuryeAtamaMotoru> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   String _durumFiltre = 'tum';
-  bool _sadeceAtanmamislar = true;
+  bool _sadeceAtanmamislar = false;
 
   Stream<QuerySnapshot<Map<String, dynamic>>> _siparisStream() {
     return _firestore
         .collection('orders')
-        .where(FieldPath.documentId, isEqualTo: 'test_order_2')
+        .orderBy('createdAt', descending: true)
         .snapshots();
   }
 
@@ -586,9 +586,11 @@ class _KuryeAtamaMotoruState extends State<KuryeAtamaMotoru> {
 
                     final String adres = (data['adres'] ?? '').toString();
                     final String status = (data['status'] ?? '').toString();
-                    final String vendorName =
-                        (data['vendorName'] ?? data['saticiAdi'] ?? '-')
-                            .toString();
+                    final String vendorName = (data['vendorName'] ??
+                            data['saticiAd'] ??
+                            data['dukkanAdi'] ??
+                            '-')
+                        .toString();
                     final String courierName =
                         (data['assignedCourierName'] ?? '').toString().trim();
 

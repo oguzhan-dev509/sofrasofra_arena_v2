@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../orders/musteri_siparis_takip_sayfasi.dart';
 import '../services/sepet_service.dart';
+import '../services/otomatik_kurye_atama_servisi.dart';
 
 class SepetSayfasi extends StatefulWidget {
   const SepetSayfasi({super.key});

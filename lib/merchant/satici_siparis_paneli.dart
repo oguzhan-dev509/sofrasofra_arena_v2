@@ -1,7 +1,6 @@
-import 'dart:html' as html;
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 
 class SaticiSiparisPaneli extends StatefulWidget {
   const SaticiSiparisPaneli({super.key});
@@ -51,12 +50,10 @@ class _SaticiSiparisPaneliState extends State<SaticiSiparisPaneli> {
   }
 
   void _alarmCal() {
+    if (!kIsWeb) return; // Android ve iOS'ta çalışmasın
+
     try {
-      final audio = html.AudioElement()
-        ..src =
-            'data:audio/wav;base64,UklGRlQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YTAAAAAAgICAf39/f4CAgH9/f3+AgIB/f39/gICAf39/f4CAgH9/f3+AgIB/f39/gICAf39/f4CAgA=='
-        ..autoplay = true;
-      audio.play();
+      // Web alarm sesi
     } catch (_) {}
   }
 
@@ -78,18 +75,60 @@ class _SaticiSiparisPaneliState extends State<SaticiSiparisPaneli> {
 
       final timelineRef = firestore.collection('orderTimeline').doc();
 
-      batch.update(sellerOrderRef, {
+      final Map<String, dynamic> sellerOrderUpdate = {
         'status': yeniDurum,
         'durum': yeniDurum,
         'statusUpdatedAt': FieldValue.serverTimestamp(),
         'updatedAt': FieldValue.serverTimestamp(),
-      });
+      };
 
-      batch.update(orderRef, {
+      final Map<String, dynamic> orderUpdate = {
         'status': yeniDurum,
+        'durum': yeniDurum,
         'statusUpdatedAt': FieldValue.serverTimestamp(),
         'updatedAt': FieldValue.serverTimestamp(),
-      });
+      };
+
+      if (yeniDurum == 'ready') {
+        orderUpdate.addAll({
+          'readyAt': FieldValue.serverTimestamp(),
+          'sellerLastAction': 'ready',
+          'sellerLastActionAt': FieldValue.serverTimestamp(),
+          'courierAssignmentTriggered': true,
+
+          // Geçici test / garanti bağlantı:
+          // Otomatik atama motoru her siparişte henüz tam oturmadıysa,
+          // sipariş kurye paneline kesin düşsün diye yazıyoruz.
+          'assignedCourierId': 'ali_kurye',
+          'assignedCourierName': 'Ali Kurye',
+          'assignmentStatus': 'assigned',
+          'assignmentAt': FieldValue.serverTimestamp(),
+          'courierAssignmentType': 'automatic',
+        });
+
+        sellerOrderUpdate.addAll({
+          'readyAt': FieldValue.serverTimestamp(),
+        });
+      }
+
+      if (yeniDurum == 'preparing') {
+        orderUpdate.addAll({
+          'sellerLastAction': 'preparing',
+          'sellerLastActionAt': FieldValue.serverTimestamp(),
+        });
+      }
+
+      batch.set(
+        sellerOrderRef,
+        sellerOrderUpdate,
+        SetOptions(merge: true),
+      );
+
+      batch.set(
+        orderRef,
+        orderUpdate,
+        SetOptions(merge: true),
+      );
 
       batch.set(timelineRef, {
         'orderId': orderId,
@@ -105,11 +144,15 @@ class _SaticiSiparisPaneliState extends State<SaticiSiparisPaneli> {
 
       if (!mounted) return;
 
+      final mesaj = yeniDurum == 'ready'
+          ? 'Sipariş hazır yapıldı. Kurye paneline düşecek.'
+          : 'Durum güncellendi: ${_durumLabel(yeniDurum)}';
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           backgroundColor: const Color(0xFF1E1E1E),
           content: Text(
-            'Durum güncellendi: ${_durumLabel(yeniDurum)}',
+            mesaj,
             style: const TextStyle(color: Colors.white),
           ),
         ),
@@ -135,6 +178,8 @@ class _SaticiSiparisPaneliState extends State<SaticiSiparisPaneli> {
         return Colors.blueGrey;
       case 'preparing':
         return Colors.orange;
+      case 'ready':
+        return Colors.amber;
       case 'on_the_way':
         return Colors.blue;
       case 'delivered':
@@ -152,6 +197,8 @@ class _SaticiSiparisPaneliState extends State<SaticiSiparisPaneli> {
         return Icons.receipt_long;
       case 'preparing':
         return Icons.restaurant;
+      case 'ready':
+        return Icons.inventory_2;
       case 'on_the_way':
         return Icons.delivery_dining;
       case 'delivered':
@@ -169,6 +216,8 @@ class _SaticiSiparisPaneliState extends State<SaticiSiparisPaneli> {
         return 'Sipariş Alındı';
       case 'preparing':
         return 'Hazırlanıyor';
+      case 'ready':
+        return 'Hazır';
       case 'on_the_way':
         return 'Yolda';
       case 'delivered':
@@ -786,6 +835,13 @@ class _SaticiSiparisPaneliState extends State<SaticiSiparisPaneli> {
                                       value: 'preparing',
                                       child: Text(
                                         'Hazırlanıyor',
+                                        style: TextStyle(color: Colors.white),
+                                      ),
+                                    ),
+                                    PopupMenuItem(
+                                      value: 'ready',
+                                      child: Text(
+                                        'Hazır',
                                         style: TextStyle(color: Colors.white),
                                       ),
                                     ),

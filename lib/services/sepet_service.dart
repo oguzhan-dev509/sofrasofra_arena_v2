@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'otomatik_yeniden_atama_servisi.dart';
 
 class SepetService {
   static final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -164,14 +165,17 @@ class SepetService {
     final String dukkanAdi = (sepetData['dukkanAd'] ?? '').toString().trim();
     final String sellerType =
         (sepetData['sellerType'] ?? 'ev_lezzetleri').toString();
+
     final List<String> teslimatModlari = _asStringList(
       sepetData['teslimatModlari'],
     );
 
     final bool platformKuryeAktif =
         _asBool(sepetData['platformKuryeAktif'], defaultValue: true);
+
     final bool saticiKuryeAktif =
         _asBool(sepetData['saticiKuryeAktif'], defaultValue: false);
+
     final bool gelAlAktif =
         _asBool(sepetData['gelAlAktif'], defaultValue: true);
 
@@ -186,13 +190,10 @@ class SepetService {
     final double genelToplam = _asDouble(sepetData['genelToplam']);
     final int urunSayisi = _asInt(sepetData['urunSayisi']);
 
-    final String assignmentStatus = _assignmentStatusForDeliveryMode(
-      deliveryMode,
-    );
+    final String assignmentStatus =
+        _assignmentStatusForDeliveryMode(deliveryMode);
 
-    final String initialStatus = _initialStatusForDeliveryMode(
-      deliveryMode,
-    );
+    final String initialStatus = _initialStatusForDeliveryMode(deliveryMode);
 
     final orderRef = _firestore.collection('orders').doc();
     final sellerOrderRef = _firestore.collection('sellerOrders').doc();
@@ -224,8 +225,14 @@ class SepetService {
       'saticiKuryeAktif': saticiKuryeAktif,
       'gelAlAktif': gelAlAktif,
       'assignmentStatus': assignmentStatus,
+      'assignmentTryCount': 0,
       'assignedCourierId': null,
       'assignedCourierName': null,
+      'courierAssignmentType': null,
+      'assignmentExpiresAt': null,
+      'lastAssignmentAt': null,
+      'triedCourierIds': <String>[],
+      'reassignmentHistory': <Map<String, dynamic>>[],
       'sellerCourierId': null,
       'sellerCourierName': null,
       'status': initialStatus,
@@ -270,7 +277,6 @@ class SepetService {
 
     for (final itemDoc in itemsSnap.docs) {
       final item = itemDoc.data();
-
       final sellerOrderItemRef =
           sellerOrderRef.collection('items').doc(itemDoc.id);
 
@@ -314,7 +320,7 @@ class SepetService {
         'deliveryMode': null,
         'siparisTipi': null,
         'sellerType': null,
-        'teslimatModlari': [],
+        'teslimatModlari': <String>[],
         'platformKuryeAktif': null,
         'saticiKuryeAktif': null,
         'gelAlAktif': null,
@@ -327,6 +333,25 @@ class SepetService {
     );
 
     await batch.commit();
+
+    try {
+      await OtomatikYenidenAtamaServisi().ilkAtamayiBaslat(
+        orderId: orderRef.id,
+      );
+
+      await orderRef.set({
+        'courierAssignmentTriggered': true,
+        'courierAssignmentResult': true,
+        'courierAssignmentCheckedAt': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
+    } catch (e) {
+      await orderRef.set({
+        'courierAssignmentTriggered': true,
+        'courierAssignmentResult': false,
+        'courierAssignmentError': e.toString(),
+        'courierAssignmentCheckedAt': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
+    }
 
     return orderRef.id;
   }
@@ -393,7 +418,7 @@ class SepetService {
       case 'satici_kuryesi':
         return 'pending';
       case 'platform_kurye':
-        return 'pending';
+        return 'ready';
       default:
         return 'pending';
     }

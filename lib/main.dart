@@ -1,12 +1,11 @@
 import 'dart:convert';
 
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
+import 'package:firebase_core/firebase_core.dart';
 
 import 'firebase_options.dart';
 
-// Modüller
 import 'modules/vitrinler/ev_lezzetleri_vitrini.dart';
 import 'modules/vitrinler/restoranlar_vitrini.dart';
 import 'modules/vitrinler/sef_vitrini.dart';
@@ -18,6 +17,8 @@ import 'admin/satici_onay_merkezi.dart';
 import 'admin/admin_paneli_sayfasi.dart';
 import 'admin/admin_dashboard.dart';
 import 'courier/kurye_mobil_paneli.dart';
+import 'services/bildirim_service.dart';
+import 'services/dispatch_timeout_watcher.dart';
 
 final ValueNotifier<String?> selectedSehir = ValueNotifier<String?>(null);
 final ValueNotifier<String?> selectedIlce = ValueNotifier<String?>(null);
@@ -39,6 +40,15 @@ Future<void> main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
+  final dispatchWatcher = DispatchTimeoutWatcher();
+  dispatchWatcher.start();
+
+  try {
+    await BildirimService.initialize();
+  } catch (e) {
+    print('Bildirim sistemi başlatılamadı: $e');
+  }
 
   runApp(const SofrasofraZirve());
 }
