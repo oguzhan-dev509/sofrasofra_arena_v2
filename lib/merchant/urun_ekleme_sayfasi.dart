@@ -7,6 +7,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:image_picker/image_picker.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class UrunEklemeSayfasi extends StatefulWidget {
   const UrunEklemeSayfasi({super.key});
@@ -21,18 +22,27 @@ class _UrunEklemeSayfasiState extends State<UrunEklemeSayfasi> {
   final TextEditingController _uzmanlikController = TextEditingController();
   final TextEditingController _videoController = TextEditingController();
   final TextEditingController _resimUrlController = TextEditingController();
-
+  final TextEditingController _fiyatController = TextEditingController();
   Uint8List? _webResimVerisi;
   String? _seciliUrl;
 
   bool _yukleniyor = false;
-
+  bool _bugunPisiyor = false;
   String _tip = "Usta Sefler";
   String _sehir = "";
   String _ilce = "";
+  String _kategori = "Ev Yemekleri";
 
   Map<String, List<String>> _ilcelerMap = {};
   bool _lokasyonYukleniyor = true;
+
+  final List<String> _evLezzetiKategorileri = const [
+    "Ev Yemekleri",
+    "Çikolata & Tatlılar",
+    "Süt Ürünleri",
+    "Turşu & Diğerleri",
+    "Baharat & Soslar",
+  ];
 
   static const Color gold = Color(0xFFFFB300);
 
@@ -49,6 +59,7 @@ class _UrunEklemeSayfasiState extends State<UrunEklemeSayfasi> {
     _uzmanlikController.dispose();
     _videoController.dispose();
     _resimUrlController.dispose();
+    _fiyatController.dispose();
     super.dispose();
   }
 
@@ -79,6 +90,45 @@ class _UrunEklemeSayfasiState extends State<UrunEklemeSayfasi> {
   bool _isHttpUrl(String s) {
     final t = s.trim();
     return t.startsWith("http://") || t.startsWith("https://");
+  }
+
+  bool _isYoutubeUrl(String s) {
+    final t = s.trim().toLowerCase();
+    return t.contains("youtube.com") || t.contains("youtu.be");
+  }
+
+  Future<void> _youtubeLinkiniAc() async {
+    final url = _videoController.text.trim();
+
+    if (url.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("❌ Önce YouTube linki giriniz.")),
+      );
+      return;
+    }
+
+    if (!_isYoutubeUrl(url)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("❌ Geçerli bir YouTube linki giriniz.")),
+      );
+      return;
+    }
+
+    final uri = Uri.tryParse(url);
+    if (uri == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("❌ Link açılamadı.")),
+      );
+      return;
+    }
+
+    final ok = await launchUrl(uri, mode: LaunchMode.externalApplication);
+
+    if (!ok && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("❌ YouTube bağlantısı açılamadı.")),
+      );
+    }
   }
 
   Future<void> _dosyaGezgininiAc() async {
@@ -156,6 +206,14 @@ class _UrunEklemeSayfasiState extends State<UrunEklemeSayfasi> {
     final urunAdi = _urunAdiController.text.trim();
     final uzmanlik = _uzmanlikController.text.trim();
     final videoUrl = _videoController.text.trim();
+    final fiyatText = _fiyatController.text.trim();
+    final double fiyat = double.tryParse(fiyatText.replaceAll(',', '.')) ?? 0;
+    if (videoUrl.isNotEmpty && !_isYoutubeUrl(videoUrl)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("❌ Geçerli YouTube linki giriniz.")),
+      );
+      return;
+    }
 
     if (dukkan.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -201,9 +259,7 @@ class _UrunEklemeSayfasiState extends State<UrunEklemeSayfasi> {
 
     try {
       final user = FirebaseAuth.instance.currentUser;
-      if (user == null) throw Exception("Oturum bulunamadı.");
-
-      final uid = user.uid;
+      final uid = user?.uid ?? 'demo_user';
 
       String imgUrl;
       if (_webResimVerisi != null) {
@@ -224,10 +280,12 @@ class _UrunEklemeSayfasiState extends State<UrunEklemeSayfasi> {
         "sehir": _sehir,
         "ilce": _ilce,
         "uzmanlik": uzmanlik,
-        "videoUrl": videoUrl,
+        "youtubeUrl": videoUrl,
         "tip": _tip,
-        "kategori": _tip.toUpperCase(),
+        "kategori": _tip == "Ev Lezzetleri" ? _kategori : _tip,
+        "bugunPisiyor": _tip == "Ev Lezzetleri" ? _bugunPisiyor : false,
         "onayDurumu": "onaylandi",
+        "fiyat": fiyat,
         "isActive": true,
         "kayitTarihi": FieldValue.serverTimestamp(),
         "createdAt": FieldValue.serverTimestamp(),
@@ -238,6 +296,18 @@ class _UrunEklemeSayfasiState extends State<UrunEklemeSayfasi> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("✅ Arena’da yayınlandı!")),
       );
+
+      setState(() {
+        _dukkanController.clear();
+        _urunAdiController.clear();
+        _uzmanlikController.clear();
+        _videoController.clear();
+        _resimUrlController.clear();
+        _webResimVerisi = null;
+        _seciliUrl = null;
+        _kategori = "Ev Yemekleri";
+        _bugunPisiyor = false;
+      });
 
       Navigator.pop(context);
     } catch (e) {
@@ -299,6 +369,7 @@ class _UrunEklemeSayfasiState extends State<UrunEklemeSayfasi> {
                         _tip = v;
                         if (_tip != "Ev Lezzetleri") {
                           _urunAdiController.clear();
+                          _bugunPisiyor = false;
                         }
                       });
                     },
@@ -381,11 +452,132 @@ class _UrunEklemeSayfasiState extends State<UrunEklemeSayfasi> {
             if (_tip == "Ev Lezzetleri") ...[
               const SizedBox(height: 12),
               _input("YEMEK / ÜRÜN ADI", _urunAdiController),
+              const SizedBox(height: 12),
+              _input("FİYAT (örn: 120)", _fiyatController),
+              const SizedBox(height: 12),
+              DropdownButtonFormField<String>(
+                dropdownColor: Colors.black,
+                value: _kategori,
+                style: const TextStyle(color: Colors.white),
+                items: _evLezzetiKategorileri
+                    .map((x) => DropdownMenuItem(value: x, child: Text(x)))
+                    .toList(),
+                onChanged: _yukleniyor
+                    ? null
+                    : (v) {
+                        if (v == null) return;
+                        setState(() => _kategori = v);
+                      },
+                decoration: const InputDecoration(
+                  labelText: "ÜRÜN KATEGORİSİ",
+                  labelStyle: TextStyle(
+                    color: Colors.white24,
+                    fontSize: 11,
+                  ),
+                  enabledBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: Colors.white24),
+                  ),
+                  focusedBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: gold),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 14),
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF111111),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: gold.withOpacity(0.30)),
+                ),
+                child: SwitchListTile(
+                  contentPadding: EdgeInsets.zero,
+                  activeColor: gold,
+                  value: _bugunPisiyor,
+                  onChanged: _yukleniyor
+                      ? null
+                      : (value) {
+                          setState(() {
+                            _bugunPisiyor = value;
+                          });
+                        },
+                  title: const Text(
+                    "Bugün Pişiyor",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 13,
+                    ),
+                  ),
+                  subtitle: const Text(
+                    "Açık olursa ürün 'Bugün Evde Ne Pişiyor' vitrininte öne çıkar.",
+                    style: TextStyle(
+                      color: Colors.white54,
+                      fontSize: 11,
+                    ),
+                  ),
+                ),
+              ),
             ],
             const SizedBox(height: 12),
             _input("UZMANLIK (opsiyonel)", _uzmanlikController),
             const SizedBox(height: 12),
-            _input("YOUTUBE (opsiyonel)", _videoController),
+            TextField(
+              controller: _videoController,
+              style: const TextStyle(color: Colors.white),
+              decoration: const InputDecoration(
+                labelText: "YOUTUBE LİNKİ (opsiyonel)",
+                hintText: "https://youtube.com/... veya https://youtu.be/...",
+                hintStyle: TextStyle(
+                  color: Colors.white24,
+                  fontSize: 12,
+                ),
+                labelStyle: TextStyle(
+                  color: Colors.white24,
+                  fontSize: 11,
+                ),
+                enabledBorder: UnderlineInputBorder(
+                  borderSide: BorderSide(color: Colors.white24),
+                ),
+                focusedBorder: UnderlineInputBorder(
+                  borderSide: BorderSide(color: gold),
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Expanded(
+                  child: _medyaKutusu(
+                    "🎬 YOUTUBE LİNKİNİ TEST ET",
+                    Icons.play_circle_outline,
+                    Colors.redAccent,
+                    _yukleniyor ? null : _youtubeLinkiniAc,
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: _medyaKutusu(
+                    "🧹 VİDEO LİNKİNİ TEMİZLE",
+                    Icons.delete_outline,
+                    Colors.orangeAccent,
+                    _yukleniyor
+                        ? null
+                        : () {
+                            setState(() {
+                              _videoController.clear();
+                            });
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text("✅ Video linki temizlendi."),
+                              ),
+                            );
+                          },
+                  ),
+                ),
+              ],
+            ),
             const SizedBox(height: 18),
             Row(
               children: [
@@ -473,7 +665,7 @@ class _UrunEklemeSayfasiState extends State<UrunEklemeSayfasi> {
       child: Container(
         padding: const EdgeInsets.all(15),
         decoration: BoxDecoration(
-          border: Border.all(color: c.withValues(alpha: 0.35)),
+          border: Border.all(color: c.withOpacity(0.35)),
           borderRadius: BorderRadius.circular(12),
           color: const Color(0xFF0A0A0A),
         ),
@@ -481,12 +673,14 @@ class _UrunEklemeSayfasiState extends State<UrunEklemeSayfasi> {
           children: [
             Icon(i, color: c),
             const SizedBox(width: 10),
-            Text(
-              t,
-              style: TextStyle(
-                color: c,
-                fontSize: 11,
-                fontWeight: FontWeight.bold,
+            Expanded(
+              child: Text(
+                t,
+                style: TextStyle(
+                  color: c,
+                  fontSize: 11,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
           ],

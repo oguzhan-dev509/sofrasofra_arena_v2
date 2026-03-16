@@ -84,7 +84,7 @@ class OrderService {
 
       final itemMaps = input.items.map((e) => e.toMap()).toList();
       final toplamTutar = _roundMoney(
-        input.items.fold<double>(0, (sum, item) => sum + item.toplam),
+        input.items.fold<double>(0, (toplam, item) => toplam + item.toplam),
       );
 
       final docRef = _firestore.collection('orders').doc();
