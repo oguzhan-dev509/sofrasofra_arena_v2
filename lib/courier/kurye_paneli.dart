@@ -524,7 +524,7 @@ class _KuryePaneliState extends State<KuryePaneli>
 
     final status = _safeText(data['status'], fallback: 'pending');
     final assignmentStatus =
-        _safeText(data['assignmentStatus'], fallback: 'unassigned');
+        _safeText(data['assignmentStatus'], fallback: 'waiting_courier');
     final offerStatus = _safeText(data['courierOfferStatus'], fallback: '');
     final musteriAd = _safeText(data['musteriAd'] ?? data['kullaniciAdi']);
     final musteriTelefon =

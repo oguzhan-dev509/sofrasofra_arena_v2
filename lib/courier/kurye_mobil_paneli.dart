@@ -1,5 +1,9 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+
+import '../services/otomatik_kurye_atama_servisi.dart';
 
 class KuryeMobilPaneli extends StatefulWidget {
   const KuryeMobilPaneli({super.key});
@@ -13,6 +17,8 @@ class _KuryeMobilPaneliState extends State<KuryeMobilPaneli> {
 
   // Şimdilik test için sabit kurye
   static const String _aktifKuryeId = 'ali_kurye';
+
+  String? _lastShownOrderId;
 
   Stream<DocumentSnapshot<Map<String, dynamic>>> _kuryeStream() {
     return _firestore.collection('couriers').doc(_aktifKuryeId).snapshots();
@@ -28,6 +34,28 @@ class _KuryeMobilPaneliState extends State<KuryeMobilPaneli> {
       'on_the_way',
       'ready',
     ]).snapshots();
+  }
+
+  Stream<QuerySnapshot<Map<String, dynamic>>> _activeOfferStream() {
+    return _firestore
+        .collection('orders')
+        .where('assignedCourierId', isEqualTo: _aktifKuryeId)
+        .where('courierOfferStatus', isEqualTo: 'pending')
+        .limit(1)
+        .snapshots();
+  }
+
+  void _showOfferDialog(BuildContext context, String orderId) {
+    showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return _CourierOfferDialog(
+          orderId: orderId,
+          courierId: _aktifKuryeId,
+        );
+      },
+    );
   }
 
   double? _toDouble(dynamic value) {
@@ -54,6 +82,10 @@ class _KuryeMobilPaneliState extends State<KuryeMobilPaneli> {
         return 'Yolda';
       case 'delivered':
         return 'Teslim Edildi';
+      case 'ready':
+        return 'Hazır';
+      case 'assigned':
+        return 'Atandı';
       default:
         return status.isEmpty ? '-' : status;
     }
@@ -69,6 +101,10 @@ class _KuryeMobilPaneliState extends State<KuryeMobilPaneli> {
         return Colors.blue;
       case 'delivered':
         return Colors.green;
+      case 'ready':
+        return Colors.amber;
+      case 'assigned':
+        return Colors.teal;
       default:
         return Colors.grey;
     }
@@ -221,10 +257,14 @@ class _KuryeMobilPaneliState extends State<KuryeMobilPaneli> {
 
     final status = _safeText(data['status'], fallback: '');
     final assignmentStatus = _safeText(data['assignmentStatus'], fallback: '');
-    final musteriAdi = _safeText(data['customerName'] ?? data['musteriAdi'],
-        fallback: 'Müşteri');
-    final saticiAdi =
-        _safeText(data['vendorName'] ?? data['saticiAdi'], fallback: 'Satıcı');
+    final musteriAdi = _safeText(
+      data['customerName'] ?? data['musteriAdi'],
+      fallback: 'Müşteri',
+    );
+    final saticiAdi = _safeText(
+      data['vendorName'] ?? data['saticiAdi'],
+      fallback: 'Satıcı',
+    );
     final adres = _safeText(data['adres'], fallback: '-');
     final ilce = _safeText(data['ilce'], fallback: '-');
     final sehir = _safeText(data['sehir'], fallback: '-');
@@ -389,147 +429,299 @@ class _KuryeMobilPaneliState extends State<KuryeMobilPaneli> {
           ),
         ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          children: [
-            StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
-              stream: _kuryeStream(),
-              builder: (context, snapshot) {
-                if (snapshot.hasError) {
-                  return Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(14),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF111111),
-                      borderRadius: BorderRadius.circular(18),
-                      border: Border.all(color: Colors.redAccent),
-                    ),
-                    child: Text(
-                      'Kurye bilgisi okunamadı: ${snapshot.error}',
-                      style: const TextStyle(color: Colors.redAccent),
-                    ),
-                  );
-                }
-
-                if (!snapshot.hasData || !snapshot.data!.exists) {
-                  return Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(14),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF111111),
-                      borderRadius: BorderRadius.circular(18),
-                      border: Border.all(color: Colors.grey.shade800),
-                    ),
-                    child: const Text(
-                      'Kurye bilgisi bulunamadı.',
-                      style: TextStyle(color: Colors.white70),
-                    ),
-                  );
-                }
-
-                final data = snapshot.data!.data() ?? {};
-                final adSoyad = _safeText(data['adSoyad'], fallback: 'Kurye');
-                final uygunluk = _safeText(data['uygunluk'], fallback: '-');
-                final aktifSiparis = data['aktifSiparis'] ?? 0;
-                final toplamTeslimat = data['toplamTeslimat'] ?? 0;
-
-                return Column(
-                  children: [
-                    _ustBilgiKarti(
-                      icon: Icons.person,
-                      title: 'Kurye',
-                      value: adSoyad,
-                    ),
-                    const SizedBox(height: 10),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: _ustBilgiKarti(
-                            icon: Icons.route,
-                            title: 'Uygunluk',
-                            value: uygunluk,
-                          ),
+      body: Stack(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(12),
+            child: Column(
+              children: [
+                StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
+                  stream: _kuryeStream(),
+                  builder: (context, snapshot) {
+                    if (snapshot.hasError) {
+                      return Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(14),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF111111),
+                          borderRadius: BorderRadius.circular(18),
+                          border: Border.all(color: Colors.redAccent),
                         ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: _ustBilgiKarti(
-                            icon: Icons.shopping_bag,
-                            title: 'Aktif Sipariş',
-                            value: '$aktifSiparis',
-                          ),
+                        child: Text(
+                          'Kurye bilgisi okunamadı: ${snapshot.error}',
+                          style: const TextStyle(color: Colors.redAccent),
+                        ),
+                      );
+                    }
+
+                    if (!snapshot.hasData || !snapshot.data!.exists) {
+                      return Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(14),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF111111),
+                          borderRadius: BorderRadius.circular(18),
+                          border: Border.all(color: Colors.grey.shade800),
+                        ),
+                        child: const Text(
+                          'Kurye bilgisi bulunamadı.',
+                          style: TextStyle(color: Colors.white70),
+                        ),
+                      );
+                    }
+
+                    final data = snapshot.data!.data() ?? {};
+                    final adSoyad =
+                        _safeText(data['adSoyad'], fallback: 'Kurye');
+                    final uygunluk = _safeText(data['uygunluk'], fallback: '-');
+                    final aktifSiparis = data['aktifSiparis'] ?? 0;
+                    final toplamTeslimat = data['toplamTeslimat'] ?? 0;
+
+                    return Column(
+                      children: [
+                        _ustBilgiKarti(
+                          icon: Icons.person,
+                          title: 'Kurye',
+                          value: adSoyad,
+                        ),
+                        const SizedBox(height: 10),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: _ustBilgiKarti(
+                                icon: Icons.route,
+                                title: 'Uygunluk',
+                                value: uygunluk,
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: _ustBilgiKarti(
+                                icon: Icons.shopping_bag,
+                                title: 'Aktif Sipariş',
+                                value: '$aktifSiparis',
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 10),
+                        _ustBilgiKarti(
+                          icon: Icons.check_circle,
+                          title: 'Toplam Teslimat',
+                          value: '$toplamTeslimat',
                         ),
                       ],
-                    ),
-                    const SizedBox(height: 10),
-                    _ustBilgiKarti(
-                      icon: Icons.check_circle,
-                      title: 'Toplam Teslimat',
-                      value: '$toplamTeslimat',
-                    ),
-                  ],
-                );
-              },
-            ),
-            const SizedBox(height: 14),
-            Expanded(
-              child: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-                stream: _gorevlerStream(),
-                builder: (context, snapshot) {
-                  if (snapshot.hasError) {
-                    return Center(
-                      child: Text(
-                        'Görevler okunamadı: ${snapshot.error}',
-                        style: const TextStyle(color: Colors.redAccent),
-                        textAlign: TextAlign.center,
-                      ),
                     );
-                  }
-
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(
-                      child: CircularProgressIndicator(
-                        color: Color(0xFFFFB300),
-                      ),
-                    );
-                  }
-
-                  final docs = snapshot.data?.docs ?? [];
-
-                  if (docs.isEmpty) {
-                    return Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(24),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF111111),
-                        borderRadius: BorderRadius.circular(18),
-                        border: Border.all(color: Colors.grey.shade800),
-                      ),
-                      child: const Center(
-                        child: Text(
-                          'Şu anda bu kuryeye atanmış aktif görev yok.',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            color: Colors.white70,
-                            fontSize: 15,
+                  },
+                ),
+                const SizedBox(height: 14),
+                Expanded(
+                  child: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+                    stream: _gorevlerStream(),
+                    builder: (context, snapshot) {
+                      if (snapshot.hasError) {
+                        return Center(
+                          child: Text(
+                            'Görevler okunamadı: ${snapshot.error}',
+                            style: const TextStyle(color: Colors.redAccent),
+                            textAlign: TextAlign.center,
                           ),
-                        ),
-                      ),
-                    );
-                  }
+                        );
+                      }
 
-                  return ListView.builder(
-                    itemCount: docs.length,
-                    itemBuilder: (context, index) {
-                      return _gorevKart(docs[index]);
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(
+                          child: CircularProgressIndicator(
+                            color: Color(0xFFFFB300),
+                          ),
+                        );
+                      }
+
+                      final docs = snapshot.data?.docs ?? [];
+
+                      if (docs.isEmpty) {
+                        return Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(24),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF111111),
+                            borderRadius: BorderRadius.circular(18),
+                            border: Border.all(color: Colors.grey.shade800),
+                          ),
+                          child: const Center(
+                            child: Text(
+                              'Şu anda bu kuryeye atanmış aktif görev yok.',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                color: Colors.white70,
+                                fontSize: 15,
+                              ),
+                            ),
+                          ),
+                        );
+                      }
+
+                      return ListView.builder(
+                        itemCount: docs.length,
+                        itemBuilder: (context, index) {
+                          return _gorevKart(docs[index]);
+                        },
+                      );
                     },
-                  );
-                },
-              ),
+                  ),
+                ),
+              ],
             ),
-          ],
+          ),
+          StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+            stream: _activeOfferStream(),
+            builder: (context, snapshot) {
+              if (snapshot.hasData && snapshot.data!.docs.isNotEmpty) {
+                final orderId = snapshot.data!.docs.first.id;
+
+                if (_lastShownOrderId != orderId) {
+                  _lastShownOrderId = orderId;
+
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    if (!mounted) return;
+                    _showOfferDialog(context, orderId);
+                  });
+                }
+              }
+
+              return const SizedBox.shrink();
+            },
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _CourierOfferDialog extends StatefulWidget {
+  final String orderId;
+  final String courierId;
+
+  const _CourierOfferDialog({
+    required this.orderId,
+    required this.courierId,
+  });
+
+  @override
+  State<_CourierOfferDialog> createState() => _CourierOfferDialogState();
+}
+
+class _CourierOfferDialogState extends State<_CourierOfferDialog> {
+  int secondsLeft = 20;
+  Timer? _timer;
+  bool _handled = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) async {
+      if (secondsLeft <= 1) {
+        timer.cancel();
+
+        if (_handled) return;
+        _handled = true;
+
+        await OtomatikKuryeAtamaServisi().kuryeTeklifiReddet(
+          orderId: widget.orderId,
+          courierId: widget.courierId,
+          reason: 'timeout',
+        );
+
+        if (mounted) {
+          Navigator.of(context).pop();
+        }
+      } else {
+        if (mounted) {
+          setState(() {
+            secondsLeft--;
+          });
+        }
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  Future<void> _accept() async {
+    if (_handled) return;
+    _handled = true;
+
+    final ok = await OtomatikKuryeAtamaServisi().kuryeTeklifiKabulEt(
+      orderId: widget.orderId,
+      courierId: widget.courierId,
+    );
+
+    if (!mounted) return;
+    Navigator.of(context).pop();
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          ok ? 'Sipariş kabul edildi.' : 'Sipariş kabul edilemedi.',
         ),
       ),
+    );
+  }
+
+  Future<void> _reject() async {
+    if (_handled) return;
+    _handled = true;
+
+    final ok = await OtomatikKuryeAtamaServisi().kuryeTeklifiReddet(
+      orderId: widget.orderId,
+      courierId: widget.courierId,
+      reason: 'manual',
+    );
+
+    if (!mounted) return;
+    Navigator.of(context).pop();
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          ok ? 'Sipariş reddedildi.' : 'Sipariş reddedilemedi.',
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Yeni Sipariş Teklifi'),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Text('Bu siparişi kabul etmek ister misin?'),
+          const SizedBox(height: 12),
+          Text(
+            'Kalan süre: $secondsLeft sn',
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: _reject,
+          child: const Text('Reddet'),
+        ),
+        ElevatedButton(
+          onPressed: _accept,
+          child: const Text('Kabul Et'),
+        ),
+      ],
     );
   }
 }

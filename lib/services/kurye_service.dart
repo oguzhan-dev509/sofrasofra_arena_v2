@@ -332,6 +332,7 @@ class KuryeService {
         'activeOrderCount': currentKurye.activeOrderCount + 1,
         'aktifSiparis': currentKurye.activeOrderCount + 1,
         'uygunluk': 'Görevde',
+        'currentOrderId': null, // 🔥 EN KRİTİK
         'updatedAt': FieldValue.serverTimestamp(),
       });
 

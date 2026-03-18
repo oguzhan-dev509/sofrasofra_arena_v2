@@ -177,11 +177,13 @@ class AiKuryeDagitimMotoru {
         });
 
         tx.update(courierRef, {
+          'activeOrder': true,
+          'currentOrderId': orderId,
+          'aktifSiparis': FieldValue.increment(1),
           'uygunluk': 'Görevde',
           'lastAssignedAt': FieldValue.serverTimestamp(),
           'updatedAt': FieldValue.serverTimestamp(),
         });
-
         tx.set(courierOrderRef, {
           'orderId': orderId,
           'courierId': selectedCourier.courierId,

@@ -639,6 +639,7 @@ class OtomatikKuryeAtamaServisi {
           {
             'aktifSiparis': mevcutAktifSiparis > 0 ? mevcutAktifSiparis - 1 : 0,
             'uygunluk': 'Görevde',
+            'currentOrderId': null,
             'updatedAt': FieldValue.serverTimestamp(),
           },
           SetOptions(merge: true),

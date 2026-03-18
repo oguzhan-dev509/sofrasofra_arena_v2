@@ -197,6 +197,7 @@ class KuryeDispatchEngine {
               'uygunluk': 'Görevde',
               'lastAssignedAt': FieldValue.serverTimestamp(),
               'updatedAt': FieldValue.serverTimestamp(),
+              'currentOrderId': orderId, // ZORUNLU
             },
             SetOptions(merge: true));
       });
@@ -291,6 +292,7 @@ class KuryeDispatchEngine {
           'updatedAt': FieldValue.serverTimestamp(),
         };
 
+// 🔥 GLOBAL STATE GUARD
         if (newOrderStatus == 'delivered') {
           orderUpdate['assignmentStatus'] = 'completed';
           orderUpdate['deliveredAt'] = FieldValue.serverTimestamp();

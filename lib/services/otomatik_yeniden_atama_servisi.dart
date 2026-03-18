@@ -387,6 +387,7 @@ class OtomatikYenidenAtamaServisi {
 
       await orderRef.update({
         'assignmentStatus': 'no_courier_found',
+        'status': 'waiting_courier',
         'updatedAt': FieldValue.serverTimestamp(),
       });
       return;
@@ -404,6 +405,7 @@ class OtomatikYenidenAtamaServisi {
         siparisLng == null) {
       await orderRef.update({
         'assignmentStatus': 'invalid_order_location',
+        'status': 'waiting_courier',
         'updatedAt': FieldValue.serverTimestamp(),
       });
       return;
@@ -485,6 +487,7 @@ class OtomatikYenidenAtamaServisi {
 
       await orderRef.update({
         'assignmentStatus': 'no_courier_found',
+        'status': 'waiting_courier',
         'updatedAt': FieldValue.serverTimestamp(),
       });
       return;

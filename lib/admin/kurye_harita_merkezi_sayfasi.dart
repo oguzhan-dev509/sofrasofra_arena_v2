@@ -32,7 +32,7 @@ class _KuryeHaritaMerkeziSayfasiState extends State<KuryeHaritaMerkeziSayfasi> {
         .collection('orders')
         .where('deliveryMode', isEqualTo: 'platform_kurye')
         .where('status', isEqualTo: 'pending')
-        .where('assignmentStatus', isEqualTo: 'unassigned')
+        .where('assignmentStatus', isEqualTo: 'waiting_courier')
         .orderBy('createdAt', descending: true)
         .limit(1)
         .get();
@@ -73,7 +73,7 @@ class _KuryeHaritaMerkeziSayfasiState extends State<KuryeHaritaMerkeziSayfasi> {
 
     // Sadece atanmamış veya aktif atanmış sipariş mantığına izin ver
     final bool uygunAssignment =
-        assignmentStatus == 'unassigned' || assignmentStatus == 'assigned';
+        assignmentStatus == 'waiting_courier' || assignmentStatus == 'assigned';
 
     if (!uygunAssignment) {
       _aktifSiparisId = null;
