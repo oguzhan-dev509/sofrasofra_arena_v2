@@ -165,6 +165,8 @@ class _KuryeBasvurulariSayfasiState extends State<KuryeBasvurulariSayfasi> {
       'telefon': _telefon(data),
       'sehir': _sehir(data),
       'ilce': _ilce(data),
+      'sellerIds': <String>[],
+      'kuryeTipi': 'platform',
       'aracTipi': _aracTipi(data),
       'plaka': _plaka(data) == '-' ? '' : _plaka(data),
       'not': _not(data) == '-' ? '' : _not(data),
@@ -207,7 +209,7 @@ class _KuryeBasvurulariSayfasiState extends State<KuryeBasvurulariSayfasi> {
       data: data,
     );
 
-    if (!mounted) return;
+    if (!context.mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text('Başvuru onaylandı ve couriers koleksiyonuna aktarıldı.'),
@@ -221,7 +223,7 @@ class _KuryeBasvurulariSayfasiState extends State<KuryeBasvurulariSayfasi> {
   ) async {
     await _durumGuncelle(docId, 'reddedildi');
 
-    if (!mounted) return;
+    if (!context.mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Başvuru reddedildi.')),
     );
@@ -278,8 +280,11 @@ class _KuryeBasvurulariSayfasiState extends State<KuryeBasvurulariSayfasi> {
                   docId,
                   adminNotu: controller.text.trim(),
                 );
-                if (!mounted) return;
-                Navigator.pop(dialogContext);
+
+                if (!dialogContext.mounted) return;
+                Navigator.of(dialogContext).pop();
+
+                if (!context.mounted) return;
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text('Admin notu güncellendi.')),
                 );

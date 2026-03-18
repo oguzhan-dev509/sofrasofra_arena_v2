@@ -14,7 +14,7 @@ import 'modules/vitrinler/sef_vitrini.dart';
 import 'firestore_test_page.dart';
 import 'merchant/merchant_dashboard.dart';
 import 'admin/satici_onay_merkezi.dart';
-import 'admin/admin_paneli_sayfasi.dart';
+
 import 'admin/admin_dashboard.dart';
 import 'courier/kurye_mobil_paneli.dart';
 import 'services/bildirim_service.dart';

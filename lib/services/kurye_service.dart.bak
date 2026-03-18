@@ -163,17 +163,14 @@ class KuryeService {
       transaction.update(orderRef, {
         'courierId': currentKurye.id,
         'courierName': currentKurye.ad,
-        'assignedCourierId': currentKurye.id,
-        'assignedCourierName': currentKurye.ad,
         'courierPhone': currentKurye.telefon,
         'courierAssignedAt': FieldValue.serverTimestamp(),
-        'assignmentAt': FieldValue.serverTimestamp(),
-        'courierAssignmentType': 'auto_queue_assignment',
+        'courierAssignmentType': assignmentType,
         'courierAssignmentStatus': 'assigned',
-        'assignmentStatus': 'assigned',
         'updatedAt': FieldValue.serverTimestamp(),
-        'status': 'assigned',
-        'durum': 'assigned',
+        'status': orderData['status'] == 'pending'
+            ? 'courier_assigned'
+            : (orderData['status'] ?? 'courier_assigned'),
       });
 
       transaction.update(courierRef, {
@@ -300,17 +297,13 @@ class KuryeService {
         transaction.update(sellerOrderRef, {
           'courierId': currentKurye.id,
           'courierName': currentKurye.ad,
-          'assignedCourierId': currentKurye.id,
-          'assignedCourierName': currentKurye.ad,
           'courierPhone': currentKurye.telefon,
           'courierAssignedAt': FieldValue.serverTimestamp(),
-          'assignmentAt': FieldValue.serverTimestamp(),
           'courierAssignmentType': 'auto_queue_assignment',
           'courierAssignmentStatus': 'assigned',
-          'assignmentStatus': 'assigned',
           'updatedAt': FieldValue.serverTimestamp(),
-          'status': 'assigned',
-          'durum': 'assigned',
+          'status': 'courier_assigned',
+          'durum': 'kurye_atandi',
         });
       }
 
@@ -330,8 +323,6 @@ class KuryeService {
 
       transaction.update(courierRef, {
         'activeOrderCount': currentKurye.activeOrderCount + 1,
-        'aktifSiparis': currentKurye.activeOrderCount + 1,
-        'uygunluk': 'Görevde',
         'updatedAt': FieldValue.serverTimestamp(),
       });
 

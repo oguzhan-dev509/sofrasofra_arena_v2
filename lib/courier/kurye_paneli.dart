@@ -1,7 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
-import '../services/otomatik_yeniden_atama_servisi.dart';
+
+import '../services/otomatik_kurye_atama_servisi.dart';
 
 class KuryePaneli extends StatefulWidget {
   const KuryePaneli({super.key});
@@ -21,11 +22,25 @@ class _KuryePaneliState extends State<KuryePaneli>
   static const Color _card = Color(0xFF1A1A1A);
 
   late final TabController _tabController;
+  void _startTimeoutWatcher() {
+    Future.doWhile(() async {
+      try {
+        await OtomatikKuryeAtamaServisi().timeoutKontrolVeYenidenAta(
+          timeout: const Duration(seconds: 20),
+        );
+      } catch (_) {}
+
+      await Future.delayed(const Duration(seconds: 5));
+      return mounted;
+    });
+  }
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
+
+    _startTimeoutWatcher();
   }
 
   @override
@@ -38,8 +53,12 @@ class _KuryePaneliState extends State<KuryePaneli>
     return _firestore
         .collection('orders')
         .where('assignedCourierId', isEqualTo: _courierId)
-        .where('status',
-            whereIn: ['accepted', 'on_the_way', 'ready']).snapshots();
+        .where('status', whereIn: [
+      'assigned',
+      'accepted',
+      'on_the_way',
+      'ready'
+    ]).snapshots();
   }
 
   Stream<QuerySnapshot<Map<String, dynamic>>> _gecmisTeslimatlarStream() {
@@ -82,6 +101,8 @@ class _KuryePaneliState extends State<KuryePaneli>
         return 'Hazırlanıyor';
       case 'ready':
         return 'Hazır';
+      case 'assigned':
+        return 'Kurye Atandı';
       case 'accepted':
         return 'Kabul edildi';
       case 'rejected':
@@ -103,6 +124,8 @@ class _KuryePaneliState extends State<KuryePaneli>
         return Colors.lightBlueAccent;
       case 'ready':
         return Colors.amberAccent;
+      case 'assigned':
+        return Colors.deepPurpleAccent;
       case 'accepted':
         return Colors.deepPurpleAccent;
       case 'rejected':
@@ -113,6 +136,21 @@ class _KuryePaneliState extends State<KuryePaneli>
         return Colors.greenAccent;
       default:
         return Colors.white70;
+    }
+  }
+
+  String _offerStatusLabel(String offerStatus) {
+    switch (offerStatus) {
+      case 'pending':
+        return 'Teklif Bekliyor';
+      case 'accepted':
+        return 'Kabul Edildi';
+      case 'rejected':
+        return 'Reddedildi';
+      case 'expired':
+        return 'Süresi Doldu';
+      default:
+        return offerStatus.isEmpty ? '-' : offerStatus;
     }
   }
 
@@ -127,23 +165,16 @@ class _KuryePaneliState extends State<KuryePaneli>
 
   Future<void> _goreviKabulEt(String orderId) async {
     try {
-      await OtomatikYenidenAtamaServisi().kuryeKabulEtti(
+      final result = await OtomatikKuryeAtamaServisi().kuryeTeklifiKabulEt(
         orderId: orderId,
         courierId: _courierId,
       );
 
-      final orderRef = _firestore.collection('orders').doc(orderId);
-      final timelineRef = _firestore.collection('orderTimeline').doc();
+      if (!result) {
+        throw Exception('Görev kabul edilemedi.');
+      }
 
-      await orderRef.set({
-        'status': 'accepted',
-        'durum': 'accepted',
-        'assignmentStatus': 'accepted',
-        'courierAccepted': true,
-        'courierAcceptedAt': FieldValue.serverTimestamp(),
-        'acceptedAt': FieldValue.serverTimestamp(),
-        'updatedAt': FieldValue.serverTimestamp(),
-      }, SetOptions(merge: true));
+      final timelineRef = _firestore.collection('orderTimeline').doc();
 
       await timelineRef.set({
         'orderId': orderId,
@@ -172,10 +203,14 @@ class _KuryePaneliState extends State<KuryePaneli>
 
   Future<void> _goreviReddet(String orderId) async {
     try {
-      await OtomatikYenidenAtamaServisi().kuryeReddetti(
+      final result = await OtomatikKuryeAtamaServisi().kuryeTeklifiReddet(
         orderId: orderId,
         courierId: _courierId,
       );
+
+      if (!result) {
+        throw Exception('Görev reddedilemedi.');
+      }
 
       final timelineRef = _firestore.collection('orderTimeline').doc();
 
@@ -191,7 +226,7 @@ class _KuryePaneliState extends State<KuryePaneli>
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Görev reddedildi. Yeniden atama başlatıldı.'),
+          content: Text('Görev reddedildi. Yeni kurye aranıyor.'),
         ),
       );
     } catch (e) {
@@ -245,10 +280,10 @@ class _KuryePaneliState extends State<KuryePaneli>
       }
 
       await orderRef.set({
-        'status': 'on_the_way',
-        'durum': 'on_the_way',
-        'assignmentStatus': 'accepted',
-        'courierPickupAt': FieldValue.serverTimestamp(),
+        'status': 'delivered',
+        'durum': 'delivered',
+        'assignmentStatus': 'completed',
+        'deliveredAt': FieldValue.serverTimestamp(),
         'updatedAt': FieldValue.serverTimestamp(),
       }, SetOptions(merge: true));
 
@@ -313,15 +348,28 @@ class _KuryePaneliState extends State<KuryePaneli>
         throw Exception('Teslim etmek için sipariş yolda olmalıdır.');
       }
 
-      await OtomatikYenidenAtamaServisi().teslimEdildi(
-        orderId: orderId,
-      );
+      await orderRef.set({
+        'status': 'delivered',
+        'durum': 'delivered',
+        'deliveredAt': FieldValue.serverTimestamp(),
+        'updatedAt': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
 
       final courierRef = _firestore.collection('couriers').doc(_courierId);
+      final courierSnap = await courierRef.get();
+      final courierData = courierSnap.data() ?? {};
+      final aktifSiparis = _toInt(courierData['aktifSiparis']);
+      final toplamTeslimat = _toInt(courierData['toplamTeslimat']);
+
       final timelineRef = _firestore.collection('orderTimeline').doc();
 
+      final yeniAktifSiparis = aktifSiparis > 0 ? aktifSiparis - 1 : 0;
+
       await courierRef.set({
-        'uygunluk': 'Müsait',
+        'aktifSiparis': yeniAktifSiparis,
+        'toplamTeslimat': toplamTeslimat + 1,
+        'uygunluk': yeniAktifSiparis == 0 ? 'Müsait' : 'Görevde',
+        'lastDeliveredAt': FieldValue.serverTimestamp(),
         'updatedAt': FieldValue.serverTimestamp(),
       }, SetOptions(merge: true));
 
@@ -475,10 +523,9 @@ class _KuryePaneliState extends State<KuryePaneli>
     final orderId = doc.id;
 
     final status = _safeText(data['status'], fallback: 'pending');
-    final assignmentStatus = _safeText(
-      data['assignmentStatus'],
-      fallback: 'unassigned',
-    );
+    final assignmentStatus =
+        _safeText(data['assignmentStatus'], fallback: 'unassigned');
+    final offerStatus = _safeText(data['courierOfferStatus'], fallback: '');
     final musteriAd = _safeText(data['musteriAd'] ?? data['kullaniciAdi']);
     final musteriTelefon =
         _safeText(data['musteriTelefon'] ?? data['kullaniciTelefon']);
@@ -494,11 +541,13 @@ class _KuryePaneliState extends State<KuryePaneli>
     final lng = _toDouble(data['lng']);
     final konumHazir = lat != null && lng != null;
 
-    final kabulButonDisabled = assignmentStatus != 'offer_sent';
+    final kabulButonDisabled =
+        !(assignmentStatus == 'assigned' && offerStatus == 'pending');
 
-    final redButonDisabled = assignmentStatus != 'offer_sent';
+    final redButonDisabled =
+        !(assignmentStatus == 'assigned' && offerStatus == 'pending');
+
     final yolaCikButonDisabled = status != 'accepted' || status == 'delivered';
-
     final teslimButonDisabled = status != 'on_the_way' || status == 'delivered';
 
     return Container(
@@ -547,7 +596,20 @@ class _KuryePaneliState extends State<KuryePaneli>
                 ),
               ],
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 8),
+            if (offerStatus.isNotEmpty)
+              _bilgiSatiri(
+                'Teklif',
+                _offerStatusLabel(offerStatus),
+                valueColor: offerStatus == 'pending'
+                    ? Colors.orangeAccent
+                    : offerStatus == 'accepted'
+                        ? Colors.greenAccent
+                        : offerStatus == 'rejected'
+                            ? Colors.redAccent
+                            : Colors.white70,
+              ),
+            const SizedBox(height: 8),
             _bilgiSatiri('Satıcı', saticiAd),
             _bilgiSatiri('Müşteri', musteriAd),
             _bilgiSatiri('Telefon', musteriTelefon),

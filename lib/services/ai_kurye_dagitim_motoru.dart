@@ -1,5 +1,7 @@
 import 'dart:math';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 
 class AiKuryeDagitimMotoru {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -14,17 +16,17 @@ class AiKuryeDagitimMotoru {
       final orderSnap = await orderRef.get();
 
       if (!orderSnap.exists) {
-        print('AiKuryeDagitimMotoru: Sipariş bulunamadı -> $orderId');
+        debugPrint('AiKuryeDagitimMotoru: Sipariş bulunamadı -> $orderId');
         return false;
       }
 
-      final orderData = orderSnap.data() as Map<String, dynamic>;
+      final orderData = orderSnap.data() ?? <String, dynamic>{};
 
       final orderLat = _toDouble(orderData['lat']);
       final orderLng = _toDouble(orderData['lng']);
 
       if (orderLat == null || orderLng == null) {
-        print('AiKuryeDagitimMotoru: Sipariş lat/lng eksik -> $orderId');
+        debugPrint('AiKuryeDagitimMotoru: Sipariş lat/lng eksik -> $orderId');
         return false;
       }
 
@@ -32,7 +34,8 @@ class AiKuryeDagitimMotoru {
       if (status.isNotEmpty &&
           status != 'pending' &&
           status != 'waiting_courier') {
-        print('AiKuryeDagitimMotoru: Sipariş durumu uygun değil -> $status');
+        debugPrint(
+            'AiKuryeDagitimMotoru: Sipariş durumu uygun değil -> $status');
         return false;
       }
 
@@ -56,7 +59,7 @@ class AiKuryeDagitimMotoru {
           'status': 'waiting_courier',
           'updatedAt': FieldValue.serverTimestamp(),
         });
-        print('AiKuryeDagitimMotoru: Uygun kurye yok.');
+        debugPrint('AiKuryeDagitimMotoru: Uygun kurye yok.');
         return false;
       }
 
@@ -83,7 +86,6 @@ class AiKuryeDagitimMotoru {
 
         final trafficPenalty = _trafficPenalty(trafficLevel);
         final prepBonus = _prepBonus(restaurantPrepMinutes, distanceKm);
-
         final distanceScore = _distanceScore(distanceKm);
 
         final totalScore = (distanceScore * 0.35) +
@@ -119,12 +121,13 @@ class AiKuryeDagitimMotoru {
           'status': 'waiting_courier',
           'updatedAt': FieldValue.serverTimestamp(),
         });
-        print('AiKuryeDagitimMotoru: Skorlanabilir kurye bulunamadı.');
+        debugPrint('AiKuryeDagitimMotoru: Skorlanabilir kurye bulunamadı.');
         return false;
       }
 
+      final selectedCourier = bestCourier;
       final courierRef =
-          _firestore.collection('couriers').doc(bestCourier.courierId);
+          _firestore.collection('couriers').doc(selectedCourier.courierId);
       final courierOrderRef = _firestore.collection('courier_orders').doc();
 
       await _firestore.runTransaction((tx) async {
@@ -133,13 +136,12 @@ class AiKuryeDagitimMotoru {
 
         if (!freshOrderSnap.exists || !freshCourierSnap.exists) {
           throw Exception(
-              'Transaction sırasında sipariş veya kurye bulunamadı.');
+            'Transaction sırasında sipariş veya kurye bulunamadı.',
+          );
         }
 
-        final freshOrderData =
-            freshOrderSnap.data() as Map<String, dynamic>? ?? {};
-        final freshCourierData =
-            freshCourierSnap.data() as Map<String, dynamic>? ?? {};
+        final freshOrderData = freshOrderSnap.data() ?? <String, dynamic>{};
+        final freshCourierData = freshCourierSnap.data() ?? <String, dynamic>{};
 
         final freshStatus = (freshOrderData['status'] ?? '').toString();
         final courierOnline = freshCourierData['online'] == true;
@@ -154,19 +156,19 @@ class AiKuryeDagitimMotoru {
         }
 
         tx.update(orderRef, {
-          'assignedCourierId': bestCourier!.courierId,
-          'assignedCourierName': bestCourier.courierName,
+          'assignedCourierId': selectedCourier.courierId,
+          'assignedCourierName': selectedCourier.courierName,
           'courierAssignedAt': FieldValue.serverTimestamp(),
-          'courierDistanceKm': bestCourier.distanceKm,
-          'aiDispatchScore': bestCourier.totalScore,
+          'courierDistanceKm': selectedCourier.distanceKm,
+          'aiDispatchScore': selectedCourier.totalScore,
           'aiDispatchMeta': {
-            'distanceScore': bestCourier.distanceScore,
-            'performanceScore': bestCourier.performanceScore,
-            'speedScore': bestCourier.speedScore,
-            'acceptanceScore': bestCourier.acceptanceScore,
-            'workloadScore': bestCourier.workloadScore,
-            'prepBonus': bestCourier.prepBonus,
-            'trafficPenalty': bestCourier.trafficPenalty,
+            'distanceScore': selectedCourier.distanceScore,
+            'performanceScore': selectedCourier.performanceScore,
+            'speedScore': selectedCourier.speedScore,
+            'acceptanceScore': selectedCourier.acceptanceScore,
+            'workloadScore': selectedCourier.workloadScore,
+            'prepBonus': selectedCourier.prepBonus,
+            'trafficPenalty': selectedCourier.trafficPenalty,
           },
           'trafficLevelUsed': trafficLevel,
           'restaurantPrepMinutesUsed': restaurantPrepMinutes,
@@ -175,31 +177,30 @@ class AiKuryeDagitimMotoru {
         });
 
         tx.update(courierRef, {
-          'activeOrder': true,
-          'currentOrderId': orderId,
+          'uygunluk': 'Görevde',
           'lastAssignedAt': FieldValue.serverTimestamp(),
           'updatedAt': FieldValue.serverTimestamp(),
         });
 
         tx.set(courierOrderRef, {
           'orderId': orderId,
-          'courierId': bestCourier.courierId,
-          'courierName': bestCourier.courierName,
+          'courierId': selectedCourier.courierId,
+          'courierName': selectedCourier.courierName,
           'status': 'assigned',
-          'distanceKm': bestCourier.distanceKm,
-          'aiDispatchScore': bestCourier.totalScore,
+          'distanceKm': selectedCourier.distanceKm,
+          'aiDispatchScore': selectedCourier.totalScore,
           'createdAt': FieldValue.serverTimestamp(),
           'updatedAt': FieldValue.serverTimestamp(),
         });
       });
 
-      print(
-        'AiKuryeDagitimMotoru: En iyi kurye atandı -> ${bestCourier.courierName}, skor: ${bestCourier.totalScore.toStringAsFixed(3)}',
+      debugPrint(
+        'AiKuryeDagitimMotoru: En iyi kurye atandı -> ${selectedCourier.courierName}, skor: ${selectedCourier.totalScore.toStringAsFixed(3)}',
       );
 
       return true;
     } catch (e) {
-      print('AiKuryeDagitimMotoru HATA: $e');
+      debugPrint('AiKuryeDagitimMotoru HATA: $e');
       return false;
     }
   }
@@ -229,8 +230,6 @@ class AiKuryeDagitimMotoru {
 
   double? _toDouble(dynamic value) {
     if (value == null) return null;
-    if (value is double) return value;
-    if (value is int) return value.toDouble();
     if (value is num) return value.toDouble();
     if (value is String) return double.tryParse(value);
     return null;
@@ -345,7 +344,7 @@ class _CourierAiScore {
   final double prepBonus;
   final double trafficPenalty;
 
-  _CourierAiScore({
+  const _CourierAiScore({
     required this.courierId,
     required this.courierName,
     required this.distanceKm,

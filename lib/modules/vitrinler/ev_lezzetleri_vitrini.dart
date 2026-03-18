@@ -9,6 +9,7 @@ import '../../cart/sepet_sayfasi.dart';
 import '../../merchant/satici_siparis_paneli.dart';
 import '../../merchant/urun_ekleme_sayfasi.dart';
 import '../../orders/musteri_siparis_takip_sayfasi.dart';
+import 'package:sofrasofra_arena_v2/modules/vitrinler/ev_lezzetleri_helpers.dart';
 
 class EvLezzetleriVitrini extends StatefulWidget {
   const EvLezzetleriVitrini({super.key});
@@ -76,9 +77,28 @@ class _EvLezzetleriVitriniState extends State<EvLezzetleriVitrini> {
   }
 
   double _readScore(Map<String, dynamic> data) {
-    final value = data['score'];
-    if (value is num) return value.toDouble();
-    return 0;
+    final rawScore = data['score'];
+    if (rawScore is num) return rawScore.toDouble();
+
+    final puan = data['puan'];
+    final yorumSayisi = data['yorumSayisi'];
+    final bugunPisiyor = data['bugunPisiyor'] == true;
+
+    double score = 0;
+
+    if (puan is num) {
+      score += puan.toDouble() * 20;
+    }
+
+    if (yorumSayisi is num) {
+      score += yorumSayisi.toDouble().clamp(0, 200);
+    }
+
+    if (bugunPisiyor) {
+      score += 25;
+    }
+
+    return score;
   }
 
   String _mapCategory(Map<String, dynamic> data) {

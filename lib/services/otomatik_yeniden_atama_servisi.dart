@@ -101,7 +101,7 @@ class OtomatikYenidenAtamaServisi {
       }
 
       tx.update(orderRef, {
-        'assignmentStatus': 'accepted',
+        'assignmentStatus': 'assigned',
         'courierAssignmentType': 'automatic',
         'acceptedAt': FieldValue.serverTimestamp(),
         'updatedAt': FieldValue.serverTimestamp(),
@@ -194,7 +194,6 @@ class OtomatikYenidenAtamaServisi {
 
       if (courierId.isNotEmpty &&
           (assignmentStatus == 'offer_sent' ||
-              assignmentStatus == 'accepted' ||
               assignmentStatus == 'assigned')) {
         final courierRef = _couriers.doc(courierId);
         final courierSnap = await tx.get(courierRef);
@@ -268,7 +267,7 @@ class OtomatikYenidenAtamaServisi {
       tx.update(orderRef, {
         'assignedCourierId': null,
         'assignedCourierName': null,
-        'assignmentStatus': 'unassigned',
+        'assignmentStatus': 'waiting_courier',
         'assignmentExpiresAt': null,
         'lastAssignmentAt': FieldValue.serverTimestamp(),
         'reassignmentHistory': history,
@@ -337,7 +336,7 @@ class OtomatikYenidenAtamaServisi {
       tx.update(orderRef, {
         'assignedCourierId': null,
         'assignedCourierName': null,
-        'assignmentStatus': 'unassigned',
+        'assignmentStatus': 'waiting_courier',
         'assignmentExpiresAt': null,
         'reassignmentHistory': history,
         'triedCourierIds': triedCourierIds,
@@ -364,7 +363,7 @@ class OtomatikYenidenAtamaServisi {
     final assignmentStatus = (order['assignmentStatus'] ?? '').toString();
 
     if (_siparisKapaliMi(status)) return;
-    if (assignmentStatus == 'accepted' || assignmentStatus == 'completed') {
+    if (assignmentStatus == 'assigned' || assignmentStatus == 'completed') {
       return;
     }
 
@@ -381,7 +380,7 @@ class OtomatikYenidenAtamaServisi {
           (fresh['assignmentStatus'] ?? '').toString();
 
       if (_siparisKapaliMi(freshStatus) ||
-          freshAssignmentStatus == 'accepted' ||
+          freshAssignmentStatus == 'assigned' ||
           freshAssignmentStatus == 'completed') {
         return;
       }
@@ -479,7 +478,7 @@ class OtomatikYenidenAtamaServisi {
           (fresh['assignmentStatus'] ?? '').toString();
 
       if (_siparisKapaliMi(freshStatus) ||
-          freshAssignmentStatus == 'accepted' ||
+          freshAssignmentStatus == 'assigned' ||
           freshAssignmentStatus == 'completed') {
         return;
       }
@@ -500,13 +499,12 @@ class OtomatikYenidenAtamaServisi {
 
       final freshOrder = freshOrderSnap.data()!;
       final freshAssignmentStatus =
-          (freshOrder['assignmentStatus'] ?? 'unassigned').toString();
+          (freshOrder['assignmentStatus'] ?? 'waiting_courier').toString();
       final freshStatus = (freshOrder['status'] ?? '').toString();
 
       if (_siparisKapaliMi(freshStatus)) return;
 
-      if (freshAssignmentStatus == 'accepted' ||
-          freshAssignmentStatus == 'assigned' ||
+      if (freshAssignmentStatus == 'assigned' ||
           freshAssignmentStatus == 'completed') {
         return;
       }
@@ -549,7 +547,7 @@ class OtomatikYenidenAtamaServisi {
 
       tx.update(courierRef, {
         'aktifSiparis': aktifSiparis + 1,
-        'uygunluk': 'Müsait',
+        'uygunluk': 'Görevde',
         'updatedAt': FieldValue.serverTimestamp(),
       });
 
@@ -574,7 +572,7 @@ class OtomatikYenidenAtamaServisi {
     return status == 'delivered' ||
         status == 'cancelled' ||
         status == 'on_the_way' ||
-        status == 'accepted';
+        status == 'on_the_way';
   }
 
   static int _toInt(dynamic value, {int defaultValue = 0}) {

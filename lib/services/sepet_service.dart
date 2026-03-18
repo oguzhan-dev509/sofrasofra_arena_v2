@@ -214,7 +214,7 @@ class SepetService {
       'ilce': ilce.toLowerCase().trim(),
       'not': (not ?? '').trim(),
       'saticiId': saticiId,
-      'saticiAd': dukkanAdi,
+      'saticiAdi': dukkanAdi,
       'dukkanId': saticiId,
       'dukkanAdi': dukkanAdi,
       'sellerType': sellerType,
@@ -262,7 +262,7 @@ class SepetService {
       'siparisNo': siparisNo,
       'userId': _userId,
       'saticiId': saticiId,
-      'saticiAd': dukkanAdi,
+      'saticiAdi': dukkanAdi,
       'status': initialStatus,
       'durum': initialStatus,
       'deliveryMode': deliveryMode,
@@ -274,7 +274,6 @@ class SepetService {
       'createdAt': FieldValue.serverTimestamp(),
       'updatedAt': FieldValue.serverTimestamp(),
     });
-
     for (final itemDoc in itemsSnap.docs) {
       final item = itemDoc.data();
       final sellerOrderItemRef =
@@ -291,11 +290,11 @@ class SepetService {
         'birimFiyat': item['birimFiyat'],
         'adet': item['adet'],
         'saticiId': item['saticiId'],
+        'saticiAdi': item['dukkanAdi'],
         'addedAt': item['addedAt'],
         'createdAt': FieldValue.serverTimestamp(),
       });
     }
-
     batch.set(timelineRef, {
       'orderId': orderRef.id,
       'siparisNo': siparisNo,
@@ -401,13 +400,13 @@ class SepetService {
   static String _assignmentStatusForDeliveryMode(String deliveryMode) {
     switch (deliveryMode) {
       case 'platform_kurye':
-        return 'unassigned';
+        return 'waiting_courier';
       case 'satici_kuryesi':
         return 'seller_assignment_required';
       case 'gel_al':
         return 'not_required';
       default:
-        return 'unassigned';
+        return 'waiting_courier';
     }
   }
 

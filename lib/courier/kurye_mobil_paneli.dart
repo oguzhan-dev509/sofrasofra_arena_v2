@@ -22,8 +22,12 @@ class _KuryeMobilPaneliState extends State<KuryeMobilPaneli> {
     return _firestore
         .collection('orders')
         .where('assignedCourierId', isEqualTo: _aktifKuryeId)
-        .orderBy('updatedAt', descending: true)
-        .snapshots();
+        .where('status', whereIn: [
+      'assigned',
+      'accepted',
+      'on_the_way',
+      'ready',
+    ]).snapshots();
   }
 
   double? _toDouble(dynamic value) {
@@ -141,10 +145,13 @@ class _KuryeMobilPaneliState extends State<KuryeMobilPaneli> {
           'updatedAt': FieldValue.serverTimestamp(),
         });
 
+        final yeniAktifSiparis = aktifSiparis > 0 ? aktifSiparis - 1 : 0;
+
         transaction.update(courierRef, {
-          'aktifSiparis': aktifSiparis > 0 ? aktifSiparis - 1 : 0,
+          'aktifSiparis': yeniAktifSiparis,
           'toplamTeslimat': toplamTeslimat + 1,
-          'uygunluk': 'musait',
+          'uygunluk': yeniAktifSiparis == 0 ? 'Müsait' : 'Görevde',
+          'lastDeliveredAt': FieldValue.serverTimestamp(),
           'updatedAt': FieldValue.serverTimestamp(),
         });
       });

@@ -43,3 +43,11 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+scripts/serviceAccountKey.json
+node_modules/
+*.json
+!firebase.json
+!package.json
+!package-lock.json
+scripts/serviceAccountKey.json
+sofrasofra-a3344-firebase-adminsdk-fbsvc-fe80e206a7.json

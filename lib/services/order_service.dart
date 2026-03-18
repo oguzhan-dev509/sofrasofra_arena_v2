@@ -103,7 +103,7 @@ class OrderService {
         'items': itemMaps,
         'toplamTutar': toplamTutar,
         'status': 'pending',
-        'assignmentStatus': 'searching',
+        'assignmentStatus': 'waiting_courier',
         'courierAssignmentType': 'automatic',
         'assignedCourierId': null,
         'assignedCourierName': null,

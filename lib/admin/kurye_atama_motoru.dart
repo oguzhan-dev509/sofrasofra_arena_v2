@@ -52,6 +52,19 @@ class _KuryeAtamaMotoruState extends State<KuryeAtamaMotoru> {
       return aktifMi && musait && konumVar;
     }).map((doc) {
       final data = doc.data();
+
+      final int aktifSiparis = (data['aktifSiparis'] is int)
+          ? data['aktifSiparis'] as int
+          : int.tryParse('${data['aktifSiparis'] ?? 0}') ?? 0;
+
+      int maxAktifSiparis = (data['maxAktifSiparis'] is int)
+          ? data['maxAktifSiparis'] as int
+          : int.tryParse('${data['maxAktifSiparis'] ?? 1}') ?? 1;
+
+      if (maxAktifSiparis <= 0) {
+        maxAktifSiparis = 1;
+      }
+
       return {
         'id': doc.id,
         'ad': (data['adSoyad'] ?? data['ad'] ?? data['name'] ?? 'Kurye')
@@ -62,13 +75,18 @@ class _KuryeAtamaMotoruState extends State<KuryeAtamaMotoru> {
         'sehir': (data['sehir'] ?? data['city'] ?? '').toString(),
         'ilce': (data['ilce'] ?? '').toString(),
         'aracTipi': (data['aracTipi'] ?? data['vehicleType'] ?? '').toString(),
+        'rating': _toDouble(data['rating']) ?? 0,
+        'aktifSiparis': aktifSiparis,
+        'maxAktifSiparis': maxAktifSiparis,
+        'uygunluk':
+            (data['uygunluk'] ?? data['uygunlukDurumu'] ?? 'Müsait').toString(),
       };
     }).toList();
 
     return uygunlar;
   }
 
-  Future<List<KuryeMesafeSonucu>> _siparisIcinOneriler(
+  Future<List<_KuryeOneriModel>> _siparisIcinOneriler(
     Map<String, dynamic> siparisData,
   ) async {
     final double? siparisLat = _toDouble(siparisData['lat']);
@@ -78,14 +96,112 @@ class _KuryeAtamaMotoruState extends State<KuryeAtamaMotoru> {
       return [];
     }
 
+    // 1) Önce varsa yeni servis metodunu dene.
+    try {
+      final dynamic servis = OtomatikKuryeAtamaServisi();
+
+      final dynamic servisSonucu = await servis.enYakinKuryeleriGetir(
+        hedefLat: siparisLat,
+        hedefLng: siparisLng,
+        limit: 3,
+      );
+
+      if (servisSonucu is List) {
+        final list = servisSonucu
+            .map((e) => _KuryeOneriModel.fromDynamicMap(e))
+            .whereType<_KuryeOneriModel>()
+            .toList();
+
+        if (list.isNotEmpty) {
+          return list;
+        }
+      }
+    } catch (_) {
+      // Sessiz fallback: servis henüz bu metodu içermiyorsa aşağıdaki mevcut yapı çalışır.
+    }
+
+    // 2) Fallback: mevcut mesafe hesabı ile Top 3 çıkar.
     final kuryeler = await _uygunKuryeleriGetir();
 
-    return KuryeMesafeHesaplayici.ilkNEnYakinKurye(
+    final yakinlar = KuryeMesafeHesaplayici.ilkNEnYakinKurye(
       kuryeler: kuryeler,
       hedefLat: siparisLat,
       hedefLng: siparisLng,
       limit: 3,
     );
+
+    return yakinlar.map((item) {
+      final Map<String, dynamic> kaynak = kuryeler.firstWhere(
+        (k) => (k['id'] ?? '').toString() == item.kuryeId,
+        orElse: () => <String, dynamic>{},
+      );
+
+      final double rating = _toDouble(kaynak['rating']) ?? 0;
+      final int aktifSiparis = (kaynak['aktifSiparis'] is int)
+          ? kaynak['aktifSiparis'] as int
+          : int.tryParse('${kaynak['aktifSiparis'] ?? 0}') ?? 0;
+      final int maxAktifSiparis = (kaynak['maxAktifSiparis'] is int)
+          ? kaynak['maxAktifSiparis'] as int
+          : int.tryParse('${kaynak['maxAktifSiparis'] ?? 1}') ?? 1;
+
+      return _KuryeOneriModel(
+        kuryeId: item.kuryeId,
+        kuryeAdi: item.kuryeAdi,
+        telefon: (kaynak['telefon'] ?? '').toString(),
+        aracTipi: (kaynak['aracTipi'] ?? '').toString(),
+        sehir: (kaynak['sehir'] ?? '').toString(),
+        ilce: (kaynak['ilce'] ?? '').toString(),
+        uygunluk: (kaynak['uygunluk'] ?? 'Müsait').toString(),
+        mesafeKm: item.mesafeKm,
+        rating: rating,
+        aktifSiparis: aktifSiparis,
+        maxAktifSiparis: maxAktifSiparis,
+        skor: _skorHesapla(
+          mesafeKm: item.mesafeKm,
+          rating: rating,
+          aktifSiparis: aktifSiparis,
+          maxAktifSiparis: maxAktifSiparis,
+        ),
+      );
+    }).toList()
+      ..sort((a, b) => b.skor.compareTo(a.skor));
+  }
+
+  double _skorHesapla({
+    required double mesafeKm,
+    required double rating,
+    required int aktifSiparis,
+    required int maxAktifSiparis,
+  }) {
+    final double mesafePuani = (100 - (mesafeKm * 12)).clamp(0, 100).toDouble();
+    final double ratingPuani = (rating.clamp(0, 5) * 20).toDouble();
+
+    double kapasitePuani;
+    if (maxAktifSiparis <= 0) {
+      kapasitePuani = 0;
+    } else {
+      final oran = (aktifSiparis / maxAktifSiparis).clamp(0, 1);
+      kapasitePuani = (100 - (oran * 100)).toDouble();
+    }
+
+    final double skor =
+        (mesafePuani * 0.55) + (ratingPuani * 0.25) + (kapasitePuani * 0.20);
+
+    return skor.clamp(0, 100).toDouble();
+  }
+
+  String _skorEtiketi(double skor) {
+    if (skor >= 80) return 'Çok Uygun';
+    if (skor >= 60) return 'Uygun';
+    if (skor >= 40) return 'Orta';
+    return 'Zayıf';
+  }
+
+  Color _skorRengi(double skor) {
+    if (skor >= 80) return Colors.green;
+    if (skor >= 60) return Colors.lightGreen;
+    if (skor >= 40) return Colors.orange;
+    return Colors.redAccent;
   }
 
   Future<void> _kuryeAta({
@@ -130,7 +246,9 @@ class _KuryeAtamaMotoruState extends State<KuryeAtamaMotoru> {
             : int.tryParse('${courierData['aktifSiparis'] ?? 0}') ?? 0;
 
         final String kuryeAdi =
-            (courierData['adSoyad'] ?? 'Kurye').toString().trim();
+            (courierData['adSoyad'] ?? courierData['ad'] ?? 'Kurye')
+                .toString()
+                .trim();
 
         final String kuryeTelefon =
             (courierData['telefon'] ?? '').toString().trim();
@@ -175,17 +293,34 @@ class _KuryeAtamaMotoruState extends State<KuryeAtamaMotoru> {
 
   Future<void> _otomatikAta({
     required String siparisId,
+    required Map<String, dynamic> siparisData,
   }) async {
     try {
-      final bool sonuc =
-          await OtomatikKuryeAtamaServisi.sipariseKuryeAta(orderId: siparisId);
+      final oneriler = await _siparisIcinOneriler(siparisData);
+
+      if (oneriler.isEmpty) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Uygun kurye bulunamadı.'),
+          ),
+        );
+        return;
+      }
+
+      final enIyiKurye = oneriler.first;
+
+      await _kuryeAta(
+        siparisId: siparisId,
+        kuryeId: enIyiKurye.kuryeId,
+      );
 
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            sonuc ? 'Kurye otomatik atandı.' : 'Uygun kurye bulunamadı.',
+            'Otomatik atama yapıldı: ${enIyiKurye.kuryeAdi}',
           ),
         ),
       );
@@ -216,7 +351,7 @@ class _KuryeAtamaMotoruState extends State<KuryeAtamaMotoru> {
       builder: (sheetContext) {
         return Padding(
           padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
-          child: FutureBuilder<List<KuryeMesafeSonucu>>(
+          child: FutureBuilder<List<_KuryeOneriModel>>(
             future: _siparisIcinOneriler(siparisData),
             builder: (context, snapshot) {
               if (snapshot.hasError) {
@@ -258,118 +393,289 @@ class _KuryeAtamaMotoruState extends State<KuryeAtamaMotoru> {
                 );
               }
 
-              return Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Center(
-                    child: Container(
-                      width: 48,
-                      height: 5,
-                      margin: const EdgeInsets.only(bottom: 16),
-                      decoration: BoxDecoration(
-                        color: Colors.grey.shade700,
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                    ),
-                  ),
-                  const Text(
-                    'En Yakın Kurye Önerileri',
-                    style: TextStyle(
-                      color: Color(0xFFFFB300),
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 14),
-                  ...oneriler.map((item) {
-                    return Container(
-                      margin: const EdgeInsets.only(bottom: 12),
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF181818),
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: Colors.grey.shade800),
-                      ),
-                      child: Row(
-                        children: [
-                          Container(
-                            width: 46,
-                            height: 46,
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFFFB300)
-                                  .withValues(alpha: 0.15),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: const Icon(
-                              Icons.delivery_dining,
-                              color: Color(0xFFFFB300),
-                            ),
+              return SafeArea(
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Center(
+                        child: Container(
+                          width: 48,
+                          height: 5,
+                          margin: const EdgeInsets.only(bottom: 16),
+                          decoration: BoxDecoration(
+                            color: Colors.grey.shade700,
+                            borderRadius: BorderRadius.circular(20),
                           ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  item.kuryeAdi,
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 14,
+                        ),
+                      ),
+                      const Text(
+                        'En Yakın Kurye Önerileri',
+                        style: TextStyle(
+                          color: Color(0xFFFFB300),
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      const Text(
+                        'Mesafe + puan + kapasite bazlı Top 3 öneri',
+                        style: TextStyle(
+                          color: Colors.white54,
+                          fontSize: 12,
+                        ),
+                      ),
+                      const SizedBox(height: 14),
+                      ...List.generate(oneriler.length, (index) {
+                        final item = oneriler[index];
+                        final Color skorRengi = _skorRengi(item.skor);
+
+                        return Container(
+                          margin: const EdgeInsets.only(bottom: 12),
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF181818),
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(color: Colors.grey.shade800),
+                          ),
+                          child: Column(
+                            children: [
+                              Row(
+                                children: [
+                                  Container(
+                                    width: 48,
+                                    height: 48,
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFFFFB300)
+                                          .withValues(alpha: 0.15),
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: Center(
+                                      child: Text(
+                                        '#${index + 1}',
+                                        style: const TextStyle(
+                                          color: Color(0xFFFFB300),
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
                                   ),
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  'Mesafe: ${item.mesafeKm.toStringAsFixed(2)} km',
-                                  style: const TextStyle(
-                                    color: Color(0xFFFFB300),
-                                    fontSize: 12,
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          item.kuryeAdi,
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 15,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 4),
+                                        Text(
+                                          '${item.ilce.isEmpty ? "-" : item.ilce} / ${item.sehir.isEmpty ? "-" : item.sehir}',
+                                          style: const TextStyle(
+                                            color: Colors.white60,
+                                            fontSize: 12,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 10,
+                                      vertical: 6,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: skorRengi.withValues(alpha: 0.15),
+                                      borderRadius: BorderRadius.circular(30),
+                                      border: Border.all(color: skorRengi),
+                                    ),
+                                    child: Text(
+                                      _skorEtiketi(item.skor),
+                                      style: TextStyle(
+                                        color: skorRengi,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 11,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 12),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: _miniBilgiKutusu(
+                                      'Mesafe',
+                                      '${item.mesafeKm.toStringAsFixed(2)} km',
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: _miniBilgiKutusu(
+                                      'Skor',
+                                      item.skor.toStringAsFixed(1),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: _miniBilgiKutusu(
+                                      'Rating',
+                                      item.rating.toStringAsFixed(1),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 8),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: _miniBilgiKutusu(
+                                      'Aktif Sipariş',
+                                      '${item.aktifSiparis}/${item.maxAktifSiparis}',
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: _miniBilgiKutusu(
+                                      'Araç',
+                                      item.aracTipi.isEmpty
+                                          ? '-'
+                                          : item.aracTipi,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: _miniBilgiKutusu(
+                                      'Uygunluk',
+                                      item.uygunluk.isEmpty
+                                          ? '-'
+                                          : item.uygunluk,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              if (item.telefon.isNotEmpty) ...[
+                                const SizedBox(height: 8),
+                                Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Text(
+                                    'Telefon: ${item.telefon}',
+                                    style: const TextStyle(
+                                      color: Colors.white70,
+                                      fontSize: 12,
+                                    ),
                                   ),
                                 ),
                               ],
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.grey.shade900,
-                              foregroundColor: const Color(0xFFFFB300),
-                              side: const BorderSide(
-                                color: Color(0xFFFFB300),
+                              const SizedBox(height: 12),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: ElevatedButton(
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: Colors.grey.shade900,
+                                        foregroundColor:
+                                            const Color(0xFFFFB300),
+                                        side: const BorderSide(
+                                          color: Color(0xFFFFB300),
+                                        ),
+                                        padding: const EdgeInsets.symmetric(
+                                          vertical: 12,
+                                        ),
+                                      ),
+                                      onPressed: () async {
+                                        Navigator.of(sheetContext).pop();
+                                        await _otomatikAta(
+                                          siparisId: siparisId,
+                                          siparisData: siparisData,
+                                        );
+                                      },
+                                      child: const Text('Otomatik Ata'),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: ElevatedButton(
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor:
+                                            const Color(0xFFFFB300),
+                                        foregroundColor: Colors.black,
+                                        padding: const EdgeInsets.symmetric(
+                                          vertical: 12,
+                                        ),
+                                      ),
+                                      onPressed: () async {
+                                        Navigator.of(sheetContext).pop();
+                                        await _kuryeAta(
+                                          siparisId: siparisId,
+                                          kuryeId: item.kuryeId,
+                                        );
+                                      },
+                                      child: const Text(
+                                        'Bu Kuryeyi Ata',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
-                            ),
-                            onPressed: () async {
-                              Navigator.of(sheetContext).pop();
-                              await _otomatikAta(siparisId: siparisId);
-                            },
-                            child: const Text('Otomatik Ata'),
+                            ],
                           ),
-                          const SizedBox(width: 8),
-                          ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFFFFB300),
-                              foregroundColor: Colors.black,
-                            ),
-                            onPressed: () async {
-                              Navigator.of(sheetContext).pop();
-                              await _kuryeAta(
-                                siparisId: siparisId,
-                                kuryeId: item.kuryeId,
-                              );
-                            },
-                            child: const Text('Ata'),
-                          ),
-                        ],
-                      ),
-                    );
-                  }),
-                ],
+                        );
+                      }),
+                    ],
+                  ),
+                ),
               );
             },
           ),
         );
       },
+    );
+  }
+
+  Widget _miniBilgiKutusu(String label, String value) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+      decoration: BoxDecoration(
+        color: Colors.black.withValues(alpha: 0.25),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.grey.shade800),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(
+              color: Colors.white54,
+              fontSize: 11,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            value,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.w700,
+              fontSize: 12,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -597,7 +903,7 @@ class _KuryeAtamaMotoruState extends State<KuryeAtamaMotoru> {
                     final double? lat = _toDouble(data['lat']);
                     final double? lng = _toDouble(data['lng']);
                     final bool konumHazir = lat != null && lng != null;
-
+                    final bool zatenAtanmis = courierName.isNotEmpty;
                     return Container(
                       margin: const EdgeInsets.only(bottom: 12),
                       decoration: BoxDecoration(
@@ -711,27 +1017,33 @@ class _KuryeAtamaMotoruState extends State<KuryeAtamaMotoru> {
                               width: double.infinity,
                               child: ElevatedButton.icon(
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: konumHazir
+                                  backgroundColor: (konumHazir && !zatenAtanmis)
                                       ? const Color(0xFFFFB300)
                                       : Colors.grey.shade700,
-                                  foregroundColor:
-                                      konumHazir ? Colors.black : Colors.white,
+                                  foregroundColor: (konumHazir && !zatenAtanmis)
+                                      ? Colors.black
+                                      : Colors.white,
                                   padding:
                                       const EdgeInsets.symmetric(vertical: 14),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(14),
                                   ),
                                 ),
-                                onPressed: konumHazir
+                                onPressed: (konumHazir && !zatenAtanmis)
                                     ? () => _onerileriGoster(
                                           siparisId: doc.id,
                                           siparisData: data,
                                         )
                                     : null,
-                                icon: const Icon(Icons.psychology),
-                                label: const Text(
-                                  'En Yakın 3 Kurye Öner',
-                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                icon: Icon(zatenAtanmis
+                                    ? Icons.check_circle
+                                    : Icons.psychology),
+                                label: Text(
+                                  zatenAtanmis
+                                      ? 'Kurye Zaten Atandı'
+                                      : 'En Yakın 3 Kurye Öner',
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.bold),
                                 ),
                               ),
                             ),
@@ -769,6 +1081,70 @@ class _KuryeAtamaMotoruState extends State<KuryeAtamaMotoru> {
           _durumFiltre = value;
         });
       },
+    );
+  }
+}
+
+class _KuryeOneriModel {
+  final String kuryeId;
+  final String kuryeAdi;
+  final String telefon;
+  final String aracTipi;
+  final String sehir;
+  final String ilce;
+  final String uygunluk;
+  final double mesafeKm;
+  final double skor;
+  final double rating;
+  final int aktifSiparis;
+  final int maxAktifSiparis;
+
+  const _KuryeOneriModel({
+    required this.kuryeId,
+    required this.kuryeAdi,
+    required this.telefon,
+    required this.aracTipi,
+    required this.sehir,
+    required this.ilce,
+    required this.uygunluk,
+    required this.mesafeKm,
+    required this.skor,
+    required this.rating,
+    required this.aktifSiparis,
+    required this.maxAktifSiparis,
+  });
+
+  static _KuryeOneriModel? fromDynamicMap(dynamic raw) {
+    if (raw is! Map) return null;
+
+    double parseDouble(dynamic v) {
+      if (v == null) return 0;
+      if (v is double) return v;
+      if (v is int) return v.toDouble();
+      return double.tryParse(v.toString()) ?? 0;
+    }
+
+    int parseInt(dynamic v) {
+      if (v == null) return 0;
+      if (v is int) return v;
+      return int.tryParse(v.toString()) ?? 0;
+    }
+
+    return _KuryeOneriModel(
+      kuryeId: (raw['kuryeId'] ?? raw['id'] ?? '').toString(),
+      kuryeAdi:
+          (raw['kuryeAdi'] ?? raw['ad'] ?? raw['name'] ?? 'Kurye').toString(),
+      telefon: (raw['telefon'] ?? raw['phone'] ?? '').toString(),
+      aracTipi: (raw['aracTipi'] ?? raw['vehicleType'] ?? '').toString(),
+      sehir: (raw['sehir'] ?? raw['city'] ?? '').toString(),
+      ilce: (raw['ilce'] ?? '').toString(),
+      uygunluk:
+          (raw['uygunluk'] ?? raw['uygunlukDurumu'] ?? 'Müsait').toString(),
+      mesafeKm: parseDouble(raw['mesafeKm'] ?? raw['distanceKm']),
+      skor: parseDouble(raw['skor'] ?? raw['score']),
+      rating: parseDouble(raw['rating']),
+      aktifSiparis: parseInt(raw['aktifSiparis']),
+      maxAktifSiparis: parseInt(raw['maxAktifSiparis'] ?? 1),
     );
   }
 }

@@ -1,11 +1,11 @@
 import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 
 class KuryeDispatchEngine {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  /// Ana fonksiyon:
-  /// Verilen sipariş için en yakın uygun kuryeyi bulur ve atar.
+  /// Yeni modele uyumlu en yakın kurye atama
   Future<bool> assignNearestCourier({
     required String orderId,
   }) async {
@@ -14,7 +14,7 @@ class KuryeDispatchEngine {
       final orderSnap = await orderRef.get();
 
       if (!orderSnap.exists) {
-        print('KuryeDispatchEngine: Sipariş bulunamadı -> $orderId');
+        debugPrint('KuryeDispatchEngine: Sipariş bulunamadı -> $orderId');
         return false;
       }
 
@@ -24,34 +24,32 @@ class KuryeDispatchEngine {
       final double? orderLng = _toDouble(orderData['lng']);
 
       if (orderLat == null || orderLng == null) {
-        print('KuryeDispatchEngine: Sipariş konumu eksik -> $orderId');
+        debugPrint('KuryeDispatchEngine: Sipariş konumu eksik -> $orderId');
         return false;
       }
 
-      final String currentStatus = (orderData['status'] ?? '').toString();
+      final String currentStatus =
+          (orderData['status'] ?? '').toString().trim().toLowerCase();
 
-      // Sadece uygun durumdaysa atama yap
       if (currentStatus.isNotEmpty &&
           currentStatus != 'pending' &&
+          currentStatus != 'ready' &&
           currentStatus != 'waiting_courier') {
-        print(
+        debugPrint(
           'KuryeDispatchEngine: Sipariş durumu kurye atamaya uygun değil -> $currentStatus',
         );
         return false;
       }
 
-      final couriersQuery = await _firestore
-          .collection('couriers')
-          .where('online', isEqualTo: true)
-          .where('activeOrder', isEqualTo: false)
-          .get();
+      final couriersQuery = await _firestore.collection('couriers').get();
 
       if (couriersQuery.docs.isEmpty) {
-        print('KuryeDispatchEngine: Uygun kurye bulunamadı.');
-        await orderRef.update({
+        debugPrint('KuryeDispatchEngine: Hiç kurye kaydı yok.');
+        await orderRef.set({
           'status': 'waiting_courier',
+          'assignmentStatus': 'waiting_courier',
           'updatedAt': FieldValue.serverTimestamp(),
-        });
+        }, SetOptions(merge: true));
         return false;
       }
 
@@ -60,6 +58,35 @@ class KuryeDispatchEngine {
 
       for (final courierDoc in couriersQuery.docs) {
         final courierData = courierDoc.data();
+
+        final bool aktifMi =
+            courierData['aktifMi'] == true || courierData['isActive'] == true;
+
+        if (!aktifMi) continue;
+
+        final String uygunluk = (courierData['uygunluk'] ??
+                courierData['uygunlukDurumu'] ??
+                courierData['availability'] ??
+                '')
+            .toString()
+            .trim()
+            .toLowerCase();
+
+        final bool musait = uygunluk == 'musait' ||
+            uygunluk == 'müsait' ||
+            uygunluk == 'available';
+
+        if (!musait) continue;
+
+        int aktifSiparis = _toInt(courierData['aktifSiparis']);
+        int maxAktifSiparis =
+            _toInt(courierData['maxAktifSiparis'], defaultValue: 2);
+
+        if (maxAktifSiparis <= 0) {
+          maxAktifSiparis = 1;
+        }
+
+        if (aktifSiparis >= maxAktifSiparis) continue;
 
         final double? courierLat = _toDouble(courierData['lat']);
         final double? courierLng = _toDouble(courierData['lng']);
@@ -80,20 +107,21 @@ class KuryeDispatchEngine {
       }
 
       if (nearestCourier == null) {
-        print('KuryeDispatchEngine: Konumu uygun kurye bulunamadı.');
-        await orderRef.update({
+        debugPrint('KuryeDispatchEngine: Uygun kurye bulunamadı.');
+        await orderRef.set({
           'status': 'waiting_courier',
+          'assignmentStatus': 'waiting_courier',
           'updatedAt': FieldValue.serverTimestamp(),
-        });
+        }, SetOptions(merge: true));
         return false;
       }
 
       final courierId = nearestCourier.id;
       final courierData = nearestCourier.data();
-      final courierName = (courierData['name'] ?? 'Kurye').toString();
+      final courierName =
+          (courierData['adSoyad'] ?? courierData['ad'] ?? 'Kurye').toString();
 
       final courierRef = _firestore.collection('couriers').doc(courierId);
-      final courierOrderRef = _firestore.collection('courier_orders').doc();
 
       await _firestore.runTransaction((transaction) async {
         final freshOrderSnap = await transaction.get(orderRef);
@@ -108,92 +136,127 @@ class KuryeDispatchEngine {
         final freshCourierData =
             freshCourierSnap.data() as Map<String, dynamic>? ?? {};
 
-        final freshOrderStatus = (freshOrderData['status'] ?? '').toString();
-        final courierOnline = freshCourierData['online'] == true;
-        final courierActiveOrder = freshCourierData['activeOrder'] == true;
+        final freshOrderStatus =
+            (freshOrderData['status'] ?? '').toString().trim().toLowerCase();
+
+        final bool courierAktif = freshCourierData['aktifMi'] == true ||
+            freshCourierData['isActive'] == true;
+
+        final String courierUygunluk = (freshCourierData['uygunluk'] ??
+                freshCourierData['uygunlukDurumu'] ??
+                freshCourierData['availability'] ??
+                '')
+            .toString()
+            .trim()
+            .toLowerCase();
+
+        int mevcutAktifSiparis = _toInt(freshCourierData['aktifSiparis']);
+        int maxAktifSiparis =
+            _toInt(freshCourierData['maxAktifSiparis'], defaultValue: 2);
+
+        if (maxAktifSiparis <= 0) {
+          maxAktifSiparis = 1;
+        }
+
+        final bool courierMusait = courierUygunluk == 'musait' ||
+            courierUygunluk == 'müsait' ||
+            courierUygunluk == 'available';
 
         if (freshOrderStatus != 'pending' &&
+            freshOrderStatus != 'ready' &&
             freshOrderStatus != 'waiting_courier') {
           throw Exception('Sipariş artık kurye atamaya uygun değil.');
         }
 
-        if (!courierOnline || courierActiveOrder) {
+        if (!courierAktif || !courierMusait) {
           throw Exception('Seçilen kurye artık uygun değil.');
         }
 
-        transaction.update(orderRef, {
-          'assignedCourierId': courierId,
-          'assignedCourierName': courierName,
-          'courierAssignedAt': FieldValue.serverTimestamp(),
-          'courierDistanceKm': nearestDistanceKm,
-          'status': 'courier_assigned',
-          'updatedAt': FieldValue.serverTimestamp(),
-        });
+        if (mevcutAktifSiparis >= maxAktifSiparis) {
+          throw Exception('Seçilen kurye kapasite sınırına ulaştı.');
+        }
 
-        transaction.update(courierRef, {
-          'activeOrder': true,
-          'currentOrderId': orderId,
-          'lastAssignedAt': FieldValue.serverTimestamp(),
-          'updatedAt': FieldValue.serverTimestamp(),
-        });
+        transaction.set(
+            orderRef,
+            {
+              'assignedCourierId': courierId,
+              'assignedCourierName': courierName,
+              'assignmentAt': FieldValue.serverTimestamp(),
+              'assignmentStatus': 'assigned',
+              'courierAssignmentType': 'dispatch_engine',
+              'courierDistanceKm': nearestDistanceKm,
+              'status': 'on_the_way',
+              'updatedAt': FieldValue.serverTimestamp(),
+            },
+            SetOptions(merge: true));
 
-        transaction.set(courierOrderRef, {
-          'orderId': orderId,
-          'courierId': courierId,
-          'courierName': courierName,
-          'status': 'assigned',
-          'distanceKm': nearestDistanceKm,
-          'createdAt': FieldValue.serverTimestamp(),
-          'updatedAt': FieldValue.serverTimestamp(),
-        });
+        transaction.set(
+            courierRef,
+            {
+              'aktifSiparis': mevcutAktifSiparis + 1,
+              'uygunluk': 'Görevde',
+              'lastAssignedAt': FieldValue.serverTimestamp(),
+              'updatedAt': FieldValue.serverTimestamp(),
+            },
+            SetOptions(merge: true));
       });
 
-      print(
+      debugPrint(
         'KuryeDispatchEngine: Kurye atandı -> $courierName ($courierId), mesafe: ${nearestDistanceKm.toStringAsFixed(2)} km',
       );
 
       return true;
     } catch (e) {
-      print('KuryeDispatchEngine HATA: $e');
+      debugPrint('KuryeDispatchEngine HATA: $e');
       return false;
     }
   }
 
-  /// Kurye siparişi kabul ettiğinde çağır.
+  /// Kurye siparişi kabul ettiğinde
   Future<void> courierAcceptOrder({
     required String orderId,
     required String courierId,
   }) async {
     try {
       final orderRef = _firestore.collection('orders').doc(orderId);
-      final courierOrderQuery = await _firestore
-          .collection('courier_orders')
-          .where('orderId', isEqualTo: orderId)
-          .where('courierId', isEqualTo: courierId)
-          .limit(1)
-          .get();
+      final courierRef = _firestore.collection('couriers').doc(courierId);
 
-      await orderRef.update({
-        'status': 'courier_accepted',
-        'courierAcceptedAt': FieldValue.serverTimestamp(),
-        'updatedAt': FieldValue.serverTimestamp(),
+      await _firestore.runTransaction((transaction) async {
+        final orderSnap = await transaction.get(orderRef);
+        final courierSnap = await transaction.get(courierRef);
+
+        if (!orderSnap.exists || !courierSnap.exists) {
+          throw Exception('Sipariş veya kurye bulunamadı.');
+        }
+
+        transaction.set(
+            orderRef,
+            {
+              'courierOfferStatus': 'accepted',
+              'courierAcceptedAt': FieldValue.serverTimestamp(),
+              'status': 'on_the_way',
+              'assignmentStatus': 'assigned',
+              'updatedAt': FieldValue.serverTimestamp(),
+            },
+            SetOptions(merge: true));
+
+        transaction.set(
+            courierRef,
+            {
+              'lastAcceptedAt': FieldValue.serverTimestamp(),
+              'uygunluk': 'Görevde',
+              'updatedAt': FieldValue.serverTimestamp(),
+            },
+            SetOptions(merge: true));
       });
 
-      if (courierOrderQuery.docs.isNotEmpty) {
-        await courierOrderQuery.docs.first.reference.update({
-          'status': 'accepted',
-          'acceptedAt': FieldValue.serverTimestamp(),
-          'updatedAt': FieldValue.serverTimestamp(),
-        });
-      }
-
-      print('KuryeDispatchEngine: Kurye siparişi kabul etti.');
+      debugPrint('KuryeDispatchEngine: Kurye siparişi kabul etti.');
     } catch (e) {
-      print('KuryeDispatchEngine courierAcceptOrder HATA: $e');
+      debugPrint('KuryeDispatchEngine courierAcceptOrder HATA: $e');
     }
   }
 
-  /// Sipariş teslim edilince veya iptal edilince kuryeyi boşa çıkar.
+  /// Sipariş teslim edilince veya iptal edilince kuryeyi gerçekten serbest bırak
   Future<void> releaseCourier({
     required String orderId,
     required String courierId,
@@ -203,37 +266,63 @@ class KuryeDispatchEngine {
       final orderRef = _firestore.collection('orders').doc(orderId);
       final courierRef = _firestore.collection('couriers').doc(courierId);
 
-      final courierOrderQuery = await _firestore
-          .collection('courier_orders')
-          .where('orderId', isEqualTo: orderId)
-          .where('courierId', isEqualTo: courierId)
-          .limit(1)
-          .get();
-
       await _firestore.runTransaction((transaction) async {
-        transaction.update(orderRef, {
+        final orderSnap = await transaction.get(orderRef);
+        final courierSnap = await transaction.get(courierRef);
+
+        if (!orderSnap.exists) {
+          throw Exception('Sipariş bulunamadı.');
+        }
+
+        if (!courierSnap.exists) {
+          throw Exception('Kurye bulunamadı.');
+        }
+
+        final courierData = courierSnap.data() as Map<String, dynamic>;
+
+        int aktifSiparis = _toInt(courierData['aktifSiparis']);
+        final int toplamTeslimat =
+            _toInt(courierData['toplamTeslimat'], defaultValue: 0);
+
+        final int yeniAktifSiparis = aktifSiparis > 0 ? aktifSiparis - 1 : 0;
+
+        final Map<String, dynamic> orderUpdate = {
           'status': newOrderStatus,
           'updatedAt': FieldValue.serverTimestamp(),
-        });
+        };
 
-        transaction.update(courierRef, {
-          'activeOrder': false,
-          'currentOrderId': null,
-          'updatedAt': FieldValue.serverTimestamp(),
-        });
-
-        if (courierOrderQuery.docs.isNotEmpty) {
-          transaction.update(courierOrderQuery.docs.first.reference, {
-            'status': newOrderStatus,
-            'completedAt': FieldValue.serverTimestamp(),
-            'updatedAt': FieldValue.serverTimestamp(),
-          });
+        if (newOrderStatus == 'delivered') {
+          orderUpdate['assignmentStatus'] = 'completed';
+          orderUpdate['deliveredAt'] = FieldValue.serverTimestamp();
+        } else if (newOrderStatus == 'cancelled') {
+          orderUpdate['assignmentStatus'] = 'cancelled';
         }
+
+        transaction.set(
+            orderRef,
+            {
+              ...orderUpdate,
+              'courierOfferStatus': null,
+            },
+            SetOptions(merge: true));
+
+        transaction.set(
+            courierRef,
+            {
+              'aktifSiparis': yeniAktifSiparis,
+              'uygunluk': yeniAktifSiparis == 0 ? 'Müsait' : 'Görevde',
+              'lastDeliveredAt': FieldValue.serverTimestamp(),
+              'toplamTeslimat': newOrderStatus == 'delivered'
+                  ? toplamTeslimat + 1
+                  : toplamTeslimat,
+              'updatedAt': FieldValue.serverTimestamp(),
+            },
+            SetOptions(merge: true));
       });
 
-      print('KuryeDispatchEngine: Kurye serbest bırakıldı.');
+      debugPrint('KuryeDispatchEngine: Kurye serbest bırakıldı.');
     } catch (e) {
-      print('KuryeDispatchEngine releaseCourier HATA: $e');
+      debugPrint('KuryeDispatchEngine releaseCourier HATA: $e');
     }
   }
 
@@ -260,6 +349,15 @@ class KuryeDispatchEngine {
 
   double _degToRad(double deg) {
     return deg * pi / 180;
+  }
+
+  int _toInt(dynamic value, {int defaultValue = 0}) {
+    if (value == null) return defaultValue;
+    if (value is int) return value;
+    if (value is double) return value.toInt();
+    if (value is num) return value.toInt();
+    if (value is String) return int.tryParse(value) ?? defaultValue;
+    return defaultValue;
   }
 
   double? _toDouble(dynamic value) {
