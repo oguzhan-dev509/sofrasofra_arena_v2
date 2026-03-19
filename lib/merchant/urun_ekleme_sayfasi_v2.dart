@@ -10,17 +10,15 @@ import 'package:image_picker/image_picker.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../services/membership_plan_service.dart';
-import '../admin/uyelik_test_sayfasi.dart';
-import '../merchant/urun_ekleme_sayfasi_v2.dart';
 
-class UrunEklemeSayfasi extends StatefulWidget {
-  const UrunEklemeSayfasi({super.key});
+class UrunEklemeSayfasiV2 extends StatefulWidget {
+  const UrunEklemeSayfasiV2({super.key});
 
   @override
-  State<UrunEklemeSayfasi> createState() => _UrunEklemeSayfasiState();
+  State<UrunEklemeSayfasiV2> createState() => _UrunEklemeSayfasiV2State();
 }
 
-class _UrunEklemeSayfasiState extends State<UrunEklemeSayfasi> {
+class _UrunEklemeSayfasiV2State extends State<UrunEklemeSayfasiV2> {
   final TextEditingController _dukkanController = TextEditingController();
   final TextEditingController _urunAdiController = TextEditingController();
   final TextEditingController _uzmanlikController = TextEditingController();
@@ -28,8 +26,8 @@ class _UrunEklemeSayfasiState extends State<UrunEklemeSayfasi> {
   final TextEditingController _resimUrlController = TextEditingController();
   final TextEditingController _fiyatController = TextEditingController();
 
-  Uint8List? _webResimVerisi;
-  String? _seciliUrl;
+  final List<Uint8List> _webResimler = [];
+  final List<String> _seciliUrlList = [];
 
   bool _yukleniyor = false;
   bool _bugunPisiyor = false;
@@ -60,6 +58,8 @@ class _UrunEklemeSayfasiState extends State<UrunEklemeSayfasi> {
   ];
 
   static const Color gold = Color(0xFFFFB300);
+
+  int get _toplamSeciliFoto => _webResimler.length + _seciliUrlList.length;
 
   @override
   void initState() {
@@ -203,10 +203,12 @@ class _UrunEklemeSayfasiState extends State<UrunEklemeSayfasi> {
 
   Future<void> _dosyaGezgininiAc() async {
     try {
-      if (_maxPhotoCount <= 0) {
+      if (_toplamSeciliFoto >= _maxPhotoCount) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("❌ Paketinizde fotoğraf yükleme hakkı bulunmuyor."),
+          SnackBar(
+            content: Text(
+              '❌ Fotoğraf limitine ulaştınız. Paketiniz en fazla $_maxPhotoCount fotoğraf destekliyor.',
+            ),
           ),
         );
         return;
@@ -224,15 +226,13 @@ class _UrunEklemeSayfasiState extends State<UrunEklemeSayfasi> {
 
       if (!mounted) return;
       setState(() {
-        _webResimVerisi = bytes;
-        _seciliUrl = null;
-        _resimUrlController.clear();
+        _webResimler.add(bytes);
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            "✅ Fotoğraf seçildi. Paketiniz: ${MembershipPlanService.planDisplayName(_membershipType)}",
+            '✅ Fotoğraf eklendi. ($_toplamSeciliFoto / $_maxPhotoCount)',
           ),
         ),
       );
@@ -247,10 +247,12 @@ class _UrunEklemeSayfasiState extends State<UrunEklemeSayfasi> {
   void _urlEkle() {
     final url = _resimUrlController.text.trim();
 
-    if (_maxPhotoCount <= 0) {
+    if (_toplamSeciliFoto >= _maxPhotoCount) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("❌ Paketinizde fotoğraf yükleme hakkı yok."),
+        SnackBar(
+          content: Text(
+            '❌ Fotoğraf limitine ulaştınız. Paketiniz en fazla $_maxPhotoCount fotoğraf destekliyor.',
+          ),
         ),
       );
       return;
@@ -264,14 +266,17 @@ class _UrunEklemeSayfasiState extends State<UrunEklemeSayfasi> {
     }
 
     setState(() {
-      _seciliUrl = url;
-      _webResimVerisi = null;
+      _seciliUrlList.add(url);
     });
 
     _resimUrlController.clear();
 
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("✅ Resim linki eklendi.")),
+      SnackBar(
+        content: Text(
+          '✅ Resim linki eklendi. ($_toplamSeciliFoto / $_maxPhotoCount)',
+        ),
+      ),
     );
   }
 
@@ -351,12 +356,11 @@ class _UrunEklemeSayfasiState extends State<UrunEklemeSayfasi> {
       return;
     }
 
-    final bool fotoVar = (_webResimVerisi != null) ||
-        (_seciliUrl != null && _seciliUrl!.isNotEmpty);
+    final bool fotoVar = _webResimler.isNotEmpty || _seciliUrlList.isNotEmpty;
 
     if (!fotoVar) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("❌ Foto eklemelisin.")),
+        const SnackBar(content: Text("❌ En az 1 foto eklemelisin.")),
       );
       return;
     }
@@ -367,20 +371,38 @@ class _UrunEklemeSayfasiState extends State<UrunEklemeSayfasi> {
       final user = FirebaseAuth.instance.currentUser;
       final uid = user?.uid ?? 'demo_user';
 
-      String imgUrl;
-      if (_webResimVerisi != null) {
-        imgUrl = await _bulutaYukle(uid, _webResimVerisi!);
-      } else {
-        imgUrl = _seciliUrl!.trim();
+      List<String> uploadedImages = [];
+
+// Galeriden seçilenleri yükle
+      for (final bytes in _webResimler) {
+        final url = await _bulutaYukle(uid, bytes);
+        uploadedImages.add(url);
       }
+
+// URL ile eklenenleri ekle
+      uploadedImages.addAll(_seciliUrlList);
+
+// Ana görsel
+      String imgUrl = uploadedImages.isNotEmpty ? uploadedImages.first : '';
 
       if (!_isHttpUrl(imgUrl)) {
         throw Exception("img URL geçersiz üretildi.");
       }
 
+      final List<String> allImages = [];
+
+      if (_webResimler.isNotEmpty) {
+        allImages.add('[local_images_pending_upload]');
+      }
+
+      if (_seciliUrlList.isNotEmpty) {
+        allImages.addAll(_seciliUrlList);
+      }
+
       await FirebaseFirestore.instance.collection('urunler').add({
         "ad": (_tip == "Ev Lezzetleri") ? urunAdi : "",
         "img": imgUrl,
+        "images": uploadedImages,
         "dukkan": dukkan,
         "dukkanId": uid,
         "sehir": _sehir,
@@ -398,7 +420,7 @@ class _UrunEklemeSayfasiState extends State<UrunEklemeSayfasi> {
         "featuredScope": _featuredScope,
         "isFeatured": false,
         "featureRank": 0,
-        "photoCount": 1,
+        "photoCount": _toplamSeciliFoto,
         "listingScore": _priorityScore,
         "kayitTarihi": FieldValue.serverTimestamp(),
         "createdAt": FieldValue.serverTimestamp(),
@@ -407,7 +429,13 @@ class _UrunEklemeSayfasiState extends State<UrunEklemeSayfasi> {
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("✅ Arena’da yayınlandı!")),
+        SnackBar(
+          content: Text(
+            _toplamSeciliFoto > 1
+                ? "✅ Ürün yayınlandı. Çoklu upload’un tam sürümü sonraki adımda açılacak."
+                : "✅ Arena’da yayınlandı!",
+          ),
+        ),
       );
 
       setState(() {
@@ -417,8 +445,8 @@ class _UrunEklemeSayfasiState extends State<UrunEklemeSayfasi> {
         _videoController.clear();
         _resimUrlController.clear();
         _fiyatController.clear();
-        _webResimVerisi = null;
-        _seciliUrl = null;
+        _webResimler.clear();
+        _seciliUrlList.clear();
         _kategori = "Ev Yemekleri";
         _bugunPisiyor = false;
         _ilce = "";
@@ -439,8 +467,8 @@ class _UrunEklemeSayfasiState extends State<UrunEklemeSayfasi> {
 
   @override
   Widget build(BuildContext context) {
-    final bool fotoSecildi = _webResimVerisi != null ||
-        (_seciliUrl != null && _seciliUrl!.isNotEmpty);
+    final bool fotoSecildi =
+        _webResimler.isNotEmpty || _seciliUrlList.isNotEmpty;
 
     final List<String> ilceler =
         _sehir.isEmpty ? <String>[] : (_ilcelerMap[_sehir] ?? <String>[]);
@@ -454,7 +482,7 @@ class _UrunEklemeSayfasiState extends State<UrunEklemeSayfasi> {
       appBar: AppBar(
         backgroundColor: Colors.black,
         title: const Text(
-          "ÜRÜN YÖNETİM MERKEZİ",
+          "ÜRÜN YÖNETİM MERKEZİ V2",
           style: TextStyle(color: gold, fontSize: 13),
         ),
         iconTheme: const IconThemeData(color: gold),
@@ -523,35 +551,19 @@ class _UrunEklemeSayfasiState extends State<UrunEklemeSayfasi> {
                       ),
                     ),
                   ],
+                  const SizedBox(height: 6),
+                  Text(
+                    "Seçilen görseller: $_toplamSeciliFoto / $_maxPhotoCount",
+                    style: const TextStyle(
+                      color: Colors.white70,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                 ],
               ),
             ),
-            const SizedBox(height: 10),
-            OutlinedButton(
-              onPressed: () async {
-                await Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => const UyelikTestSayfasi(),
-                  ),
-                );
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => const UrunEklemeSayfasiV2(),
-                  ),
-                );
-                await _uyelikPlaniniYukle();
-              },
-              style: OutlinedButton.styleFrom(
-                side: const BorderSide(color: gold),
-              ),
-              child: const Text(
-                'Üyelik Test Merkezi Aç',
-                style: TextStyle(color: gold),
-              ),
-            ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 15),
             DropdownButtonFormField<String>(
               dropdownColor: Colors.black,
               value: _tip,
@@ -832,21 +844,113 @@ class _UrunEklemeSayfasiState extends State<UrunEklemeSayfasi> {
                 ),
               ],
             ),
-            const SizedBox(height: 10),
-            Text(
-              "Mevcut sürümde 1 görsel yüklenir. Paketiniz gelecekteki çoklu foto desteğine hazır: $_maxPhotoCount",
-              style: const TextStyle(
-                color: Colors.white54,
-                fontSize: 11,
-              ),
-            ),
             const SizedBox(height: 14),
             _medyaKutusu(
-              fotoSecildi ? "✅ FOTO HAZIR" : "FOTOĞRAF SEÇ",
+              fotoSecildi
+                  ? "✅ FOTOĞRAF EKLE ($_toplamSeciliFoto / $_maxPhotoCount)"
+                  : "FOTOĞRAF SEÇ",
               Icons.add_photo_alternate,
               Colors.blue,
               _yukleniyor ? null : _dosyaGezgininiAc,
             ),
+            if (_webResimler.isNotEmpty || _seciliUrlList.isNotEmpty) ...[
+              const SizedBox(height: 14),
+              Wrap(
+                spacing: 10,
+                runSpacing: 10,
+                children: [
+                  for (int i = 0; i < _webResimler.length; i++)
+                    Stack(
+                      children: [
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(12),
+                          child: Image.memory(
+                            _webResimler[i],
+                            width: 86,
+                            height: 86,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                        Positioned(
+                          top: 4,
+                          right: 4,
+                          child: InkWell(
+                            onTap: () {
+                              setState(() {
+                                _webResimler.removeAt(i);
+                              });
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.all(4),
+                              decoration: const BoxDecoration(
+                                color: Colors.black87,
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                Icons.close,
+                                size: 14,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  for (int i = 0; i < _seciliUrlList.length; i++)
+                    Stack(
+                      children: [
+                        Container(
+                          width: 86,
+                          height: 86,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF151515),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: Colors.white12),
+                          ),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(12),
+                            child: Image.network(
+                              _seciliUrlList[i],
+                              fit: BoxFit.cover,
+                              errorBuilder: (_, __, ___) {
+                                return const Center(
+                                  child: Icon(
+                                    Icons.link,
+                                    color: Colors.white54,
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                        ),
+                        Positioned(
+                          top: 4,
+                          right: 4,
+                          child: InkWell(
+                            onTap: () {
+                              setState(() {
+                                _seciliUrlList.removeAt(i);
+                              });
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.all(4),
+                              decoration: const BoxDecoration(
+                                color: Colors.black87,
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                Icons.close,
+                                size: 14,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                ],
+              ),
+            ],
             const SizedBox(height: 25),
             SizedBox(
               height: 50,

@@ -10,6 +10,7 @@ import '../../merchant/satici_siparis_paneli.dart';
 import '../../merchant/urun_ekleme_sayfasi.dart';
 import '../../orders/musteri_siparis_takip_sayfasi.dart';
 import 'package:sofrasofra_arena_v2/modules/vitrinler/ev_lezzetleri_helpers.dart';
+import 'package:sofrasofra_arena_v2/modules/kurye_basvuru_formu.dart';
 
 class EvLezzetleriVitrini extends StatefulWidget {
   const EvLezzetleriVitrini({super.key});
@@ -386,6 +387,9 @@ class _EvLezzetleriVitriniState extends State<EvLezzetleriVitrini> {
                 locationText: konum,
                 priceText: fiyatText,
                 imageUrl: img,
+                badgeType: _safeText(data['sellerBadgeType']).isEmpty
+                    ? 'none'
+                    : _safeText(data['sellerBadgeType']),
                 onTap: () => _openDetail(context, doc),
                 onAddToCart: () => _addToCart(context, doc),
               );
@@ -542,6 +546,8 @@ class _EvLezzetleriVitriniState extends State<EvLezzetleriVitrini> {
                         children: [
                           _HeroSection(isMobile: isMobile),
                           const SizedBox(height: 18),
+                          _KuryeOlBanner(isMobile: isMobile),
+                          const SizedBox(height: 18),
                           _SectionTitle(
                             title: 'Kategoriler',
                             subtitle:
@@ -580,6 +586,7 @@ class _EvLezzetleriVitriniState extends State<EvLezzetleriVitrini> {
                                   district: item.district,
                                   category: item.category,
                                   imageUrl: item.imageUrl,
+                                  badgeType: item.badgeType,
                                 );
                               },
                             ),
@@ -695,6 +702,10 @@ class _EvLezzetleriVitriniState extends State<EvLezzetleriVitrini> {
                               locationText: konum,
                               priceText: fiyatText,
                               imageUrl: img,
+                              badgeType:
+                                  _safeText(data['sellerBadgeType']).isEmpty
+                                      ? 'none'
+                                      : _safeText(data['sellerBadgeType']),
                               onTap: () => _openDetail(context, doc),
                               onAddToCart: () => _addToCart(context, doc),
                             );
@@ -748,6 +759,9 @@ class _EvLezzetleriVitriniState extends State<EvLezzetleriVitrini> {
                 data['imgUrl'] ??
                 data['resim'],
           ),
+          badgeType: _safeText(data['sellerBadgeType']).isEmpty
+              ? 'none'
+              : _safeText(data['sellerBadgeType']),
         ),
       );
     }
@@ -1133,11 +1147,178 @@ class _KitchenPreview {
   final String district;
   final String category;
   final String imageUrl;
+  final String badgeType;
 
   const _KitchenPreview({
     required this.name,
     required this.district,
     required this.category,
     required this.imageUrl,
+    required this.badgeType,
   });
+}
+
+class _KuryeOlBanner extends StatelessWidget {
+  final bool isMobile;
+
+  const _KuryeOlBanner({required this.isMobile});
+
+  static const Color _gold = Color(0xFFFFB300);
+  static const Color _gold2 = Color(0xFFFF9800);
+  static const Color _dark = Color(0xFF121212);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.all(isMobile ? 16 : 20),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(24),
+        gradient: const LinearGradient(
+          colors: [_gold, _gold2],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x55FFB300),
+            blurRadius: 18,
+            offset: Offset(0, 8),
+          ),
+        ],
+      ),
+      child: isMobile
+          ? Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _bannerTop(),
+                const SizedBox(height: 14),
+                _bannerButton(context, fullWidth: true),
+              ],
+            )
+          : Row(
+              children: [
+                Expanded(child: _bannerTop()),
+                const SizedBox(width: 16),
+                _bannerButton(context),
+              ],
+            ),
+    );
+  }
+
+  Widget _bannerTop() {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          padding: const EdgeInsets.all(11),
+          decoration: BoxDecoration(
+            color: Colors.black.withOpacity(0.10),
+            borderRadius: BorderRadius.circular(14),
+          ),
+          child: const Icon(
+            Icons.delivery_dining_rounded,
+            color: Colors.black,
+            size: 30,
+          ),
+        ),
+        const SizedBox(width: 12),
+        const Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Wrap(
+                spacing: 8,
+                runSpacing: 6,
+                children: [
+                  Text(
+                    'Kurye Ol',
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 20,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                  _KuryeRozet(),
+                ],
+              ),
+              SizedBox(height: 6),
+              Text(
+                'Teslimat ağına katıl, bulunduğun bölgede sipariş taşıyarak gelir elde et.',
+                style: TextStyle(
+                  color: Colors.black87,
+                  fontSize: 13.5,
+                  fontWeight: FontWeight.w600,
+                  height: 1.35,
+                ),
+              ),
+              SizedBox(height: 8),
+              Text(
+                'Esnek çalışma • Bölgesel teslimat • Hızlı başvuru',
+                style: TextStyle(
+                  color: Colors.black54,
+                  fontSize: 11.5,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _bannerButton(BuildContext context, {bool fullWidth = false}) {
+    return SizedBox(
+      width: fullWidth ? double.infinity : null,
+      height: 48,
+      child: ElevatedButton.icon(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => const KuryeBasvuruFormu(),
+            ),
+          );
+        },
+        icon: const Icon(Icons.flash_on, size: 18),
+        label: const Text(
+          'Hemen Başvur',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: _dark,
+          foregroundColor: Colors.white,
+          elevation: 0,
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _KuryeRozet extends StatelessWidget {
+  const _KuryeRozet();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      decoration: BoxDecoration(
+        color: Colors.black,
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: const Text(
+        'Bugün Başvur',
+        style: TextStyle(
+          color: Color(0xFFFFB300),
+          fontSize: 10.5,
+          fontWeight: FontWeight.w800,
+        ),
+      ),
+    );
+  }
 }

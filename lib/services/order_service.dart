@@ -119,6 +119,8 @@ class OrderService {
         orderId: docRef.id,
         sehir: input.sehir,
         ilce: input.ilce,
+        orderLat: input.lat,
+        orderLng: input.lng,
       );
 
       if (!atamaBasarili) {

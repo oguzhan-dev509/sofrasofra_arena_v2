@@ -1,5 +1,6 @@
-import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
+
 import '../orders/musteri_siparis_takip_sayfasi.dart';
 import '../services/sepet_service.dart';
 
@@ -14,14 +15,17 @@ class _SepetSayfasiState extends State<SepetSayfasi> {
   final String userId = 'demo_user';
   bool _siparisOlusturuluyor = false;
 
-  static const Color _bg = Color(0xFFF8F3EA);
-  static const Color _card = Colors.white;
-  static const Color _gold = Color(0xFFFFB300);
-  static const Color _goldDark = Color(0xFF8A5A00);
-  static const Color _textDark = Color(0xFF2D2215);
-  static const Color _textMuted = Color(0xFF7A6A58);
-  static const Color _border = Color(0xFFE7D6B8);
-  static const Color _chipBg = Color(0xFFFFF8EC);
+  static const Color _bg = Color(0xFF070707);
+  static const Color _panel = Color(0xFF111111);
+  static const Color _card = Color(0xFF151515);
+  static const Color _gold = Color(0xFFFFC107);
+  static const Color _goldDark = Color(0xFFFFB300);
+  static const Color _textPrimary = Colors.white;
+  static const Color _textMuted = Color(0xFFB8B8B8);
+  static const Color _border = Color(0x33FFC107);
+  static const Color _chipBg = Color(0xFF1B1B1B);
+  static const Color _dangerBg = Color(0xFF2A1616);
+  static const Color _dangerBorder = Color(0x55FF6B6B);
 
   Stream<QuerySnapshot<Map<String, dynamic>>> _sepetStream() {
     return FirebaseFirestore.instance
@@ -283,14 +287,14 @@ class _SepetSayfasiState extends State<SepetSayfasi> {
         title: const Text(
           'Sepetim',
           style: TextStyle(
-            color: _textDark,
+            color: _textPrimary,
             fontWeight: FontWeight.w900,
           ),
         ),
         centerTitle: true,
         backgroundColor: _bg,
         surfaceTintColor: Colors.transparent,
-        iconTheme: const IconThemeData(color: _textDark),
+        iconTheme: const IconThemeData(color: _gold),
         elevation: 0,
       ),
       body: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
@@ -352,14 +356,14 @@ class _SepetSayfasiState extends State<SepetSayfasi> {
                         child: const Icon(
                           Icons.shopping_bag_outlined,
                           size: 40,
-                          color: _goldDark,
+                          color: _gold,
                         ),
                       ),
                       const SizedBox(height: 18),
                       const Text(
                         'Sepetiniz şu anda boş',
                         style: TextStyle(
-                          color: _textDark,
+                          color: _textPrimary,
                           fontSize: 18,
                           fontWeight: FontWeight.w900,
                         ),
@@ -412,7 +416,7 @@ class _SepetSayfasiState extends State<SepetSayfasi> {
                         child: Text(
                           '$toplamUrun ürün',
                           style: const TextStyle(
-                            color: _goldDark,
+                            color: _gold,
                             fontWeight: FontWeight.w800,
                           ),
                         ),
@@ -507,7 +511,7 @@ class _SepetSayfasiState extends State<SepetSayfasi> {
                                     maxLines: 2,
                                     overflow: TextOverflow.ellipsis,
                                     style: const TextStyle(
-                                      color: _textDark,
+                                      color: _textPrimary,
                                       fontSize: 16,
                                       fontWeight: FontWeight.w900,
                                       height: 1.2,
@@ -520,7 +524,7 @@ class _SepetSayfasiState extends State<SepetSayfasi> {
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
                                       style: const TextStyle(
-                                        color: _goldDark,
+                                        color: _gold,
                                         fontSize: 13,
                                         fontWeight: FontWeight.w700,
                                       ),
@@ -568,7 +572,7 @@ class _SepetSayfasiState extends State<SepetSayfasi> {
                                       Text(
                                         _price(satirToplami),
                                         style: const TextStyle(
-                                          color: _textDark,
+                                          color: _textPrimary,
                                           fontSize: 15,
                                           fontWeight: FontWeight.w900,
                                         ),
@@ -590,7 +594,7 @@ class _SepetSayfasiState extends State<SepetSayfasi> {
                                         child: Text(
                                           adet.toString(),
                                           style: const TextStyle(
-                                            color: _textDark,
+                                            color: _textPrimary,
                                             fontSize: 16,
                                             fontWeight: FontWeight.w900,
                                           ),
@@ -611,11 +615,11 @@ class _SepetSayfasiState extends State<SepetSayfasi> {
                                             vertical: 8,
                                           ),
                                           decoration: BoxDecoration(
-                                            color: const Color(0xFFFFF1F1),
+                                            color: _dangerBg,
                                             borderRadius:
                                                 BorderRadius.circular(12),
                                             border: Border.all(
-                                              color: const Color(0xFFFFD1D1),
+                                              color: _dangerBorder,
                                             ),
                                           ),
                                           child: const Row(
@@ -652,11 +656,11 @@ class _SepetSayfasiState extends State<SepetSayfasi> {
               Container(
                 padding: const EdgeInsets.fromLTRB(14, 10, 14, 18),
                 decoration: const BoxDecoration(
-                  color: Colors.white,
+                  color: _panel,
                   borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
                   boxShadow: [
                     BoxShadow(
-                      color: Color(0x14000000),
+                      color: Color(0x22000000),
                       blurRadius: 18,
                       offset: Offset(0, -4),
                     ),
@@ -676,7 +680,7 @@ class _SepetSayfasiState extends State<SepetSayfasi> {
                             _ozetSatiri(
                               'Ara Toplam',
                               _price(araToplam),
-                              valueColor: _textDark,
+                              valueColor: _textPrimary,
                             ),
                             const SizedBox(height: 10),
                             _ozetSatiri(
@@ -695,7 +699,7 @@ class _SepetSayfasiState extends State<SepetSayfasi> {
                               'Genel Toplam',
                               _price(genelToplam),
                               isStrong: true,
-                              valueColor: _goldDark,
+                              valueColor: _gold,
                             ),
                           ],
                         ),
@@ -772,14 +776,14 @@ class _SepetSayfasiState extends State<SepetSayfasi> {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            Color(0xFFF7E7BF),
-            Color(0xFFE7C784),
+            Color(0xFF2B2110),
+            Color(0xFF4B3817),
           ],
         ),
       ),
       child: const Icon(
         Icons.restaurant_menu_rounded,
-        color: _goldDark,
+        color: _gold,
         size: 28,
       ),
     );
@@ -802,7 +806,7 @@ class _SepetSayfasiState extends State<SepetSayfasi> {
         ),
         child: Icon(
           icon,
-          color: _goldDark,
+          color: _gold,
           size: 18,
         ),
       ),
@@ -823,13 +827,13 @@ class _SepetSayfasiState extends State<SepetSayfasi> {
           Icon(
             icon,
             size: 13,
-            color: _goldDark,
+            color: _gold,
           ),
           const SizedBox(width: 4),
           Text(
             text,
             style: const TextStyle(
-              color: _textDark,
+              color: _textPrimary,
               fontSize: 11,
               fontWeight: FontWeight.w800,
             ),
@@ -843,14 +847,14 @@ class _SepetSayfasiState extends State<SepetSayfasi> {
     String label,
     String value, {
     bool isStrong = false,
-    Color valueColor = _textDark,
+    Color valueColor = _textPrimary,
   }) {
     return Row(
       children: [
         Text(
           label,
           style: TextStyle(
-            color: isStrong ? _textDark : _textMuted,
+            color: isStrong ? _textPrimary : _textMuted,
             fontSize: isStrong ? 16 : 14,
             fontWeight: isStrong ? FontWeight.w900 : FontWeight.w600,
           ),
@@ -875,7 +879,7 @@ class _SepetSayfasiState extends State<SepetSayfasi> {
       border: Border.all(color: _border),
       boxShadow: const [
         BoxShadow(
-          color: Color(0x0F000000),
+          color: Color(0x16000000),
           blurRadius: 16,
           offset: Offset(0, 8),
         ),

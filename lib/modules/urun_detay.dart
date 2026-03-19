@@ -9,6 +9,7 @@ class UrunDetaySayfasi extends StatefulWidget {
   final String dukkanAdi;
   final String konum;
   final String youtubeUrl;
+  final List<String>? urunGorseller;
 
   const UrunDetaySayfasi({
     super.key,
@@ -19,6 +20,7 @@ class UrunDetaySayfasi extends StatefulWidget {
     required this.dukkanAdi,
     required this.konum,
     required this.youtubeUrl,
+    this.urunGorseller,
   });
 
   @override
@@ -28,14 +30,15 @@ class UrunDetaySayfasi extends StatefulWidget {
 class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
   int adet = 1;
 
-  static const Color _bg = Color(0xFFF8F3EA);
-  static const Color _card = Colors.white;
+  static const Color _bg = Color(0xFF070707);
+  static const Color _surface = Color(0xFF111111);
+  static const Color _surfaceSoft = Color(0xFF171717);
   static const Color _gold = Color(0xFFFFB300);
-  static const Color _goldDark = Color(0xFF8A5A00);
-  static const Color _textDark = Color(0xFF2D2215);
-  static const Color _textMuted = Color(0xFF7A6A58);
-  static const Color _border = Color(0xFFE7D6B8);
-  static const Color _chipBg = Color(0xFFFFF8EC);
+  static const Color _goldSoft = Color(0xFFFFD36A);
+  static const Color _textPrimary = Colors.white;
+  static const Color _textMuted = Color(0xFFB8B8B8);
+  static const Color _border = Color(0x26FFB300);
+  static const Color _chipBg = Color(0xFF151515);
 
   bool _isHttp(String s) {
     return s.startsWith('http://') || s.startsWith('https://');
@@ -74,18 +77,18 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
       body: CustomScrollView(
         slivers: [
           SliverAppBar(
-            expandedHeight: 320,
+            expandedHeight: 420,
             pinned: true,
             elevation: 0,
             backgroundColor: _bg,
             surfaceTintColor: Colors.transparent,
-            iconTheme: const IconThemeData(color: _textDark),
+            iconTheme: const IconThemeData(color: _textPrimary),
             flexibleSpace: FlexibleSpaceBar(
               background: Stack(
                 fit: StackFit.expand,
                 children: [
                   Container(
-                    color: const Color(0xFFF2DFC0),
+                    color: Colors.black,
                     child: _buildHeroImage(),
                   ),
                   Container(
@@ -93,9 +96,10 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
                       gradient: LinearGradient(
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
+                        stops: const [0.0, 0.72, 1.0],
                         colors: [
                           Colors.transparent,
-                          Colors.black.withOpacity(0.08),
+                          Colors.transparent,
                           Colors.black.withOpacity(0.18),
                         ],
                       ),
@@ -107,7 +111,7 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
           ),
           SliverToBoxAdapter(
             child: Container(
-              transform: Matrix4.translationValues(0, -18, 0),
+              transform: Matrix4.translationValues(0, -16, 0),
               decoration: const BoxDecoration(
                 color: _bg,
                 borderRadius: BorderRadius.vertical(
@@ -115,11 +119,11 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
                 ),
               ),
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(20, 20, 20, 140),
+                padding: const EdgeInsets.fromLTRB(20, 18, 20, 140),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildHeaderCard(),
+                    _buildPriceAndChipsCard(),
                     const SizedBox(height: 14),
                     _buildMetaCard(),
                     const SizedBox(height: 14),
@@ -138,22 +142,12 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
   }
 
   Widget _buildHeroImage() {
-    if (_isHttp(widget.urunGorsel)) {
-      return Image.network(
-        widget.urunGorsel,
-        fit: BoxFit.cover,
-        width: double.infinity,
-        errorBuilder: (context, error, stackTrace) {
-          return _buildPlaceholder();
-        },
-        loadingBuilder: (context, child, progress) {
-          if (progress == null) return child;
-          return _buildPlaceholder(isLoading: true);
-        },
-      );
-    }
-
-    return _buildPlaceholder();
+    return UrunGaleri(
+      images: widget.urunGorseller,
+      fallbackImage: widget.urunGorsel,
+      height: 420,
+      borderRadius: BorderRadius.circular(0),
+    );
   }
 
   Widget _buildPlaceholder({bool isLoading = false}) {
@@ -163,8 +157,9 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            Color(0xFFF7E7BF),
-            Color(0xFFE7C784),
+            Color(0xFF0E0E0E),
+            Color(0xFF1A1A1A),
+            Color(0xFF2A1B00),
           ],
         ),
       ),
@@ -176,14 +171,14 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
               isLoading
                   ? Icons.hourglass_top_rounded
                   : Icons.restaurant_menu_rounded,
-              size: 46,
-              color: _textDark,
+              size: 48,
+              color: _gold,
             ),
             const SizedBox(height: 10),
             Text(
-              isLoading ? 'Görsel yükleniyor' : 'Ev Lezzeti',
+              isLoading ? 'Görsel yükleniyor' : 'Premium Ev Lezzeti',
               style: const TextStyle(
-                color: _textDark,
+                color: _textPrimary,
                 fontSize: 16,
                 fontWeight: FontWeight.w800,
               ),
@@ -194,38 +189,46 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
     );
   }
 
-  Widget _buildHeaderCard() {
+  Widget _buildPriceAndChipsCard() {
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: _cardDecoration(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          Text(
+            widget.urunAdi.trim().isEmpty ? 'İsimsiz ürün' : widget.urunAdi,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(
+              color: _textPrimary,
+              fontSize: 28,
+              fontWeight: FontWeight.w900,
+              height: 1.08,
+            ),
+          ),
+          const SizedBox(height: 14),
           Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(
+              const Expanded(
                 child: Text(
-                  widget.urunAdi.trim().isEmpty
-                      ? 'İsimsiz ürün'
-                      : widget.urunAdi,
-                  maxLines: 3,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    color: _textDark,
-                    fontSize: 26,
-                    fontWeight: FontWeight.w900,
-                    height: 1.15,
+                  'FİYAT',
+                  style: TextStyle(
+                    color: _textMuted,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 1.0,
                   ),
                 ),
               ),
-              const SizedBox(width: 12),
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 10,
+                ),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFFFF4D9),
-                  borderRadius: BorderRadius.circular(14),
+                  color: const Color(0x14FFB300),
+                  borderRadius: BorderRadius.circular(16),
                   border: Border.all(color: _border),
                 ),
                 child: Text(
@@ -233,20 +236,20 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
                       ? 'Fiyat yok'
                       : widget.urunFiyat,
                   style: const TextStyle(
-                    color: _goldDark,
-                    fontSize: 20,
+                    color: _gold,
+                    fontSize: 22,
                     fontWeight: FontWeight.w900,
                   ),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 28),
           Wrap(
             spacing: 8,
             runSpacing: 8,
             children: [
-              _miniChip(Icons.schedule, 'Bugün hazırlandı'),
+              _miniChip(Icons.schedule_outlined, 'Bugün hazırlandı'),
               _miniChip(Icons.home_work_outlined, 'Mahalle mutfağı'),
               _miniChip(Icons.local_fire_department_outlined, 'Sınırlı adet'),
             ],
@@ -266,13 +269,13 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
             _infoRow(Icons.storefront_outlined, 'Mutfak', widget.dukkanAdi),
           if (widget.dukkanAdi.trim().isNotEmpty &&
               widget.konum.trim().isNotEmpty)
-            const SizedBox(height: 12),
+            const SizedBox(height: 14),
           if (widget.konum.trim().isNotEmpty)
             _infoRow(Icons.location_on_outlined, 'Konum', widget.konum),
           if (widget.dukkanAdi.trim().isNotEmpty ||
               widget.konum.trim().isNotEmpty)
-            const SizedBox(height: 12),
-          _infoRow(Icons.star_rounded, 'Puan', '4.9 (120+ değerlendirme)'),
+            const SizedBox(height: 14),
+          _infoRow(Icons.star_rounded, 'Puan', '4.9 • 120+ değerlendirme'),
         ],
       ),
     );
@@ -288,10 +291,10 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
           const Text(
             'ÜRÜN AÇIKLAMASI',
             style: TextStyle(
-              color: _goldDark,
+              color: _gold,
               fontWeight: FontWeight.w900,
-              letterSpacing: 1.0,
-              fontSize: 13,
+              letterSpacing: 1.15,
+              fontSize: 12,
             ),
           ),
           const SizedBox(height: 10),
@@ -302,22 +305,22 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
             style: const TextStyle(
               color: _textMuted,
               fontSize: 15,
-              height: 1.55,
+              height: 1.65,
               fontWeight: FontWeight.w500,
             ),
           ),
           if (widget.youtubeUrl.trim().isNotEmpty) ...[
-            const SizedBox(height: 14),
+            const SizedBox(height: 16),
             SizedBox(
               width: double.infinity,
-              child: ElevatedButton.icon(
+              child: OutlinedButton.icon(
                 onPressed: _youtubeAc,
                 icon: const Icon(Icons.play_circle_fill_rounded),
                 label: const Text("YouTube'da İzle"),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFFFF4D9),
-                  foregroundColor: _goldDark,
-                  elevation: 0,
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: _gold,
+                  side: const BorderSide(color: _border),
+                  backgroundColor: _gold.withOpacity(0.05),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(14),
                   ),
@@ -341,7 +344,7 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
             child: Text(
               'ADET',
               style: TextStyle(
-                color: _textDark,
+                color: _textPrimary,
                 fontSize: 16,
                 fontWeight: FontWeight.w900,
               ),
@@ -359,7 +362,7 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
             child: Text(
               adet.toString(),
               style: const TextStyle(
-                color: _textDark,
+                color: _textPrimary,
                 fontSize: 22,
                 fontWeight: FontWeight.w900,
               ),
@@ -378,18 +381,18 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
   Widget _adetButon(IconData icon, VoidCallback onTap) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(14),
       child: Container(
-        width: 40,
-        height: 40,
+        width: 42,
+        height: 42,
         decoration: BoxDecoration(
           color: _chipBg,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(14),
           border: Border.all(color: _border),
         ),
         child: Icon(
           icon,
-          color: _goldDark,
+          color: _gold,
           size: 20,
         ),
       ),
@@ -400,13 +403,16 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
     return Container(
       padding: const EdgeInsets.fromLTRB(18, 14, 18, 18),
       decoration: const BoxDecoration(
-        color: Colors.white,
+        color: Color(0xFF0E0E0E),
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        border: Border(
+          top: BorderSide(color: _border),
+        ),
         boxShadow: [
           BoxShadow(
-            color: Color(0x14000000),
-            blurRadius: 18,
-            offset: Offset(0, -4),
+            color: Color(0x66000000),
+            blurRadius: 22,
+            offset: Offset(0, -6),
           ),
         ],
       ),
@@ -429,7 +435,7 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
             const SizedBox(height: 10),
             SizedBox(
               width: double.infinity,
-              height: 56,
+              height: 58,
               child: ElevatedButton(
                 onPressed: () {
                   ScaffoldMessenger.of(context).showSnackBar(
@@ -439,7 +445,7 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
                         '${widget.urunAdi} sepete eklendi!',
                         style: const TextStyle(
                           color: Colors.black,
-                          fontWeight: FontWeight.w800,
+                          fontWeight: FontWeight.w900,
                         ),
                       ),
                     ),
@@ -450,7 +456,7 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
                   backgroundColor: _gold,
                   foregroundColor: Colors.black,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
+                    borderRadius: BorderRadius.circular(18),
                   ),
                 ),
                 child: const Text(
@@ -458,7 +464,7 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
                   style: TextStyle(
                     fontSize: 17,
                     fontWeight: FontWeight.w900,
-                    letterSpacing: 1,
+                    letterSpacing: 1.1,
                   ),
                 ),
               ),
@@ -471,7 +477,7 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
 
   Widget _miniChip(IconData icon, String text) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
         color: _chipBg,
         borderRadius: BorderRadius.circular(999),
@@ -483,13 +489,13 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
           Icon(
             icon,
             size: 14,
-            color: _goldDark,
+            color: _gold,
           ),
-          const SizedBox(width: 5),
+          const SizedBox(width: 6),
           Text(
             text,
             style: const TextStyle(
-              color: _textDark,
+              color: _textPrimary,
               fontSize: 11,
               fontWeight: FontWeight.w800,
             ),
@@ -504,16 +510,16 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
-          width: 38,
-          height: 38,
+          width: 40,
+          height: 40,
           decoration: BoxDecoration(
             color: _chipBg,
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(13),
             border: Border.all(color: _border),
           ),
           child: Icon(
             icon,
-            color: _goldDark,
+            color: _gold,
             size: 18,
           ),
         ),
@@ -523,20 +529,21 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                label,
+                label.toUpperCase(),
                 style: const TextStyle(
                   color: _textMuted,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
+                  fontSize: 11,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: 0.9,
                 ),
               ),
-              const SizedBox(height: 3),
+              const SizedBox(height: 4),
               Text(
                 value,
                 maxLines: 3,
                 overflow: TextOverflow.ellipsis,
                 style: const TextStyle(
-                  color: _textDark,
+                  color: _textPrimary,
                   fontSize: 15,
                   fontWeight: FontWeight.w800,
                   height: 1.35,
@@ -551,15 +558,227 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
 
   BoxDecoration _cardDecoration() {
     return BoxDecoration(
-      color: _card,
+      color: _surface,
       borderRadius: BorderRadius.circular(22),
       border: Border.all(color: _border),
       boxShadow: const [
         BoxShadow(
-          color: Color(0x0F000000),
-          blurRadius: 16,
-          offset: Offset(0, 8),
+          color: Color(0x33000000),
+          blurRadius: 18,
+          offset: Offset(0, 10),
         ),
+      ],
+    );
+  }
+}
+
+class UrunGaleri extends StatefulWidget {
+  final List<String>? images;
+  final String? fallbackImage;
+  final double height;
+  final BorderRadius? borderRadius;
+
+  const UrunGaleri({
+    super.key,
+    this.images,
+    this.fallbackImage,
+    this.height = 320,
+    this.borderRadius,
+  });
+
+  @override
+  State<UrunGaleri> createState() => _UrunGaleriState();
+}
+
+class _UrunGaleriState extends State<UrunGaleri> {
+  late final PageController _pageController;
+  int _currentIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _pageController = PageController();
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  List<String> _resolveImages() {
+    final List<String> parsedImages = [];
+
+    final rawImages = widget.images;
+    if (rawImages != null) {
+      for (final item in rawImages) {
+        final value = item.trim();
+        if (value.isNotEmpty) {
+          parsedImages.add(value);
+        }
+      }
+    }
+
+    if (parsedImages.isNotEmpty) {
+      return parsedImages;
+    }
+
+    final fallback = (widget.fallbackImage ?? '').trim();
+    if (fallback.isNotEmpty) {
+      return [fallback];
+    }
+
+    return [];
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final List<String> images = _resolveImages();
+    final BorderRadius radius =
+        widget.borderRadius ?? BorderRadius.circular(20);
+
+    if (images.isEmpty) {
+      return ClipRRect(
+        borderRadius: radius,
+        child: Container(
+          height: widget.height,
+          width: double.infinity,
+          color: Colors.grey.shade200,
+          alignment: Alignment.center,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: const [
+              Icon(
+                Icons.image_not_supported_outlined,
+                size: 48,
+                color: Colors.grey,
+              ),
+              SizedBox(height: 10),
+              Text(
+                'Görsel bulunamadı',
+                style: TextStyle(
+                  color: Colors.grey,
+                  fontSize: 15,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    return Column(
+      children: [
+        ClipRRect(
+          borderRadius: radius,
+          child: SizedBox(
+            height: widget.height,
+            width: double.infinity,
+            child: Stack(
+              children: [
+                PageView.builder(
+                  controller: _pageController,
+                  itemCount: images.length,
+                  onPageChanged: (index) {
+                    setState(() {
+                      _currentIndex = index;
+                    });
+                  },
+                  itemBuilder: (context, index) {
+                    final imageUrl = images[index];
+
+                    return Container(
+                      color: Colors.grey.shade100,
+                      child: Image.network(
+                        imageUrl,
+                        width: double.infinity,
+                        height: widget.height,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Container(
+                            color: Colors.grey.shade200,
+                            alignment: Alignment.center,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: const [
+                                Icon(
+                                  Icons.broken_image_outlined,
+                                  size: 48,
+                                  color: Colors.grey,
+                                ),
+                                SizedBox(height: 10),
+                                Text(
+                                  'Görsel yüklenemedi',
+                                  style: TextStyle(
+                                    color: Colors.grey,
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                        loadingBuilder: (context, child, progress) {
+                          if (progress == null) return child;
+                          return Container(
+                            color: Colors.grey.shade100,
+                            alignment: Alignment.center,
+                            child: const CircularProgressIndicator(),
+                          );
+                        },
+                      ),
+                    );
+                  },
+                ),
+                if (images.length > 1)
+                  Positioned(
+                    top: 12,
+                    right: 12,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 5,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withOpacity(0.55),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Text(
+                        '${_currentIndex + 1}/${images.length}',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ),
+        if (images.length > 1) ...[
+          const SizedBox(height: 12),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: List.generate(images.length, (index) {
+              final bool isActive = index == _currentIndex;
+
+              return AnimatedContainer(
+                duration: const Duration(milliseconds: 220),
+                margin: const EdgeInsets.symmetric(horizontal: 4),
+                height: 8,
+                width: isActive ? 24 : 8,
+                decoration: BoxDecoration(
+                  color: isActive ? Colors.black87 : Colors.grey.shade400,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+              );
+            }),
+          ),
+        ],
       ],
     );
   }

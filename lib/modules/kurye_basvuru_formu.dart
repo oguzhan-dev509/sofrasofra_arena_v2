@@ -21,6 +21,12 @@ class _KuryeBasvuruFormuState extends State<KuryeBasvuruFormu> {
 
   bool _gonderiliyor = false;
 
+  static const Color _gold = Color(0xFFFFC107);
+  static const Color _goldSoft = Color(0x33FFC107);
+  static const Color _bg = Colors.black;
+  static const Color _panel = Color(0xFF0D0D0D);
+  static const Color _inputFill = Color(0xFF141414);
+
   @override
   void dispose() {
     _adSoyadController.dispose();
@@ -44,19 +50,27 @@ class _KuryeBasvuruFormuState extends State<KuryeBasvuruFormu> {
       await FirebaseFirestore.instance.collection('courier_applications').add({
         'adSoyad': _adSoyadController.text.trim(),
         'telefon': _telefonController.text.trim(),
-        'sehir': _sehirController.text.trim(),
-        'ilce': _ilceController.text.trim(),
+        'sehir': _sehirController.text.trim().toLowerCase(),
+        'ilce': _ilceController.text.trim().toLowerCase(),
         'aracTipi': _aracTipiController.text.trim(),
         'plaka': _plakaController.text.trim(),
         'not': _notController.text.trim(),
-        'durum': 'beklemede',
-        'createdAt': FieldValue.serverTimestamp(),
-        'updatedAt': FieldValue.serverTimestamp(),
+        'status': 'pending',
         'reviewedAt': null,
         'reviewedBy': '',
         'redSebebi': '',
         'source': 'kurye_basvuru_formu',
+        'createdAt': FieldValue.serverTimestamp(),
+        'updatedAt': FieldValue.serverTimestamp(),
       });
+
+      _adSoyadController.clear();
+      _telefonController.clear();
+      _sehirController.clear();
+      _ilceController.clear();
+      _aracTipiController.clear();
+      _plakaController.clear();
+      _notController.clear();
 
       if (!mounted) return;
 
@@ -66,14 +80,6 @@ class _KuryeBasvuruFormuState extends State<KuryeBasvuruFormu> {
           backgroundColor: Colors.green,
         ),
       );
-
-      _adSoyadController.clear();
-      _telefonController.clear();
-      _sehirController.clear();
-      _ilceController.clear();
-      _aracTipiController.clear();
-      _plakaController.clear();
-      _notController.clear();
     } catch (e) {
       if (!mounted) return;
 
@@ -105,7 +111,7 @@ class _KuryeBasvuruFormuState extends State<KuryeBasvuruFormu> {
       child: Text(
         text,
         style: const TextStyle(
-          color: Color(0xFFFFB300),
+          color: _gold,
           fontWeight: FontWeight.bold,
           fontSize: 14,
         ),
@@ -118,14 +124,14 @@ class _KuryeBasvuruFormuState extends State<KuryeBasvuruFormu> {
       hintText: hint,
       hintStyle: TextStyle(color: Colors.grey.shade500),
       filled: true,
-      fillColor: const Color(0xFF141414),
+      fillColor: _inputFill,
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(14),
         borderSide: BorderSide(color: Colors.grey.shade800),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(14),
-        borderSide: const BorderSide(color: Color(0xFFFFB300)),
+        borderSide: const BorderSide(color: _gold, width: 1.2),
       ),
       errorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(14),
@@ -138,19 +144,69 @@ class _KuryeBasvuruFormuState extends State<KuryeBasvuruFormu> {
     );
   }
 
+  Widget _ustKart() {
+    return Container(
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: _panel,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: _gold,
+          width: 1.2,
+        ),
+        boxShadow: const [
+          BoxShadow(
+            color: _goldSoft,
+            blurRadius: 12,
+            spreadRadius: 1,
+          ),
+        ],
+      ),
+      child: const Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.delivery_dining, color: _gold, size: 22),
+              SizedBox(width: 8),
+              Text(
+                'Mahalle Kurye Başvurusu',
+                style: TextStyle(
+                  color: _gold,
+                  fontSize: 20,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: 0.3,
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 10),
+          Text(
+            'Sofrasofra kurye ağına katılmak için formu doldurun. Hızlı başvuru, hızlı değerlendirme.',
+            style: TextStyle(
+              color: Colors.white70,
+              fontSize: 13,
+              height: 1.5,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: _bg,
       appBar: AppBar(
         elevation: 0,
-        backgroundColor: Colors.black,
-        iconTheme: const IconThemeData(color: Color(0xFFFFB300)),
+        backgroundColor: _bg,
+        iconTheme: const IconThemeData(color: _gold),
         title: const Text(
-          'KURYE BAŞVURU FORMU',
+          'KURYE BAŞVURU',
           style: TextStyle(
-            color: Color(0xFFFFB300),
-            letterSpacing: 1.2,
+            color: _gold,
+            letterSpacing: 1.0,
             fontSize: 14,
             fontWeight: FontWeight.bold,
           ),
@@ -162,36 +218,7 @@ class _KuryeBasvuruFormuState extends State<KuryeBasvuruFormu> {
           child: ListView(
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
             children: [
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF111111),
-                  borderRadius: BorderRadius.circular(18),
-                  border: Border.all(color: const Color(0x33FFB300)),
-                ),
-                child: const Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Mahalle Kurye Başvurusu',
-                      style: TextStyle(
-                        color: Color(0xFFFFB300),
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    SizedBox(height: 8),
-                    Text(
-                      'Aşağıdaki formu doldurarak Sofrasofra Arena kurye ağına başvurabilirsiniz.',
-                      style: TextStyle(
-                        color: Colors.white70,
-                        fontSize: 13,
-                        height: 1.4,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+              _ustKart(),
               const SizedBox(height: 18),
               _alanBasligi('Ad Soyad'),
               TextFormField(
@@ -247,7 +274,8 @@ class _KuryeBasvuruFormuState extends State<KuryeBasvuruFormu> {
                 maxLines: 4,
                 style: const TextStyle(color: Colors.white),
                 decoration: _inputDecoration(
-                    'Çalışma saatlerinizi veya notunuzu yazabilirsiniz'),
+                  'Çalışma saatlerinizi veya notunuzu yazabilirsiniz',
+                ),
               ),
               const SizedBox(height: 20),
               SizedBox(
@@ -269,8 +297,10 @@ class _KuryeBasvuruFormuState extends State<KuryeBasvuruFormu> {
                     style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFFFB300),
+                    backgroundColor: _gold,
                     foregroundColor: Colors.black,
+                    elevation: 6,
+                    shadowColor: const Color(0x66FFC107),
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(14),

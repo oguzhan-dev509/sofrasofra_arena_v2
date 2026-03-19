@@ -327,6 +327,7 @@ class _SiparisYonetimiState extends State<SiparisYonetimi> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                const SizedBox(height: 12),
                 Center(
                   child: Container(
                     width: 48,

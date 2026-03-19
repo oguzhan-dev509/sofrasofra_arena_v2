@@ -5,6 +5,7 @@ class EvKitchenCard extends StatelessWidget {
   final String district;
   final String category;
   final String imageUrl;
+  final String badgeType;
 
   const EvKitchenCard({
     super.key,
@@ -12,11 +13,47 @@ class EvKitchenCard extends StatelessWidget {
     required this.district,
     required this.category,
     required this.imageUrl,
+    this.badgeType = 'none',
   });
 
   static const Color _gold = Color(0xFFFFB300);
 
   bool _isHttp(String s) => s.startsWith('http://') || s.startsWith('https://');
+
+  bool get _hasBadge => badgeType.trim().isNotEmpty && badgeType != 'none';
+
+  String get _badgeLabel {
+    switch (badgeType) {
+      case 'premium':
+        return '👑 Premium';
+      case 'trusted':
+        return '⭐ Güvenilir';
+      default:
+        return '';
+    }
+  }
+
+  Color get _badgeBg {
+    switch (badgeType) {
+      case 'premium':
+        return _gold;
+      case 'trusted':
+        return const Color(0xFF2B2B2B);
+      default:
+        return Colors.transparent;
+    }
+  }
+
+  Color get _badgeTextColor {
+    switch (badgeType) {
+      case 'premium':
+        return Colors.black;
+      case 'trusted':
+        return _gold;
+      default:
+        return Colors.transparent;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,12 +65,49 @@ class EvKitchenCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: const Color(0xFF1B1B1B),
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: Colors.white10),
+        border: Border.all(
+          color:
+              badgeType == 'premium' ? _gold.withOpacity(0.45) : Colors.white10,
+        ),
+        boxShadow: badgeType == 'premium'
+            ? [
+                BoxShadow(
+                  color: _gold.withOpacity(0.10),
+                  blurRadius: 20,
+                  offset: const Offset(0, 8),
+                ),
+              ]
+            : null,
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
+          if (_hasBadge) ...[
+            Align(
+              alignment: Alignment.center,
+              child: Container(
+                margin: const EdgeInsets.only(bottom: 10),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                decoration: BoxDecoration(
+                  color: _badgeBg,
+                  borderRadius: BorderRadius.circular(999),
+                  border: badgeType == 'trusted'
+                      ? Border.all(color: _gold.withOpacity(0.35))
+                      : null,
+                ),
+                child: Text(
+                  _badgeLabel,
+                  style: TextStyle(
+                    color: _badgeTextColor,
+                    fontWeight: FontWeight.w800,
+                    fontSize: 10.5,
+                  ),
+                ),
+              ),
+            ),
+          ],
           Container(
             width: 82,
             height: 82,
@@ -129,6 +203,7 @@ class EvPremiumProductCard extends StatelessWidget {
   final String locationText;
   final String priceText;
   final String imageUrl;
+  final String badgeType;
   final VoidCallback onTap;
   final VoidCallback onAddToCart;
 
@@ -141,6 +216,7 @@ class EvPremiumProductCard extends StatelessWidget {
     required this.locationText,
     required this.priceText,
     required this.imageUrl,
+    this.badgeType = 'none',
     required this.onTap,
     required this.onAddToCart,
   });
@@ -149,6 +225,50 @@ class EvPremiumProductCard extends StatelessWidget {
   static const Color _gold = Color(0xFFFFB300);
 
   bool _isHttp(String s) => s.startsWith('http://') || s.startsWith('https://');
+
+  bool get _hasBadge => badgeType.trim().isNotEmpty && badgeType != 'none';
+
+  String get _badgeLabel {
+    switch (badgeType) {
+      case 'premium':
+        return '👑 Premium Ev Lezzeti';
+      case 'trusted':
+        return '⭐ Güvenilir Mutfak';
+      default:
+        return '';
+    }
+  }
+
+  Color get _badgeBg {
+    switch (badgeType) {
+      case 'premium':
+        return _gold;
+      case 'trusted':
+        return const Color(0xFF151515);
+      default:
+        return Colors.transparent;
+    }
+  }
+
+  Color get _badgeTextColor {
+    switch (badgeType) {
+      case 'premium':
+        return Colors.black;
+      case 'trusted':
+        return _gold;
+      default:
+        return Colors.transparent;
+    }
+  }
+
+  BoxBorder? get _badgeBorder {
+    switch (badgeType) {
+      case 'trusted':
+        return Border.all(color: _gold.withOpacity(0.30));
+      default:
+        return null;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -163,13 +283,23 @@ class EvPremiumProductCard extends StatelessWidget {
           decoration: BoxDecoration(
             color: _card,
             borderRadius: BorderRadius.circular(28),
-            border: Border.all(color: Colors.white10),
+            border: Border.all(
+              color: badgeType == 'premium'
+                  ? _gold.withOpacity(0.40)
+                  : Colors.white10,
+            ),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withOpacity(0.22),
                 blurRadius: 22,
                 offset: const Offset(0, 10),
               ),
+              if (badgeType == 'premium')
+                BoxShadow(
+                  color: _gold.withOpacity(0.08),
+                  blurRadius: 18,
+                  offset: const Offset(0, 6),
+                ),
             ],
           ),
           child: Column(
@@ -187,6 +317,7 @@ class EvPremiumProductCard extends StatelessWidget {
                           ? Image.network(
                               safeImg,
                               fit: BoxFit.cover,
+                              filterQuality: FilterQuality.high,
                               errorBuilder: (_, __, ___) => _imgPlaceholder(),
                             )
                           : _imgPlaceholder(),
@@ -214,6 +345,30 @@ class EvPremiumProductCard extends StatelessWidget {
                       ),
                     ),
                   ),
+                  if (_hasBadge)
+                    Positioned(
+                      top: 12,
+                      right: 12,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 7,
+                        ),
+                        decoration: BoxDecoration(
+                          color: _badgeBg,
+                          borderRadius: BorderRadius.circular(999),
+                          border: _badgeBorder,
+                        ),
+                        child: Text(
+                          _badgeLabel,
+                          style: TextStyle(
+                            color: _badgeTextColor,
+                            fontWeight: FontWeight.w800,
+                            fontSize: 10.8,
+                          ),
+                        ),
+                      ),
+                    ),
                   Positioned(
                     right: 12,
                     bottom: 12,
@@ -306,9 +461,13 @@ class EvPremiumProductCard extends StatelessWidget {
                       Wrap(
                         spacing: 8,
                         runSpacing: 8,
-                        children: const [
-                          EvMiniTag(text: 'Ev Yapımı'),
-                          EvMiniTag(text: 'Sıcak Lezzet'),
+                        children: [
+                          const EvMiniTag(text: 'Ev Yapımı'),
+                          const EvMiniTag(text: 'Sıcak Lezzet'),
+                          if (badgeType == 'premium')
+                            const EvMiniTag(text: 'Premium'),
+                          if (badgeType == 'trusted')
+                            const EvMiniTag(text: 'Güvenilir'),
                         ],
                       ),
                       const SizedBox(height: 14),
@@ -421,6 +580,7 @@ class EvHorizontalFoodCard extends StatelessWidget {
   final String locationText;
   final String priceText;
   final String imageUrl;
+  final String badgeType;
   final VoidCallback onTap;
   final VoidCallback onAddToCart;
 
@@ -432,6 +592,7 @@ class EvHorizontalFoodCard extends StatelessWidget {
     required this.locationText,
     required this.priceText,
     required this.imageUrl,
+    this.badgeType = 'none',
     required this.onTap,
     required this.onAddToCart,
   });
@@ -439,6 +600,50 @@ class EvHorizontalFoodCard extends StatelessWidget {
   static const Color _gold = Color(0xFFFFB300);
 
   bool _isHttp(String s) => s.startsWith('http://') || s.startsWith('https://');
+
+  bool get _hasBadge => badgeType.trim().isNotEmpty && badgeType != 'none';
+
+  String get _badgeLabel {
+    switch (badgeType) {
+      case 'premium':
+        return '👑 Premium';
+      case 'trusted':
+        return '⭐ Güvenilir';
+      default:
+        return '';
+    }
+  }
+
+  Color get _badgeBg {
+    switch (badgeType) {
+      case 'premium':
+        return _gold;
+      case 'trusted':
+        return const Color(0xFF151515);
+      default:
+        return Colors.transparent;
+    }
+  }
+
+  Color get _badgeTextColor {
+    switch (badgeType) {
+      case 'premium':
+        return Colors.black;
+      case 'trusted':
+        return _gold;
+      default:
+        return Colors.transparent;
+    }
+  }
+
+  BoxBorder? get _badgeBorder {
+    switch (badgeType) {
+      case 'trusted':
+        return Border.all(color: _gold.withOpacity(0.30));
+      default:
+        return null;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -455,26 +660,68 @@ class EvHorizontalFoodCard extends StatelessWidget {
           child: Container(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(24),
-              border: Border.all(color: Colors.white10),
+              border: Border.all(
+                color: badgeType == 'premium'
+                    ? _gold.withOpacity(0.38)
+                    : Colors.white10,
+              ),
+              boxShadow: badgeType == 'premium'
+                  ? [
+                      BoxShadow(
+                        color: _gold.withOpacity(0.08),
+                        blurRadius: 16,
+                        offset: const Offset(0, 6),
+                      ),
+                    ]
+                  : null,
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                ClipRRect(
-                  borderRadius: const BorderRadius.vertical(
-                    top: Radius.circular(24),
-                  ),
-                  child: SizedBox(
-                    height: 145,
-                    width: double.infinity,
-                    child: _isHttp(safeImg)
-                        ? Image.network(
-                            safeImg,
-                            fit: BoxFit.cover,
-                            errorBuilder: (_, __, ___) => _imgPlaceholder(),
-                          )
-                        : _imgPlaceholder(),
-                  ),
+                Stack(
+                  children: [
+                    ClipRRect(
+                      borderRadius: const BorderRadius.vertical(
+                        top: Radius.circular(24),
+                      ),
+                      child: SizedBox(
+                        height: 145,
+                        width: double.infinity,
+                        child: _isHttp(safeImg)
+                            ? Image.network(
+                                safeImg,
+                                fit: BoxFit.cover,
+                                filterQuality: FilterQuality.high,
+                                errorBuilder: (_, __, ___) => _imgPlaceholder(),
+                              )
+                            : _imgPlaceholder(),
+                      ),
+                    ),
+                    if (_hasBadge)
+                      Positioned(
+                        top: 10,
+                        right: 10,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 6,
+                          ),
+                          decoration: BoxDecoration(
+                            color: _badgeBg,
+                            borderRadius: BorderRadius.circular(999),
+                            border: _badgeBorder,
+                          ),
+                          child: Text(
+                            _badgeLabel,
+                            style: TextStyle(
+                              color: _badgeTextColor,
+                              fontWeight: FontWeight.w800,
+                              fontSize: 10.5,
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
                 ),
                 Expanded(
                   child: Padding(

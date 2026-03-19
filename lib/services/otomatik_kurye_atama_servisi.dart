@@ -6,6 +6,9 @@ import 'package:flutter/foundation.dart';
 class OtomatikKuryeAtamaServisi {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
+  static const int _retryDelaySeconds = 10;
+  static const int _defaultMaxRetryCount = 5;
+
   Future<Map<String, dynamic>?> enUygunKuryeyiBul({
     required String sehir,
     required String ilce,
@@ -100,7 +103,10 @@ class OtomatikKuryeAtamaServisi {
           'aracTipi': (data['aracTipi'] ?? '').toString(),
           'sehir': (data['sehir'] ?? data['city'] ?? '').toString(),
           'ilce': (data['ilce'] ?? data['district'] ?? '').toString(),
-          'uygunluk': (data['uygunluk'] ?? data['uygunlukDurumu'] ?? 'Müsait')
+          'uygunluk': (data['uygunluk'] ??
+                  data['uygunlukDurumu'] ??
+                  data['availability'] ??
+                  'Müsait')
               .toString(),
         };
       }).toList();
@@ -126,24 +132,15 @@ class OtomatikKuryeAtamaServisi {
     double? orderLng,
     List<String> triedCourierIds = const [],
   }) async {
-    String normalize(String value) {
-      return value
-          .trim()
-          .toLowerCase()
-          .replaceAll('ı', 'i')
-          .replaceAll('İ', 'i');
-    }
+    final normSehir = _normalize(sehir);
+    final normIlce = _normalize(ilce);
+    final normSaticiId = _normalize(saticiId ?? '');
 
-    final normSehir = normalize(sehir);
-    final normIlce = normalize(ilce);
-    final normSaticiId = normalize(saticiId ?? '');
     final triedSet = triedCourierIds
         .map((e) => e.toString().trim())
         .where((e) => e.isNotEmpty)
         .toSet();
 
-    // Daha esnek yaklaşım:
-    // Firestore’da katı where yerine tüm courier kayıtlarını çekip memory içinde filtreliyoruz.
     final courierQuery = await _firestore.collection('couriers').get();
 
     if (courierQuery.docs.isEmpty) {
@@ -156,11 +153,11 @@ class OtomatikKuryeAtamaServisi {
     }
 
     String courierSehir(Map<String, dynamic> data) {
-      return normalize((data['sehir'] ?? data['city'] ?? '').toString());
+      return _normalize((data['sehir'] ?? data['city'] ?? '').toString());
     }
 
     String courierIlce(Map<String, dynamic> data) {
-      return normalize((data['ilce'] ?? data['district'] ?? '').toString());
+      return _normalize((data['ilce'] ?? data['district'] ?? '').toString());
     }
 
     bool konumEslesiyor(Map<String, dynamic> data) {
@@ -183,13 +180,12 @@ class OtomatikKuryeAtamaServisi {
         return false;
       }
 
-      final uygunluk = (data['uygunluk'] ??
-              data['uygunlukDurumu'] ??
-              data['availability'] ??
-              '')
-          .toString()
-          .toLowerCase()
-          .trim();
+      final availabilityRaw =
+          (data['availability'] ?? '').toString().toLowerCase().trim();
+      final uygunlukDurumuRaw =
+          (data['uygunlukDurumu'] ?? '').toString().toLowerCase().trim();
+      final uygunlukRaw =
+          (data['uygunluk'] ?? '').toString().toLowerCase().trim();
 
       final aktifSiparis = _toInt(data['aktifSiparis']);
       int maxAktifSiparis = _toInt(data['maxAktifSiparis'], defaultValue: 3);
@@ -197,10 +193,36 @@ class OtomatikKuryeAtamaServisi {
         maxAktifSiparis = 1;
       }
 
-      final durumUygun = uygunluk == 'musait' ||
-          uygunluk == 'müsait' ||
-          uygunluk == 'available';
-      return durumUygun && aktifSiparis < maxAktifSiparis;
+      bool isAvailableValue(String v) {
+        return v == 'musait' || v == 'müsait' || v == 'available';
+      }
+
+      bool isBusyValue(String v) {
+        return v == 'gorevde' || v == 'görevde' || v == 'busy';
+      }
+
+// Öncelik:
+// 1) availability
+// 2) uygunlukDurumu
+// 3) uygunluk
+      bool durumUygun;
+      if (availabilityRaw.isNotEmpty) {
+        durumUygun = isAvailableValue(availabilityRaw);
+      } else if (uygunlukDurumuRaw.isNotEmpty) {
+        durumUygun = isAvailableValue(uygunlukDurumuRaw);
+      } else if (uygunlukRaw.isNotEmpty) {
+        durumUygun = isAvailableValue(uygunlukRaw);
+      } else {
+        durumUygun = false;
+      }
+
+// Güvenlik:
+// Eğer aktifSiparis kapasiteyi doldurmuşsa yine uygun sayma.
+      final kapasiteUygun = aktifSiparis < maxAktifSiparis;
+
+// Sadece eski 'uygunluk' alanı Görevde diye kuryeyi eleme.
+// Çünkü sende gerçek canlı durum availability / uygunlukDurumu içinde tutuluyor.
+      return durumUygun && kapasiteUygun;
     }
 
     bool saticiyaBagliMi(Map<String, dynamic> data) {
@@ -210,7 +232,7 @@ class OtomatikKuryeAtamaServisi {
       final sellerIdsRaw = data['sellerIds'];
       final sellerIds = sellerIdsRaw is List
           ? sellerIdsRaw
-              .map((e) => normalize(e.toString()))
+              .map((e) => _normalize(e.toString()))
               .where((e) => e.isNotEmpty)
               .toList()
           : <String>[];
@@ -246,7 +268,7 @@ class OtomatikKuryeAtamaServisi {
       final rating = _toDouble(data['rating']) ?? 0.0;
 
       final distanceScore = distance / 10.0;
-      final capacityScore = maxAktif == 0 ? 1.0 : (aktifSiparis / maxAktif);
+      final capacityScore = aktifSiparis / maxAktif;
       final ratingScore = (5.0 - rating) / 5.0;
 
       return (distanceScore * 0.50) +
@@ -271,11 +293,11 @@ class OtomatikKuryeAtamaServisi {
 
     if (tumUygunKuryeler.isEmpty) {
       debugPrint(
-          'Kurye var ama kapasite/uygunluk/lokasyon nedeniyle atanamadı.');
+        'Kurye var ama kapasite/uygunluk/lokasyon nedeniyle atanamadı.',
+      );
       return [];
     }
 
-    // 1) Seller-linked öncelik
     if (saticiKuryeAktif && normSaticiId.isNotEmpty) {
       final saticiBagliKuryeler =
           tumUygunKuryeler.where((doc) => saticiyaBagliMi(doc.data())).toList();
@@ -288,7 +310,6 @@ class OtomatikKuryeAtamaServisi {
       }
     }
 
-    // 2) Platform havuzu
     final platformKuryeleri =
         tumUygunKuryeler.where((doc) => platformKuryesiMi(doc.data())).toList();
 
@@ -299,8 +320,6 @@ class OtomatikKuryeAtamaServisi {
       return sirala(platformKuryeleri);
     }
 
-    // 3) Çok kritik fallback:
-    // Seller id çözülememiş olsa bile, uygun tüm kuryelerden seçim yap.
     debugPrint(
       'Seller/platform ayrımı eşleşmedi. Fallback olarak tüm uygun kuryeler kullanılacak: ${tumUygunKuryeler.length}',
     );
@@ -318,6 +337,34 @@ class OtomatikKuryeAtamaServisi {
     List<String> triedCourierIds = const [],
   }) async {
     try {
+      final orderRef = _firestore.collection('orders').doc(orderId);
+      final orderSnap = await orderRef.get();
+
+      if (!orderSnap.exists) {
+        debugPrint('sipariseOtomatikKuryeAta: sipariş bulunamadı. $orderId');
+        return false;
+      }
+
+      final orderData = orderSnap.data() as Map<String, dynamic>;
+
+      final mergedTriedCourierIds = <String>{
+        ..._extractTriedCourierIds(orderData),
+        ...triedCourierIds.where((e) => e.trim().isNotEmpty),
+      }.toList();
+
+      await orderRef.set({
+        'retryCount': _toInt(orderData['retryCount']),
+        'maxRetryCount': _toInt(orderData['maxRetryCount'],
+            defaultValue: _defaultMaxRetryCount),
+        'retryStatus': (orderData['retryStatus'] ?? 'idle').toString(),
+        'retryScheduledAt': orderData['retryScheduledAt'],
+        'lastRetryAt': orderData['lastRetryAt'],
+        'lastRetryReason': orderData['lastRetryReason'],
+        'lastTriedCourierIds': mergedTriedCourierIds,
+        'triedCourierIds': mergedTriedCourierIds,
+        'assignmentLogs': orderData['assignmentLogs'] ?? [],
+      }, SetOptions(merge: true));
+
       final uygunKurye = await enUygunKuryeyiBul(
         sehir: sehir,
         ilce: ilce,
@@ -325,40 +372,44 @@ class OtomatikKuryeAtamaServisi {
         saticiKuryeAktif: saticiKuryeAktif,
         orderLat: orderLat,
         orderLng: orderLng,
-        triedCourierIds: triedCourierIds,
+        triedCourierIds: mergedTriedCourierIds,
       );
 
       if (uygunKurye == null) {
-        await _firestore.collection('orders').doc(orderId).set({
-          'assignmentStatus': 'waiting_courier',
-          'courierAssignmentType': 'seller_first_then_platform',
-          'courierAssignmentResult': 'waiting_courier',
-          'assignmentUpdatedAt': FieldValue.serverTimestamp(),
-        }, SetOptions(merge: true));
+        await _scheduleRetryForOrder(
+          orderId: orderId,
+          existingOrderData: orderData,
+          reason: 'no_available_courier',
+          extraFields: {
+            'courierAssignmentType': 'seller_first_then_platform',
+            'courierAssignmentResult': 'no_courier_found',
+            'assignmentUpdatedAt': FieldValue.serverTimestamp(),
+          },
+        );
 
         debugPrint('Siparişe otomatik kurye atanamadı: $orderId');
         return false;
       }
 
-      final courierId = uygunKurye['courierId'].toString();
-      final courierName = uygunKurye['adSoyad'].toString();
+      final courierId = uygunKurye['courierId'].toString().trim();
+      final courierName = uygunKurye['adSoyad'].toString().trim();
       final assignmentType =
           (uygunKurye['assignmentType'] ?? 'automatic').toString();
       final distanceKm = uygunKurye['distanceKm'];
 
       final courierRef = _firestore.collection('couriers').doc(courierId);
-      final orderRef = _firestore.collection('orders').doc(orderId);
 
       await _firestore.runTransaction((transaction) async {
         final courierSnap = await transaction.get(courierRef);
-        final orderSnap = await transaction.get(orderRef);
+        final latestOrderSnap = await transaction.get(orderRef);
 
-        if (!courierSnap.exists || !orderSnap.exists) {
+        if (!courierSnap.exists || !latestOrderSnap.exists) {
           throw Exception('Kurye veya sipariş dokümanı bulunamadı.');
         }
 
-        final orderData = orderSnap.data() as Map<String, dynamic>;
-        final mevcutDurum = (orderData['assignmentStatus'] ?? '').toString();
+        final latestOrderData = latestOrderSnap.data() as Map<String, dynamic>;
+        final mevcutDurum =
+            (latestOrderData['assignmentStatus'] ?? '').toString().trim();
 
         if (mevcutDurum == 'assigned') {
           debugPrint('Sipariş zaten atanmış: $orderId');
@@ -367,6 +418,15 @@ class OtomatikKuryeAtamaServisi {
 
         final courierData = courierSnap.data() as Map<String, dynamic>;
         final mevcutAktifSiparis = _toInt(courierData['aktifSiparis']);
+        int maxAktifSiparis =
+            _toInt(courierData['maxAktifSiparis'], defaultValue: 3);
+        if (maxAktifSiparis <= 0) {
+          maxAktifSiparis = 1;
+        }
+
+        final yeniAktifSiparis = mevcutAktifSiparis + 1;
+        final yeniUygunluk =
+            yeniAktifSiparis >= maxAktifSiparis ? 'Görevde' : 'Müsait';
 
         transaction.set(
           orderRef,
@@ -374,7 +434,7 @@ class OtomatikKuryeAtamaServisi {
             'assignedCourierId': courierId,
             'assignedCourierName': courierName,
             'assignmentStatus': 'assigned',
-            'status': 'assigned',
+            'status': 'on_the_way',
             'assignmentAt': FieldValue.serverTimestamp(),
             'assignmentUpdatedAt': FieldValue.serverTimestamp(),
             'courierAssignmentType': assignmentType,
@@ -384,18 +444,33 @@ class OtomatikKuryeAtamaServisi {
             'courierRespondedAt': null,
             'courierRejectReason': null,
             'assignedCourierDistanceKm': distanceKm,
+            'retryStatus': 'idle',
+            'retryScheduledAt': null,
+            'lastRetryReason': null,
+            'lastTriedCourierIds': FieldValue.arrayUnion([courierId]),
+            'triedCourierIds': FieldValue.arrayUnion([courierId]),
+            'updatedAt': FieldValue.serverTimestamp(),
+            'assignmentLogs': FieldValue.arrayUnion([
+              {
+                'type': 'assigned',
+                'courierId': courierId,
+                'courierName': courierName,
+                'assignmentType': assignmentType,
+                'distanceKm': distanceKm,
+                'at': DateTime.now().toIso8601String(),
+              }
+            ]),
           },
           SetOptions(merge: true),
         );
-
-        final yeniAktifSiparis =
-            mevcutAktifSiparis > 0 ? mevcutAktifSiparis - 1 : 0;
 
         transaction.set(
           courierRef,
           {
             'aktifSiparis': yeniAktifSiparis,
-            'uygunluk': yeniAktifSiparis == 0 ? 'Müsait' : 'Görevde',
+            'uygunluk': yeniUygunluk,
+            'currentOrderId': orderId,
+            'lastAssignedAt': FieldValue.serverTimestamp(),
             'updatedAt': FieldValue.serverTimestamp(),
           },
           SetOptions(merge: true),
@@ -409,12 +484,29 @@ class OtomatikKuryeAtamaServisi {
     } catch (e) {
       debugPrint('sipariseOtomatikKuryeAta hata: $e');
 
-      await _firestore.collection('orders').doc(orderId).set({
-        'assignmentStatus': 'waiting_courier',
-        'courierAssignmentType': 'seller_first_then_platform',
-        'courierAssignmentResult': 'error',
-        'assignmentUpdatedAt': FieldValue.serverTimestamp(),
-      }, SetOptions(merge: true));
+      final orderRef = _firestore.collection('orders').doc(orderId);
+      final orderSnap = await orderRef.get();
+
+      if (orderSnap.exists) {
+        final orderData = orderSnap.data() as Map<String, dynamic>;
+        await _scheduleRetryForOrder(
+          orderId: orderId,
+          existingOrderData: orderData,
+          reason: 'assignment_exception',
+          extraFields: {
+            'courierAssignmentType': 'seller_first_then_platform',
+            'courierAssignmentResult': 'error',
+            'assignmentUpdatedAt': FieldValue.serverTimestamp(),
+          },
+        );
+      } else {
+        await orderRef.set({
+          'assignmentStatus': 'waiting_courier',
+          'courierAssignmentType': 'seller_first_then_platform',
+          'courierAssignmentResult': 'error',
+          'assignmentUpdatedAt': FieldValue.serverTimestamp(),
+        }, SetOptions(merge: true));
+      }
 
       return false;
     }
@@ -432,26 +524,17 @@ class OtomatikKuryeAtamaServisi {
 
       final orderData = orderSnap.data() as Map<String, dynamic>;
 
-      String normalize(dynamic value) {
-        return (value ?? '')
-            .toString()
-            .trim()
-            .toLowerCase()
-            .replaceAll('ı', 'i')
-            .replaceAll('İ', 'i');
-      }
-
-      String sehir = normalize(orderData['sehir']);
-      String ilce = normalize(orderData['ilce']);
-      String saticiId = normalize(orderData['saticiId']);
+      String sehir = _normalize(orderData['sehir']);
+      String ilce = _normalize(orderData['ilce']);
+      String saticiId = _normalize(orderData['saticiId']);
 
       if (sehir.isEmpty || ilce.isEmpty) {
         final meta = orderData['meta'];
         if (meta is Map<String, dynamic>) {
           final adres = meta['adres'];
           if (adres is Map<String, dynamic>) {
-            sehir = normalize(adres['sehir']);
-            ilce = normalize(adres['ilce']);
+            sehir = _normalize(adres['sehir']);
+            ilce = _normalize(adres['ilce']);
           }
         }
       }
@@ -459,16 +542,16 @@ class OtomatikKuryeAtamaServisi {
       if (sehir.isEmpty || ilce.isEmpty) {
         final adres = orderData['adres'];
         if (adres is Map<String, dynamic>) {
-          sehir = normalize(adres['sehir']);
-          ilce = normalize(adres['ilce']);
+          sehir = _normalize(adres['sehir']);
+          ilce = _normalize(adres['ilce']);
         }
       }
 
       if (saticiId.isEmpty) {
-        saticiId = normalize(orderData['sellerId']);
+        saticiId = _normalize(orderData['sellerId']);
       }
       if (saticiId.isEmpty) {
-        saticiId = normalize(orderData['merchantId']);
+        saticiId = _normalize(orderData['merchantId']);
       }
 
       if (saticiId.isEmpty) {
@@ -476,9 +559,9 @@ class OtomatikKuryeAtamaServisi {
         if (items is List && items.isNotEmpty) {
           final firstItem = items.first;
           if (firstItem is Map<String, dynamic>) {
-            saticiId = normalize(firstItem['saticiId']);
+            saticiId = _normalize(firstItem['saticiId']);
             if (saticiId.isEmpty) {
-              saticiId = normalize(firstItem['sellerId']);
+              saticiId = _normalize(firstItem['sellerId']);
             }
           }
         }
@@ -494,13 +577,7 @@ class OtomatikKuryeAtamaServisi {
       final orderLat = _toDouble(orderData['lat']) ?? latLng['lat'];
       final orderLng = _toDouble(orderData['lng']) ?? latLng['lng'];
 
-      final triedCourierIdsRaw = orderData['triedCourierIds'];
-      final triedCourierIds = triedCourierIdsRaw is List
-          ? triedCourierIdsRaw
-              .map((e) => e.toString().trim())
-              .where((e) => e.isNotEmpty)
-              .toList()
-          : <String>[];
+      final triedCourierIds = _extractTriedCourierIds(orderData);
 
       await _firestore.collection('orders').doc(orderId).set({
         'assignmentTryCount': FieldValue.increment(1),
@@ -554,8 +631,17 @@ class OtomatikKuryeAtamaServisi {
             'courierRespondedAt': FieldValue.serverTimestamp(),
             'status': 'on_the_way',
             'assignmentStatus': 'assigned',
+            'retryStatus': 'idle',
+            'retryScheduledAt': null,
             'statusUpdatedAt': FieldValue.serverTimestamp(),
             'updatedAt': FieldValue.serverTimestamp(),
+            'assignmentLogs': FieldValue.arrayUnion([
+              {
+                'type': 'offer_accepted',
+                'courierId': courierId,
+                'at': DateTime.now().toIso8601String(),
+              }
+            ]),
           },
           SetOptions(merge: true),
         );
@@ -587,6 +673,8 @@ class OtomatikKuryeAtamaServisi {
       final orderRef = _firestore.collection('orders').doc(orderId);
       final courierRef = _firestore.collection('couriers').doc(courierId);
 
+      Map<String, dynamic>? orderDataForRetry;
+
       await _firestore.runTransaction((transaction) async {
         final orderSnap = await transaction.get(orderRef);
         final courierSnap = await transaction.get(courierRef);
@@ -596,6 +684,8 @@ class OtomatikKuryeAtamaServisi {
         }
 
         final orderData = orderSnap.data() as Map<String, dynamic>;
+        orderDataForRetry = orderData;
+
         final assignedCourierId =
             (orderData['assignedCourierId'] ?? '').toString().trim();
 
@@ -605,15 +695,10 @@ class OtomatikKuryeAtamaServisi {
 
         final courierData = courierSnap.data() as Map<String, dynamic>;
         final mevcutAktifSiparis = _toInt(courierData['aktifSiparis']);
+        final yeniAktifSiparis =
+            mevcutAktifSiparis > 0 ? mevcutAktifSiparis - 1 : 0;
 
-        final triedRaw = orderData['triedCourierIds'];
-        final triedCourierIds = triedRaw is List
-            ? triedRaw
-                .map((e) => e.toString().trim())
-                .where((e) => e.isNotEmpty)
-                .toList()
-            : <String>[];
-
+        final triedCourierIds = _extractTriedCourierIds(orderData);
         if (!triedCourierIds.contains(courierId)) {
           triedCourierIds.add(courierId);
         }
@@ -627,9 +712,18 @@ class OtomatikKuryeAtamaServisi {
             'assignmentStatus': 'waiting_courier',
             'assignedCourierId': null,
             'assignedCourierName': null,
+            'lastTriedCourierIds': triedCourierIds,
             'triedCourierIds': triedCourierIds,
             'assignmentUpdatedAt': FieldValue.serverTimestamp(),
             'updatedAt': FieldValue.serverTimestamp(),
+            'assignmentLogs': FieldValue.arrayUnion([
+              {
+                'type': 'offer_rejected',
+                'courierId': courierId,
+                'reason': (reason ?? '').trim(),
+                'at': DateTime.now().toIso8601String(),
+              }
+            ]),
           },
           SetOptions(merge: true),
         );
@@ -637,8 +731,8 @@ class OtomatikKuryeAtamaServisi {
         transaction.set(
           courierRef,
           {
-            'aktifSiparis': mevcutAktifSiparis > 0 ? mevcutAktifSiparis - 1 : 0,
-            'uygunluk': 'Görevde',
+            'aktifSiparis': yeniAktifSiparis,
+            'uygunluk': yeniAktifSiparis == 0 ? 'Müsait' : 'Görevde',
             'currentOrderId': null,
             'updatedAt': FieldValue.serverTimestamp(),
           },
@@ -646,7 +740,29 @@ class OtomatikKuryeAtamaServisi {
         );
       });
 
-      await siparisiYenidenAtamayiDene(orderId);
+      if (orderDataForRetry != null) {
+        final retryOrderData = Map<String, dynamic>.from(orderDataForRetry!);
+        final triedCourierIds = _extractTriedCourierIds(retryOrderData);
+        if (!triedCourierIds.contains(courierId)) {
+          triedCourierIds.add(courierId);
+        }
+        retryOrderData['lastTriedCourierIds'] = triedCourierIds;
+        retryOrderData['triedCourierIds'] = triedCourierIds;
+
+        await _scheduleRetryForOrder(
+          orderId: orderId,
+          existingOrderData: retryOrderData,
+          reason: (reason ?? '').trim().isEmpty
+              ? 'courier_rejected'
+              : 'courier_rejected_${(reason ?? '').trim()}',
+          extraFields: {
+            'courierAssignmentType': 'seller_first_then_platform',
+            'courierAssignmentResult': 'courier_rejected',
+            'assignmentUpdatedAt': FieldValue.serverTimestamp(),
+          },
+        );
+      }
+
       return true;
     } catch (e) {
       debugPrint('kuryeTeklifiReddet hata: $e');
@@ -665,7 +781,7 @@ class OtomatikKuryeAtamaServisi {
           .where('courierOfferStatus', isEqualTo: 'pending')
           .get();
 
-      for (var doc in snapshot.docs) {
+      for (final doc in snapshot.docs) {
         final data = doc.data();
         final orderId = doc.id;
 
@@ -707,26 +823,17 @@ class OtomatikKuryeAtamaServisi {
 
       final orderData = orderSnap.data() as Map<String, dynamic>;
 
-      String normalize(dynamic value) {
-        return (value ?? '')
-            .toString()
-            .trim()
-            .toLowerCase()
-            .replaceAll('ı', 'i')
-            .replaceAll('İ', 'i');
-      }
-
-      String sehir = normalize(orderData['sehir']);
-      String ilce = normalize(orderData['ilce']);
-      String saticiId = normalize(orderData['saticiId']);
+      String sehir = _normalize(orderData['sehir']);
+      String ilce = _normalize(orderData['ilce']);
+      String saticiId = _normalize(orderData['saticiId']);
 
       if (sehir.isEmpty || ilce.isEmpty) {
         final meta = orderData['meta'];
         if (meta is Map<String, dynamic>) {
           final adres = meta['adres'];
           if (adres is Map<String, dynamic>) {
-            sehir = normalize(adres['sehir']);
-            ilce = normalize(adres['ilce']);
+            sehir = _normalize(adres['sehir']);
+            ilce = _normalize(adres['ilce']);
           }
         }
       }
@@ -734,16 +841,16 @@ class OtomatikKuryeAtamaServisi {
       if (sehir.isEmpty || ilce.isEmpty) {
         final adres = orderData['adres'];
         if (adres is Map<String, dynamic>) {
-          sehir = normalize(adres['sehir']);
-          ilce = normalize(adres['ilce']);
+          sehir = _normalize(adres['sehir']);
+          ilce = _normalize(adres['ilce']);
         }
       }
 
       if (saticiId.isEmpty) {
-        saticiId = normalize(orderData['sellerId']);
+        saticiId = _normalize(orderData['sellerId']);
       }
       if (saticiId.isEmpty) {
-        saticiId = normalize(orderData['merchantId']);
+        saticiId = _normalize(orderData['merchantId']);
       }
 
       if (saticiId.isEmpty) {
@@ -751,9 +858,9 @@ class OtomatikKuryeAtamaServisi {
         if (items is List && items.isNotEmpty) {
           final firstItem = items.first;
           if (firstItem is Map<String, dynamic>) {
-            saticiId = normalize(firstItem['saticiId']);
+            saticiId = _normalize(firstItem['saticiId']);
             if (saticiId.isEmpty) {
-              saticiId = normalize(firstItem['sellerId']);
+              saticiId = _normalize(firstItem['sellerId']);
             }
           }
         }
@@ -769,13 +876,7 @@ class OtomatikKuryeAtamaServisi {
       final orderLat = _toDouble(orderData['lat']) ?? latLng['lat'];
       final orderLng = _toDouble(orderData['lng']) ?? latLng['lng'];
 
-      final triedCourierIdsRaw = orderData['triedCourierIds'];
-      final triedCourierIds = triedCourierIdsRaw is List
-          ? triedCourierIdsRaw
-              .map((e) => e.toString().trim())
-              .where((e) => e.isNotEmpty)
-              .toList()
-          : <String>[];
+      final triedCourierIds = _extractTriedCourierIds(orderData);
 
       debugPrint(
         'sipariseKuryeAta orderId=$orderId sehir=$sehir ilce=$ilce saticiId=$saticiId saticiKuryeAktif=$saticiKuryeAktif lat=$orderLat lng=$orderLng tried=${triedCourierIds.length}',
@@ -806,6 +907,101 @@ class OtomatikKuryeAtamaServisi {
       debugPrint('sipariseKuryeAta static hata: $e');
       return false;
     }
+  }
+
+  Future<void> _scheduleRetryForOrder({
+    required String orderId,
+    required Map<String, dynamic> existingOrderData,
+    required String reason,
+    Map<String, dynamic>? extraFields,
+  }) async {
+    final orderRef = _firestore.collection('orders').doc(orderId);
+
+    final retryCount = _toInt(existingOrderData['retryCount']);
+    final maxRetryCount = _toInt(
+      existingOrderData['maxRetryCount'],
+      defaultValue: _defaultMaxRetryCount,
+    );
+
+    if (retryCount >= maxRetryCount) {
+      await orderRef.set({
+        'assignmentStatus': 'manual_review_required',
+        'retryStatus': 'exhausted',
+        'retryScheduledAt': null,
+        'lastRetryReason': 'max_retry_exceeded',
+        'assignmentUpdatedAt': FieldValue.serverTimestamp(),
+        'updatedAt': FieldValue.serverTimestamp(),
+        'assignmentLogs': FieldValue.arrayUnion([
+          {
+            'type': 'retry_exhausted',
+            'reason': 'max_retry_exceeded',
+            'at': DateTime.now().toIso8601String(),
+          }
+        ]),
+        ...?extraFields,
+      }, SetOptions(merge: true));
+      return;
+    }
+
+    final scheduledAt =
+        DateTime.now().add(const Duration(seconds: _retryDelaySeconds));
+
+    await orderRef.set({
+      'assignmentStatus': 'retry_scheduled',
+      'retryStatus': 'scheduled',
+      'retryScheduledAt': Timestamp.fromDate(scheduledAt),
+      'lastRetryReason': reason,
+      'maxRetryCount': maxRetryCount,
+      'assignmentUpdatedAt': FieldValue.serverTimestamp(),
+      'updatedAt': FieldValue.serverTimestamp(),
+      'assignmentLogs': FieldValue.arrayUnion([
+        {
+          'type': 'retry_scheduled',
+          'reason': reason,
+          'retryCount': retryCount,
+          'scheduledFor': scheduledAt.toIso8601String(),
+          'at': DateTime.now().toIso8601String(),
+        }
+      ]),
+      ...?extraFields,
+    }, SetOptions(merge: true));
+  }
+
+  static List<String> _extractTriedCourierIds(Map<String, dynamic> orderData) {
+    final result = <String>{};
+
+    final tried1 = orderData['triedCourierIds'];
+    if (tried1 is List) {
+      for (final item in tried1) {
+        final value = item.toString().trim();
+        if (value.isNotEmpty) result.add(value);
+      }
+    }
+
+    final tried2 = orderData['lastTriedCourierIds'];
+    if (tried2 is List) {
+      for (final item in tried2) {
+        final value = item.toString().trim();
+        if (value.isNotEmpty) result.add(value);
+      }
+    }
+
+    final assignedCourierId =
+        (orderData['assignedCourierId'] ?? '').toString().trim();
+    if (assignedCourierId.isNotEmpty) {
+      result.add(assignedCourierId);
+    }
+
+    return result.toList();
+  }
+
+  static String _normalize(dynamic value) {
+    return (value ?? '')
+        .toString()
+        .trim()
+        .toLowerCase()
+        .replaceAll('ı', 'i')
+        .replaceAll('İ', 'i');
   }
 
   static Map<String, double?> _extractLatLngFromMaps(

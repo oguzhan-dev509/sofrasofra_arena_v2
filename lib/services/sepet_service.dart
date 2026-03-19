@@ -5,6 +5,7 @@ class SepetService {
   static final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   static const String _userId = 'demo_user';
+  static const int _defaultMaxRetryCount = 5;
 
   static Future<void> sepeteEkle({
     required String urunId,
@@ -224,23 +225,49 @@ class SepetService {
       'platformKuryeAktif': platformKuryeAktif,
       'saticiKuryeAktif': saticiKuryeAktif,
       'gelAlAktif': gelAlAktif,
+
+      // Assignment
       'assignmentStatus': assignmentStatus,
       'assignmentTryCount': 0,
       'assignedCourierId': null,
       'assignedCourierName': null,
       'courierAssignmentType': null,
+      'courierAssignmentResult': null,
+      'courierAssignmentTriggered': false,
+      'courierAssignmentCheckedAt': null,
+      'courierAssignmentError': null,
       'assignmentExpiresAt': null,
       'lastAssignmentAt': null,
+
+      // Retry engine
+      'retryCount': 0,
+      'maxRetryCount': _defaultMaxRetryCount,
+      'retryStatus': 'idle',
+      'retryScheduledAt': null,
+      'lastRetryAt': null,
+      'lastRetryReason': null,
+      'lastTriedCourierIds': <String>[],
+
+      // Legacy / compatibility
       'triedCourierIds': <String>[],
       'reassignmentHistory': <Map<String, dynamic>>[],
+      'assignmentLogs': <Map<String, dynamic>>[],
+
+      // Seller courier legacy
       'sellerCourierId': null,
       'sellerCourierName': null,
+
+      // Order status
       'status': initialStatus,
       'durum': initialStatus,
+
+      // Totals
       'araToplam': araToplam,
       'teslimatUcreti': teslimatUcreti,
       'genelToplam': genelToplam,
       'urunSayisi': urunSayisi,
+
+      // Location
       'lat': lat,
       'lng': lng,
       'meta': {
@@ -253,6 +280,7 @@ class SepetService {
           'lng': lng,
         },
       },
+
       'createdAt': FieldValue.serverTimestamp(),
       'updatedAt': FieldValue.serverTimestamp(),
     });
@@ -274,6 +302,7 @@ class SepetService {
       'createdAt': FieldValue.serverTimestamp(),
       'updatedAt': FieldValue.serverTimestamp(),
     });
+
     for (final itemDoc in itemsSnap.docs) {
       final item = itemDoc.data();
       final sellerOrderItemRef =
@@ -295,6 +324,7 @@ class SepetService {
         'createdAt': FieldValue.serverTimestamp(),
       });
     }
+
     batch.set(timelineRef, {
       'orderId': orderRef.id,
       'siparisNo': siparisNo,
@@ -333,25 +363,15 @@ class SepetService {
 
     await batch.commit();
 
-    try {
-      await OtomatikYenidenAtamaServisi().ilkAtamayiBaslat(
-        orderId: orderRef.id,
-      );
-
-      await orderRef.set({
-        'courierAssignmentTriggered': true,
-        'courierAssignmentResult': true,
-        'courierAssignmentCheckedAt': FieldValue.serverTimestamp(),
-      }, SetOptions(merge: true));
-    } catch (e) {
-      await orderRef.set({
-        'courierAssignmentTriggered': true,
-        'courierAssignmentResult': false,
-        'courierAssignmentError': e.toString(),
-        'courierAssignmentCheckedAt': FieldValue.serverTimestamp(),
-      }, SetOptions(merge: true));
-    }
-
+    await orderRef.set({
+      'courierAssignmentTriggered': false,
+      'courierAssignmentCheckedAt': null,
+      'courierAssignmentResult': 'deferred',
+      'assignmentStatus': deliveryMode == 'platform_kurye'
+          ? 'waiting_courier'
+          : assignmentStatus,
+      'updatedAt': FieldValue.serverTimestamp(),
+    }, SetOptions(merge: true));
     return orderRef.id;
   }
 

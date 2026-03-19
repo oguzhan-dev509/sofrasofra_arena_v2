@@ -282,6 +282,11 @@ class KategoriUrunListesiSayfasi extends StatelessWidget {
                                 aciklama: aciklama,
                                 dukkanAdi: dukkanAdi,
                                 konum: konum,
+                                youtubeUrl:
+                                    (urun['youtubeUrl'] ?? '').toString(),
+                                urunGorseller: (urun['images'] as List?)
+                                    ?.map((e) => e.toString())
+                                    .toList(),
                               ),
                             ),
                           );

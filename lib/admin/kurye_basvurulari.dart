@@ -57,12 +57,18 @@ class _KuryeBasvurulariSayfasiState extends State<KuryeBasvurulariSayfasi> {
   String _source(Map<String, dynamic> data) => _safeText(data['source']);
 
   String _durum(Map<String, dynamic> data) {
-    final raw = _safeText(data['durum'] ?? 'beklemede').toLowerCase();
+    final raw = _safeText(
+      data['status'] ?? data['durum'] ?? 'pending',
+    ).toLowerCase();
+
     switch (raw) {
+      case 'approved':
       case 'onaylandi':
         return 'Onaylandı';
+      case 'rejected':
       case 'reddedildi':
         return 'Reddedildi';
+      case 'pending':
       case 'beklemede':
       default:
         return 'Beklemede';
@@ -124,7 +130,7 @@ class _KuryeBasvurulariSayfasiState extends State<KuryeBasvurulariSayfasi> {
         .collection('courier_applications')
         .doc(docId)
         .update({
-      'durum': yeniDurum,
+      'status': yeniDurum,
       'updatedAt': FieldValue.serverTimestamp(),
     });
   }
@@ -163,8 +169,8 @@ class _KuryeBasvurulariSayfasiState extends State<KuryeBasvurulariSayfasi> {
     final kayit = <String, dynamic>{
       'adSoyad': _adSoyad(data),
       'telefon': _telefon(data),
-      'sehir': _sehir(data),
-      'ilce': _ilce(data),
+      'sehir': _sehir(data).toLowerCase(),
+      'ilce': _ilce(data).toLowerCase(),
       'sellerIds': <String>[],
       'kuryeTipi': 'platform',
       'aracTipi': _aracTipi(data),
@@ -198,7 +204,7 @@ class _KuryeBasvurulariSayfasiState extends State<KuryeBasvurulariSayfasi> {
         .collection('courier_applications')
         .doc(docId)
         .update({
-      'durum': 'onaylandi',
+      'status': 'approved',
       'aktifMi': true,
       'uygunluk': 'Müsait',
       'updatedAt': FieldValue.serverTimestamp(),
@@ -221,7 +227,7 @@ class _KuryeBasvurulariSayfasiState extends State<KuryeBasvurulariSayfasi> {
     BuildContext context,
     String docId,
   ) async {
-    await _durumGuncelle(docId, 'reddedildi');
+    await _durumGuncelle(docId, 'rejected');
 
     if (!context.mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
@@ -1096,7 +1102,7 @@ class _KuryeBasvurulariSayfasiState extends State<KuryeBasvurulariSayfasi> {
         elevation: 0,
         iconTheme: const IconThemeData(color: Color(0xFFFFB300)),
         title: const Text(
-          'Kurye Başvuruları',
+          'Kurye Yönetim Merkezi',
           style: TextStyle(
             color: Color(0xFFFFB300),
             fontWeight: FontWeight.w900,
