@@ -574,16 +574,16 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
 
 class UrunGaleri extends StatefulWidget {
   final List<String>? images;
-  final String? fallbackImage;
+  final String fallbackImage;
   final double height;
-  final BorderRadius? borderRadius;
+  final BorderRadius borderRadius;
 
   const UrunGaleri({
     super.key,
     this.images,
-    this.fallbackImage,
-    this.height = 320,
-    this.borderRadius,
+    required this.fallbackImage,
+    required this.height,
+    required this.borderRadius,
   });
 
   @override
@@ -607,25 +607,14 @@ class _UrunGaleriState extends State<UrunGaleri> {
   }
 
   List<String> _resolveImages() {
-    final List<String> parsedImages = [];
+    final list = widget.images ?? [];
 
-    final rawImages = widget.images;
-    if (rawImages != null) {
-      for (final item in rawImages) {
-        final value = item.trim();
-        if (value.isNotEmpty) {
-          parsedImages.add(value);
-        }
-      }
+    if (list.isNotEmpty) {
+      return list.where((e) => e.trim().isNotEmpty).toList();
     }
 
-    if (parsedImages.isNotEmpty) {
-      return parsedImages;
-    }
-
-    final fallback = (widget.fallbackImage ?? '').trim();
-    if (fallback.isNotEmpty) {
-      return [fallback];
+    if (widget.fallbackImage.trim().isNotEmpty) {
+      return [widget.fallbackImage];
     }
 
     return [];
@@ -633,153 +622,111 @@ class _UrunGaleriState extends State<UrunGaleri> {
 
   @override
   Widget build(BuildContext context) {
-    final List<String> images = _resolveImages();
-    final BorderRadius radius =
-        widget.borderRadius ?? BorderRadius.circular(20);
+    final images = _resolveImages();
 
     if (images.isEmpty) {
-      return ClipRRect(
-        borderRadius: radius,
-        child: Container(
-          height: widget.height,
-          width: double.infinity,
-          color: Colors.grey.shade200,
-          alignment: Alignment.center,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: const [
-              Icon(
-                Icons.image_not_supported_outlined,
-                size: 48,
-                color: Colors.grey,
-              ),
-              SizedBox(height: 10),
-              Text(
-                'Görsel bulunamadı',
-                style: TextStyle(
-                  color: Colors.grey,
-                  fontSize: 15,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ],
-          ),
+      return Container(
+        height: widget.height,
+        width: double.infinity,
+        color: Colors.grey.shade200,
+        alignment: Alignment.center,
+        child: const Icon(
+          Icons.image_not_supported_outlined,
+          size: 42,
+          color: Colors.grey,
         ),
       );
     }
 
-    return Column(
-      children: [
-        ClipRRect(
-          borderRadius: radius,
-          child: SizedBox(
+    return ClipRRect(
+      borderRadius: widget.borderRadius,
+      child: Stack(
+        children: [
+          SizedBox(
             height: widget.height,
             width: double.infinity,
-            child: Stack(
-              children: [
-                PageView.builder(
-                  controller: _pageController,
-                  itemCount: images.length,
-                  onPageChanged: (index) {
-                    setState(() {
-                      _currentIndex = index;
-                    });
-                  },
-                  itemBuilder: (context, index) {
-                    final imageUrl = images[index];
+            child: PageView.builder(
+              controller: _pageController,
+              itemCount: images.length,
+              onPageChanged: (index) {
+                setState(() {
+                  _currentIndex = index;
+                });
+              },
+              itemBuilder: (context, index) {
+                final imageUrl = images[index];
 
-                    return Container(
-                      color: Colors.grey.shade100,
-                      child: Image.network(
-                        imageUrl,
-                        width: double.infinity,
-                        height: widget.height,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) {
-                          return Container(
-                            color: Colors.grey.shade200,
-                            alignment: Alignment.center,
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: const [
-                                Icon(
-                                  Icons.broken_image_outlined,
-                                  size: 48,
-                                  color: Colors.grey,
-                                ),
-                                SizedBox(height: 10),
-                                Text(
-                                  'Görsel yüklenemedi',
-                                  style: TextStyle(
-                                    color: Colors.grey,
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          );
-                        },
-                        loadingBuilder: (context, child, progress) {
-                          if (progress == null) return child;
-                          return Container(
-                            color: Colors.grey.shade100,
-                            alignment: Alignment.center,
-                            child: const CircularProgressIndicator(),
-                          );
-                        },
-                      ),
-                    );
-                  },
-                ),
-                if (images.length > 1)
-                  Positioned(
-                    top: 12,
-                    right: 12,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 5,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.55),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Text(
-                        '${_currentIndex + 1}/${images.length}',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
+                return Container(
+                  color: Colors.grey.shade100,
+                  child: Image.network(
+                    imageUrl,
+                    width: double.infinity,
+                    height: widget.height,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) {
+                      return Container(
+                        color: Colors.grey.shade200,
+                        alignment: Alignment.center,
+                        child: const Icon(
+                          Icons.broken_image_outlined,
+                          size: 42,
+                          color: Colors.grey,
                         ),
-                      ),
-                    ),
+                      );
+                    },
                   ),
-              ],
+                );
+              },
             ),
           ),
-        ),
-        if (images.length > 1) ...[
-          const SizedBox(height: 12),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: List.generate(images.length, (index) {
-              final bool isActive = index == _currentIndex;
-
-              return AnimatedContainer(
-                duration: const Duration(milliseconds: 220),
-                margin: const EdgeInsets.symmetric(horizontal: 4),
-                height: 8,
-                width: isActive ? 24 : 8,
+          if (images.length > 1)
+            Positioned(
+              top: 12,
+              right: 12,
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 5,
+                ),
                 decoration: BoxDecoration(
-                  color: isActive ? Colors.black87 : Colors.grey.shade400,
+                  color: Colors.black.withOpacity(0.55),
                   borderRadius: BorderRadius.circular(20),
                 ),
-              );
-            }),
-          ),
+                child: Text(
+                  '${_currentIndex + 1}/${images.length}',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ),
+          if (images.length > 1)
+            Positioned(
+              bottom: 14,
+              left: 0,
+              right: 0,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: List.generate(images.length, (index) {
+                  final isActive = index == _currentIndex;
+
+                  return AnimatedContainer(
+                    duration: const Duration(milliseconds: 220),
+                    margin: const EdgeInsets.symmetric(horizontal: 4),
+                    height: 8,
+                    width: isActive ? 24 : 8,
+                    decoration: BoxDecoration(
+                      color: isActive ? Colors.white : Colors.white54,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                  );
+                }),
+              ),
+            ),
         ],
-      ],
+      ),
     );
   }
 }

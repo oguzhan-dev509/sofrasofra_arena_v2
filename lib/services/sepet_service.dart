@@ -147,6 +147,7 @@ class SepetService {
     String? not,
     double? lat,
     double? lng,
+    String paymentMethod = 'cash',
   }) async {
     final sepetRef = _firestore.collection('sepetler').doc(_userId);
     final sepetSnap = await sepetRef.get();
@@ -214,6 +215,8 @@ class SepetService {
       'sehir': sehir.toLowerCase().trim(),
       'ilce': ilce.toLowerCase().trim(),
       'not': (not ?? '').trim(),
+      'paymentMethod': paymentMethod,
+      'paymentStatus': 'pending',
       'saticiId': saticiId,
       'saticiAdi': dukkanAdi,
       'dukkanId': saticiId,

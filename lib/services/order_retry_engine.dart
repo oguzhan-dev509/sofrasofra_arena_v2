@@ -155,7 +155,18 @@ class OrderRetryEngine {
         ]),
       });
 
-      await _assignmentService.sipariseOtomatikKuryeAta(orderId);
+      final currentSnap = await orderRef.get();
+      final currentData = currentSnap.data() ?? {};
+
+      final sehir =
+          (currentData['sehir'] ?? '').toString().trim().toLowerCase();
+      final ilce = (currentData['ilce'] ?? '').toString().trim().toLowerCase();
+
+      await _assignmentService.sipariseOtomatikKuryeAta(
+        orderId: orderId,
+        sehir: sehir,
+        ilce: ilce,
+      );
 
       final refreshed = await orderRef.get();
       final newData = refreshed.data() ?? {};

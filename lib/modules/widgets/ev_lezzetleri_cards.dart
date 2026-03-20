@@ -80,8 +80,8 @@ class EvKitchenCard extends StatelessWidget {
             : null,
       ),
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           if (_hasBadge) ...[
             Align(
@@ -125,7 +125,7 @@ class EvKitchenCard extends StatelessWidget {
                   : _placeholder(),
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 8),
           Text(
             name,
             maxLines: 1,
@@ -160,7 +160,7 @@ class EvKitchenCard extends StatelessWidget {
               fontSize: 11.5,
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 6),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
             decoration: BoxDecoration(
@@ -444,7 +444,7 @@ class EvPremiumProductCard extends StatelessWidget {
                           ],
                         ),
                       ],
-                      const SizedBox(height: 10),
+                      const SizedBox(height: 6),
                       Expanded(
                         child: Text(
                           subtitle,
@@ -762,7 +762,7 @@ class EvHorizontalFoodCard extends StatelessWidget {
                             ),
                           ),
                         ],
-                        const SizedBox(height: 8),
+                        const SizedBox(height: 4),
                         Expanded(
                           child: Text(
                             subtitle,

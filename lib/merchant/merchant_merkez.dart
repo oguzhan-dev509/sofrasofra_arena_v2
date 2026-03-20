@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
@@ -21,7 +22,10 @@ class _VitrinMerkeziSayfasiState extends State<VitrinMerkeziSayfasi> {
 
   final ImagePicker _picker = ImagePicker();
 
-  String dukkanAdi = "SOFRASOFRA.COM";
+  String dukkanAdi = "";
+  String sellerId = "";
+  bool _sellerYukleniyor = true;
+
   String seciliKategori = "RESTORANLAR";
 
   final List<String> evAltKategoriler = const [
@@ -41,6 +45,7 @@ class _VitrinMerkeziSayfasiState extends State<VitrinMerkeziSayfasi> {
   void initState() {
     super.initState();
     _onSekizUrun = List.generate(18, (_) => _bosUrun());
+    _sellerBilgisiniYukle();
   }
 
   Map<String, dynamic> _bosUrun() => {
@@ -52,6 +57,51 @@ class _VitrinMerkeziSayfasiState extends State<VitrinMerkeziSayfasi> {
         "resimUrl": "",
         "teslimat": true,
       };
+
+  Future<void> _sellerBilgisiniYukle() async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      final uid = user?.uid ?? '';
+
+      if (uid.isEmpty) {
+        if (!mounted) return;
+        setState(() {
+          sellerId = 'demo_user';
+          dukkanAdi = 'SOFRASOFRA.COM';
+          _sellerYukleniyor = false;
+        });
+        return;
+      }
+
+      final doc =
+          await FirebaseFirestore.instance.collection('sellers').doc(uid).get();
+
+      final data = doc.data() ?? {};
+
+      final loadedDukkanAdi = (data['dukkanAdi'] ??
+              data['dukkan'] ??
+              data['sellerName'] ??
+              data['adSoyad'] ??
+              '')
+          .toString()
+          .trim();
+
+      if (!mounted) return;
+      setState(() {
+        sellerId = uid;
+        dukkanAdi =
+            loadedDukkanAdi.isNotEmpty ? loadedDukkanAdi : 'Satıcı Merkezi';
+        _sellerYukleniyor = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        sellerId = 'demo_user';
+        dukkanAdi = 'SOFRASOFRA.COM';
+        _sellerYukleniyor = false;
+      });
+    }
+  }
 
   Future<String> _uploadImageBytesToStorage(Uint8List bytes) async {
     final ts = DateTime.now().millisecondsSinceEpoch;
@@ -74,7 +124,9 @@ class _VitrinMerkeziSayfasiState extends State<VitrinMerkeziSayfasi> {
         backgroundColor: Colors.black,
         elevation: 0,
         title: Text(
-          dukkanAdi,
+          _sellerYukleniyor
+              ? 'Yükleniyor...'
+              : (dukkanAdi.isEmpty ? 'Satıcı Merkezi' : dukkanAdi),
           style: const TextStyle(
             color: _gold,
             fontWeight: FontWeight.w900,
@@ -97,7 +149,9 @@ class _VitrinMerkeziSayfasiState extends State<VitrinMerkeziSayfasi> {
       ),
       floatingActionButton: FloatingActionButton.extended(
         backgroundColor: _gold,
-        onPressed: _gonderiliyor ? null : _vitriniMuhurleFirestore,
+        onPressed: (_gonderiliyor || _sellerYukleniyor)
+            ? null
+            : _vitriniMuhurleFirestore,
         icon: _gonderiliyor
             ? const SizedBox(
                 width: 16,
@@ -279,7 +333,7 @@ class _VitrinMerkeziSayfasiState extends State<VitrinMerkeziSayfasi> {
                     boxShadow: dolu
                         ? [
                             BoxShadow(
-                              color: _gold.withValues(alpha: 0.16),
+                              color: _gold.withOpacity(0.16),
                               blurRadius: 15,
                             ),
                           ]
@@ -541,6 +595,11 @@ class _VitrinMerkeziSayfasiState extends State<VitrinMerkeziSayfasi> {
           "ad": (u["ad"] ?? "").toString().trim(),
           "tarif": (u["tarif"] ?? "").toString().trim(),
           "dukkan": dukkanAdi,
+          "dukkanAdi": dukkanAdi,
+          "dukkanId": sellerId.isNotEmpty ? sellerId : 'demo_user',
+          "saticiId": sellerId.isNotEmpty ? sellerId : 'demo_user',
+          "sellerId": sellerId.isNotEmpty ? sellerId : 'demo_user',
+          "sellerName": dukkanAdi,
           "fiyat": fiyatNum,
           "gelAlFiyat": (u["gelAlFiyat"] ?? "").toString().trim(),
           "goturFiyat": (u["goturFiyat"] ?? "").toString().trim(),

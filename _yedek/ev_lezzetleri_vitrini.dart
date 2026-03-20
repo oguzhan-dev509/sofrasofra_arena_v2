@@ -11,7 +11,6 @@ import '../../merchant/urun_ekleme_sayfasi.dart';
 import '../../orders/musteri_siparis_takip_sayfasi.dart';
 import 'package:sofrasofra_arena_v2/modules/vitrinler/ev_lezzetleri_helpers.dart';
 import 'package:sofrasofra_arena_v2/modules/kurye_basvuru_formu.dart';
-import '../../merchant/merchant_merkez.dart';
 
 class EvLezzetleriVitrini extends StatefulWidget {
   const EvLezzetleriVitrini({super.key});
@@ -445,24 +444,6 @@ class _EvLezzetleriVitriniState extends State<EvLezzetleriVitrini> {
             },
           ),
           IconButton(
-            icon: const Icon(Icons.storefront_outlined),
-            tooltip: 'Satıcı Paneli',
-            color: _gold,
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => SaticiSiparisPaneli(
-                    sellerId: 'nuran_tatlilari',
-                    sellerName: 'Satıcı Paneli',
-                  ),
-                ),
-              );
-            },
-          ),
-          // ✅ BURAYA EKLENDİ
-
-          IconButton(
             icon: const Icon(Icons.add_box_outlined),
             tooltip: 'Ürün Ekle',
             color: _gold,
@@ -476,14 +457,17 @@ class _EvLezzetleriVitriniState extends State<EvLezzetleriVitrini> {
             },
           ),
           IconButton(
-            icon: const Icon(Icons.receipt_long_outlined),
-            tooltip: 'Sipariş Takibi',
-            color: _gold,
+            icon: const Icon(Icons.store),
             onPressed: () {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (_) => const MusteriSiparisTakipSayfasi(),
+                  builder: (context) {
+                    return SaticiSiparisPaneli(
+                      sellerId: 'nuran_tatlilari',
+                      sellerName: 'Nuran Tatlıları Sipariş Paneli',
+                    );
+                  },
                 ),
               );
             },
@@ -500,6 +484,7 @@ class _EvLezzetleriVitriniState extends State<EvLezzetleriVitrini> {
               message: snap.error.toString(),
             );
           }
+
           if (snap.connectionState == ConnectionState.waiting) {
             return const Center(
               child: CircularProgressIndicator(color: _gold),

@@ -1,12 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import '../maps/kurye_harita.dart';
 
 class SaticiSiparisPaneli extends StatefulWidget {
   final String sellerId;
   final String sellerName;
 
-  const SaticiSiparisPaneli({
+  SaticiSiparisPaneli({
     super.key,
     required this.sellerId,
     this.sellerName = 'Satıcı Paneli',
@@ -32,46 +31,6 @@ class _SaticiSiparisPaneliState extends State<SaticiSiparisPaneli> {
         .snapshots();
   }
 
-  String _normalizeSellerKey(String value) {
-    return value
-        .toLowerCase()
-        .trim()
-        .replaceAll('ı', 'i')
-        .replaceAll('ğ', 'g')
-        .replaceAll('ü', 'u')
-        .replaceAll('ş', 's')
-        .replaceAll('ö', 'o')
-        .replaceAll('ç', 'c')
-        .replaceAll(RegExp(r'[^a-z0-9]+'), '_')
-        .replaceAll(RegExp(r'_+'), '_')
-        .replaceAll(RegExp(r'^_|_$'), '');
-  }
-
-  bool _matchesSeller(Map<String, dynamic> source, String sellerId) {
-    final targetSeller = _normalizeSellerKey(sellerId);
-
-    final candidates = <String>[
-      (source['saticiId'] ?? '').toString(),
-      (source['sellerId'] ?? '').toString(),
-      (source['merchantId'] ?? '').toString(),
-      (source['dukkanId'] ?? '').toString(),
-      (source['satici'] ?? '').toString(),
-      (source['saticiAdi'] ?? '').toString(),
-      (source['dukkanAdi'] ?? '').toString(),
-      (source['dukkan'] ?? '').toString(),
-      (source['sellerName'] ?? '').toString(),
-    ];
-
-    for (final raw in candidates) {
-      final normalized = _normalizeSellerKey(raw);
-      if (normalized.isNotEmpty && normalized == targetSeller) {
-        return true;
-      }
-    }
-
-    return false;
-  }
-
   List<Map<String, dynamic>> _extractSellerItems(
     Map<String, dynamic> data,
     String sellerId,
@@ -82,16 +41,24 @@ class _SaticiSiparisPaneliState extends State<SaticiSiparisPaneli> {
     return rawItems
         .whereType<Map>()
         .map((e) => Map<String, dynamic>.from(e))
-        .where((item) => _matchesSeller(item, sellerId))
-        .toList();
+        .where((item) {
+      final itemSellerId = (item['saticiId'] ??
+              item['sellerId'] ??
+              item['merchantId'] ??
+              item['satici'] ??
+              '')
+          .toString()
+          .trim();
+
+      return itemSellerId == sellerId;
+    }).toList();
   }
 
   double _sellerTotal(List<Map<String, dynamic>> items) {
     double total = 0;
-
     for (final item in items) {
-      final fiyat = item['fiyat'] ?? 0;
-      final adet = item['adet'] ?? 0;
+      final fiyat = (item['fiyat'] ?? 0);
+      final adet = (item['adet'] ?? 0);
 
       final double fiyatValue =
           fiyat is num ? fiyat.toDouble() : double.tryParse('$fiyat') ?? 0;
@@ -100,7 +67,6 @@ class _SaticiSiparisPaneliState extends State<SaticiSiparisPaneli> {
 
       total += fiyatValue * adetValue;
     }
-
     return total;
   }
 
@@ -175,50 +141,6 @@ class _SaticiSiparisPaneliState extends State<SaticiSiparisPaneli> {
     }
   }
 
-  Future<void> _kuryeAta(String orderId) async {
-    try {
-      final courierSnapshot =
-          await _firestore.collection('couriers').limit(1).get();
-
-      if (courierSnapshot.docs.isEmpty) {
-        if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Kurye bulunamadı")),
-        );
-        return;
-      }
-
-      final courier = courierSnapshot.docs.first;
-      final data = courier.data();
-
-      await _firestore.collection('orders').doc(orderId).update({
-        'assignedCourierId': courier.id,
-        'assignedCourierName': data['adSoyad'] ?? 'Kurye',
-        'assignmentStatus': 'assigned',
-        'assignedAt': FieldValue.serverTimestamp(),
-      });
-
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Kurye atandı")),
-      );
-
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (_) => KuryeHarita(
-            courierId: courier.id,
-          ),
-        ),
-      );
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Hata: $e")),
-      );
-    }
-  }
-
   Widget _buildActionButtons({
     required String orderId,
     required String status,
@@ -289,35 +211,18 @@ class _SaticiSiparisPaneliState extends State<SaticiSiparisPaneli> {
     }
 
     if (s == 'ready') {
-      return Column(
-        children: [
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 14),
-            decoration: BoxDecoration(
-              color: Colors.green.withOpacity(0.12),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.green),
-            ),
-            child: const Text(
-              'Sipariş hazır. Kurye atanabilir.',
-              style: TextStyle(color: Colors.white),
-            ),
-          ),
-          const SizedBox(height: 10),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: () => _kuryeAta(orderId),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.orange,
-                foregroundColor: Colors.black,
-                padding: const EdgeInsets.symmetric(vertical: 14),
-              ),
-              child: const Text("KURYE ATA"),
-            ),
-          ),
-        ],
+      return Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 14),
+        decoration: BoxDecoration(
+          color: Colors.green.withOpacity(0.12),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.green),
+        ),
+        child: const Text(
+          'Sipariş hazır. Kurye / teslim sürecine geçebilir.',
+          style: TextStyle(color: Colors.white),
+        ),
       );
     }
 
@@ -357,12 +262,10 @@ class _SaticiSiparisPaneliState extends State<SaticiSiparisPaneli> {
   }
 
   Widget _buildItemCard(Map<String, dynamic> item) {
-    final urunAdi =
-        (item['urunAdi'] ?? item['ad'] ?? item['title'] ?? 'Ürün').toString();
-    final adet = (item['adet'] ?? item['quantity'] ?? 0).toString();
-    final fiyatRaw = item['fiyat'] ?? item['price'] ?? 0;
-    final gorselUrl =
-        (item['gorselUrl'] ?? item['img'] ?? item['imageUrl'] ?? '').toString();
+    final urunAdi = (item['urunAdi'] ?? 'Ürün').toString();
+    final adet = (item['adet'] ?? 0).toString();
+    final fiyatRaw = item['fiyat'] ?? 0;
+    final gorselUrl = (item['gorselUrl'] ?? '').toString();
 
     final double fiyat = fiyatRaw is num
         ? fiyatRaw.toDouble()
@@ -390,10 +293,8 @@ class _SaticiSiparisPaneliState extends State<SaticiSiparisPaneli> {
                       width: 64,
                       height: 64,
                       color: Colors.white10,
-                      child: const Icon(
-                        Icons.image_not_supported,
-                        color: Colors.white54,
-                      ),
+                      child: const Icon(Icons.image_not_supported,
+                          color: Colors.white54),
                     ),
                   )
                 : Container(
@@ -444,7 +345,7 @@ class _SaticiSiparisPaneliState extends State<SaticiSiparisPaneli> {
     final data = doc.data() ?? {};
     final sellerItems = _extractSellerItems(data, widget.sellerId);
 
-    if (sellerItems.isEmpty && !_matchesSeller(data, widget.sellerId)) {
+    if (sellerItems.isEmpty) {
       return const SizedBox.shrink();
     }
 
@@ -523,31 +424,29 @@ class _SaticiSiparisPaneliState extends State<SaticiSiparisPaneli> {
           _infoRow(Icons.payments_outlined, 'Ödeme: $odeme'),
           const SizedBox(height: 8),
           _infoRow(Icons.local_shipping_outlined, 'Teslimat: $teslimat'),
-          if (sellerItems.isNotEmpty) ...[
-            const SizedBox(height: 18),
-            const Text(
-              'Sipariş Kalemleri',
-              style: TextStyle(
+          const SizedBox(height: 18),
+          const Text(
+            'Sipariş Kalemleri',
+            style: TextStyle(
+              color: _gold,
+              fontWeight: FontWeight.bold,
+              fontSize: 17,
+            ),
+          ),
+          const SizedBox(height: 12),
+          ...sellerItems.map(_buildItemCard),
+          const SizedBox(height: 8),
+          Align(
+            alignment: Alignment.centerRight,
+            child: Text(
+              'Satıcı Alt Toplamı: ${_formatMoney(sellerSubtotal)}',
+              style: const TextStyle(
                 color: _gold,
+                fontSize: 16,
                 fontWeight: FontWeight.bold,
-                fontSize: 17,
               ),
             ),
-            const SizedBox(height: 12),
-            ...sellerItems.map(_buildItemCard),
-            const SizedBox(height: 8),
-            Align(
-              alignment: Alignment.centerRight,
-              child: Text(
-                'Satıcı Alt Toplamı: ${_formatMoney(sellerSubtotal)}',
-                style: const TextStyle(
-                  color: _gold,
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          ],
+          ),
           const SizedBox(height: 18),
           _buildActionButtons(orderId: doc.id, status: status),
         ],
@@ -609,41 +508,15 @@ class _SaticiSiparisPaneliState extends State<SaticiSiparisPaneli> {
 
           final filtered = docs.where((doc) {
             final data = doc.data();
-
             final sellerItems = _extractSellerItems(data, widget.sellerId);
-            if (sellerItems.isNotEmpty) return true;
-
-            if (_matchesSeller(data, widget.sellerId)) return true;
-
-            return false;
+            return sellerItems.isNotEmpty;
           }).toList();
 
           if (filtered.isEmpty) {
-            return Center(
-              child: Padding(
-                padding: const EdgeInsets.all(24),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Text(
-                      'Bu satıcıya ait sipariş bulunamadı.',
-                      style: TextStyle(color: Colors.white70, fontSize: 16),
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      'Aktif sellerId: ${widget.sellerId}',
-                      style: const TextStyle(color: Colors.orangeAccent),
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Toplam order sayısı: ${docs.length}',
-                      style: const TextStyle(color: Colors.white54),
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
-                ),
+            return const Center(
+              child: Text(
+                'Bu satıcıya ait sipariş bulunamadı.',
+                style: TextStyle(color: Colors.white70, fontSize: 16),
               ),
             );
           }

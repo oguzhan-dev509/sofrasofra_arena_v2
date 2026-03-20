@@ -19,6 +19,7 @@ import 'admin/admin_dashboard.dart';
 import 'courier/kurye_mobil_paneli.dart';
 import 'services/bildirim_service.dart';
 import 'services/dispatch_timeout_watcher.dart';
+import 'dev/kurye_simulator.dart';
 
 final ValueNotifier<String?> selectedSehir = ValueNotifier<String?>(null);
 final ValueNotifier<String?> selectedIlce = ValueNotifier<String?>(null);
@@ -91,7 +92,11 @@ class _GirisEkraniState extends State<GirisEkrani> {
   @override
   void initState() {
     super.initState();
-    _ilceleriYukle();
+
+    _ilceleriYukle(); // mevcut fonksiyonun
+
+    final sim = KuryeSimulator("ali_kurye");
+    sim.start();
   }
 
   void _gizliAdminTiklandi() {

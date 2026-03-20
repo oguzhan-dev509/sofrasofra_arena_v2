@@ -1,15 +1,23 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import '../customer/musteri_kurye_takip.dart';
 
-class MusteriSiparisTakipSayfasi extends StatelessWidget {
+class MusteriSiparisTakipSayfasi extends StatefulWidget {
   const MusteriSiparisTakipSayfasi({super.key});
 
+  @override
+  State<MusteriSiparisTakipSayfasi> createState() =>
+      _MusteriSiparisTakipSayfasiState();
+}
+
+class _MusteriSiparisTakipSayfasiState
+    extends State<MusteriSiparisTakipSayfasi> {
   final String userId = 'demo_user';
 
   Stream<QuerySnapshot<Map<String, dynamic>>> _siparislerStream() {
     return FirebaseFirestore.instance
         .collection('orders')
-        .where('kullaniciId', isEqualTo: userId)
+        .where('userId', isEqualTo: userId)
         .orderBy('createdAt', descending: true)
         .snapshots();
   }
@@ -110,6 +118,11 @@ class MusteriSiparisTakipSayfasi extends StatelessWidget {
   }
 
   String _extractAdres(Map<String, dynamic> data) {
+    final direct = _safeString(
+      data['teslimatAdresi'] ?? data['addressText'] ?? data['adres'],
+    );
+    if (direct.isNotEmpty) return direct;
+
     final meta = _safeMap(data['meta']);
     final adres = meta['adres'];
 
@@ -125,6 +138,11 @@ class MusteriSiparisTakipSayfasi extends StatelessWidget {
   }
 
   String _extractTelefon(Map<String, dynamic> data) {
+    final direct = _safeString(
+      data['musteriTelefon'] ?? data['phone'],
+    );
+    if (direct.isNotEmpty) return direct;
+
     final meta = _safeMap(data['meta']);
     final adres = meta['adres'];
 
@@ -143,6 +161,20 @@ class MusteriSiparisTakipSayfasi extends StatelessWidget {
   }
 
   String _extractOdemeYontemi(Map<String, dynamic> data) {
+    final direct = _safeString(data['paymentMethod']);
+    if (direct.isNotEmpty) {
+      switch (direct) {
+        case 'cash':
+          return 'Kapıda Nakit';
+        case 'pos':
+          return 'Kapıda Kart';
+        case 'online':
+          return 'Online Ödeme';
+        default:
+          return direct;
+      }
+    }
+
     final meta = _safeMap(data['meta']);
     return _safeString(
       meta['odemeYontemi'] ?? meta['odemeTipi'],
@@ -151,6 +183,25 @@ class MusteriSiparisTakipSayfasi extends StatelessWidget {
   }
 
   String _extractTeslimatTipi(Map<String, dynamic> data) {
+    final direct = _safeString(
+      data['siparisTipi'] ?? data['deliveryMode'],
+    );
+
+    if (direct.isNotEmpty) {
+      switch (direct) {
+        case 'gel_al':
+          return 'Gel Al';
+        case 'platform_kurye':
+          return 'Platform Kurye';
+        case 'satici_kuryesi':
+          return 'Satıcı Kuryesi';
+        case 'teslimat':
+          return 'Teslimat';
+        default:
+          return direct;
+      }
+    }
+
     final meta = _safeMap(data['meta']);
     return _safeString(
       meta['teslimatTipi'],
@@ -277,14 +328,18 @@ class MusteriSiparisTakipSayfasi extends StatelessWidget {
                 fallback: siparisDoc.id,
               );
 
-              final toplamTutar = _asDouble(data['toplamTutar']);
+              final toplamTutar = _asDouble(
+                data['genelToplam'] ?? data['toplamTutar'] ?? data['total'],
+              );
               final createdAt = data['createdAt'];
 
               final adres = _extractAdres(data);
               final telefon = _extractTelefon(data);
               final odemeYontemi = _extractOdemeYontemi(data);
               final teslimatTipi = _extractTeslimatTipi(data);
-
+              final kuryeAdi = _safeString(
+                data['assignedCourierName'] ?? data['kuryeAdi'],
+              );
               return Container(
                 margin: const EdgeInsets.only(bottom: 16),
                 decoration: BoxDecoration(
@@ -408,6 +463,38 @@ class MusteriSiparisTakipSayfasi extends StatelessWidget {
                               label: 'Teslimat',
                               value: teslimatTipi,
                             ),
+                            if (kuryeAdi.isNotEmpty) ...[
+                              const SizedBox(height: 10),
+                              _infoSatiri(
+                                icon: Icons.delivery_dining,
+                                label: 'Kurye',
+                                value: kuryeAdi,
+                              ),
+                              const SizedBox(height: 14),
+                              SizedBox(
+                                width: double.infinity,
+                                child: ElevatedButton(
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (_) => MusteriKuryeTakip(
+                                          orderId: siparisDoc.id,
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: const Color(0xFFFFB300),
+                                    foregroundColor: Colors.black,
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 14,
+                                    ),
+                                  ),
+                                  child: const Text('Kuryeyi Haritada Gör'),
+                                ),
+                              ),
+                            ],
                           ],
                         ),
                       ),
