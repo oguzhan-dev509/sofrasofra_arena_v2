@@ -50,7 +50,7 @@ class _UstaSefAdminSayfasiState extends State<UstaSefAdminSayfasi>
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
   }
-
+const SefTemizlikPaneli(),
   @override
   void dispose() {
     _tabController.dispose();
@@ -514,6 +514,142 @@ class _UstaSefAdminSayfasiState extends State<UstaSefAdminSayfasi>
         children: [
           _chefTab(),
           _lessonTab(),
+        ],
+      ),
+    );
+  }
+}
+class SefTemizlikPaneli extends StatefulWidget {
+  const SefTemizlikPaneli({super.key});
+
+  @override
+  State<SefTemizlikPaneli> createState() => _SefTemizlikPaneliState();
+}
+
+class _SefTemizlikPaneliState extends State<SefTemizlikPaneli> {
+  bool loading = false;
+  List<QueryDocumentSnapshot<Map<String, dynamic>>> hataliDocs = [];
+
+  Future<void> hataliSefleriGetir() async {
+    setState(() => loading = true);
+
+    final snapshot = await FirebaseFirestore.instance
+        .collection('urunler')
+        .where('tip', isEqualTo: 'Usta Sefler')
+        .get();
+
+    final docs = snapshot.docs;
+
+    final List<QueryDocumentSnapshot<Map<String, dynamic>>> filtered = [];
+
+    for (var doc in docs) {
+      final data = doc.data();
+      final ownerId = (data['ownerId'] ?? '').toString().trim();
+
+      if (ownerId.isEmpty) {
+        filtered.add(doc);
+        continue;
+      }
+
+      final profile = await FirebaseFirestore.instance
+          .collection('chef_profiles')
+          .doc(ownerId)
+          .get();
+
+      if (!profile.exists) {
+        filtered.add(doc);
+      }
+    }
+
+    setState(() {
+      hataliDocs = filtered;
+      loading = false;
+    });
+  }
+
+  Future<void> topluPasifYap() async {
+    setState(() => loading = true);
+
+    final batch = FirebaseFirestore.instance.batch();
+
+    for (var doc in hataliDocs) {
+      batch.update(doc.reference, {'isActive': false});
+    }
+
+    await batch.commit();
+
+    setState(() {
+      loading = false;
+      hataliDocs.clear();
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Tüm hatalı şefler pasife alındı')),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.black,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            "ŞEF TEMİZLİK PANELİ",
+            style: TextStyle(
+              color: Colors.amber,
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+
+          const SizedBox(height: 12),
+
+          Row(
+            children: [
+              ElevatedButton(
+                onPressed: hataliSefleriGetir,
+                child: const Text("Hatalı Şefleri Tara"),
+              ),
+              const SizedBox(width: 10),
+              ElevatedButton(
+                onPressed: hataliDocs.isEmpty ? null : topluPasifYap,
+                child: const Text("Toplu Pasife Al"),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 16),
+
+          if (loading)
+            const Center(child: CircularProgressIndicator()),
+
+          if (!loading)
+            Text(
+              "Bulunan hatalı şef: ${hataliDocs.length}",
+              style: const TextStyle(color: Colors.white70),
+            ),
+
+          const SizedBox(height: 10),
+
+          if (!loading)
+            ...hataliDocs.map((doc) {
+              final data = doc.data();
+              final ad = data['dukkan'] ?? 'İsimsiz';
+
+              return ListTile(
+                title: Text(ad, style: const TextStyle(color: Colors.white)),
+                subtitle: Text(
+                  doc.id,
+                  style: const TextStyle(color: Colors.white38),
+                ),
+              );
+            }),
         ],
       ),
     );
