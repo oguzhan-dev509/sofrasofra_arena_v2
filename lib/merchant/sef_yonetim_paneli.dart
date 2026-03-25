@@ -1,5 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:sofrasofra_arena_v2/services/chef_validation_service.dart';
+import 'package:sofrasofra_arena_v2/services/chef_profile_bootstrap_service.dart';
+import 'package:sofrasofra_arena_v2/services/chef_academy_bootstrap_service.dart';
 
 class SefYonetimPaneli extends StatefulWidget {
   final String dukkanAdi;
@@ -104,94 +108,99 @@ class _SefYonetimPaneliState extends State<SefYonetimPaneli> {
   }
 
   Future<void> _kaydet() async {
-    setState(() => _kaydediliyor = true);
+  setState(() => _kaydediliyor = true);
 
-    try {
-      final img = _profilFoto.text.trim();
-      final cover =
-          _kapakFoto.text.trim().isEmpty ? img : _kapakFoto.text.trim();
+  try {
+    final img = _profilFoto.text.trim();
+    final cover =
+        _kapakFoto.text.trim().isEmpty ? img : _kapakFoto.text.trim();
 
-      final gallery = _galeriControllers
-          .map((e) => e.text.trim())
-          .where((e) => e.isNotEmpty)
-          .toList();
+    final gallery = _galeriControllers
+        .map((e) => e.text.trim())
+        .where((e) => e.isNotEmpty)
+        .toList();
 
-      final payload = <String, dynamic>{
-        'tip': 'Usta Sefler',
-        'dukkanAdi': widget.dukkanAdi.trim(),
-        'dukkan': widget.dukkanAdi.trim(),
-        'adSoyad': _adSoyad.text.trim(),
-        'unvan': _unvan.text.trim(),
-        'bio': _bio.text.trim(),
-        'uzmanlik': _uzmanlik.text.trim(),
-        'img': img,
-        'coverImage': cover,
-        'gallery': gallery,
-        'isActive': true,
-        'aktifMi': true,
-        'onayDurumu': 'onaylandi',
-        'updatedAt': FieldValue.serverTimestamp(),
-      };
+    final user = FirebaseAuth.instance.currentUser;
+    final uid = user?.uid ?? 'demo_user';
 
-      final qs = await FirebaseFirestore.instance
-          .collection('urunler')
-          .where('tip', isEqualTo: 'Usta Sefler')
-          .where('dukkanAdi', isEqualTo: widget.dukkanAdi.trim())
-          .limit(1)
-          .get();
-final validation = await ChefValidationService.validateChefProductBeforeCreate(
-  ownerId: ownerId,
-  dukkanId: dukkanId,
-  ad: ad,
-);
+    final payload = <String, dynamic>{
+      'tip': 'Usta Sefler',
+      'dukkanAdi': widget.dukkanAdi.trim(),
+      'dukkan': widget.dukkanAdi.trim(),
+      'dukkanId': uid,
+      'ownerId': uid,
+      'adSoyad': _adSoyad.text.trim(),
+      'unvan': _unvan.text.trim(),
+      'bio': _bio.text.trim(),
+      'uzmanlik': _uzmanlik.text.trim(),
+      'img': img,
+      'coverImage': cover,
+      'gallery': gallery,
+      'isActive': true,
+      'aktifMi': true,
+      'onayDurumu': 'onaylandi',
+      'updatedAt': FieldValue.serverTimestamp(),
+    };
 
-if (!validation.ok) {
-  if (!mounted) return;
+    final qs = await FirebaseFirestore.instance
+        .collection('urunler')
+        .where('tip', isEqualTo: 'Usta Sefler')
+        .where('dukkanAdi', isEqualTo: widget.dukkanAdi.trim())
+        .limit(1)
+        .get();
 
-  ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(content: Text(validation.message)),
-  );
-  return;
-}
-      if (qs.docs.isEmpty) {
-       final validation = await ChefValidationService.validateChefProductBeforeCreate(
-  ownerId: ownerId,
-  dukkanId: dukkanId,
-  ad: ad,
-);
+    if (qs.docs.isEmpty) {
+      await ChefProfileBootstrapService.ensureChefProfile(
+        chefId: uid,
+        dukkanId: uid,
+        displayName: widget.dukkanAdi.trim(),
+        uzmanlik: _uzmanlik.text.trim(),
+        img: img,
+      );
 
-if (!validation.ok) {
-  if (!mounted) return;
+      await ChefAcademyBootstrapService.ensureAcademy(
+        chefId: uid,
+      );
 
-  ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(content: Text(validation.message)),
-  );
-  return;
-}
+      final validation =
+          await ChefValidationService.validateChefProductBeforeCreate(
+        ownerId: uid,
+        dukkanId: uid,
+        ad: widget.dukkanAdi.trim(),
+      );
 
-await FirebaseFirestore.instance.collection('urunler').add({
-          ...payload,
-          'createdAt': FieldValue.serverTimestamp(),
-        });
-      } else {
-        await qs.docs.first.reference.set(payload, SetOptions(merge: true));
+      if (!validation.ok) {
+        if (!mounted) return;
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(validation.message)),
+        );
+        return;
       }
 
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Şef profili kaydedildi.')),
-      );
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Kayıt başarısız: $e')),
-      );
-    } finally {
-      if (mounted) {
-        setState(() => _kaydediliyor = false);
-      }
+      await FirebaseFirestore.instance.collection('urunler').add({
+        ...payload,
+        'createdAt': FieldValue.serverTimestamp(),
+      });
+    } else {
+      await qs.docs.first.reference.set(payload, SetOptions(merge: true));
+    }
+
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Şef profili kaydedildi.')),
+    );
+  } catch (e) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Kayıt başarısız: $e')),
+    );
+  } finally {
+    if (mounted) {
+      setState(() => _kaydediliyor = false);
     }
   }
+}
 
   void _galeriSatiriEkle() {
     setState(() {

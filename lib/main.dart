@@ -15,7 +15,7 @@ import 'merchant/merchant_dashboard.dart';
 import 'admin/admin_dashboard.dart';
 import 'services/bildirim_service.dart';
 import 'services/dispatch_timeout_watcher.dart';
-
+import 'package:sofrasofra_arena_v2/merchant/sef_yonetim_paneli.dart';
 final ValueNotifier<String?> selectedSehir = ValueNotifier<String?>(null);
 final ValueNotifier<String?> selectedIlce = ValueNotifier<String?>(null);
 
@@ -61,7 +61,9 @@ class SofrasofraZirve extends StatelessWidget {
         scaffoldBackgroundColor: Colors.black,
         primaryColor: const Color(0xFFFFB300),
       ),
-     home: const GirisEkrani(),
+     home: SefYonetimPaneli(
+  dukkanAdi: 'Test Mutfak',
+),
     );
   }
 }
