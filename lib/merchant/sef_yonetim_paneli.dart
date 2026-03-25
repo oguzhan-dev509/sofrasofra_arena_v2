@@ -139,9 +139,37 @@ class _SefYonetimPaneliState extends State<SefYonetimPaneli> {
           .where('dukkanAdi', isEqualTo: widget.dukkanAdi.trim())
           .limit(1)
           .get();
+final validation = await ChefValidationService.validateChefProductBeforeCreate(
+  ownerId: ownerId,
+  dukkanId: dukkanId,
+  ad: ad,
+);
 
+if (!validation.ok) {
+  if (!mounted) return;
+
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(content: Text(validation.message)),
+  );
+  return;
+}
       if (qs.docs.isEmpty) {
-        await FirebaseFirestore.instance.collection('urunler').add({
+       final validation = await ChefValidationService.validateChefProductBeforeCreate(
+  ownerId: ownerId,
+  dukkanId: dukkanId,
+  ad: ad,
+);
+
+if (!validation.ok) {
+  if (!mounted) return;
+
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(content: Text(validation.message)),
+  );
+  return;
+}
+
+await FirebaseFirestore.instance.collection('urunler').add({
           ...payload,
           'createdAt': FieldValue.serverTimestamp(),
         });

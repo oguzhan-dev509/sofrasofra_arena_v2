@@ -12,7 +12,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../services/membership_plan_service.dart';
 import '../admin/uyelik_test_sayfasi.dart';
 import '../merchant/urun_ekleme_sayfasi_v2.dart';
-
+import 'package:sofrasofra_arena_v2/services/chef_validation_service.dart';
 class UrunEklemeSayfasi extends StatefulWidget {
   const UrunEklemeSayfasi({super.key});
 
@@ -361,48 +361,71 @@ class _UrunEklemeSayfasiState extends State<UrunEklemeSayfasi> {
       return;
     }
 
-    setState(() => _yukleniyor = true);
+   setState(() => _yukleniyor = true);
 
-    try {
-      final user = FirebaseAuth.instance.currentUser;
-      final uid = user?.uid ?? 'demo_user';
+try {
+  final user = FirebaseAuth.instance.currentUser;
+  final uid = user?.uid ?? 'demo_user';
 
-      String imgUrl;
-      if (_webResimVerisi != null) {
-        imgUrl = await _bulutaYukle(uid, _webResimVerisi!);
-      } else {
-        imgUrl = _seciliUrl!.trim();
-      }
+  String imgUrl;
+  if (_webResimVerisi != null) {
+    imgUrl = await _bulutaYukle(uid, _webResimVerisi!);
+  } else {
+    imgUrl = _seciliUrl!.trim();
+  }
 
-      if (!_isHttpUrl(imgUrl)) {
-        throw Exception("img URL geçersiz üretildi.");
-      }
+  if (!_isHttpUrl(imgUrl)) {
+    throw Exception("img URL geçersiz üretildi.");
+  }
 
-      await FirebaseFirestore.instance.collection('urunler').add({
-        "ad": (_tip == "Ev Lezzetleri") ? urunAdi : "",
-        "img": imgUrl,
-        "dukkan": dukkan,
-        "dukkanId": uid,
-        "sehir": _sehir,
-        "ilce": _ilce,
-        "uzmanlik": uzmanlik,
-        "youtubeUrl": videoUrl,
-        "tip": _tip,
-        "kategori": _tip == "Ev Lezzetleri" ? _kategori : _tip,
-        "bugunPisiyor": _tip == "Ev Lezzetleri" ? _bugunPisiyor : false,
-        "onayDurumu": "onaylandi",
-        "fiyat": fiyat,
-        "isActive": true,
-        "sellerMembershipType": _membershipType,
-        "sellerBadgeType": _badgeType,
-        "featuredScope": _featuredScope,
-        "isFeatured": false,
-        "featureRank": 0,
-        "photoCount": 1,
-        "listingScore": _priorityScore,
-        "kayitTarihi": FieldValue.serverTimestamp(),
-        "createdAt": FieldValue.serverTimestamp(),
-      });
+  if (_tip == "Usta Sefler") {
+    final chefDisplayName = dukkan.trim().isNotEmpty ? dukkan.trim() : urunAdi.trim();
+
+    final validation =
+        await ChefValidationService.validateChefProductBeforeCreate(
+      ownerId: uid,
+      dukkanId: uid,
+      ad: chefDisplayName,
+    );
+
+    if (!validation.ok) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(validation.message)),
+      );
+
+      setState(() => _yukleniyor = false);
+      return;
+    }
+  }
+
+  await FirebaseFirestore.instance.collection('urunler').add({
+    "ad": (_tip == "Ev Lezzetleri") ? urunAdi : "",
+    "img": imgUrl,
+    "dukkan": dukkan,
+    "dukkanId": uid,
+    "ownerId": (_tip == "Usta Sefler") ? uid : "",
+    "sehir": _sehir,
+    "ilce": _ilce,
+    "uzmanlik": uzmanlik,
+    "youtubeUrl": videoUrl,
+    "tip": _tip,
+    "kategori": _tip == "Ev Lezzetleri" ? _kategori : _tip,
+    "bugunPisiyor": _tip == "Ev Lezzetleri" ? _bugunPisiyor : false,
+    "onayDurumu": "onaylandi",
+    "fiyat": fiyat,
+    "isActive": true,
+    "sellerMembershipType": _membershipType,
+    "sellerBadgeType": _badgeType,
+    "featuredScope": _featuredScope,
+    "isFeatured": false,
+    "featureRank": 0,
+    "photoCount": 1,
+    "listingScore": _priorityScore,
+    "kayitTarihi": FieldValue.serverTimestamp(),
+    "createdAt": FieldValue.serverTimestamp(),
+  });
 
       if (!mounted) return;
 
