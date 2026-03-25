@@ -52,3 +52,4 @@ node_modules/
 scripts/serviceAccountKey.json
 sofrasofra-a3344-firebase-adminsdk-fbsvc-fe80e206a7.json
 *.zip
+ngrok*
