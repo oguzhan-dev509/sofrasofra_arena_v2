@@ -13,6 +13,7 @@ import '../services/membership_plan_service.dart';
 import '../admin/uyelik_test_sayfasi.dart';
 import '../merchant/urun_ekleme_sayfasi_v2.dart';
 import 'package:sofrasofra_arena_v2/services/chef_validation_service.dart';
+import 'package:sofrasofra_arena_v2/services/chef_profile_bootstrap_service.dart';
 class UrunEklemeSayfasi extends StatefulWidget {
   const UrunEklemeSayfasi({super.key});
 
@@ -378,27 +379,38 @@ try {
     throw Exception("img URL geçersiz üretildi.");
   }
 
-  if (_tip == "Usta Sefler") {
-    final chefDisplayName = dukkan.trim().isNotEmpty ? dukkan.trim() : urunAdi.trim();
+ if (_tip == "Usta Sefler") {
+  final chefDisplayName = dukkan.trim().isNotEmpty ? dukkan.trim() : urunAdi.trim();
 
-    final validation =
-        await ChefValidationService.validateChefProductBeforeCreate(
-      ownerId: uid,
-      dukkanId: uid,
-      ad: chefDisplayName,
+  await ChefProfileBootstrapService.ensureChefProfile(
+    chefId: uid,
+    dukkanId: uid,
+    displayName: chefDisplayName,
+    sehir: _sehir,
+    ilce: _ilce,
+    uzmanlik: uzmanlik,
+    img: imgUrl,
+    youtubeUrl: videoUrl,
+  );
+
+  final validation =
+      await ChefValidationService.validateChefProductBeforeCreate(
+    ownerId: uid,
+    dukkanId: uid,
+    ad: chefDisplayName,
+  );
+
+  if (!validation.ok) {
+    if (!mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(validation.message)),
     );
 
-    if (!validation.ok) {
-      if (!mounted) return;
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(validation.message)),
-      );
-
-      setState(() => _yukleniyor = false);
-      return;
-    }
+    setState(() => _yukleniyor = false);
+    return;
   }
+}
 
   await FirebaseFirestore.instance.collection('urunler').add({
     "ad": (_tip == "Ev Lezzetleri") ? urunAdi : "",
