@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 
 import 'firebase_options.dart';
-
+import 'package:sofrasofra_arena_v2/modules/kategori_sayfasi.dart';
 import 'modules/vitrinler/ev_lezzetleri_vitrini.dart';
 import 'modules/vitrinler/restoranlar_vitrini.dart';
 import 'modules/vitrinler/sef_vitrini_v2.dart';
@@ -61,7 +61,7 @@ class SofrasofraZirve extends StatelessWidget {
         scaffoldBackgroundColor: Colors.black,
         primaryColor: const Color(0xFFFFB300),
       ),
-      home: SefVitriniV2(),
+     home: const GirisEkrani(),
     );
   }
 }
