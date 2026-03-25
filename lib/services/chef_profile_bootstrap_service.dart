@@ -25,15 +25,27 @@ class ChefProfileBootstrapService {
       throw Exception('dukkanId boş olamaz.');
     }
 
+    if (cleanDisplayName.isEmpty) {
+      throw Exception('displayName boş olamaz.');
+    }
+
     final profileRef = _firestore.collection('chef_profiles').doc(cleanChefId);
     final profileSnap = await profileRef.get();
 
+    final now = FieldValue.serverTimestamp();
+
     if (profileSnap.exists) {
       await profileRef.set({
-        'updatedAt': FieldValue.serverTimestamp(),
+        'updatedAt': now,
+        'chefId': cleanChefId,
+        'dukkanId': cleanDukkanId,
+        'ad': cleanDisplayName,
+        'displayName': cleanDisplayName,
         if ((img ?? '').trim().isNotEmpty) 'img': img!.trim(),
-        if ((youtubeUrl ?? '').trim().isNotEmpty) 'youtubeUrl': youtubeUrl!.trim(),
-        if ((uzmanlik ?? '').trim().isNotEmpty) 'uzmanlik': uzmanlik!.trim(),
+        if ((youtubeUrl ?? '').trim().isNotEmpty)
+          'youtubeUrl': youtubeUrl!.trim(),
+        if ((uzmanlik ?? '').trim().isNotEmpty)
+          'uzmanlik': uzmanlik!.trim(),
         if ((sehir ?? '').trim().isNotEmpty) 'sehir': sehir!.trim(),
         if ((ilce ?? '').trim().isNotEmpty) 'ilce': ilce!.trim(),
       }, SetOptions(merge: true));
@@ -49,11 +61,33 @@ class ChefProfileBootstrapService {
       'sehir': (sehir ?? '').trim(),
       'ilce': (ilce ?? '').trim(),
       'img': (img ?? '').trim(),
+      'kapakFoto': (img ?? '').trim(),
       'youtubeUrl': (youtubeUrl ?? '').trim(),
+
       'biyografi': '',
+      'hakkinda': '',
+      'mutfakTarzi': '',
+      'imzaTabaklar': <String>[],
+      'galeri': <String>[],
+      'etiketler': <String>[],
+
+      'instagram': '',
+      'tiktok': '',
+      'website': '',
+
+      'puan': 0.0,
+      'yorumSayisi': 0,
+      'ogrenciSayisi': 0,
+      'satisSayisi': 0,
+      'tamamlananSiparis': 0,
+
+      'profilTamamlanmaOrani': 20,
+      'onboardingStep': 1,
+      'onboardingComplete': false,
+
       'isActive': true,
-      'createdAt': FieldValue.serverTimestamp(),
-      'updatedAt': FieldValue.serverTimestamp(),
+      'createdAt': now,
+      'updatedAt': now,
     });
   }
 }
