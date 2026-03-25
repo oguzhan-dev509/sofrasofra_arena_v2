@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "359314838510",
+    "project_id": "sofrasofra-a3344",
+    "storage_bucket": "sofrasofra-a3344.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:359314838510:android:8287daa6423a49c5eb74ff",
+        "android_client_info": {
+          "package_name": "com.example.sofrasofra_arena_v2"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAiXLPBSNu6--IbJ78vr82aIdJkRshW79s"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:359314838510:android:9dabef18a3142a59eb74ff",
+        "android_client_info": {
+          "package_name": "com.example.sofrasofra_yeni"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAiXLPBSNu6--IbJ78vr82aIdJkRshW79s"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,0 +1,52 @@
+// sehirler.dart - 40 İLİN TAM İLÇE KARŞILIĞI
+Map<String, List<String>> istanbulHiyerarsi = {
+  // --- MEVCUT DEVLER ---
+  "Adana - Çukurova": ["Merkez"], "Adana - Seyhan": ["Merkez"],
+  "Ankara - Çankaya": ["Merkez"], "Ankara - Keçiören": ["Merkez"],
+  "Antalya - Muratpaşa": ["Merkez"], "Antalya - Konyaaltı": ["Merkez"],
+  "Aydın - Efeler": ["Merkez"], "Aydın - Kuşadası": ["Merkez"],
+  "Balıkesir - Karesi": ["Merkez"], "Balıkesir - Edremit": ["Merkez"],
+  "Bursa - Osmangazi": ["Merkez"], "Bursa - Nilüfer": ["Merkez"],
+  "İstanbul - Kadıköy": ["Merkez"], "İstanbul - Beşiktaş": ["Merkez"],
+  "İzmir - Konak": ["Merkez"], "İzmir - Karşıyaka": ["Merkez"],
+
+  // --- EKSİK KALANLAR (BATMAN, BOLU VE DİĞERLERİ) ---
+  "Batman - Merkez": ["Merkez"], "Batman - Kozluk": ["Merkez"],
+  "Bolu - Merkez": ["Merkez"], "Bolu - Gerede": ["Merkez"],
+  "Çanakkale - Merkez": ["Merkez"], "Çanakkale - Biga": ["Merkez"],
+  "Denizli - Pamukkale": ["Merkez"], "Denizli - Merkezefendi": ["Merkez"],
+  "Diyarbakır - Kayapınar": ["Merkez"], "Diyarbakır - Bağlar": ["Merkez"],
+  "Elazığ - Merkez": ["Merkez"],
+  "Erzurum - Palandöken": ["Merkez"], "Erzurum - Yakutiye": ["Merkez"],
+  "Eskişehir - Odunpazarı": ["Merkez"], "Eskişehir - Tepebaşı": ["Merkez"],
+  "Gaziantep - Şahinbey": ["Merkez"], "Gaziantep - Şehitkamil": ["Merkez"],
+  "Giresun - Merkez": ["Merkez"], "Giresun - Bulancak": ["Merkez"],
+  "Hatay - Antakya": ["Merkez"], "Hatay - İskenderun": ["Merkez"],
+  "Kahramanmaraş - Onikişubat": ["Merkez"],
+  "Kahramanmaraş - Dulkadiroğlu": ["Merkez"],
+  "Kayseri - Melikgazi": ["Merkez"], "Kayseri - Kocasinan": ["Merkez"],
+  "Kocaeli - İzmit": ["Merkez"], "Kocaeli - Gebze": ["Merkez"],
+  "Konya - Selçuklu": ["Merkez"], "Konya - Meram": ["Merkez"],
+  "Kütahya - Merkez": ["Merkez"], "Kütahya - Tavşanlı": ["Merkez"],
+  "Malatya - Yeşilyurt": ["Merkez"], "Malatya - Battalgazi": ["Merkez"],
+  "Manisa - Yunusemre": ["Merkez"], "Manisa - Şehzadeler": ["Merkez"],
+  "Mardin - Artuklu": ["Merkez"], "Mardin - Kızıltepe": ["Merkez"],
+  "Mersin - Yenişehir": ["Merkez"], "Mersin - Mezitli": ["Merkez"],
+  "Muğla - Bodrum": ["Merkez"], "Muğla - Marmaris": ["Merkez"],
+  "Ordu - Altınordu": ["Merkez"], "Ordu - Ünye": ["Merkez"],
+  "Rize - Merkez": ["Merkez"], "Rize - Çayeli": ["Merkez"],
+  "Sakarya - Adapazarı": ["Merkez"], "Sakarya - Serdivan": ["Merkez"],
+  "Samsun - Atakum": ["Merkez"], "Samsun - İlkadım": ["Merkez"],
+  "Sivas - Merkez": ["Merkez"],
+  "Şanlıurfa - Haliliye": ["Merkez"], "Şanlıurfa - Eyyübiye": ["Merkez"],
+  "Tekirdağ - Süleymanpaşa": ["Merkez"], "Tekirdağ - Çorlu": ["Merkez"],
+  "Tokat - Merkez": ["Merkez"],
+  "Trabzon - Ortahisar": ["Merkez"], "Trabzon - Akçaabat": ["Merkez"],
+  "Van - İpekyolu": ["Merkez"], "Van - Edremit": ["Merkez"],
+  "Zonguldak - Merkez": ["Merkez"], "Zonguldak - Ereğli": ["Merkez"],
+};
+// lib/lokasyon_merkezi.dart içine eklenecek mahalle yapısı örneği
+Map<String, List<String>> mahalleler = {
+  "İstanbul - Küçükçekmece": ["Cennet", "Halkalı", "Sefaköy"],
+  "Ankara - Çankaya": ["Bahçelievler", "Kızılay", "Yıldız"],
+};
