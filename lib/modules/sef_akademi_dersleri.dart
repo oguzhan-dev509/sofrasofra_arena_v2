@@ -1,77 +1,65 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
-import 'course_detail_page.dart';
-import 'kurslarim_sayfasi.dart';
-
 class SefAkademiDersleri extends StatelessWidget {
   final String chefId;
+  final String chefName;
 
   const SefAkademiDersleri({
     super.key,
     required this.chefId,
+    this.chefName = 'Usta Şef',
   });
+
+  static const Color gold = Color(0xFFFFB300);
+  static const Color bg = Color(0xFF050505);
+  static const Color card = Color(0xFF121212);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF111111),
+      backgroundColor: bg,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF111111),
-        elevation: 0,
+        backgroundColor: Colors.black,
+        iconTheme: const IconThemeData(color: gold),
         title: const Text(
-          'ŞEF AKADEMİSİ',
+          "AKADEMİ DERS PROGRAMI",
           style: TextStyle(
-            color: Color(0xFFFFD54F),
+            color: gold,
+            fontSize: 13,
             fontWeight: FontWeight.bold,
+            letterSpacing: 1.1,
           ),
         ),
-        actions: [
-          IconButton(
-            tooltip: 'Kurslarım',
-            icon: const Icon(
-              Icons.play_lesson_rounded,
-              color: Color(0xFFFFD54F),
-            ),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => const KurslarimSayfasi(),
-                ),
-              );
-            },
-          ),
-        ],
       ),
       body: Column(
         children: [
           Container(
             width: double.infinity,
-            margin: const EdgeInsets.fromLTRB(16, 12, 16, 12),
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.fromLTRB(18, 16, 18, 14),
             decoration: BoxDecoration(
-              color: const Color(0xFF1A1A1A),
-              borderRadius: BorderRadius.circular(18),
-              border: Border.all(color: const Color(0x33FFD54F)),
+              color: Colors.white.withAlpha(6),
+              border: Border(
+                bottom: BorderSide(color: Colors.white.withAlpha(15)),
+              ),
             ),
-            child: const Column(
+            child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Şefin Akademi Dersleri',
-                  style: TextStyle(
-                    color: Color(0xFFFFD54F),
+                  chefName.toUpperCase(),
+                  style: const TextStyle(
+                    color: Colors.white,
                     fontSize: 18,
-                    fontWeight: FontWeight.bold,
+                    fontWeight: FontWeight.w800,
                   ),
                 ),
-                SizedBox(height: 8),
-                Text(
-                  'Satın aldığınız kurslara girerek videoları izleyebilir, içerikleri takip edebilirsiniz.',
+                const SizedBox(height: 6),
+                const Text(
+                  "Şef akademisine ait ders içerikleri aşağıda listelenir.",
                   style: TextStyle(
-                    color: Colors.white70,
-                    fontSize: 13,
+                    color: Colors.white60,
+                    fontSize: 12,
                     height: 1.4,
                   ),
                 ),
@@ -81,15 +69,13 @@ class SefAkademiDersleri extends StatelessWidget {
           Expanded(
             child: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
               stream: FirebaseFirestore.instance
-                  .collection('courses')
+                  .collection('dersler')
                   .where('chefId', isEqualTo: chefId)
                   .snapshots(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(
-                    child: CircularProgressIndicator(
-                      color: Color(0xFFFFD54F),
-                    ),
+                    child: CircularProgressIndicator(color: gold),
                   );
                 }
 
@@ -98,11 +84,11 @@ class SefAkademiDersleri extends StatelessWidget {
                     child: Padding(
                       padding: const EdgeInsets.all(24),
                       child: Text(
-                        'Kurslar yüklenirken hata oluştu.\n\n${snapshot.error}',
+                        'Dersler yüklenemedi: ${snapshot.error}',
                         textAlign: TextAlign.center,
                         style: const TextStyle(
-                          color: Colors.white70,
-                          fontSize: 14,
+                          color: Colors.white54,
+                          fontSize: 12,
                         ),
                       ),
                     ),
@@ -113,247 +99,143 @@ class SefAkademiDersleri extends StatelessWidget {
 
                 if (docs.isEmpty) {
                   return const Center(
-                    child: Padding(
-                      padding: EdgeInsets.all(24),
-                      child: Text(
-                        'Henüz yayınlanmış kurs bulunmuyor.',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          color: Colors.white70,
-                          fontSize: 15,
-                        ),
-                      ),
+                    child: Text(
+                      "Bu şef için henüz ders içeriği eklenmedi.",
+                      style: TextStyle(color: Colors.white38),
                     ),
                   );
                 }
 
-                final items = docs.map((doc) {
-                  final m = doc.data();
-
-                  final rawCreatedAt = m['createdAt'];
-                  DateTime createdAt = DateTime.fromMillisecondsSinceEpoch(0);
-                  if (rawCreatedAt is Timestamp) {
-                    createdAt = rawCreatedAt.toDate();
-                  }
-
-                  return _CourseItem(
-                    id: doc.id,
-                    title: (m['title'] ?? 'İsimsiz Eğitim').toString(),
-                    description: (m['description'] ?? '').toString(),
-                    category: (m['category'] ?? '').toString(),
-                    price: m['price'],
-                    durationMinutes: m['durationMinutes'],
-                    createdAt: createdAt,
-                    isActive: m['isActive'] == true,
-                  );
-                }).toList();
-
-                items.sort((a, b) => b.createdAt.compareTo(a.createdAt));
-
-                for (final item in items) {
-                  debugPrint('📚 COURSE => ${item.id} / ${item.title}');
-                }
-
-                final seenTitles = <String>{};
-                final uniqueItems = items.where((item) {
-                  final key = item.title.trim().toLowerCase();
-                  if (seenTitles.contains(key)) return false;
-                  seenTitles.add(key);
-                  return true;
-                }).toList();
-
-                for (final item in uniqueItems) {
-                  debugPrint('✅ UNIQUE COURSE => ${item.id} / ${item.title}');
-                }
-
                 return ListView.separated(
-                  padding: const EdgeInsets.fromLTRB(16, 4, 16, 20),
-                  itemCount: uniqueItems.length,
+                  padding: const EdgeInsets.all(16),
+                  itemCount: docs.length,
                   separatorBuilder: (_, __) => const SizedBox(height: 12),
                   itemBuilder: (context, index) {
-                    final item = uniqueItems[index];
+                    final m = docs[index].data();
 
-                    return GestureDetector(
-                      behavior: HitTestBehavior.opaque,
-                      onTap: () {
-                        debugPrint(
-                            '🟡 COURSE CARD TAPPED => ${item.id} / ${item.title}');
+                    final String baslik =
+                        (m['baslik'] ?? "İsimsiz Eğitim").toString();
+                    final String sure =
+                        (m['sure'] ?? "Süre belirtilmedi").toString();
+                    final String aciklama =
+                        (m['aciklama'] ?? "Açıklama eklenmemiş").toString();
+                    final bool ucretsiz = m['ucretsiz'] == true;
+                    final int videoSayisi =
+                        (m['videoCount'] as num?)?.toInt() ?? 0;
 
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => CourseDetailPage(
-                              courseId: item.id,
-                              title: item.title,
-                            ),
-                          ),
-                        );
-                      },
-                      child: Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF1B1B1B),
-                          borderRadius: BorderRadius.circular(18),
-                          border: Border.all(
-                            color: item.isActive
-                                ? const Color(0x33FFD54F)
-                                : const Color(0x22FFFFFF),
-                          ),
-                          boxShadow: const [
-                            BoxShadow(
-                              color: Color(0x14000000),
-                              blurRadius: 10,
-                              offset: Offset(0, 4),
-                            ),
-                          ],
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            if (item.category.isNotEmpty)
+                    return Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: card,
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: const Color(0x22FFB300)),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Container(
+                                width: 44,
+                                height: 44,
+                                decoration: BoxDecoration(
+                                  color: gold.withAlpha(22),
+                                  borderRadius: BorderRadius.circular(14),
+                                ),
+                                child: const Icon(
+                                  Icons.play_lesson_rounded,
+                                  color: gold,
+                                  size: 24,
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Text(
+                                  baslik.toUpperCase(),
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w800,
+                                    letterSpacing: 0.6,
+                                  ),
+                                ),
+                              ),
                               Container(
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 10,
                                   vertical: 6,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: const Color(0x22FFD54F),
+                                  color: ucretsiz
+                                      ? Colors.green.withAlpha(24)
+                                      : Colors.white.withAlpha(10),
                                   borderRadius: BorderRadius.circular(999),
+                                  border: Border.all(
+                                    color: ucretsiz
+                                        ? Colors.green.withAlpha(70)
+                                        : Colors.white10,
+                                  ),
                                 ),
                                 child: Text(
-                                  item.category,
-                                  style: const TextStyle(
-                                    color: Color(0xFFFFD54F),
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w600,
+                                  ucretsiz ? 'ÜCRETSİZ' : 'PREMIUM',
+                                  style: TextStyle(
+                                    color: ucretsiz
+                                        ? Colors.greenAccent
+                                        : Colors.white70,
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w700,
                                   ),
                                 ),
                               ),
-                            const SizedBox(height: 12),
-                            Text(
-                              item.title,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 17,
-                                fontWeight: FontWeight.bold,
-                                height: 1.3,
-                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 14),
+                          Text(
+                            aciklama,
+                            style: const TextStyle(
+                              color: Colors.white60,
+                              fontSize: 12,
+                              height: 1.45,
                             ),
-                            if (item.description.isNotEmpty) ...[
-                              const SizedBox(height: 8),
+                          ),
+                          const SizedBox(height: 14),
+                          Row(
+                            children: [
+                              const Icon(
+                                Icons.schedule_rounded,
+                                color: gold,
+                                size: 16,
+                              ),
+                              const SizedBox(width: 6),
                               Text(
-                                item.description,
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
+                                sure,
                                 style: const TextStyle(
                                   color: Colors.white70,
-                                  fontSize: 13,
-                                  height: 1.4,
+                                  fontSize: 11,
+                                ),
+                              ),
+                              const SizedBox(width: 16),
+                              const Icon(
+                                Icons.ondemand_video_rounded,
+                                color: gold,
+                                size: 16,
+                              ),
+                              const SizedBox(width: 6),
+                              Text(
+                                '$videoSayisi video',
+                                style: const TextStyle(
+                                  color: Colors.white70,
+                                  fontSize: 11,
                                 ),
                               ),
                             ],
-                            const SizedBox(height: 14),
-                            Wrap(
-                              spacing: 8,
-                              runSpacing: 8,
-                              children: [
-                                _InfoChip(
-                                  icon: Icons.schedule_rounded,
-                                  label: item.durationText,
-                                ),
-                                _InfoChip(
-                                  icon: Icons.payments_rounded,
-                                  label: item.priceText,
-                                ),
-                                _InfoChip(
-                                  icon: item.isActive
-                                      ? Icons.check_circle
-                                      : Icons.pause_circle,
-                                  label: item.isActive ? 'Aktif' : 'Pasif',
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
                     );
                   },
                 );
               },
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _CourseItem {
-  final String id;
-  final String title;
-  final String description;
-  final String category;
-  final dynamic price;
-  final dynamic durationMinutes;
-  final DateTime createdAt;
-  final bool isActive;
-
-  _CourseItem({
-    required this.id,
-    required this.title,
-    required this.description,
-    required this.category,
-    required this.price,
-    required this.durationMinutes,
-    required this.createdAt,
-    required this.isActive,
-  });
-
-  String get priceText {
-    if (price == null) return 'Fiyat yok';
-    return '$price TL';
-  }
-
-  String get durationText {
-    if (durationMinutes == null) return 'Süre yok';
-    return '$durationMinutes dk';
-  }
-}
-
-class _InfoChip extends StatelessWidget {
-  final IconData icon;
-  final String label;
-
-  const _InfoChip({
-    required this.icon,
-    required this.label,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-      decoration: BoxDecoration(
-        color: const Color(0xFF242424),
-        borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: const Color(0x1FFFFFFF)),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            icon,
-            size: 15,
-            color: const Color(0xFFFFD54F),
-          ),
-          const SizedBox(width: 6),
-          Text(
-            label,
-            style: const TextStyle(
-              color: Colors.white70,
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
             ),
           ),
         ],

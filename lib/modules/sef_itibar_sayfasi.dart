@@ -19,6 +19,23 @@ class SefItibarSayfasi extends StatefulWidget {
   State<SefItibarSayfasi> createState() => _SefItibarSayfasiState();
 }
 
+String _safeHttpUrlOrEmpty(String? url) {
+  final u = (url ?? '').trim();
+  if (u.startsWith('http://') || u.startsWith('https://')) return u;
+  return '';
+}
+
+Future<void> _deleteFromStorage(String url) async {
+  try {
+    if (url.trim().isEmpty) return;
+
+    final ref = FirebaseStorage.instance.refFromURL(url);
+    await ref.delete();
+  } catch (e) {
+    debugPrint('Storage silme hatası: $e');
+  }
+}
+
 class _SefItibarSayfasiState extends State<SefItibarSayfasi> {
   static const Color gold = Color(0xFFFFB300);
   static const Color bg = Color(0xFF050505);
@@ -28,6 +45,11 @@ class _SefItibarSayfasiState extends State<SefItibarSayfasi> {
   final ImagePicker _picker = ImagePicker();
   bool _busy = false;
 
+  String get _chefId => widget.dukkanId.trim();
+
+  DocumentReference<Map<String, dynamic>> get _chefProfileRef =>
+      FirebaseFirestore.instance.collection('chef_profiles').doc(_chefId);
+
   Future<Uint8List?> _pickImage() async {
     final file = await _picker.pickImage(source: ImageSource.gallery);
     if (file == null) return null;
@@ -36,11 +58,11 @@ class _SefItibarSayfasiState extends State<SefItibarSayfasi> {
 
   Future<String> _upload(Uint8List data, String path) async {
     final ref = FirebaseStorage.instance.ref().child(path);
-    final uploadTask = await ref.putData(data);
-    return uploadTask.ref.getDownloadURL();
+    final task = await ref.putData(data);
+    return task.ref.getDownloadURL();
   }
 
-  Future<void> _updateProfileImage(String docId) async {
+  Future<void> _updateProfileImage() async {
     if (_busy) return;
 
     final img = await _pickImage();
@@ -51,10 +73,13 @@ class _SefItibarSayfasiState extends State<SefItibarSayfasi> {
     try {
       final url = await _upload(
         img,
-        'usta_sefler/${widget.dukkanId}/profil_${DateTime.now().millisecondsSinceEpoch}.jpg',
+        'chef_profiles/$_chefId/profile/${DateTime.now().millisecondsSinceEpoch}.jpg',
       );
 
-      await FirebaseFirestore.instance.collection('urunler').doc(docId).set({
+      await _chefProfileRef.set({
+        'chefId': _chefId,
+        'ownerId': _chefId,
+        'dukkanId': _chefId,
         'img': url,
         'updatedAt': FieldValue.serverTimestamp(),
       }, SetOptions(merge: true));
@@ -73,13 +98,13 @@ class _SefItibarSayfasiState extends State<SefItibarSayfasi> {
     }
   }
 
-  Future<void> _removeProfileImage(String docId) async {
+  Future<void> _removeProfileImage() async {
     if (_busy) return;
 
     setState(() => _busy = true);
 
     try {
-      await FirebaseFirestore.instance.collection('urunler').doc(docId).set({
+      await _chefProfileRef.set({
         'img': '',
         'updatedAt': FieldValue.serverTimestamp(),
       }, SetOptions(merge: true));
@@ -98,7 +123,7 @@ class _SefItibarSayfasiState extends State<SefItibarSayfasi> {
     }
   }
 
-  Future<void> _addGalleryImage(String docId) async {
+  Future<void> _updateCoverImage() async {
     if (_busy) return;
 
     final img = await _pickImage();
@@ -109,10 +134,74 @@ class _SefItibarSayfasiState extends State<SefItibarSayfasi> {
     try {
       final url = await _upload(
         img,
-        'usta_sefler/${widget.dukkanId}/gallery_${DateTime.now().millisecondsSinceEpoch}.jpg',
+        'chef_profiles/$_chefId/cover/${DateTime.now().millisecondsSinceEpoch}.jpg',
       );
 
-      await FirebaseFirestore.instance.collection('urunler').doc(docId).set({
+      await _chefProfileRef.set({
+        'chefId': _chefId,
+        'ownerId': _chefId,
+        'dukkanId': _chefId,
+        'coverImage': url,
+        'updatedAt': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
+
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Kapak görseli güncellendi.')),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Kapak görseli yüklenemedi: $e')),
+      );
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  Future<void> _removeCoverImage() async {
+    if (_busy) return;
+
+    setState(() => _busy = true);
+
+    try {
+      await _chefProfileRef.set({
+        'coverImage': '',
+        'updatedAt': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
+
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Kapak görseli silindi.')),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Kapak görseli silinemedi: $e')),
+      );
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  Future<void> _addGalleryImage() async {
+    if (_busy) return;
+
+    final img = await _pickImage();
+    if (img == null) return;
+
+    setState(() => _busy = true);
+
+    try {
+      final url = await _upload(
+        img,
+        'chef_profiles/$_chefId/gallery/${DateTime.now().millisecondsSinceEpoch}.jpg',
+      );
+
+      await _chefProfileRef.set({
+        'chefId': _chefId,
+        'ownerId': _chefId,
+        'dukkanId': _chefId,
         'gallery': FieldValue.arrayUnion([url]),
         'updatedAt': FieldValue.serverTimestamp(),
       }, SetOptions(merge: true));
@@ -131,13 +220,13 @@ class _SefItibarSayfasiState extends State<SefItibarSayfasi> {
     }
   }
 
-  Future<void> _removeGalleryImage(String docId, String imageUrl) async {
+  Future<void> _removeGalleryImage(String imageUrl) async {
     if (_busy) return;
 
     setState(() => _busy = true);
 
     try {
-      await FirebaseFirestore.instance.collection('urunler').doc(docId).set({
+      await _chefProfileRef.set({
         'gallery': FieldValue.arrayRemove([imageUrl]),
         'updatedAt': FieldValue.serverTimestamp(),
       }, SetOptions(merge: true));
@@ -156,11 +245,55 @@ class _SefItibarSayfasiState extends State<SefItibarSayfasi> {
     }
   }
 
+  void _openImage(String url) {
+    final safe = _safeHttpUrlOrEmpty(url);
+    if (safe.isEmpty) return;
+
+    showDialog<void>(
+      context: context,
+      builder: (_) => Dialog(
+        backgroundColor: Colors.black,
+        insetPadding: const EdgeInsets.all(12),
+        child: Stack(
+          children: [
+            InteractiveViewer(
+              child: Image.network(
+                safe,
+                fit: BoxFit.contain,
+                errorBuilder: (_, __, ___) => const SizedBox(
+                  height: 280,
+                  child: Center(
+                    child: Icon(Icons.broken_image, color: Colors.white30),
+                  ),
+                ),
+              ),
+            ),
+            Positioned(
+              top: 10,
+              right: 10,
+              child: GestureDetector(
+                onTap: () => Navigator.pop(context),
+                child: Container(
+                  width: 36,
+                  height: 36,
+                  decoration: BoxDecoration(
+                    color: Colors.black.withAlpha(180),
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.white10),
+                  ),
+                  child: const Icon(Icons.close, color: Colors.white),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final safeDukkanId = widget.dukkanId.trim();
-
-    if (safeDukkanId.isEmpty) {
+    if (_chefId.isEmpty) {
       return const Scaffold(
         backgroundColor: bg,
         body: Center(
@@ -174,15 +307,8 @@ class _SefItibarSayfasiState extends State<SefItibarSayfasi> {
 
     return Scaffold(
       backgroundColor: bg,
-      body: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-        stream: FirebaseFirestore.instance
-            .collection('urunler')
-            .where('tip', isEqualTo: 'Usta Sefler')
-            .where('isActive', isEqualTo: true)
-            .where('onayDurumu', isEqualTo: 'onaylandi')
-            .where('dukkanId', isEqualTo: safeDukkanId)
-            .limit(1)
-            .snapshots(),
+      body: StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
+        stream: _chefProfileRef.snapshots(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(
@@ -203,44 +329,49 @@ class _SefItibarSayfasiState extends State<SefItibarSayfasi> {
             );
           }
 
-          final docs = snapshot.data?.docs ?? [];
-          if (docs.isEmpty) {
-            return const Center(
-              child: Text(
-                'Şef profili bulunamadı.',
-                style: TextStyle(color: Colors.white38),
-              ),
-            );
-          }
+          final data = snapshot.data?.data() ?? <String, dynamic>{};
 
-          final data = docs.first.data();
-          final docId = docs.first.id;
+          final bool isActive = data['isActive'] == true;
 
-          final String ad = (data['dukkan'] ?? 'Usta Şef').toString().trim();
-          final String uzman =
-              (data['uzmanlik'] ?? 'Gastronomi Uzmanı').toString().trim();
+          final String displayName =
+              (data['displayName'] ?? data['adSoyad'] ?? 'Usta Şef')
+                  .toString()
+                  .trim();
 
-          final String rawResim = (data['img'] ?? '').toString();
-          final String resim = rawResim.replaceAll(RegExp(r'\s+'), '').trim();
+          final String bio = (data['bio'] ?? '').toString().trim();
+          final String uzmanlik = (data['uzmanlik'] ?? '').toString().trim();
+          final String unvan = (data['unvan'] ?? '').toString().trim();
 
-          final List<String> gallery = List<String>.from(data['gallery'] ?? []);
+          final String subtitle = [
+            if (uzmanlik.isNotEmpty) uzmanlik,
+            if (unvan.isNotEmpty) unvan,
+          ].join(' • ').trim();
+
+          final String profileImage = (data['img'] ?? '').toString().trim();
+          final String coverImage =
+              (data['coverImage'] ?? '').toString().trim();
+
+          final List<String> gallery = (data['gallery'] is List)
+              ? List<String>.from(
+                  (data['gallery'] as List).map((e) => e.toString()),
+                )
+              : <String>[];
 
           final String puan = (data['itibar_puani'] ?? '4.9').toString();
           final String mezun = (data['mezun_sayisi'] ?? '12').toString();
           final String muhur = (data['muhur_sayisi'] ?? '24').toString();
 
-          final String hikaye = (data['hikaye'] ??
-                  '$ad, Arena’nın öne çıkan şeflerinden biridir. '
-                      '$uzman alanında güçlü birikimiyle öne çıkar.')
-              .toString()
-              .trim();
+          final String hikaye = bio.isNotEmpty
+              ? bio
+              : '$displayName, Arena’nın öne çıkan şeflerinden biridir. '
+                  '${uzmanlik.isNotEmpty ? uzmanlik : 'gastronomi'} alanında güçlü birikimiyle öne çıkar.';
 
           return CustomScrollView(
             slivers: [
               SliverAppBar(
                 backgroundColor: Colors.black,
                 pinned: true,
-                expandedHeight: 420,
+                expandedHeight: 440,
                 leading: IconButton(
                   icon: const Icon(Icons.arrow_back, color: gold),
                   onPressed: () => Navigator.pop(context),
@@ -256,12 +387,24 @@ class _SefItibarSayfasiState extends State<SefItibarSayfasi> {
                 ),
                 flexibleSpace: FlexibleSpaceBar(
                   background: _HeroHeader(
-                    imageUrl: resim,
-                    title: ad,
-                    subtitle: uzman,
+                    coverImageUrl: coverImage,
+                    profileImageUrl: profileImage,
+                    title: displayName,
+                    subtitle:
+                        subtitle.isNotEmpty ? subtitle : 'Gastronomi Uzmanı',
+                    bio: bio,
                     isAdmin: widget.isAdmin,
-                    onEdit: () => _updateProfileImage(docId),
-                    onDelete: () => _removeProfileImage(docId),
+                    isActive: isActive,
+                    onEditCover: _updateCoverImage,
+                    onDeleteCover: _removeCoverImage,
+                    onEditProfile: _updateProfileImage,
+                    onDeleteProfile: _removeProfileImage,
+                    onOpenProfile: profileImage.isNotEmpty
+                        ? () => _openImage(profileImage)
+                        : null,
+                    onOpenCover: coverImage.isNotEmpty
+                        ? () => _openImage(coverImage)
+                        : null,
                   ),
                 ),
               ),
@@ -325,7 +468,7 @@ class _SefItibarSayfasiState extends State<SefItibarSayfasi> {
                                 const Spacer(),
                                 if (widget.isAdmin)
                                   TextButton.icon(
-                                    onPressed: () => _addGalleryImage(docId),
+                                    onPressed: _busy ? null : _addGalleryImage,
                                     icon: const Icon(
                                       Icons.add_photo_alternate,
                                       color: gold,
@@ -339,7 +482,7 @@ class _SefItibarSayfasiState extends State<SefItibarSayfasi> {
                               ],
                             ),
                             const SizedBox(height: 12),
-                            _galleryGrid(docId, gallery),
+                            _galleryGrid(gallery),
                           ],
                         ),
                       ),
@@ -350,7 +493,7 @@ class _SefItibarSayfasiState extends State<SefItibarSayfasi> {
                           children: [
                             _sectionTitle('ŞEFİN İMZA TABAKLARI'),
                             const SizedBox(height: 12),
-                            _sefTabaklariListesi(safeDukkanId),
+                            _sefTabaklariListesi(_chefId),
                           ],
                         ),
                       ),
@@ -365,7 +508,7 @@ class _SefItibarSayfasiState extends State<SefItibarSayfasi> {
     );
   }
 
-  Widget _galleryGrid(String docId, List<String> gallery) {
+  Widget _galleryGrid(List<String> gallery) {
     if (gallery.isEmpty && !widget.isAdmin) {
       return Container(
         height: 120,
@@ -398,7 +541,7 @@ class _SefItibarSayfasiState extends State<SefItibarSayfasi> {
       itemBuilder: (context, index) {
         if (widget.isAdmin && index == 0) {
           return GestureDetector(
-            onTap: () => _addGalleryImage(docId),
+            onTap: _busy ? null : _addGalleryImage,
             child: Container(
               decoration: BoxDecoration(
                 color: Colors.white.withAlpha(10),
@@ -428,39 +571,42 @@ class _SefItibarSayfasiState extends State<SefItibarSayfasi> {
         final realIndex = widget.isAdmin ? index - 1 : index;
         final url = gallery[realIndex].trim();
 
-        return ClipRRect(
-          borderRadius: BorderRadius.circular(18),
-          child: Stack(
-            fit: StackFit.expand,
-            children: [
-              _NetworkImage(url: url),
-              Container(
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.white10),
-                  borderRadius: BorderRadius.circular(18),
+        return GestureDetector(
+          onTap: () => _openImage(url),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(18),
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                _NetworkImage(url: url),
+                Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.white10),
+                    borderRadius: BorderRadius.circular(18),
+                  ),
                 ),
-              ),
-              if (widget.isAdmin)
-                Positioned(
-                  top: 6,
-                  right: 6,
-                  child: GestureDetector(
-                    onTap: () => _removeGalleryImage(docId, url),
-                    child: Container(
-                      padding: const EdgeInsets.all(5),
-                      decoration: BoxDecoration(
-                        color: Colors.black.withAlpha(170),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.close,
-                        color: Colors.redAccent,
-                        size: 16,
+                if (widget.isAdmin)
+                  Positioned(
+                    top: 6,
+                    right: 6,
+                    child: GestureDetector(
+                      onTap: () => _removeGalleryImage(url),
+                      child: Container(
+                        padding: const EdgeInsets.all(5),
+                        decoration: BoxDecoration(
+                          color: Colors.black.withAlpha(170),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.close,
+                          color: Colors.redAccent,
+                          size: 16,
+                        ),
                       ),
                     ),
                   ),
-                ),
-            ],
+              ],
+            ),
           ),
         );
       },
@@ -543,38 +689,56 @@ class _SefItibarSayfasiState extends State<SefItibarSayfasi> {
 }
 
 class _HeroHeader extends StatelessWidget {
-  final String imageUrl;
+  final String coverImageUrl;
+  final String profileImageUrl;
   final String title;
   final String subtitle;
+  final String bio;
   final bool isAdmin;
-  final VoidCallback onEdit;
-  final VoidCallback onDelete;
+  final bool isActive;
+  final VoidCallback onEditCover;
+  final VoidCallback onDeleteCover;
+  final VoidCallback onEditProfile;
+  final VoidCallback onDeleteProfile;
+  final VoidCallback? onOpenProfile;
+  final VoidCallback? onOpenCover;
 
   const _HeroHeader({
-    required this.imageUrl,
+    required this.coverImageUrl,
+    required this.profileImageUrl,
     required this.title,
     required this.subtitle,
+    required this.bio,
     required this.isAdmin,
-    required this.onEdit,
-    required this.onDelete,
+    required this.isActive,
+    required this.onEditCover,
+    required this.onDeleteCover,
+    required this.onEditProfile,
+    required this.onDeleteProfile,
+    this.onOpenProfile,
+    this.onOpenCover,
   });
 
   @override
   Widget build(BuildContext context) {
-    final safe = _safeHttpUrlOrEmpty(imageUrl);
+    final safeCover = _safeHttpUrlOrEmpty(coverImageUrl);
+    final safeProfile = _safeHttpUrlOrEmpty(profileImageUrl);
 
     return Stack(
       fit: StackFit.expand,
       children: [
-        safe.isEmpty
-            ? Container(color: const Color(0xFF111111))
-            : Image.network(
-                safe,
-                fit: BoxFit.cover,
-                alignment: const Alignment(0, -0.15),
-                errorBuilder: (_, __, ___) =>
-                    Container(color: const Color(0xFF111111)),
-              ),
+        GestureDetector(
+          onTap: onOpenCover,
+          child: safeCover.isEmpty
+              ? Container(color: const Color(0xFF111111))
+              : Image.network(
+                  safeCover,
+                  fit: BoxFit.cover,
+                  alignment: const Alignment(0, -0.15),
+                  errorBuilder: (_, __, ___) =>
+                      Container(color: const Color(0xFF111111)),
+                ),
+        ),
         Container(
           decoration: const BoxDecoration(
             gradient: LinearGradient(
@@ -593,40 +757,95 @@ class _HeroHeader extends StatelessWidget {
         Positioned(
           left: 20,
           top: 18,
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
-            decoration: BoxDecoration(
-              color: Colors.black.withAlpha(120),
-              borderRadius: BorderRadius.circular(999),
-              border: Border.all(color: Colors.white10),
-            ),
-            child: const Text(
-              'SOFRASOFRA ELİT GASTRONOMİ ARENA',
-              style: TextStyle(
-                color: Color(0xFFFFD166),
-                fontSize: 10,
-                fontWeight: FontWeight.w700,
-                letterSpacing: 1.1,
+          child: Row(
+            children: [
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+                decoration: BoxDecoration(
+                  color: Colors.black.withAlpha(120),
+                  borderRadius: BorderRadius.circular(999),
+                  border: Border.all(color: Colors.white10),
+                ),
+                child: const Text(
+                  'SOFRASOFRA ELİT GASTRONOMİ ARENA',
+                  style: TextStyle(
+                    color: Color(0xFFFFD166),
+                    fontSize: 10,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 1.1,
+                  ),
+                ),
               ),
-            ),
+              const SizedBox(width: 8),
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+                decoration: BoxDecoration(
+                  color: isActive
+                      ? const Color(0x3300C853)
+                      : const Color(0x33FF5252),
+                  borderRadius: BorderRadius.circular(999),
+                  border: Border.all(
+                    color: isActive
+                        ? const Color(0x6600E676)
+                        : const Color(0x66FF6E6E),
+                  ),
+                ),
+                child: Text(
+                  isActive ? 'AKTİF' : 'PASİF',
+                  style: TextStyle(
+                    color: isActive
+                        ? const Color(0xFFB9F6CA)
+                        : const Color(0xFFFFCDD2),
+                    fontSize: 10,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 1,
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
         if (isAdmin)
           Positioned(
             top: 18,
             right: 18,
-            child: Row(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                _AdminCircleButton(
-                  icon: Icons.delete,
-                  color: Colors.redAccent,
-                  onTap: onDelete,
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    _AdminCircleButton(
+                      icon: Icons.delete_outline,
+                      color: Colors.redAccent,
+                      onTap: onDeleteCover,
+                    ),
+                    const SizedBox(width: 10),
+                    _AdminCircleButton(
+                      icon: Icons.landscape,
+                      color: const Color(0xFFFFB300),
+                      onTap: onEditCover,
+                    ),
+                  ],
                 ),
-                const SizedBox(width: 10),
-                _AdminCircleButton(
-                  icon: Icons.add_a_photo,
-                  color: const Color(0xFFFFB300),
-                  onTap: onEdit,
+                const SizedBox(height: 10),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    _AdminCircleButton(
+                      icon: Icons.person_remove_alt_1,
+                      color: Colors.redAccent,
+                      onTap: onDeleteProfile,
+                    ),
+                    const SizedBox(width: 10),
+                    _AdminCircleButton(
+                      icon: Icons.add_a_photo,
+                      color: const Color(0xFFFFB300),
+                      onTap: onEditProfile,
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -642,29 +861,87 @@ class _HeroHeader extends StatelessWidget {
               borderRadius: BorderRadius.circular(20),
               border: Border.all(color: Colors.white10),
             ),
-            child: Column(
+            child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  title,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 28,
-                    fontWeight: FontWeight.w900,
-                    height: 1.04,
+                GestureDetector(
+                  onTap: onOpenProfile,
+                  child: Container(
+                    width: 84,
+                    height: 84,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: const Color(0x55FFFFFF),
+                        width: 2,
+                      ),
+                    ),
+                    child: ClipOval(
+                      child: safeProfile.isEmpty
+                          ? Container(
+                              color: const Color(0xFF1C1C1C),
+                              child: const Icon(
+                                Icons.person,
+                                color: Colors.white38,
+                                size: 34,
+                              ),
+                            )
+                          : Image.network(
+                              safeProfile,
+                              fit: BoxFit.cover,
+                              errorBuilder: (_, __, ___) => Container(
+                                color: const Color(0xFF1C1C1C),
+                                child: const Icon(
+                                  Icons.person,
+                                  color: Colors.white38,
+                                  size: 34,
+                                ),
+                              ),
+                            ),
+                    ),
                   ),
                 ),
-                const SizedBox(height: 8),
-                Text(
-                  subtitle,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    color: Colors.white70,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 26,
+                          fontWeight: FontWeight.w900,
+                          height: 1.04,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        subtitle,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          color: Colors.white70,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      if (bio.trim().isNotEmpty) ...[
+                        const SizedBox(height: 10),
+                        Text(
+                          bio,
+                          maxLines: 3,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            color: Colors.white60,
+                            fontSize: 12,
+                            height: 1.45,
+                          ),
+                        ),
+                      ],
+                    ],
                   ),
                 ),
               ],
@@ -673,12 +950,6 @@ class _HeroHeader extends StatelessWidget {
         ),
       ],
     );
-  }
-
-  String _safeHttpUrlOrEmpty(String url) {
-    final u = url.trim();
-    if (u.startsWith('http://') || u.startsWith('https://')) return u;
-    return '';
   }
 }
 
@@ -942,11 +1213,5 @@ class _NetworkImage extends StatelessWidget {
         );
       },
     );
-  }
-
-  String _safeHttpUrlOrEmpty(String url) {
-    final u = url.trim();
-    if (u.startsWith('http://') || u.startsWith('https://')) return u;
-    return '';
   }
 }

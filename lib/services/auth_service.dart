@@ -1,19 +1,16 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 
 class AuthService {
-  static final FirebaseAuth _auth = FirebaseAuth.instance;
+  static Future<void> signInAnonymously() async {
+    final auth = FirebaseAuth.instance;
 
-  static Future<User?> signInAnonymously() async {
-    try {
-      final result = await _auth.signInAnonymously();
-      return result.user;
-    } catch (e) {
-      print('Auth hata: $e');
-      return null;
+    if (auth.currentUser != null) {
+      debugPrint('✅ Mevcut kullanıcı: ${auth.currentUser!.uid}');
+      return;
     }
-  }
 
-  static String? get currentUserId {
-    return _auth.currentUser?.uid;
+    final cred = await auth.signInAnonymously();
+    debugPrint('🆕 Yeni anonim kullanıcı: ${cred.user?.uid}');
   }
 }

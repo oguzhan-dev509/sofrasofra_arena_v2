@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:sofrasofra_arena_v2/services/uploads/chef_image_upload_service.dart';
+import 'package:sofrasofra_arena_v2/services/chef_validation_service.dart';
 
 class UstaSefAdminSayfasi extends StatefulWidget {
   const UstaSefAdminSayfasi({super.key});
@@ -45,10 +45,6 @@ class _UstaSefAdminSayfasiState extends State<UstaSefAdminSayfasi>
 
   bool _savingChef = false;
   bool _savingLesson = false;
-  bool _uploadingProfile = false;
-  bool _uploadingGallery = false;
-
-  final ChefImageUploadService _uploadService = createChefImageUploadService();
 
   @override
   void initState() {
@@ -109,16 +105,6 @@ class _UstaSefAdminSayfasiState extends State<UstaSefAdminSayfasi>
     return out;
   }
 
-  String _resolvedChefId() {
-    final typedId = _safe(_chefIdController.text);
-    if (typedId.isNotEmpty) return typedId;
-
-    final name = _safe(_chefNameController.text);
-    if (name.isNotEmpty) return _slugifyChefId(name);
-
-    return 'chef_temp';
-  }
-
   List<String> _parseGallery(String raw) {
     return raw
         .split('\n')
@@ -127,148 +113,8 @@ class _UstaSefAdminSayfasiState extends State<UstaSefAdminSayfasi>
         .toList();
   }
 
-  void _appendGalleryUrl(String url) {
-    final current = _parseGallery(_galleryController.text);
-    if (!current.contains(url)) {
-      current.add(url);
-      _galleryController.text = current.join('\n');
-    }
-  }
-
   double _parseRating(String raw) {
     return double.tryParse(raw.replaceAll(',', '.')) ?? 5.0;
-  }
-
-  Future<void> _pickAndUploadProfileImage() async {
-    if (_uploadingProfile) return;
-
-    setState(() => _uploadingProfile = true);
-
-    try {
-      final result = await _uploadService.pickAndUpload(
-        chefId: _resolvedChefId(),
-        folderName: 'profile',
-      );
-
-      if (result == null) return;
-
-      _profileImageController.text = result.downloadUrl;
-
-      if (!mounted) return;
-      setState(() {});
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Profil görseli yüklendi')),
-      );
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Profil görseli yüklenemedi: $e')),
-      );
-    } finally {
-      if (mounted) {
-        setState(() => _uploadingProfile = false);
-      }
-    }
-  }
-
-  Future<void> _pickAndUploadGalleryImage() async {
-    if (_uploadingGallery) return;
-
-    setState(() => _uploadingGallery = true);
-
-    try {
-      final result = await _uploadService.pickAndUpload(
-        chefId: _resolvedChefId(),
-        folderName: 'gallery',
-      );
-
-      if (result == null) return;
-
-      _appendGalleryUrl(result.downloadUrl);
-
-      if (!mounted) return;
-      setState(() {});
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Galeri görseli yüklendi')),
-      );
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Galeri görseli yüklenemedi: $e')),
-      );
-    } finally {
-      if (mounted) {
-        setState(() => _uploadingGallery = false);
-      }
-    }
-  }
-
-  Widget _buildProfilePreview() {
-    final url = _safe(_profileImageController.text);
-    if (url.isEmpty) return const SizedBox.shrink();
-
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(12),
-        child: Image.network(
-          url,
-          height: 180,
-          width: double.infinity,
-          fit: BoxFit.cover,
-          errorBuilder: (_, __, ___) => Container(
-            height: 180,
-            width: double.infinity,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.05),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.white10),
-            ),
-            child: const Text(
-              'Profil görseli önizlenemedi',
-              style: TextStyle(color: Colors.white54),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildGalleryPreview() {
-    final gallery = _parseGallery(_galleryController.text);
-    if (gallery.isEmpty) return const SizedBox.shrink();
-
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      child: Wrap(
-        spacing: 10,
-        runSpacing: 10,
-        children: gallery.map((url) {
-          return ClipRRect(
-            borderRadius: BorderRadius.circular(10),
-            child: Image.network(
-              url,
-              height: 92,
-              width: 92,
-              fit: BoxFit.cover,
-              errorBuilder: (_, __, ___) => Container(
-                height: 92,
-                width: 92,
-                alignment: Alignment.center,
-                color: Colors.white.withOpacity(0.05),
-                child: const Icon(
-                  Icons.broken_image_outlined,
-                  color: Colors.white38,
-                ),
-              ),
-            ),
-          );
-        }).toList(),
-      ),
-    );
   }
 
   Future<void> _saveChef() async {
@@ -485,64 +331,12 @@ class _UstaSefAdminSayfasiState extends State<UstaSefAdminSayfasi>
                   controller: _profileImageController,
                   label: 'Profil Görsel URL',
                 ),
-                SizedBox(
-                  width: double.infinity,
-                  child: OutlinedButton.icon(
-                    onPressed:
-                        _uploadingProfile ? null : _pickAndUploadProfileImage,
-                    icon: _uploadingProfile
-                        ? const SizedBox(
-                            width: 16,
-                            height: 16,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
-                        : const Icon(Icons.upload_file),
-                    label: Text(
-                      _uploadingProfile
-                          ? 'Profil Görseli Yükleniyor...'
-                          : 'Profil Görseli Seç ve Yükle',
-                    ),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: _gold,
-                      side: const BorderSide(color: _gold),
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                _buildProfilePreview(),
                 _field(
                   controller: _galleryController,
                   label: 'Galeri URL Listesi',
                   hint: 'Her satıra 1 URL',
                   maxLines: 4,
                 ),
-                SizedBox(
-                  width: double.infinity,
-                  child: OutlinedButton.icon(
-                    onPressed:
-                        _uploadingGallery ? null : _pickAndUploadGalleryImage,
-                    icon: _uploadingGallery
-                        ? const SizedBox(
-                            width: 16,
-                            height: 16,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
-                        : const Icon(Icons.photo_library_outlined),
-                    label: Text(
-                      _uploadingGallery
-                          ? 'Galeri Görseli Yükleniyor...'
-                          : 'Galeri Görseli Seç ve Yükle',
-                    ),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: _gold,
-                      side: const BorderSide(color: _gold),
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                _buildGalleryPreview(),
                 SwitchListTile(
                   value: _academyEnabled,
                   onChanged: (v) => setState(() => _academyEnabled = v),
@@ -808,7 +602,7 @@ class _SefTemizlikPaneliState extends State<SefTemizlikPaneli> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
-            'ŞEF TEMİZLİK PANELİ',
+            "ŞEF TEMİZLİK PANELİ",
             style: TextStyle(
               color: Colors.amber,
               fontSize: 18,
@@ -820,12 +614,12 @@ class _SefTemizlikPaneliState extends State<SefTemizlikPaneli> {
             children: [
               ElevatedButton(
                 onPressed: hataliSefleriGetir,
-                child: const Text('Hatalı Şefleri Tara'),
+                child: const Text("Hatalı Şefleri Tara"),
               ),
               const SizedBox(width: 10),
               ElevatedButton(
                 onPressed: hataliDocs.isEmpty ? null : topluPasifYap,
-                child: const Text('Toplu Pasife Al'),
+                child: const Text("Toplu Pasife Al"),
               ),
             ],
           ),
@@ -833,7 +627,7 @@ class _SefTemizlikPaneliState extends State<SefTemizlikPaneli> {
           if (loading) const Center(child: CircularProgressIndicator()),
           if (!loading)
             Text(
-              'Bulunan hatalı şef: ${hataliDocs.length}',
+              "Bulunan hatalı şef: ${hataliDocs.length}",
               style: const TextStyle(color: Colors.white70),
             ),
           const SizedBox(height: 10),
