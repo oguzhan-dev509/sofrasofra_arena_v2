@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:sofrasofra_arena_v2/modules/sef_akademi_dersleri.dart';
 
 class SefItibarSayfasi extends StatefulWidget {
   final String dukkanId;
@@ -424,6 +425,182 @@ class _SefItibarSayfasiState extends State<SefItibarSayfasi> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
+                            _sectionTitle('DASHBOARD HIZLI GEÇİŞ'),
+                            const SizedBox(height: 12),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: InkWell(
+                                    borderRadius: BorderRadius.circular(18),
+                                    onTap: () {},
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        vertical: 16,
+                                        horizontal: 10,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: Colors.white.withAlpha(8),
+                                        borderRadius: BorderRadius.circular(18),
+                                        border:
+                                            Border.all(color: Colors.white10),
+                                      ),
+                                      child: const Column(
+                                        children: [
+                                          Icon(
+                                            Icons.verified_outlined,
+                                            color: gold,
+                                            size: 22,
+                                          ),
+                                          SizedBox(height: 8),
+                                          Text(
+                                            'İTİBAR',
+                                            textAlign: TextAlign.center,
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 10,
+                                              fontWeight: FontWeight.w800,
+                                              letterSpacing: 0.8,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 10),
+                                Expanded(
+                                  child: InkWell(
+                                    borderRadius: BorderRadius.circular(18),
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (_) => SefAkademiDersleri(
+                                            chefId: _chefId,
+                                            chefName: displayName,
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        vertical: 16,
+                                        horizontal: 10,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: Colors.white.withAlpha(8),
+                                        borderRadius: BorderRadius.circular(18),
+                                        border:
+                                            Border.all(color: Colors.white10),
+                                      ),
+                                      child: const Column(
+                                        children: [
+                                          Icon(
+                                            Icons.school_outlined,
+                                            color: gold,
+                                            size: 22,
+                                          ),
+                                          SizedBox(height: 8),
+                                          Text(
+                                            'AKADEMİ',
+                                            textAlign: TextAlign.center,
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 10,
+                                              fontWeight: FontWeight.w800,
+                                              letterSpacing: 0.8,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 10),
+                                Expanded(
+                                  child: InkWell(
+                                    borderRadius: BorderRadius.circular(18),
+                                    onTap: () {},
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        vertical: 16,
+                                        horizontal: 10,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: Colors.white.withAlpha(8),
+                                        borderRadius: BorderRadius.circular(18),
+                                        border:
+                                            Border.all(color: Colors.white10),
+                                      ),
+                                      child: const Column(
+                                        children: [
+                                          Icon(
+                                            Icons.event_seat_outlined,
+                                            color: gold,
+                                            size: 22,
+                                          ),
+                                          SizedBox(height: 8),
+                                          Text(
+                                            'REZERVASYON',
+                                            textAlign: TextAlign.center,
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 10,
+                                              fontWeight: FontWeight.w800,
+                                              letterSpacing: 0.8,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 18),
+                      _chefLiveStatusCard(_chefId),
+                      const SizedBox(height: 18),
+                      _SectionCard(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _sectionTitle('HIZLI ERİŞİM'),
+                            const SizedBox(height: 12),
+                            Wrap(
+                              spacing: 8,
+                              runSpacing: 8,
+                              children: [
+                                InkWell(
+                                  borderRadius: BorderRadius.circular(999),
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (_) => SefAkademiDersleri(
+                                          chefId: _chefId,
+                                          chefName: displayName,
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                  child: const _ChipLabel('Şef Akademisi'),
+                                ),
+                                const _ChipLabel('İmza Mutfağı'),
+                                const _ChipLabel('Şefin Masası'),
+                                const _ChipLabel('Catering'),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 18),
+                      _SectionCard(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
                             _sectionTitle('AKADEMİ MÜFREDATI'),
                             const SizedBox(height: 14),
                             Wrap(
@@ -462,25 +639,7 @@ class _SefItibarSayfasiState extends State<SefItibarSayfasi> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Row(
-                              children: [
-                                _sectionTitle('ŞEF GALERİSİ'),
-                                const Spacer(),
-                                if (widget.isAdmin)
-                                  TextButton.icon(
-                                    onPressed: _busy ? null : _addGalleryImage,
-                                    icon: const Icon(
-                                      Icons.add_photo_alternate,
-                                      color: gold,
-                                      size: 18,
-                                    ),
-                                    label: const Text(
-                                      'Fotoğraf Ekle',
-                                      style: TextStyle(color: gold),
-                                    ),
-                                  ),
-                              ],
-                            ),
+                            _sectionTitle('GALERİ'),
                             const SizedBox(height: 12),
                             _galleryGrid(gallery),
                           ],
@@ -669,6 +828,120 @@ class _SefItibarSayfasiState extends State<SefItibarSayfasi> {
                 url: (yemek['img'] ?? '').toString(),
               );
             },
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _chefLiveStatusCard(String chefId) {
+    return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+      stream: FirebaseFirestore.instance
+          .collection('chef_table_reservations')
+          .where('chefId', isEqualTo: chefId)
+          .orderBy('createdAt', descending: true)
+          .limit(1)
+          .snapshots(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const _SectionCard(
+            child: SizedBox(
+              height: 96,
+              child: Center(
+                child: CircularProgressIndicator(color: gold),
+              ),
+            ),
+          );
+        }
+
+        if (snapshot.hasError) {
+          return const _SectionCard(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'CANLI DURUM',
+                  style: TextStyle(
+                    color: gold,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 1.6,
+                  ),
+                ),
+                SizedBox(height: 12),
+                Text(
+                  'Son aktivite yüklenemedi.',
+                  style: TextStyle(color: Colors.white54, fontSize: 12),
+                ),
+              ],
+            ),
+          );
+        }
+
+        final docs = snapshot.data?.docs ?? [];
+
+        if (docs.isEmpty) {
+          return const _SectionCard(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'CANLI DURUM',
+                  style: TextStyle(
+                    color: gold,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 1.6,
+                  ),
+                ),
+                SizedBox(height: 12),
+                Text(
+                  'Henüz rezervasyon aktivitesi bulunmuyor.',
+                  style: TextStyle(color: Colors.white54, fontSize: 12),
+                ),
+              ],
+            ),
+          );
+        }
+
+        final data = docs.first.data();
+        final tableTitle = (data['tableTitle'] ?? 'Rezervasyon').toString();
+        final flowStatus =
+            (data['reservationFlowStatus'] ?? 'bilinmiyor').toString();
+        final paymentStatus =
+            (data['paymentStatus'] ?? 'bilinmiyor').toString();
+        final guestCount = (data['guestCount'] ?? '-').toString();
+
+        return _SectionCard(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _sectionTitle('CANLI DURUM'),
+              const SizedBox(height: 12),
+              Text(
+                tableTitle,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 15,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Akış: $flowStatus',
+                style: const TextStyle(color: Colors.white70, fontSize: 12),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                'Ödeme: $paymentStatus',
+                style: const TextStyle(color: Colors.white70, fontSize: 12),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                'Kişi sayısı: $guestCount',
+                style: const TextStyle(color: Colors.white70, fontSize: 12),
+              ),
+            ],
           ),
         );
       },

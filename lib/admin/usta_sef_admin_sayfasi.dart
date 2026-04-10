@@ -1,9 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:sofrasofra_arena_v2/services/chef_validation_service.dart';
+import 'package:sofrasofra_arena_v2/admin/chef_profile_admin_page.dart';
 
 class UstaSefAdminSayfasi extends StatefulWidget {
-  const UstaSefAdminSayfasi({super.key});
+  final String chefId;
+
+  const UstaSefAdminSayfasi({
+    super.key,
+    required this.chefId,
+  });
 
   @override
   State<UstaSefAdminSayfasi> createState() => _UstaSefAdminSayfasiState();
@@ -124,9 +130,12 @@ class _UstaSefAdminSayfasiState extends State<UstaSefAdminSayfasi>
 
     try {
       final name = _safe(_chefNameController.text);
-      final chefId = _chefIdController.text.trim().isEmpty
-          ? _slugifyChefId(name)
-          : _safe(_chefIdController.text);
+      final existingChefId = _safe(_chefIdController.text);
+
+      final chefId =
+          existingChefId.isNotEmpty ? existingChefId : _slugifyChefId(name);
+
+      print('🔥 SAVE CHEF ID: $chefId');
 
       final payload = <String, dynamic>{
         'id': chefId,
@@ -178,19 +187,37 @@ class _UstaSefAdminSayfasiState extends State<UstaSefAdminSayfasi>
     setState(() => _savingLesson = true);
 
     try {
-      final chefId = _safe(_lessonChefIdController.text);
+      final chefId = _safe(_chefIdController.text);
+
+      print('🔥 SAVE LESSON CHEF ID: $chefId');
+
+      if (chefId.isEmpty) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Önce şef kaydedilmeli.')),
+        );
+        setState(() => _savingLesson = false);
+        return;
+      }
 
       final payload = <String, dynamic>{
         'chefId': chefId,
-        'title': _safe(_lessonTitleController.text),
-        'duration': _safe(_lessonDurationController.text),
-        'category': _safe(_lessonCategoryController.text),
-        'level': _safe(_lessonLevelController.text),
-        'price': _safe(_lessonPriceController.text),
-        'isLocked': _lessonLocked,
+        'baslik': _safe(_lessonTitleController.text),
+        'sure': _safe(_lessonDurationController.text),
+        'aciklama': _safe(_lessonCategoryController.text),
+        'ucretsiz': !_lessonLocked,
+        'videoCount': int.tryParse(_safe(_lessonPriceController.text)) ?? 0,
         'createdAt': FieldValue.serverTimestamp(),
         'updatedAt': FieldValue.serverTimestamp(),
       };
+      if (chefId.isEmpty) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Önce şef kaydedilmeli.')),
+        );
+        setState(() => _savingLesson = false);
+        return;
+      }
 
       await FirebaseFirestore.instance.collection('dersler').add(payload);
 
@@ -286,6 +313,46 @@ class _UstaSefAdminSayfasiState extends State<UstaSefAdminSayfasi>
                     color: _gold,
                     fontWeight: FontWeight.bold,
                     fontSize: 16,
+                  ),
+                ),
+                _sectionCard(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Premium Şef Profili',
+                        style: TextStyle(
+                          color: _gold,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      const Text(
+                        'Headline, uzmanlıklar, metrikler ve profil görsellerini düzenlemek için admin ekranını aç.',
+                        style: TextStyle(
+                          color: Colors.white70,
+                          height: 1.5,
+                        ),
+                      ),
+                      const SizedBox(height: 14),
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => ChefProfileAdminPage(
+                                  chefId: widget.chefId,
+                                ),
+                              ),
+                            );
+                          },
+                          child: const Text('Şef Profili (Premium) Aç'),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
                 const SizedBox(height: 12),

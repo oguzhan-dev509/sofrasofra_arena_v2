@@ -12,9 +12,18 @@ import '../../orders/musteri_siparis_takip_sayfasi.dart';
 import 'package:sofrasofra_arena_v2/modules/vitrinler/ev_lezzetleri_helpers.dart';
 import 'package:sofrasofra_arena_v2/modules/kurye_basvuru_formu.dart';
 import '../../merchant/merchant_merkez.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:sofrasofra_arena_v2/merchant/ev_orders_sayfasi.dart';
 
 class EvLezzetleriVitrini extends StatefulWidget {
-  const EvLezzetleriVitrini({super.key});
+  final String city;
+  final String district;
+
+  const EvLezzetleriVitrini({
+    super.key,
+    required this.city,
+    required this.district,
+  });
 
   @override
   State<EvLezzetleriVitrini> createState() => _EvLezzetleriVitriniState();
@@ -41,6 +50,53 @@ class _EvLezzetleriVitriniState extends State<EvLezzetleriVitrini> {
         .where('tip', isEqualTo: 'Ev Lezzetleri')
         .where('onayDurumu', isEqualTo: 'onaylandi')
         .where('isActive', isEqualTo: true);
+  }
+
+  String _normalizeText(dynamic value) {
+    return (value ?? '')
+        .toString()
+        .trim()
+        .toLowerCase()
+        .replaceAll('ı', 'i')
+        .replaceAll('İ', 'i')
+        .replaceAll('ş', 's')
+        .replaceAll('Ş', 's')
+        .replaceAll('ğ', 'g')
+        .replaceAll('Ğ', 'g')
+        .replaceAll('ü', 'u')
+        .replaceAll('Ü', 'u')
+        .replaceAll('ö', 'o')
+        .replaceAll('Ö', 'o')
+        .replaceAll('ç', 'c')
+        .replaceAll('Ç', 'c');
+  }
+
+  bool _matchesLocation(Map<String, dynamic> data) {
+    final selectedCity = _normalizeText(widget.city);
+    final selectedDistrict = _normalizeText(widget.district);
+
+    final dataCity = _normalizeText(
+      data['sehir'] ?? data['city'] ?? data['il'] ?? data['province'],
+    );
+
+    final dataDistrict = _normalizeText(
+      data['ilce'] ?? data['district'] ?? data['ilçe'] ?? data['bolge'],
+    );
+
+    if (selectedCity.isEmpty) return true;
+
+    final cityMatches = dataCity.isEmpty || dataCity == selectedCity;
+    if (!cityMatches) return false;
+
+    if (selectedDistrict.isEmpty || selectedDistrict == 'tumu') {
+      return true;
+    }
+
+    if (dataDistrict.isEmpty) {
+      return true;
+    }
+
+    return dataDistrict == selectedDistrict;
   }
 
   bool _isValidProduct(Map<String, dynamic> data) {
@@ -324,6 +380,205 @@ class _EvLezzetleriVitriniState extends State<EvLezzetleriVitrini> {
     );
   }
 
+  Future<void> _showOrderActionSheet(
+    BuildContext context,
+    QueryDocumentSnapshot<Map<String, dynamic>> doc,
+  ) async {
+    final data = doc.data();
+
+    final String ad = _safeText(
+      data['ad'] ?? data['urunAdi'] ?? data['yemekAdi'],
+    );
+
+    final dynamic fiyatRaw = data['fiyat'] ?? data['gelAlFiyat'];
+    final double fiyat = _readPrice(fiyatRaw);
+    final String fiyatText =
+        fiyat <= 0 ? 'Fiyat belirtilmemiş' : '${fiyat.toStringAsFixed(0)} ₺';
+
+    await showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: const Color(0xFF1A1A1A),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (sheetContext) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 18, 20, 20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  ad,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  fiyatText,
+                  style: const TextStyle(
+                    color: _gold,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: 18),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    onPressed: () async {
+                      Navigator.pop(sheetContext);
+                      await _addToCart(context, doc);
+                    },
+                    icon: const Icon(Icons.shopping_cart_outlined),
+                    label: const Text('Sepete Ekle'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: _gold,
+                      foregroundColor: Colors.black,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton.icon(
+                    onPressed: () async {
+                      Navigator.pop(sheetContext);
+                      await _createDirectOrder(context, doc);
+                    },
+                    icon: const Icon(Icons.flash_on_rounded),
+                    label: const Text('Hemen Sipariş'),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: _gold,
+                      side: const BorderSide(color: Color(0x66FFB300)),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _createDirectOrder(
+    BuildContext context,
+    QueryDocumentSnapshot<Map<String, dynamic>> doc,
+  ) async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Önce kullanıcı oturumu hazırlanmalı.'),
+            backgroundColor: Colors.redAccent,
+          ),
+        );
+        return;
+      }
+
+      final data = doc.data();
+
+      final String urunAdi = _safeText(
+        data['ad'] ?? data['urunAdi'] ?? data['yemekAdi'],
+      );
+
+      final String dukkanAdi = _safeText(
+        data['dukkan'] ?? data['dukkanAdi'] ?? data['satici'],
+      );
+
+      final String sehir = _safeText(data['sehir']);
+      final String ilce = _safeText(data['ilce']);
+
+      final String img = _safeText(
+        data['img'] ?? data['imgUrl'] ?? data['resim'],
+      );
+
+      final String category = _mapCategory(data);
+      final double birimFiyat = _readPrice(data['fiyat'] ?? data['gelAlFiyat']);
+      final int adet = 1;
+      final double toplamFiyat = birimFiyat * adet;
+
+      final String sellerId = _safeText(
+        data['sellerId'] ??
+            data['ownerId'] ??
+            data['dukkanId'] ??
+            data['merchantId'],
+      );
+
+      final orderRef = FirebaseFirestore.instance.collection('ev_orders').doc();
+
+      await orderRef.set({
+        'orderType': 'ev_lezzetleri',
+        'orderStatus': 'pending_vendor_approval',
+        'paymentStatus': 'cash_on_delivery',
+        'deliveryStatus': 'awaiting_assignment',
+        'source': 'vitrin_direct_order',
+        'userId': user.uid,
+        'sellerId': sellerId,
+        'sellerName': dukkanAdi,
+        'city': sehir,
+        'district': ilce,
+        'totalPrice': toplamFiyat,
+        'itemCount': 1,
+        'note': '',
+        'createdAt': FieldValue.serverTimestamp(),
+        'updatedAt': FieldValue.serverTimestamp(),
+        'items': [
+          {
+            'productId': doc.id,
+            'title': urunAdi,
+            'category': category,
+            'imageUrl': img,
+            'unitPrice': birimFiyat,
+            'quantity': adet,
+            'totalPrice': toplamFiyat,
+          }
+        ],
+      });
+
+      if (!context.mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('$urunAdi için sipariş oluşturuldu.'),
+          backgroundColor: _gold,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+
+      // Navigator.push(
+      // context,
+      // MaterialPageRoute(
+      // builder: (_) => const MusteriSiparisTakipSayfasi(),
+      //),
+      //);
+    } catch (e) {
+      if (!context.mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Sipariş oluşturulamadı: $e'),
+          backgroundColor: Colors.redAccent,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
+  }
+
   Widget _buildHorizontalSection({
     required BuildContext context,
     required String title,
@@ -392,7 +647,7 @@ class _EvLezzetleriVitriniState extends State<EvLezzetleriVitrini> {
                     ? 'none'
                     : _safeText(data['sellerBadgeType']),
                 onTap: () => _openDetail(context, doc),
-                onAddToCart: () => _addToCart(context, doc),
+                onAddToCart: () => _showOrderActionSheet(context, doc),
               );
             },
           ),
@@ -460,8 +715,6 @@ class _EvLezzetleriVitriniState extends State<EvLezzetleriVitrini> {
               );
             },
           ),
-          // ✅ BURAYA EKLENDİ
-
           IconButton(
             icon: const Icon(Icons.add_box_outlined),
             tooltip: 'Ürün Ekle',
@@ -507,18 +760,22 @@ class _EvLezzetleriVitriniState extends State<EvLezzetleriVitrini> {
           }
 
           final allDocs = snap.data?.docs ?? [];
-          final validDocs =
-              allDocs.where((doc) => _isValidProduct(doc.data())).toList();
+
+          final validDocs = allDocs
+              .where((doc) => _isValidProduct(doc.data()))
+              .where((doc) => _matchesLocation(doc.data()))
+              .toList();
 
           final docs = validDocs
               .where((doc) => _matchesSelectedCategory(doc.data()))
               .toList();
 
           if (validDocs.isEmpty) {
-            return const _CenterInfo(
+            return _CenterInfo(
               icon: Icons.storefront_outlined,
-              title: 'Henüz ürün yok',
-              message: 'Onaylı ve görselli ev lezzeti ürünü bulunamadı.',
+              title: 'Bu bölgede ürün bulunamadı',
+              message:
+                  '${widget.district == 'Tümü' ? widget.city : '${widget.district} / ${widget.city}'} için onaylı ve görselli ev lezzeti ürünü görünmüyor.',
             );
           }
 
@@ -549,7 +806,11 @@ class _EvLezzetleriVitriniState extends State<EvLezzetleriVitrini> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          _HeroSection(isMobile: isMobile),
+                          _HeroSection(
+                            isMobile: isMobile,
+                            city: widget.city,
+                            district: widget.district,
+                          ),
                           const SizedBox(height: 18),
                           _KuryeOlBanner(isMobile: isMobile),
                           const SizedBox(height: 18),
@@ -712,7 +973,8 @@ class _EvLezzetleriVitriniState extends State<EvLezzetleriVitrini> {
                                       ? 'none'
                                       : _safeText(data['sellerBadgeType']),
                               onTap: () => _openDetail(context, doc),
-                              onAddToCart: () => _addToCart(context, doc),
+                              onAddToCart: () =>
+                                  _showOrderActionSheet(context, doc),
                             );
                           },
                           childCount: docs.length,
@@ -778,19 +1040,16 @@ class _EvLezzetleriVitriniState extends State<EvLezzetleriVitrini> {
   }
 }
 
-class EvLezzetleriVitriniPage extends StatelessWidget {
-  const EvLezzetleriVitriniPage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const EvLezzetleriVitrini();
-  }
-}
-
 class _HeroSection extends StatelessWidget {
   final bool isMobile;
+  final String city;
+  final String district;
 
-  const _HeroSection({required this.isMobile});
+  const _HeroSection({
+    required this.isMobile,
+    required this.city,
+    required this.district,
+  });
 
   static const Color _gold = Color(0xFFFFB300);
   static const Color _panel = Color(0xFF1A1A1A);
@@ -823,7 +1082,10 @@ class _HeroSection extends StatelessWidget {
           ? Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const _HeroTextBlock(),
+                _HeroTextBlock(
+                  city: city,
+                  district: district,
+                ),
                 const SizedBox(height: 18),
                 Wrap(
                   spacing: 10,
@@ -839,9 +1101,12 @@ class _HeroSection extends StatelessWidget {
             )
           : Row(
               children: [
-                const Expanded(
+                Expanded(
                   flex: 6,
-                  child: _HeroTextBlock(),
+                  child: _HeroTextBlock(
+                    city: city,
+                    district: district,
+                  ),
                 ),
                 const SizedBox(width: 18),
                 Expanded(
@@ -875,7 +1140,13 @@ class _HeroSection extends StatelessWidget {
 }
 
 class _HeroTextBlock extends StatelessWidget {
-  const _HeroTextBlock();
+  final String city;
+  final String district;
+
+  const _HeroTextBlock({
+    required this.city,
+    required this.district,
+  });
 
   static const Color _gold = Color(0xFFFFB300);
   static const Color _softGold = Color(0xFFFFE0A3);

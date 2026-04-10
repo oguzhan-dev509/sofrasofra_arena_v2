@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-
+import 'package:flutter/foundation.dart';
 import 'firebase_options.dart';
 import 'merchant/sef_yonetim_paneli.dart';
 import 'modules/sef_itibar_sayfasi.dart';
@@ -9,6 +9,15 @@ import 'package:sofrasofra_arena_v2/modules/user_reservations_page.dart';
 import 'package:sofrasofra_arena_v2/modules/chef_table_reservations_page.dart';
 import 'package:sofrasofra_arena_v2/modules/create_reservation_page.dart';
 import 'services/auth_service.dart';
+import 'package:sofrasofra_arena_v2/core/app_root.dart';
+import 'modules/sef_akademi_dersleri.dart';
+import 'package:sofrasofra_arena_v2/modules/kategori_sayfasi.dart';
+import 'package:sofrasofra_arena_v2/services/chef_academy_bootstrap_service.dart';
+import 'package:sofrasofra_arena_v2/services/academy_category_bootstrap_service.dart';
+import 'package:sofrasofra_arena_v2/services/academy_category_normalize_service.dart';
+import 'package:sofrasofra_arena_v2/modules/arena_entry_page.dart';
+import 'package:sofrasofra_arena_v2/merchant/gastronomi_yonetim_merkezi.dart';
+import 'merchant/merchant_dashboard.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -23,17 +32,37 @@ Future<void> main() async {
 
   try {
     await AuthService.signInAnonymously();
+
+    const runAcademyVideoBootstrapOnce = false;
+    const runAcademyCategoryBootstrapOnce = false;
+    const runAcademyCategoryNormalizeOnce = true;
+
+    if (kDebugMode && runAcademyVideoBootstrapOnce) {
+      await ChefAcademyBootstrapService.backfillAllCourseVideos();
+    }
+
+    if (kDebugMode && runAcademyCategoryBootstrapOnce) {
+      await AcademyCategoryBootstrapService.bootstrapAcademyCategories(
+        overwriteExisting: false,
+      );
+    }
+
+    if (kDebugMode && runAcademyCategoryNormalizeOnce) {
+      await AcademyCategoryNormalizeService.normalizeLessonCategories();
+    }
+
+    debugPrint('✅ CURRENT UID: ${FirebaseAuth.instance.currentUser?.uid}');
     debugPrint('✅ CURRENT UID: ${FirebaseAuth.instance.currentUser?.uid}');
   } catch (e, st) {
     debugPrint('❌ ANON LOGIN HATASI: $e');
     debugPrintStack(stackTrace: st);
   }
 
-  runApp(const SofraApp());
+  runApp(const SofrasofraZirve());
 }
 
-class SofraApp extends StatelessWidget {
-  const SofraApp({super.key});
+class SofrasofraZirve extends StatelessWidget {
+  const SofrasofraZirve({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -41,7 +70,7 @@ class SofraApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Sofrasofra Arena',
       theme: ThemeData.dark(),
-      home: const AnaSayfa(),
+      home: const ArenaEntryPage(),
     );
   }
 }
@@ -83,6 +112,21 @@ class AnaSayfa extends StatelessWidget {
                   builder: (_) => const SefItibarSayfasi(
                     dukkanId: 'RhkyTCD5TgWJFdEzP50mvCOrz5a2',
                     isAdmin: true,
+                  ),
+                ),
+              );
+            },
+          ),
+          const SizedBox(height: 12),
+          _MenuCard(
+            title: 'Şef Akademisi',
+            subtitle: 'Eğitimleri keşfet',
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const SefAkademiDersleri(
+                    chefId: 'RhkyTCD5TgWJFdEzP50mvCOrz5a2',
                   ),
                 ),
               );
@@ -172,15 +216,15 @@ class _MenuCard extends StatelessWidget {
               style: const TextStyle(
                 fontSize: 28,
                 fontWeight: FontWeight.bold,
-                color: Color(0xFFFF7A2F),
+                color: Color(0xFFFFD54F),
               ),
             ),
             const SizedBox(height: 8),
             Text(
               subtitle,
               style: const TextStyle(
-                fontSize: 20,
-                color: Colors.white,
+                fontSize: 16,
+                color: Colors.white70,
               ),
             ),
           ],

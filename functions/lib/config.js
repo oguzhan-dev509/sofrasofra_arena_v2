@@ -7,8 +7,7 @@ const params_1 = require("firebase-functions/params");
 exports.IYZI_API_KEY = (0, params_1.defineSecret)("IYZI_API_KEY");
 exports.IYZI_SECRET_KEY = (0, params_1.defineSecret)("IYZI_SECRET_KEY");
 function getIyziBaseUrl() {
-    const raw = process.env.IYZI_BASE_URL ?? "https://sandbox-api.iyzipay.com";
-    return raw.trim().replace(/\/+$/, "");
+    return "https://sandbox-api.iyzipay.com";
 }
 function getIyziCallbackUrl() {
     const raw = process.env.IYZI_CALLBACK_URL ?? "";

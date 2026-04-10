@@ -45,7 +45,10 @@ class MerchantDashboard extends StatelessWidget {
             context,
             "EV LEZZETLERİ",
             Icons.home_work_rounded,
-            const EvLezzetleriVitrini(),
+            const EvLezzetleriVitrini(
+              city: 'İstanbul',
+              district: 'Kadıköy',
+            ),
           ),
           _buildCard(
             context,

@@ -61,7 +61,7 @@ class EvKitchenCard extends StatelessWidget {
 
     return Container(
       width: 230,
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: const Color(0xFF1B1B1B),
         borderRadius: BorderRadius.circular(24),
@@ -81,15 +81,13 @@ class EvKitchenCard extends StatelessWidget {
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
         children: [
           if (_hasBadge) ...[
             Align(
               alignment: Alignment.center,
               child: Container(
-                margin: const EdgeInsets.only(bottom: 10),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                margin: const EdgeInsets.only(bottom: 8),
+                padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
                 decoration: BoxDecoration(
                   color: _badgeBg,
                   borderRadius: BorderRadius.circular(999),
@@ -102,15 +100,15 @@ class EvKitchenCard extends StatelessWidget {
                   style: TextStyle(
                     color: _badgeTextColor,
                     fontWeight: FontWeight.w800,
-                    fontSize: 10.5,
+                    fontSize: 10,
                   ),
                 ),
               ),
             ),
           ],
           Container(
-            width: 82,
-            height: 82,
+            width: 74,
+            height: 74,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               border: Border.all(color: _gold, width: 3),
@@ -125,7 +123,7 @@ class EvKitchenCard extends StatelessWidget {
                   : _placeholder(),
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 6),
           Text(
             name,
             maxLines: 1,
@@ -134,10 +132,10 @@ class EvKitchenCard extends StatelessWidget {
             style: const TextStyle(
               color: Colors.white,
               fontWeight: FontWeight.w800,
-              fontSize: 16,
+              fontSize: 15,
             ),
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 3),
           Text(
             category,
             maxLines: 1,
@@ -146,10 +144,10 @@ class EvKitchenCard extends StatelessWidget {
             style: const TextStyle(
               color: _gold,
               fontWeight: FontWeight.w700,
-              fontSize: 12,
+              fontSize: 11.5,
             ),
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 3),
           Text(
             district.isEmpty ? 'Mahalle Mutfağı' : district,
             maxLines: 1,
@@ -157,12 +155,12 @@ class EvKitchenCard extends StatelessWidget {
             textAlign: TextAlign.center,
             style: const TextStyle(
               color: Colors.white70,
-              fontSize: 11.5,
+              fontSize: 11,
             ),
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: 5),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+            padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
             decoration: BoxDecoration(
               color: _gold.withOpacity(0.12),
               borderRadius: BorderRadius.circular(999),
@@ -172,7 +170,7 @@ class EvKitchenCard extends StatelessWidget {
               style: TextStyle(
                 color: _gold,
                 fontWeight: FontWeight.w700,
-                fontSize: 10.5,
+                fontSize: 10,
               ),
             ),
           ),

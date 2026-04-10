@@ -1,0 +1,58 @@
+[35m.firebaserc[m[36m:[m[32m4[m[36m:[m    "& \"$env:APPDATA\\npm\\firebase.cmd\" deploy --only functions:initializeChefTablePayment,functions:[1;31miyzico[mCallback": "ruhdas-ai"
+[35mandroid/app/google-services.json[m[36m:[m[32m16[m[36m:[m      "[1;31mapi_key[m": [
+[35mandroid/app/google-services.json[m[36m:[m[32m35[m[36m:[m      "[1;31mapi_key[m": [
+[35mfunctions/lib/config.js[m[36m:[m[32m3[m[36m:[mexports.[1;31mIYZI[m_[1;31mSECRET_KEY[m = exports.[1;31mIYZI[m_[1;31mAPI_KEY[m = void 0;
+[35mfunctions/lib/config.js[m[36m:[m[32m4[m[36m:[mexports.get[1;31mIyzi[mBaseUrl = get[1;31mIyzi[mBaseUrl;
+[35mfunctions/lib/config.js[m[36m:[m[32m5[m[36m:[mexports.get[1;31mIyzi[mCallbackUrl = get[1;31mIyzi[mCallbackUrl;
+[35mfunctions/lib/config.js[m[36m:[m[32m7[m[36m:[mexports.[1;31mIYZI[m_[1;31mAPI_KEY[m = (0, params_1.defineSecret)("[1;31mIYZI[m_[1;31mAPI_KEY[m");
+[35mfunctions/lib/config.js[m[36m:[m[32m8[m[36m:[mexports.[1;31mIYZI[m_[1;31mSECRET_KEY[m = (0, params_1.defineSecret)("[1;31mIYZI[m_[1;31mSECRET_KEY[m");
+[35mfunctions/lib/config.js[m[36m:[m[32m9[m[36m:[mfunction get[1;31mIyzi[mBaseUrl() {
+[35mfunctions/lib/config.js[m[36m:[m[32m10[m[36m:[m    const raw = process.env.[1;31mIYZI[m_BASE_URL ?? "https://sandbox-api.[1;31miyzi[mpay.com";
+[35mfunctions/lib/config.js[m[36m:[m[32m13[m[36m:[mfunction get[1;31mIyzi[mCallbackUrl() {
+[35mfunctions/lib/config.js[m[36m:[m[32m14[m[36m:[m    const raw = process.env.[1;31mIYZI[m_CALLBACK_URL ?? "";
+[35mfunctions/lib/index.js[m[36m:[m[32m39[m[36m:[mexports.initializeChefTablePayment = exports.notifyCustomerWhenCourierAssigned = exports.notifySellerOnNewOrder = exports.[1;31miyzico[mCallback = void 0;
+[35mfunctions/lib/index.js[m[36m:[m[32m51[m[36m:[mexports.[1;31miyzico[mCallback = (0, https_1.onRequest)({ region: "europe-west1", secrets: [config_1.[1;31mIYZI[m_[1;31mAPI_KEY[m, config_1.[1;31mIYZI[m_[1;31mSECRET_KEY[m] }, async (req, res) => {
+[35mfunctions/lib/index.js[m[36m:[m[32m75[m[36m:[m            .where("[1;31miyzico[mToken", "==", token)
+[35mfunctions/lib/index.js[m[36m:[m[32m117[m[36m:[m        const [1;31mapiKey[m = config_1.[1;31mIYZI[m_[1;31mAPI_KEY[m.value();
+[35mfunctions/lib/index.js[m[36m:[m[32m118[m[36m:[m        const [1;31msecretKey[m = config_1.[1;31mIYZI[m_[1;31mSECRET_KEY[m.value();
+[35mfunctions/lib/index.js[m[36m:[m[32m119[m[36m:[m        if (![1;31mapiKey[m || ![1;31msecretKey[m) {
+[35mfunctions/lib/index.js[m[36m:[m[32m120[m[36m:[m            logger.error("[CALLBACK] [1;31mIyzico[m secret bilgileri eksik");
+[35mfunctions/lib/index.js[m[36m:[m[32m121[m[36m:[m            res.status(500).send("[1;31mIyzico[m config missing");
+[35mfunctions/lib/index.js[m[36m:[m[32m124[m[36m:[m        const uriPath = "/payment/[1;31miyzi[mpos/checkoutform/auth/ecom/detail";
+[35mfunctions/lib/index.js[m[36m:[m[32m132[m[36m:[m        const authorization = generate[1;31mIyzi[mAuthorization([1;31mapiKey[m, [1;31msecretKey[m, uriPath, requestBody, randomKey);
+[35mfunctions/lib/index.js[m[36m:[m[32m138[m[36m:[m        const retrieveResponse = await axios_1.default.post(`${(0, config_1.get[1;31mIyzi[mBaseUrl)()}${uriPath}`, retrievePayload, {
+[35mfunctions/lib/index.js[m[36m:[m[32m142[m[36m:[m                "x-[1;31miyzi[m-rnd": randomKey,
+[35mfunctions/lib/index.js[m[36m:[m[32m172[m[36m:[m                [1;31miyzico[mVerifyVersion: "v2",
+[35mfunctions/lib/index.js[m[36m:[m[32m173[m[36m:[m                [1;31miyzico[mRetrieveSummary: {
+[35mfunctions/lib/index.js[m[36m:[m[32m198[m[36m:[m                [1;31miyzico[mVerifyVersion: "v2",
+[35mfunctions/lib/index.js[m[36m:[m[32m199[m[36m:[m                [1;31miyzico[mRetrieveSummary: {
+[35mfunctions/lib/index.js[m[36m:[m[32m240[m[36m:[m                paymentProvider: "[1;31miyzico[m",
+[35mfunctions/lib/index.js[m[36m:[m[32m244[m[36m:[m                [1;31miyzico[mStatus: resultStatus,
+[35mfunctions/lib/index.js[m[36m:[m[32m245[m[36m:[m                [1;31miyzico[mVerifyVersion: "v2",
+[35mfunctions/lib/index.js[m[36m:[m[32m246[m[36m:[m                [1;31miyzico[mRetrieveSummary: retrieveSummary,
+[35mfunctions/lib/index.js[m[36m:[m[32m260[m[36m:[m            paymentProvider: "[1;31miyzico[m",
+[35mfunctions/lib/index.js[m[36m:[m[32m266[m[36m:[m            [1;31miyzico[mStatus: resultStatus,
+[35mfunctions/lib/index.js[m[36m:[m[32m267[m[36m:[m            [1;31miyzico[mVerifyVersion: "v2",
+[35mfunctions/lib/index.js[m[36m:[m[32m268[m[36m:[m            [1;31miyzico[mRetrieveSummary: retrieveSummary,
+[35mfunctions/lib/index.js[m[36m:[m[32m414[m[36m:[mfunction generate[1;31mIyzi[mAuthorization([1;31mapiKey[m, [1;31msecretKey[m, uriPath, requestBody, randomKey) {
+[35mfunctions/lib/index.js[m[36m:[m[32m415[m[36m:[m    const clean[1;31mApiKey[m = [1;31mapiKey[m.trim();
+[35mfunctions/lib/index.js[m[36m:[m[32m416[m[36m:[m    const clean[1;31mSecretKey[m = [1;31msecretKey[m.trim();
+[35mfunctions/lib/index.js[m[36m:[m[32m420[m[36m:[m        .createHmac("sha256", clean[1;31mSecretKey[m)
+[35mfunctions/lib/index.js[m[36m:[m[32m423[m[36m:[m    const authorizationString = `[1;31mapiKey[m:${clean[1;31mApiKey[m}&randomKey:${randomKey}&signature:${signature}`;
+[35mfunctions/lib/index.js[m[36m:[m[32m430[m[36m:[m    secrets: [config_1.[1;31mIYZI[m_[1;31mAPI_KEY[m, config_1.[1;31mIYZI[m_[1;31mSECRET_KEY[m],
+[35mfunctions/lib/index.js[m[36m:[m[32m477[m[36m:[m        const [1;31mapiKey[m = config_1.[1;31mIYZI[m_[1;31mAPI_KEY[m.value();
+[35mfunctions/lib/index.js[m[36m:[m[32m478[m[36m:[m        const [1;31msecretKey[m = config_1.[1;31mIYZI[m_[1;31mSECRET_KEY[m.value();
+[35mfunctions/lib/index.js[m[36m:[m[32m479[m[36m:[m        if (![1;31mapiKey[m || ![1;31msecretKey[m) {
+[35mfunctions/lib/index.js[m[36m:[m[32m480[m[36m:[m            throw new https_1.HttpsError("internal", "[1;31mIyzico[m secret bilgileri eksik.");
+[35mfunctions/lib/index.js[m[36m:[m[32m499[m[36m:[m            callbackUrl: "https://europe-west1-sofrasofra-a3344.cloudfunctions.net/[1;31miyzico[mCallback",
+[35mfunctions/lib/index.js[m[36m:[m[32m541[m[36m:[m        const uriPath = "/payment/[1;31miyzi[mpos/checkoutform/initialize/auth/ecom";
+[35mfunctions/lib/index.js[m[36m:[m[32m544[m[36m:[m        const authorization = generate[1;31mIyzi[mAuthorization([1;31mapiKey[m, [1;31msecretKey[m, uriPath, requestBody, randomKey);
+[35mfunctions/lib/index.js[m[36m:[m[32m545[m[36m:[m        const [1;31miyzico[mResponse = await axios_1.default.post(`${(0, config_1.get[1;31mIyzi[mBaseUrl)()}${uriPath}`, payload, {
+[35mfunctions/lib/index.js[m[36m:[m[32m549[m[36m:[m                "x-[1;31miyzi[m-rnd": randomKey,
+[35mfunctions/lib/index.js[m[36m:[m[32m553[m[36m:[m        console.log("[1;31miyzico[m response:", JSON.stringify([1;31miyzico[mResponse.data, null, 2));
+[35mfunctions/lib/index.js[m[36m:[m[32m554[m[36m:[m        const responseData = [1;31miyzico[mResponse.data ?? {};
+[35mfunctions/lib/index.js[m[36m:[m[32m555[m[36m:[m        const [1;31miyzico[mStatus = (responseData.status ?? "").toString().trim();
+[35mfunctions/lib/index.js[m[36m:[m[32m560[m[36m:[m        if ([1;31miyzico[mStatus !== "success" || !checkoutUrl) {
+[35mfunctions/lib/index.js[m[36m:[m[32m561[m[36m:[m            throw new https_1.HttpsError("internal", `[1;31mIyzico[m init hatası | code=${responseData.errorCode ?? "yok"} | message=${responseData.errorMessage ?? "yok"} | email=${payload.buyer.email} | gsm=${payload.buyer.gsmNumber} | callbackUrl=${payload.callbackUrl}`);
+[35mfunctions/lib/index.js[m[36m:[m[32m565[m[36m:[m            [1;31miyzico[mToken: token,
+[35mfunctions/lib/index.js[m[36m:[m[32m566[m[36m:[m 

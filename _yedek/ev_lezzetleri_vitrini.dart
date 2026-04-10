@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:sofrasofra_arena_v2/modules/urun_detay.dart';
 import 'package:sofrasofra_arena_v2/modules/widgets/ev_lezzetleri_cards.dart';
 import 'package:sofrasofra_arena_v2/services/sepet_service.dart';
-
+import 'package:sofrasofra_arena_v2/merchant/ev_orders_sayfasi.dart';
 import '../../admin/admin_icerik_paneli.dart';
 import '../../cart/sepet_sayfasi.dart';
 import '../../merchant/satici_siparis_paneli.dart';
@@ -247,9 +247,7 @@ class _EvLezzetleriVitriniState extends State<EvLezzetleriVitrini> {
     final String sehir = _safeText(data['sehir']);
     final String ilce = _safeText(data['ilce']);
 
-    final String aciklama = _safeText(
-      data['aciklama'] ?? data['tarif'],
-    );
+    final String aciklama = _safeText(data['aciklama'] ?? data['tarif']);
 
     final dynamic fiyatRaw = data['fiyat'] ?? data['gelAlFiyat'];
     final double fiyat = _readPrice(fiyatRaw);
@@ -418,14 +416,37 @@ class _EvLezzetleriVitriniState extends State<EvLezzetleriVitrini> {
         iconTheme: const IconThemeData(color: _gold),
         actions: [
           IconButton(
+            IconButton(
+              icon: const Icon(Icons.receipt_long, color: _gold),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) =>
+                        const EvOrdersSayfasi(sellerId: 'demo_user'),
+                  ),
+                );
+              },
+            ),
             icon: const Icon(Icons.shopping_cart_outlined),
             tooltip: 'Sepetim',
             color: _gold,
             onPressed: () {
               Navigator.push(
                 context,
+                MaterialPageRoute(builder: (_) => const SepetSayfasi()),
+              );
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.fact_check_outlined),
+            tooltip: 'Ev Siparişleri',
+            color: _gold,
+            onPressed: () {
+              Navigator.push(
+                context,
                 MaterialPageRoute(
-                  builder: (_) => const SepetSayfasi(),
+                  builder: (_) => const EvOrdersSayfasi(sellerId: 'demo_user'),
                 ),
               );
             },
@@ -437,9 +458,7 @@ class _EvLezzetleriVitriniState extends State<EvLezzetleriVitrini> {
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(
-                  builder: (_) => const AdminIcerikPaneli(),
-                ),
+                MaterialPageRoute(builder: (_) => const AdminIcerikPaneli()),
               );
             },
           ),
@@ -450,9 +469,7 @@ class _EvLezzetleriVitriniState extends State<EvLezzetleriVitrini> {
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(
-                  builder: (_) => const UrunEklemeSayfasi(),
-                ),
+                MaterialPageRoute(builder: (_) => const UrunEklemeSayfasi()),
               );
             },
           ),
@@ -486,14 +503,13 @@ class _EvLezzetleriVitriniState extends State<EvLezzetleriVitrini> {
           }
 
           if (snap.connectionState == ConnectionState.waiting) {
-            return const Center(
-              child: CircularProgressIndicator(color: _gold),
-            );
+            return const Center(child: CircularProgressIndicator(color: _gold));
           }
 
           final allDocs = snap.data?.docs ?? [];
-          final validDocs =
-              allDocs.where((doc) => _isValidProduct(doc.data())).toList();
+          final validDocs = allDocs
+              .where((doc) => _isValidProduct(doc.data()))
+              .toList();
 
           final docs = validDocs
               .where((doc) => _matchesSelectedCategory(doc.data()))
@@ -542,6 +558,34 @@ class _EvLezzetleriVitriniState extends State<EvLezzetleriVitrini> {
                             title: 'Kategoriler',
                             subtitle:
                                 'Ev yapımı lezzetleri ihtiyacına göre keşfet',
+                          ),
+                          const SizedBox(height: 12),
+                          SizedBox(
+                            width: double.infinity,
+                            child: ElevatedButton.icon(
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => const EvOrdersSayfasi(
+                                      sellerId: 'demo_user',
+                                    ),
+                                  ),
+                                );
+                              },
+                              icon: const Icon(Icons.fact_check_outlined),
+                              label: const Text('Ev Siparişleri Test Ekranı'),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: _gold,
+                                foregroundColor: Colors.black,
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 16,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                              ),
+                            ),
                           ),
                           const SizedBox(height: 12),
                           _CategoryBar(
@@ -642,66 +686,63 @@ class _EvLezzetleriVitriniState extends State<EvLezzetleriVitrini> {
                     SliverPadding(
                       padding: const EdgeInsets.fromLTRB(16, 0, 16, 28),
                       sliver: SliverGrid(
-                        delegate: SliverChildBuilderDelegate(
-                          (context, index) {
-                            final doc = docs[index];
-                            final data = doc.data();
+                        delegate: SliverChildBuilderDelegate((context, index) {
+                          final doc = docs[index];
+                          final data = doc.data();
 
-                            final String ad = _safeText(
-                              data['ad'] ?? data['urunAdi'] ?? data['yemekAdi'],
-                            );
+                          final String ad = _safeText(
+                            data['ad'] ?? data['urunAdi'] ?? data['yemekAdi'],
+                          );
 
-                            final String dukkan = _safeText(
-                              data['dukkan'] ??
-                                  data['dukkanAdi'] ??
-                                  data['satici'],
-                            );
+                          final String dukkan = _safeText(
+                            data['dukkan'] ??
+                                data['dukkanAdi'] ??
+                                data['satici'],
+                          );
 
-                            final String sehir = _safeText(data['sehir']);
-                            final String ilce = _safeText(data['ilce']);
+                          final String sehir = _safeText(data['sehir']);
+                          final String ilce = _safeText(data['ilce']);
 
-                            final String aciklama = _safeText(
-                              data['aciklama'] ?? data['tarif'],
-                            );
+                          final String aciklama = _safeText(
+                            data['aciklama'] ?? data['tarif'],
+                          );
 
-                            final dynamic fiyatRaw =
-                                data['fiyat'] ?? data['gelAlFiyat'];
-                            final double fiyat = _readPrice(fiyatRaw);
-                            final String fiyatText = fiyat <= 0
-                                ? ''
-                                : '${fiyat.toStringAsFixed(0)} ₺';
+                          final dynamic fiyatRaw =
+                              data['fiyat'] ?? data['gelAlFiyat'];
+                          final double fiyat = _readPrice(fiyatRaw);
+                          final String fiyatText = fiyat <= 0
+                              ? ''
+                              : '${fiyat.toStringAsFixed(0)} ₺';
 
-                            final String img = _safeText(
-                              data['img'] ?? data['imgUrl'] ?? data['resim'],
-                            );
+                          final String img = _safeText(
+                            data['img'] ?? data['imgUrl'] ?? data['resim'],
+                          );
 
-                            final String konum = [
-                              if (ilce.isNotEmpty) ilce,
-                              if (sehir.isNotEmpty) sehir,
-                            ].join(' / ');
+                          final String konum = [
+                            if (ilce.isNotEmpty) ilce,
+                            if (sehir.isNotEmpty) sehir,
+                          ].join(' / ');
 
-                            final category = _mapCategory(data);
+                          final category = _mapCategory(data);
 
-                            return EvPremiumProductCard(
-                              title: ad,
-                              kitchen: dukkan,
-                              subtitle: aciklama.isNotEmpty
-                                  ? aciklama
-                                  : 'Ev yapımı, günlük hazırlanmış, sıcak ve güven veren bir mahalle lezzeti.',
-                              category: category,
-                              locationText: konum,
-                              priceText: fiyatText,
-                              imageUrl: img,
-                              badgeType:
-                                  _safeText(data['sellerBadgeType']).isEmpty
-                                      ? 'none'
-                                      : _safeText(data['sellerBadgeType']),
-                              onTap: () => _openDetail(context, doc),
-                              onAddToCart: () => _addToCart(context, doc),
-                            );
-                          },
-                          childCount: docs.length,
-                        ),
+                          return EvPremiumProductCard(
+                            title: ad,
+                            kitchen: dukkan,
+                            subtitle: aciklama.isNotEmpty
+                                ? aciklama
+                                : 'Ev yapımı, günlük hazırlanmış, sıcak ve güven veren bir mahalle lezzeti.',
+                            category: category,
+                            locationText: konum,
+                            priceText: fiyatText,
+                            imageUrl: img,
+                            badgeType:
+                                _safeText(data['sellerBadgeType']).isEmpty
+                                ? 'none'
+                                : _safeText(data['sellerBadgeType']),
+                            onTap: () => _openDetail(context, doc),
+                            onAddToCart: () => _addToCart(context, doc),
+                          );
+                        }, childCount: docs.length),
                         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: crossAxisCount,
                           mainAxisSpacing: 18,
@@ -787,11 +828,7 @@ class _HeroSection extends StatelessWidget {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(28),
         gradient: const LinearGradient(
-          colors: [
-            Color(0xFF1A1A1A),
-            Color(0xFF222222),
-            Color(0xFF151515),
-          ],
+          colors: [Color(0xFF1A1A1A), Color(0xFF222222), Color(0xFF151515)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -824,10 +861,7 @@ class _HeroSection extends StatelessWidget {
             )
           : Row(
               children: [
-                const Expanded(
-                  flex: 6,
-                  child: _HeroTextBlock(),
-                ),
+                const Expanded(flex: 6, child: _HeroTextBlock()),
                 const SizedBox(width: 18),
                 Expanded(
                   flex: 5,
@@ -964,9 +998,7 @@ class _CategoryBar extends StatelessWidget {
               decoration: BoxDecoration(
                 color: isSelected ? _gold : const Color(0xFF1F1F1F),
                 borderRadius: BorderRadius.circular(999),
-                border: Border.all(
-                  color: isSelected ? _gold : Colors.white12,
-                ),
+                border: Border.all(color: isSelected ? _gold : Colors.white12),
               ),
               child: Center(
                 child: Text(
@@ -990,10 +1022,7 @@ class _SectionTitle extends StatelessWidget {
   final String title;
   final String subtitle;
 
-  const _SectionTitle({
-    required this.title,
-    required this.subtitle,
-  });
+  const _SectionTitle({required this.title, required this.subtitle});
 
   static const Color _gold = Color(0xFFFFB300);
 
@@ -1266,9 +1295,7 @@ class _KuryeOlBanner extends StatelessWidget {
         onPressed: () {
           Navigator.push(
             context,
-            MaterialPageRoute(
-              builder: (_) => const KuryeBasvuruFormu(),
-            ),
+            MaterialPageRoute(builder: (_) => const KuryeBasvuruFormu()),
           );
         },
         icon: const Icon(Icons.flash_on, size: 18),

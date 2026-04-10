@@ -1,7 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:sofrasofra_arena_v2/modules/sef_profili.dart';
+import 'package:sofrasofra_arena_v2/modules/sef_itibar_sayfasi.dart';
+import 'package:sofrasofra_arena_v2/merchant/gastronomi_yonetim_merkezi.dart';
 
 class SefVitriniV2 extends StatelessWidget {
   const SefVitriniV2({super.key});
@@ -21,19 +22,44 @@ class SefVitriniV2 extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: _bg,
       appBar: AppBar(
         backgroundColor: _bg,
         iconTheme: const IconThemeData(color: _gold),
-        title: const Text(
-          'GASTRONOMİ AKADEMİSİ',
-          style: TextStyle(
-            color: _gold,
-            fontSize: 18,
-            fontWeight: FontWeight.w800,
-            letterSpacing: 1.2,
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 12),
+            child: TextButton.icon(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const GastronomiYonetimMerkezi(),
+                  ),
+                );
+              },
+              icon: const Icon(
+                Icons.dashboard_customize_rounded,
+                color: Colors.black,
+                size: 18,
+              ),
+              label: const Text(
+                'Merkez',
+                style: TextStyle(
+                  color: Colors.black,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+              style: TextButton.styleFrom(
+                backgroundColor: _gold,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(999),
+                ),
+              ),
+            ),
           ),
-        ),
+        ],
       ),
       body: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
         stream: _query().snapshots(),
@@ -67,48 +93,53 @@ class SefVitriniV2 extends StatelessWidget {
             );
           }
 
-        final items = docs
-    .map((doc) {
-      final data = doc.data();
+          final items = docs
+              .map((doc) {
+                final data = doc.data();
 
-      final String docId = doc.id;
-      final String dukkanId = (data['dukkanId'] ?? '').toString().trim();
-      final String ownerId = (data['ownerId'] ?? '').toString().trim();
+                final String docId = doc.id;
+                final String dukkanId =
+                    (data['dukkanId'] ?? '').toString().trim();
+                final String ownerId =
+                    (data['ownerId'] ?? '').toString().trim();
 
-      if (ownerId.isEmpty) {
-        return null;
-      }
+                if (ownerId.isEmpty) {
+                  return null;
+                }
 
-      final String ad =
-          (data['dukkan'] ?? data['ad'] ?? data['satici'] ?? 'Usta Şef')
-              .toString()
-              .trim();
+                final String ad = (data['dukkan'] ??
+                        data['ad'] ??
+                        data['satici'] ??
+                        'Usta Şef')
+                    .toString()
+                    .trim();
 
-      final String uzman =
-          (data['uzmanlik'] ?? data['kategori'] ?? 'Gastronomi Uzmanı')
-              .toString()
-              .trim();
+                final String uzman = (data['uzmanlik'] ??
+                        data['kategori'] ??
+                        'Gastronomi Uzmanı')
+                    .toString()
+                    .trim();
 
-      final String img = _safeUrl((data['img'] ?? '').toString());
-      final String puan = (data['itibar_puani'] ?? '4.9').toString();
+                final String img = _safeUrl((data['img'] ?? '').toString());
+                final String puan = (data['itibar_puani'] ?? '4.9').toString();
 
-      final List<String> gallery = List<String>.from(
-        data['gallery'] ?? const [],
-      ).map(_safeUrl).where((e) => e.isNotEmpty).toList();
+                final List<String> gallery = List<String>.from(
+                  data['gallery'] ?? const [],
+                ).map(_safeUrl).where((e) => e.isNotEmpty).toList();
 
-      return _ChefV2Item(
-        docId: docId,
-        dukkanId: dukkanId,
-        ownerId: ownerId,
-        ad: ad.isEmpty ? 'Usta Şef' : ad,
-        uzman: uzman.isEmpty ? 'Gastronomi Uzmanı' : uzman,
-        img: img,
-        puan: puan,
-        gallery: gallery,
-      );
-    })
-    .whereType<_ChefV2Item>()
-    .toList();
+                return _ChefV2Item(
+                  docId: docId,
+                  dukkanId: dukkanId,
+                  ownerId: ownerId,
+                  ad: ad.isEmpty ? 'Usta Şef' : ad,
+                  uzman: uzman.isEmpty ? 'Gastronomi Uzmanı' : uzman,
+                  img: img,
+                  puan: puan,
+                  gallery: gallery,
+                );
+              })
+              .whereType<_ChefV2Item>()
+              .toList();
 
           items.sort((a, b) {
             final aFeatured = a.gallery.isNotEmpty ? 1 : 0;
@@ -232,97 +263,140 @@ class _ChefPremiumCardState extends State<_ChefPremiumCard> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (_) => SefProfili(
+                builder: (_) => GastronomiYonetimMerkezi(
                   chefId: chefId,
+                  chefName: item.ad,
                 ),
               ),
             );
           },
-          child: Container(
-            decoration: BoxDecoration(
-              color: _card,
-              borderRadius: BorderRadius.circular(28),
-              border: Border.all(
-                color: widget.isFeatured
-                    ? const Color(0x66FFB300)
-                    : const Color(0x22FFB300),
-                width: widget.isFeatured ? 1.4 : 1,
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(_hover ? 0.42 : 0.26),
-                  blurRadius: _hover ? 28 : 18,
-                  offset: const Offset(0, 12),
+          child: Stack(
+            children: [
+              Container(
+                decoration: BoxDecoration(
+                  color: _card,
+                  borderRadius: BorderRadius.circular(28),
+                  border: Border.all(
+                    color: widget.isFeatured
+                        ? const Color(0x66FFB300)
+                        : const Color(0x22FFB300),
+                    width: widget.isFeatured ? 1.4 : 1,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(_hover ? 0.42 : 0.26),
+                      blurRadius: _hover ? 28 : 18,
+                      offset: const Offset(0, 12),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _HeroImage(
-                  imageUrl: item.img,
-                  isFeatured: widget.isFeatured,
-                  ad: item.ad,
-                  puan: item.puan,
-                ),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(18, 16, 18, 8),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        item.ad.toUpperCase(),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 22,
-                          fontWeight: FontWeight.w900,
-                          letterSpacing: .4,
-                        ),
-                      ),
-                      const SizedBox(height: 6),
-                      Text(
-                        item.uzman,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          color: Colors.white70,
-                          fontSize: 13,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      const SizedBox(height: 14),
-                      Row(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _HeroImage(
+                      imageUrl: item.img,
+                      isFeatured: widget.isFeatured,
+                      ad: item.ad,
+                      puan: item.puan,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(18, 16, 18, 8),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          _MiniBadge(
-                            icon: Icons.workspace_premium,
-                            text: widget.isFeatured ? 'Öne Çıkan' : 'Usta Şef',
+                          Text(
+                            item.ad.toUpperCase(),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 22,
+                              fontWeight: FontWeight.w900,
+                              letterSpacing: .4,
+                            ),
                           ),
-                          const SizedBox(width: 8),
-                          _MiniBadge(
-                            icon: Icons.restaurant_menu,
-                            text: item.gallery.isEmpty
-                                ? 'Profil'
-                                : '${item.gallery.length} galeri',
+                          const SizedBox(height: 6),
+                          Text(
+                            item.uzman,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              color: Colors.white70,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          const SizedBox(height: 14),
+                          Row(
+                            children: [
+                              _MiniBadge(
+                                icon: Icons.workspace_premium,
+                                text: widget.isFeatured
+                                    ? 'Öne Çıkan'
+                                    : 'Usta Şef',
+                              ),
+                              const SizedBox(width: 8),
+                              _MiniBadge(
+                                icon: Icons.restaurant_menu,
+                                text: item.gallery.isEmpty
+                                    ? 'Profil'
+                                    : '${item.gallery.length} galeri',
+                              ),
+                            ],
                           ),
                         ],
                       ),
-                    ],
+                    ),
+                    if (previewImages.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(18, 8, 18, 18),
+                        child: _PreviewStrip(images: previewImages),
+                      )
+                    else
+                      const Padding(
+                        padding: EdgeInsets.fromLTRB(18, 8, 18, 18),
+                        child: _EmptyPreview(),
+                      ),
+                  ],
+                ),
+              ),
+              Positioned(
+                top: 14,
+                left: 14,
+                child: GestureDetector(
+                  onTap: () {
+                    final chefId = item.ownerId.isNotEmpty
+                        ? item.ownerId
+                        : (item.dukkanId.isNotEmpty
+                            ? item.dukkanId
+                            : item.docId);
+
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => GastronomiYonetimMerkezi(
+                          chefId: chefId,
+                          chefName: item.ad,
+                        ),
+                      ),
+                    );
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.all(9),
+                    decoration: BoxDecoration(
+                      color: Colors.black.withOpacity(.72),
+                      borderRadius: BorderRadius.circular(999),
+                      border: Border.all(color: const Color(0x33FFFFFF)),
+                    ),
+                    child: const Icon(
+                      Icons.settings,
+                      color: Colors.white,
+                      size: 16,
+                    ),
                   ),
                 ),
-                if (previewImages.isNotEmpty)
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(18, 8, 18, 18),
-                    child: _PreviewStrip(images: previewImages),
-                  )
-                else
-                  const Padding(
-                    padding: EdgeInsets.fromLTRB(18, 8, 18, 18),
-                    child: _EmptyPreview(),
-                  ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),

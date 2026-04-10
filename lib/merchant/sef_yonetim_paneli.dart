@@ -5,6 +5,8 @@ import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:sofrasofra_arena_v2/modules/sef_itibar_sayfasi.dart';
+import 'package:sofrasofra_arena_v2/merchant/ev_orders_sayfasi.dart';
 
 class SefYonetimPaneli extends StatefulWidget {
   final String dukkanAdi;
@@ -977,6 +979,47 @@ class _SefYonetimPaneliState extends State<SefYonetimPaneli> {
                             'KAYDET',
                             style: TextStyle(fontWeight: FontWeight.bold),
                           ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                SizedBox(
+                  height: 50,
+                  child: OutlinedButton.icon(
+                    onPressed: (_kaydediliyor ||
+                            _profilGorselYukleniyor ||
+                            _kapakGorselYukleniyor ||
+                            _galeriGorselYukleniyor)
+                        ? null
+                        : () {
+                            final chefId = _aktifUid.trim().isNotEmpty
+                                ? _aktifUid.trim()
+                                : FirebaseAuth.instance.currentUser?.uid ?? '';
+
+                            if (chefId.isEmpty) {
+                              _showSnack(
+                                'Şef profili açılamadı: kullanıcı kimliği bulunamadı.',
+                              );
+                              return;
+                            }
+
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => const EvOrdersSayfasi(
+                                  sellerId: 'demo_user',
+                                ),
+                              ),
+                            );
+                          },
+                    icon: const Icon(Icons.visibility_outlined),
+                    label: const Text(
+                      'PROFİLİ ÖNİZLE',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: gold,
+                      side: const BorderSide(color: gold),
+                    ),
                   ),
                 ),
               ],
