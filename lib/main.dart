@@ -70,7 +70,10 @@ class SofrasofraZirve extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Sofrasofra Arena',
       theme: ThemeData.dark(),
-      home: const ArenaEntryPage(),
+      home: const GastronomiYonetimMerkezi(
+        chefId: 'RhkyTCD5TgWJFdEzP50mvCOrz5a2',
+        chefName: 'Nurselam Narın',
+      ),
     );
   }
 }

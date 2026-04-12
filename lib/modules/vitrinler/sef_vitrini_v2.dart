@@ -33,7 +33,10 @@ class SefVitriniV2 extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (_) => const GastronomiYonetimMerkezi(),
+                    builder: (_) => const GastronomiYonetimMerkezi(
+                      chefId: 'RhkyTCD5TgWJFdEzP50mvCOrz5a2',
+                      chefName: 'Nurselam Narın',
+                    ),
                   ),
                 );
               },

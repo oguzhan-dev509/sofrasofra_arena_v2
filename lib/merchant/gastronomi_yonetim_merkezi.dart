@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:sofrasofra_arena_v2/admin/chef_profile_admin_page.dart';
 import 'package:sofrasofra_arena_v2/modules/sef_akademi_dersleri.dart';
 import 'package:sofrasofra_arena_v2/modules/sef_itibar_sayfasi.dart';
+import 'package:sofrasofra_arena_v2/modules/chef_table_reservations_page.dart';
 
 class GastronomiYonetimMerkezi extends StatelessWidget {
   final String? chefId;
@@ -65,7 +66,7 @@ class GastronomiYonetimMerkezi extends StatelessWidget {
       MaterialPageRoute(
         builder: (_) => SefItibarSayfasi(
           dukkanId: currentChefId,
-          isAdmin: false,
+          isAdmin: true,
         ),
       ),
     );
@@ -107,6 +108,8 @@ class GastronomiYonetimMerkezi extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print('GASTRONOMI chefId = $chefId | chefName = $chefName');
+
     final cards = <_DashboardItem>[
       _DashboardItem(
         title: 'Şef İtibar Profili',
@@ -134,44 +137,76 @@ class GastronomiYonetimMerkezi extends StatelessWidget {
         subtitle:
             'Rezervasyon yönetimi, onay, ödeme bekleniyor ve kesinleşen akışlar.',
         icon: Icons.event_seat_rounded,
-        onTap: () => _openPlaceholder(
-          context,
-          title: 'Şef Masası / Rezervasyonlar',
-          description: 'Buraya rezervasyon yönetim ekranı bağlanacak.',
-        ),
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => ChefTableReservationsPage(),
+            ),
+          );
+        },
       ),
       _DashboardItem(
         title: 'Siparişler / İyzico',
         subtitle:
             'Sipariş akışları, ödeme durumları, timeout ve iyzico süreçleri.',
         icon: Icons.receipt_long_rounded,
-        onTap: () => _openPlaceholder(
-          context,
-          title: 'Siparişler / İyzico',
-          description: 'Buraya sipariş ve ödeme yönetimi bağlanacak.',
-        ),
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => ChefTableReservationsPage(),
+            ),
+          );
+        },
       ),
       _DashboardItem(
         title: 'İmza Mutfağı',
         subtitle:
             'İmza tabaklar, vitrin içerikleri ve öne çıkan mutfak koleksiyonu.',
         icon: Icons.restaurant_menu_rounded,
-        onTap: () => _openPlaceholder(
-          context,
-          title: 'İmza Mutfağı',
-          description: 'Buraya imza mutfağı yönetimi bağlanacak.',
-        ),
+        onTap: () {
+          final currentChefId = (chefId ?? '').trim();
+
+          if (currentChefId.isEmpty) {
+            _showChefRequiredMessage(context, 'İmza Mutfağı');
+            return;
+          }
+
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => SefItibarSayfasi(
+                dukkanId: currentChefId,
+                isAdmin: true,
+              ),
+            ),
+          );
+        },
       ),
       _DashboardItem(
         title: 'Galeri / Medya',
         subtitle:
             'Kapak görselleri, galeri içerikleri, sunum ve etkinlik kareleri.',
         icon: Icons.photo_library_rounded,
-        onTap: () => _openPlaceholder(
-          context,
-          title: 'Galeri / Medya',
-          description: 'Buraya galeri ve medya yönetimi bağlanacak.',
-        ),
+        onTap: () {
+          final currentChefId = (chefId ?? '').trim();
+
+          if (currentChefId.isEmpty) {
+            _showChefRequiredMessage(context, 'Galeri / Medya');
+            return;
+          }
+
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => SefItibarSayfasi(
+                dukkanId: currentChefId,
+                isAdmin: true,
+              ),
+            ),
+          );
+        },
       ),
       _DashboardItem(
         title: 'Kurumsal Davetler / Catering',

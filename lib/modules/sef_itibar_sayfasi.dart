@@ -5,6 +5,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:sofrasofra_arena_v2/modules/sef_akademi_dersleri.dart';
+import 'package:sofrasofra_arena_v2/modules/widgets/sef_imza_tabaklari_section.dart';
 
 class SefItibarSayfasi extends StatefulWidget {
   final String dukkanId;
@@ -21,27 +22,16 @@ class SefItibarSayfasi extends StatefulWidget {
 }
 
 String _safeHttpUrlOrEmpty(String? url) {
-  final u = (url ?? '').trim();
-  if (u.startsWith('http://') || u.startsWith('https://')) return u;
-  return '';
-}
-
-Future<void> _deleteFromStorage(String url) async {
-  try {
-    if (url.trim().isEmpty) return;
-
-    final ref = FirebaseStorage.instance.refFromURL(url);
-    await ref.delete();
-  } catch (e) {
-    debugPrint('Storage silme hatası: $e');
+  final value = (url ?? '').trim();
+  if (value.startsWith('http://') || value.startsWith('https://')) {
+    return value;
   }
+  return '';
 }
 
 class _SefItibarSayfasiState extends State<SefItibarSayfasi> {
   static const Color gold = Color(0xFFFFB300);
   static const Color bg = Color(0xFF050505);
-  static const Color card = Color(0xFF121212);
-  static const Color line = Color(0x22FFB300);
 
   final ImagePicker _picker = ImagePicker();
   bool _busy = false;
@@ -52,14 +42,20 @@ class _SefItibarSayfasiState extends State<SefItibarSayfasi> {
       FirebaseFirestore.instance.collection('chef_profiles').doc(_chefId);
 
   Future<Uint8List?> _pickImage() async {
-    final file = await _picker.pickImage(source: ImageSource.gallery);
+    final file = await _picker.pickImage(
+      source: ImageSource.gallery,
+      imageQuality: 90,
+    );
     if (file == null) return null;
     return file.readAsBytes();
   }
 
   Future<String> _upload(Uint8List data, String path) async {
     final ref = FirebaseStorage.instance.ref().child(path);
-    final task = await ref.putData(data);
+    final task = await ref.putData(
+      data,
+      SettableMetadata(contentType: 'image/jpeg'),
+    );
     return task.ref.getDownloadURL();
   }
 
@@ -95,7 +91,9 @@ class _SefItibarSayfasiState extends State<SefItibarSayfasi> {
         SnackBar(content: Text('Profil fotoğrafı yüklenemedi: $e')),
       );
     } finally {
-      if (mounted) setState(() => _busy = false);
+      if (mounted) {
+        setState(() => _busy = false);
+      }
     }
   }
 
@@ -120,7 +118,9 @@ class _SefItibarSayfasiState extends State<SefItibarSayfasi> {
         SnackBar(content: Text('Profil fotoğrafı silinemedi: $e')),
       );
     } finally {
-      if (mounted) setState(() => _busy = false);
+      if (mounted) {
+        setState(() => _busy = false);
+      }
     }
   }
 
@@ -156,7 +156,9 @@ class _SefItibarSayfasiState extends State<SefItibarSayfasi> {
         SnackBar(content: Text('Kapak görseli yüklenemedi: $e')),
       );
     } finally {
-      if (mounted) setState(() => _busy = false);
+      if (mounted) {
+        setState(() => _busy = false);
+      }
     }
   }
 
@@ -181,7 +183,9 @@ class _SefItibarSayfasiState extends State<SefItibarSayfasi> {
         SnackBar(content: Text('Kapak görseli silinemedi: $e')),
       );
     } finally {
-      if (mounted) setState(() => _busy = false);
+      if (mounted) {
+        setState(() => _busy = false);
+      }
     }
   }
 
@@ -217,7 +221,9 @@ class _SefItibarSayfasiState extends State<SefItibarSayfasi> {
         SnackBar(content: Text('Galeri fotoğrafı eklenemedi: $e')),
       );
     } finally {
-      if (mounted) setState(() => _busy = false);
+      if (mounted) {
+        setState(() => _busy = false);
+      }
     }
   }
 
@@ -242,7 +248,9 @@ class _SefItibarSayfasiState extends State<SefItibarSayfasi> {
         SnackBar(content: Text('Galeri fotoğrafı silinemedi: $e')),
       );
     } finally {
-      if (mounted) setState(() => _busy = false);
+      if (mounted) {
+        setState(() => _busy = false);
+      }
     }
   }
 
@@ -258,6 +266,8 @@ class _SefItibarSayfasiState extends State<SefItibarSayfasi> {
         child: Stack(
           children: [
             InteractiveViewer(
+              minScale: 0.8,
+              maxScale: 4,
               child: Image.network(
                 safe,
                 fit: BoxFit.contain,
@@ -289,6 +299,468 @@ class _SefItibarSayfasiState extends State<SefItibarSayfasi> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _sectionTitle(String text) {
+    return Text(
+      text,
+      style: const TextStyle(
+        color: gold,
+        fontSize: 12,
+        fontWeight: FontWeight.w800,
+        letterSpacing: 1.6,
+      ),
+    );
+  }
+
+  Widget _buildQuickActions(String displayName) {
+    return const SizedBox.shrink();
+  }
+
+  Widget _buildQuickActionsContent(String displayName) {
+    return SectionCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _sectionTitle('DASHBOARD HIZLI GEÇİŞ'),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(18),
+                  onTap: () {},
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 16,
+                      horizontal: 10,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withAlpha(8),
+                      borderRadius: BorderRadius.circular(18),
+                      border: Border.all(color: Colors.white10),
+                    ),
+                    child: const Column(
+                      children: [
+                        Icon(
+                          Icons.verified_outlined,
+                          color: gold,
+                          size: 22,
+                        ),
+                        SizedBox(height: 8),
+                        Text(
+                          'İTİBAR',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 10,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: 0.8,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(18),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => SefAkademiDersleri(
+                          chefId: _chefId,
+                          chefName: displayName,
+                        ),
+                      ),
+                    );
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 16,
+                      horizontal: 10,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withAlpha(8),
+                      borderRadius: BorderRadius.circular(18),
+                      border: Border.all(color: Colors.white10),
+                    ),
+                    child: const Column(
+                      children: [
+                        Icon(
+                          Icons.school_outlined,
+                          color: gold,
+                          size: 22,
+                        ),
+                        SizedBox(height: 8),
+                        Text(
+                          'AKADEMİ',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 10,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: 0.8,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(18),
+                  onTap: () {},
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 16,
+                      horizontal: 10,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withAlpha(8),
+                      borderRadius: BorderRadius.circular(18),
+                      border: Border.all(color: Colors.white10),
+                    ),
+                    child: const Column(
+                      children: [
+                        Icon(
+                          Icons.event_seat_outlined,
+                          color: gold,
+                          size: 22,
+                        ),
+                        SizedBox(height: 8),
+                        Text(
+                          'REZERVASYON',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 10,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: 0.8,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildQuickAccess(String displayName) {
+    return SectionCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _sectionTitle('HIZLI ERİŞİM'),
+          const SizedBox(height: 12),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              InkWell(
+                borderRadius: BorderRadius.circular(999),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => SefAkademiDersleri(
+                        chefId: _chefId,
+                        chefName: displayName,
+                      ),
+                    ),
+                  );
+                },
+                child: const ChipLabel('Şef Akademisi'),
+              ),
+              const ChipLabel('İmza Mutfağı'),
+              const ChipLabel('Şefin Masası'),
+              const ChipLabel('Catering'),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCurriculumSection() {
+    return const SectionCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SectionTitleText('AKADEMİ MÜFREDATI'),
+          SizedBox(height: 14),
+          Wrap(
+            spacing: 10,
+            runSpacing: 10,
+            children: [
+              ChipLabel('Osmanlı'),
+              ChipLabel('Tabak Tasarım'),
+              ChipLabel('Dünya Mutfağı'),
+              ChipLabel('Maliyet'),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStorySection(String hikaye) {
+    return SectionCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _sectionTitle('ŞEF HİKAYESİ'),
+          const SizedBox(height: 12),
+          Text(
+            hikaye,
+            style: const TextStyle(
+              color: Colors.white70,
+              fontSize: 13,
+              height: 1.55,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildGallerySection(List<String> gallery) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            const Expanded(
+              child: Text(
+                'GALERİ',
+                style: TextStyle(
+                  color: gold,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: 1.6,
+                ),
+              ),
+            ),
+            if (widget.isAdmin)
+              GestureDetector(
+                onTap: _addGalleryImage,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 10,
+                  ),
+                  decoration: BoxDecoration(
+                    color: gold,
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                  child: const Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.add_photo_alternate,
+                        color: Colors.black,
+                        size: 18,
+                      ),
+                      SizedBox(width: 8),
+                      Text(
+                        'Fotoğraf Ekle',
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        if (gallery.isEmpty)
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(vertical: 28, horizontal: 18),
+            decoration: BoxDecoration(
+              color: const Color(0xFF101010),
+              borderRadius: BorderRadius.circular(18),
+              border: Border.all(color: Colors.white10),
+            ),
+            child: Text(
+              widget.isAdmin
+                  ? 'Henüz galeri fotoğrafı yok. Sağdaki butonla ilk fotoğrafı ekleyebilirsin.'
+                  : 'Henüz galeri fotoğrafı yok.',
+              style: const TextStyle(
+                color: Colors.white54,
+                fontSize: 12,
+              ),
+            ),
+          )
+        else
+          GridView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: gallery.length,
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 3,
+              crossAxisSpacing: 12,
+              mainAxisSpacing: 12,
+              childAspectRatio: 1.05,
+            ),
+            itemBuilder: (context, index) {
+              final url = gallery[index].trim();
+
+              return GestureDetector(
+                onTap: () => _openImage(url),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(18),
+                  child: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      NetworkImageWidget(url: url),
+                      Container(
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.white10),
+                          borderRadius: BorderRadius.circular(18),
+                        ),
+                      ),
+                      if (widget.isAdmin)
+                        Positioned(
+                          top: 6,
+                          right: 6,
+                          child: GestureDetector(
+                            onTap: () => _removeGalleryImage(url),
+                            child: Container(
+                              padding: const EdgeInsets.all(5),
+                              decoration: BoxDecoration(
+                                color: Colors.black.withAlpha(170),
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                Icons.close,
+                                color: Colors.redAccent,
+                                size: 16,
+                              ),
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+      ],
+    );
+  }
+
+  Widget _chefLiveStatusCard(String chefId) {
+    return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+      stream: FirebaseFirestore.instance
+          .collection('chef_table_reservations')
+          .where('chefId', isEqualTo: chefId)
+          .orderBy('createdAt', descending: true)
+          .limit(1)
+          .snapshots(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const SectionCard(
+            child: SizedBox(
+              height: 96,
+              child: Center(
+                child: CircularProgressIndicator(color: gold),
+              ),
+            ),
+          );
+        }
+
+        if (snapshot.hasError) {
+          return const SectionCard(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SectionTitleText('CANLI DURUM'),
+                SizedBox(height: 12),
+                Text(
+                  'Son aktivite yüklenemedi.',
+                  style: TextStyle(color: Colors.white54, fontSize: 12),
+                ),
+              ],
+            ),
+          );
+        }
+
+        final docs = snapshot.data?.docs ?? [];
+
+        if (docs.isEmpty) {
+          return const SectionCard(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SectionTitleText('CANLI DURUM'),
+                SizedBox(height: 12),
+                Text(
+                  'Henüz rezervasyon aktivitesi bulunmuyor.',
+                  style: TextStyle(color: Colors.white54, fontSize: 12),
+                ),
+              ],
+            ),
+          );
+        }
+
+        final data = docs.first.data();
+        final tableTitle = (data['tableTitle'] ?? 'Rezervasyon').toString();
+        final flowStatus =
+            (data['reservationFlowStatus'] ?? 'bilinmiyor').toString();
+        final paymentStatus =
+            (data['paymentStatus'] ?? 'bilinmiyor').toString();
+        final guestCount = (data['guestCount'] ?? '-').toString();
+
+        return SectionCard(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _sectionTitle('CANLI DURUM'),
+              const SizedBox(height: 12),
+              Text(
+                tableTitle,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 15,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Akış: $flowStatus',
+                style: const TextStyle(color: Colors.white70, fontSize: 12),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                'Ödeme: $paymentStatus',
+                style: const TextStyle(color: Colors.white70, fontSize: 12),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                'Kişi sayısı: $guestCount',
+                style: const TextStyle(color: Colors.white70, fontSize: 12),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 
@@ -387,7 +859,7 @@ class _SefItibarSayfasiState extends State<SefItibarSayfasi> {
                   ),
                 ),
                 flexibleSpace: FlexibleSpaceBar(
-                  background: _HeroHeader(
+                  background: HeroHeader(
                     coverImageUrl: coverImage,
                     profileImageUrl: profileImage,
                     title: displayName,
@@ -415,246 +887,28 @@ class _SefItibarSayfasiState extends State<SefItibarSayfasi> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _StatsRow(
+                      StatsRow(
                         puan: puan,
                         mezun: mezun,
                         muhur: muhur,
                       ),
                       const SizedBox(height: 18),
-                      _SectionCard(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            _sectionTitle('DASHBOARD HIZLI GEÇİŞ'),
-                            const SizedBox(height: 12),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: InkWell(
-                                    borderRadius: BorderRadius.circular(18),
-                                    onTap: () {},
-                                    child: Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        vertical: 16,
-                                        horizontal: 10,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: Colors.white.withAlpha(8),
-                                        borderRadius: BorderRadius.circular(18),
-                                        border:
-                                            Border.all(color: Colors.white10),
-                                      ),
-                                      child: const Column(
-                                        children: [
-                                          Icon(
-                                            Icons.verified_outlined,
-                                            color: gold,
-                                            size: 22,
-                                          ),
-                                          SizedBox(height: 8),
-                                          Text(
-                                            'İTİBAR',
-                                            textAlign: TextAlign.center,
-                                            style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 10,
-                                              fontWeight: FontWeight.w800,
-                                              letterSpacing: 0.8,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(width: 10),
-                                Expanded(
-                                  child: InkWell(
-                                    borderRadius: BorderRadius.circular(18),
-                                    onTap: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (_) => SefAkademiDersleri(
-                                            chefId: _chefId,
-                                            chefName: displayName,
-                                          ),
-                                        ),
-                                      );
-                                    },
-                                    child: Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        vertical: 16,
-                                        horizontal: 10,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: Colors.white.withAlpha(8),
-                                        borderRadius: BorderRadius.circular(18),
-                                        border:
-                                            Border.all(color: Colors.white10),
-                                      ),
-                                      child: const Column(
-                                        children: [
-                                          Icon(
-                                            Icons.school_outlined,
-                                            color: gold,
-                                            size: 22,
-                                          ),
-                                          SizedBox(height: 8),
-                                          Text(
-                                            'AKADEMİ',
-                                            textAlign: TextAlign.center,
-                                            style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 10,
-                                              fontWeight: FontWeight.w800,
-                                              letterSpacing: 0.8,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(width: 10),
-                                Expanded(
-                                  child: InkWell(
-                                    borderRadius: BorderRadius.circular(18),
-                                    onTap: () {},
-                                    child: Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        vertical: 16,
-                                        horizontal: 10,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: Colors.white.withAlpha(8),
-                                        borderRadius: BorderRadius.circular(18),
-                                        border:
-                                            Border.all(color: Colors.white10),
-                                      ),
-                                      child: const Column(
-                                        children: [
-                                          Icon(
-                                            Icons.event_seat_outlined,
-                                            color: gold,
-                                            size: 22,
-                                          ),
-                                          SizedBox(height: 8),
-                                          Text(
-                                            'REZERVASYON',
-                                            textAlign: TextAlign.center,
-                                            style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 10,
-                                              fontWeight: FontWeight.w800,
-                                              letterSpacing: 0.8,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
+                      _buildQuickActionsContent(displayName),
                       const SizedBox(height: 18),
                       _chefLiveStatusCard(_chefId),
                       const SizedBox(height: 18),
-                      _SectionCard(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            _sectionTitle('HIZLI ERİŞİM'),
-                            const SizedBox(height: 12),
-                            Wrap(
-                              spacing: 8,
-                              runSpacing: 8,
-                              children: [
-                                InkWell(
-                                  borderRadius: BorderRadius.circular(999),
-                                  onTap: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (_) => SefAkademiDersleri(
-                                          chefId: _chefId,
-                                          chefName: displayName,
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                  child: const _ChipLabel('Şef Akademisi'),
-                                ),
-                                const _ChipLabel('İmza Mutfağı'),
-                                const _ChipLabel('Şefin Masası'),
-                                const _ChipLabel('Catering'),
-                              ],
-                            ),
-                          ],
-                        ),
+                      _buildQuickAccess(displayName),
+                      const SizedBox(height: 18),
+                      _buildCurriculumSection(),
+                      const SizedBox(height: 18),
+                      _buildStorySection(hikaye),
+                      const SizedBox(height: 18),
+                      SectionCard(
+                        child: _buildGallerySection(gallery),
                       ),
                       const SizedBox(height: 18),
-                      _SectionCard(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            _sectionTitle('AKADEMİ MÜFREDATI'),
-                            const SizedBox(height: 14),
-                            Wrap(
-                              spacing: 10,
-                              runSpacing: 10,
-                              children: const [
-                                _ChipLabel('Osmanlı'),
-                                _ChipLabel('Tabak Tasarım'),
-                                _ChipLabel('Dünya Mutfağı'),
-                                _ChipLabel('Maliyet'),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 18),
-                      _SectionCard(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            _sectionTitle('ŞEF HİKAYESİ'),
-                            const SizedBox(height: 12),
-                            Text(
-                              hikaye,
-                              style: const TextStyle(
-                                color: Colors.white70,
-                                fontSize: 13,
-                                height: 1.55,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 18),
-                      _SectionCard(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            _sectionTitle('GALERİ'),
-                            const SizedBox(height: 12),
-                            _galleryGrid(gallery),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 18),
-                      _SectionCard(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            _sectionTitle('ŞEFİN İMZA TABAKLARI'),
-                            const SizedBox(height: 12),
-                            _sefTabaklariListesi(_chefId),
-                          ],
-                        ),
+                      const SectionCard(
+                        child: _SizedImzaSectionPlaceholder(),
                       ),
                     ],
                   ),
@@ -666,302 +920,27 @@ class _SefItibarSayfasiState extends State<SefItibarSayfasi> {
       ),
     );
   }
+}
 
-  Widget _galleryGrid(List<String> gallery) {
-    if (gallery.isEmpty && !widget.isAdmin) {
-      return Container(
-        height: 120,
-        decoration: BoxDecoration(
-          color: Colors.white.withAlpha(10),
-          borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: Colors.white10),
-        ),
-        child: const Center(
-          child: Text(
-            'Henüz galeri fotoğrafı eklenmemiş.',
-            style: TextStyle(color: Colors.white38, fontSize: 11),
-          ),
-        ),
-      );
-    }
+class _SizedImzaSectionPlaceholder extends StatelessWidget {
+  const _SizedImzaSectionPlaceholder();
 
-    final itemCount = widget.isAdmin ? gallery.length + 1 : gallery.length;
+  @override
+  Widget build(BuildContext context) {
+    final state = context.findAncestorStateOfType<_SefItibarSayfasiState>();
+    final chefId = state?._chefId ?? '';
 
-    return GridView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: itemCount,
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 3,
-        mainAxisSpacing: 10,
-        crossAxisSpacing: 10,
-        childAspectRatio: 1,
-      ),
-      itemBuilder: (context, index) {
-        if (widget.isAdmin && index == 0) {
-          return GestureDetector(
-            onTap: _busy ? null : _addGalleryImage,
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.white.withAlpha(10),
-                borderRadius: BorderRadius.circular(18),
-                border: Border.all(color: line),
-              ),
-              child: const Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.add_photo_alternate, color: gold, size: 28),
-                  SizedBox(height: 6),
-                  Text(
-                    'Fotoğraf Ekle',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: Colors.white70,
-                      fontSize: 10,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          );
-        }
-
-        final realIndex = widget.isAdmin ? index - 1 : index;
-        final url = gallery[realIndex].trim();
-
-        return GestureDetector(
-          onTap: () => _openImage(url),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(18),
-            child: Stack(
-              fit: StackFit.expand,
-              children: [
-                _NetworkImage(url: url),
-                Container(
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.white10),
-                    borderRadius: BorderRadius.circular(18),
-                  ),
-                ),
-                if (widget.isAdmin)
-                  Positioned(
-                    top: 6,
-                    right: 6,
-                    child: GestureDetector(
-                      onTap: () => _removeGalleryImage(url),
-                      child: Container(
-                        padding: const EdgeInsets.all(5),
-                        decoration: BoxDecoration(
-                          color: Colors.black.withAlpha(170),
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(
-                          Icons.close,
-                          color: Colors.redAccent,
-                          size: 16,
-                        ),
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _sefTabaklariListesi(String dukkanId) {
-    return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-      stream: FirebaseFirestore.instance
-          .collection('urunler')
-          .where('dukkanId', isEqualTo: dukkanId)
-          .where('tip', isNotEqualTo: 'Usta Sefler')
-          .orderBy('tip')
-          .snapshots(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const SizedBox(
-            height: 160,
-            child: Center(
-              child: CircularProgressIndicator(color: gold),
-            ),
-          );
-        }
-
-        if (snapshot.hasError) {
-          return const SizedBox(
-            height: 90,
-            child: Center(
-              child: Text(
-                'İmza tabakları yüklenemedi.',
-                style: TextStyle(color: Colors.white38),
-              ),
-            ),
-          );
-        }
-
-        final yemekler = snapshot.data?.docs ?? [];
-        if (yemekler.isEmpty) {
-          return const SizedBox(
-            height: 70,
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                'Şefin henüz eklenmiş imza tabağı bulunmuyor.',
-                style: TextStyle(color: Colors.white38, fontSize: 12),
-              ),
-            ),
-          );
-        }
-
-        return SizedBox(
-          height: 190,
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            itemCount: yemekler.length,
-            itemBuilder: (context, index) {
-              final yemek = yemekler[index].data();
-              return _DishCard(
-                isim: (yemek['ad'] ?? 'İmza Tabağı').toString(),
-                url: (yemek['img'] ?? '').toString(),
-              );
-            },
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _chefLiveStatusCard(String chefId) {
-    return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-      stream: FirebaseFirestore.instance
-          .collection('chef_table_reservations')
-          .where('chefId', isEqualTo: chefId)
-          .orderBy('createdAt', descending: true)
-          .limit(1)
-          .snapshots(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const _SectionCard(
-            child: SizedBox(
-              height: 96,
-              child: Center(
-                child: CircularProgressIndicator(color: gold),
-              ),
-            ),
-          );
-        }
-
-        if (snapshot.hasError) {
-          return const _SectionCard(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'CANLI DURUM',
-                  style: TextStyle(
-                    color: gold,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: 1.6,
-                  ),
-                ),
-                SizedBox(height: 12),
-                Text(
-                  'Son aktivite yüklenemedi.',
-                  style: TextStyle(color: Colors.white54, fontSize: 12),
-                ),
-              ],
-            ),
-          );
-        }
-
-        final docs = snapshot.data?.docs ?? [];
-
-        if (docs.isEmpty) {
-          return const _SectionCard(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'CANLI DURUM',
-                  style: TextStyle(
-                    color: gold,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: 1.6,
-                  ),
-                ),
-                SizedBox(height: 12),
-                Text(
-                  'Henüz rezervasyon aktivitesi bulunmuyor.',
-                  style: TextStyle(color: Colors.white54, fontSize: 12),
-                ),
-              ],
-            ),
-          );
-        }
-
-        final data = docs.first.data();
-        final tableTitle = (data['tableTitle'] ?? 'Rezervasyon').toString();
-        final flowStatus =
-            (data['reservationFlowStatus'] ?? 'bilinmiyor').toString();
-        final paymentStatus =
-            (data['paymentStatus'] ?? 'bilinmiyor').toString();
-        final guestCount = (data['guestCount'] ?? '-').toString();
-
-        return _SectionCard(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _sectionTitle('CANLI DURUM'),
-              const SizedBox(height: 12),
-              Text(
-                tableTitle,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 15,
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Akış: $flowStatus',
-                style: const TextStyle(color: Colors.white70, fontSize: 12),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                'Ödeme: $paymentStatus',
-                style: const TextStyle(color: Colors.white70, fontSize: 12),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                'Kişi sayısı: $guestCount',
-                style: const TextStyle(color: Colors.white70, fontSize: 12),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _sectionTitle(String text) {
-    return Text(
-      text,
-      style: const TextStyle(
-        color: gold,
-        fontSize: 12,
-        fontWeight: FontWeight.w800,
-        letterSpacing: 1.6,
-      ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(height: 2),
+        SefImzaTabaklariSection(chefId: chefId),
+      ],
     );
   }
 }
 
-class _HeroHeader extends StatelessWidget {
+class HeroHeader extends StatelessWidget {
   final String coverImageUrl;
   final String profileImageUrl;
   final String title;
@@ -976,7 +955,8 @@ class _HeroHeader extends StatelessWidget {
   final VoidCallback? onOpenProfile;
   final VoidCallback? onOpenCover;
 
-  const _HeroHeader({
+  const HeroHeader({
+    super.key,
     required this.coverImageUrl,
     required this.profileImageUrl,
     required this.title,
@@ -1003,13 +983,30 @@ class _HeroHeader extends StatelessWidget {
         GestureDetector(
           onTap: onOpenCover,
           child: safeCover.isEmpty
-              ? Container(color: const Color(0xFF111111))
+              ? Container(
+                  color: const Color(0xFF111111),
+                  child: const Center(
+                    child: Icon(
+                      Icons.landscape,
+                      color: Colors.white24,
+                      size: 42,
+                    ),
+                  ),
+                )
               : Image.network(
                   safeCover,
                   fit: BoxFit.cover,
                   alignment: const Alignment(0, -0.15),
-                  errorBuilder: (_, __, ___) =>
-                      Container(color: const Color(0xFF111111)),
+                  errorBuilder: (_, __, ___) => Container(
+                    color: const Color(0xFF111111),
+                    child: const Center(
+                      child: Icon(
+                        Icons.broken_image,
+                        color: Colors.white24,
+                        size: 42,
+                      ),
+                    ),
+                  ),
                 ),
         ),
         Container(
@@ -1030,13 +1027,15 @@ class _HeroHeader extends StatelessWidget {
         Positioned(
           left: 20,
           top: 18,
-          child: Row(
+          child: Wrap(
+            spacing: 8,
+            runSpacing: 8,
             children: [
               Container(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
                 decoration: BoxDecoration(
-                  color: Colors.black.withAlpha(120),
+                  color: Colors.black.withAlpha(125),
                   borderRadius: BorderRadius.circular(999),
                   border: Border.all(color: Colors.white10),
                 ),
@@ -1050,7 +1049,6 @@ class _HeroHeader extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(width: 8),
               Container(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
@@ -1077,50 +1075,114 @@ class _HeroHeader extends StatelessWidget {
                   ),
                 ),
               ),
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+                decoration: BoxDecoration(
+                  color: Colors.black.withAlpha(125),
+                  borderRadius: BorderRadius.circular(999),
+                  border: Border.all(color: const Color(0x33FFB300)),
+                ),
+                child: const Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.workspace_premium_rounded,
+                      color: Color(0xFFFFB300),
+                      size: 14,
+                    ),
+                    SizedBox(width: 6),
+                    Text(
+                      'ÖNE ÇIKAN ŞEF',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 10,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 1,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ],
           ),
         ),
         if (isAdmin)
           Positioned(
-            top: 18,
-            right: 18,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    _AdminCircleButton(
-                      icon: Icons.delete_outline,
-                      color: Colors.redAccent,
-                      onTap: onDeleteCover,
+            top: 20,
+            right: 20,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              decoration: BoxDecoration(
+                color: Colors.black.withAlpha(160),
+                borderRadius: BorderRadius.circular(18),
+                border: Border.all(color: Colors.white12),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withAlpha(90),
+                    blurRadius: 20,
+                    offset: const Offset(0, 10),
+                  ),
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  const Text(
+                    'KAPAK',
+                    style: TextStyle(
+                      color: Colors.white60,
+                      fontSize: 10,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 1,
                     ),
-                    const SizedBox(width: 10),
-                    _AdminCircleButton(
-                      icon: Icons.landscape,
-                      color: const Color(0xFFFFB300),
-                      onTap: onEditCover,
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      _AdminCircleButton(
+                        icon: Icons.delete_outline,
+                        color: Colors.redAccent,
+                        onTap: onDeleteCover,
+                      ),
+                      const SizedBox(width: 10),
+                      _AdminCircleButton(
+                        icon: Icons.photo,
+                        color: const Color(0xFFFFB300),
+                        onTap: onEditCover,
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 14),
+                  const Text(
+                    'PROFİL',
+                    style: TextStyle(
+                      color: Colors.white60,
+                      fontSize: 10,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 1,
                     ),
-                  ],
-                ),
-                const SizedBox(height: 10),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    _AdminCircleButton(
-                      icon: Icons.person_remove_alt_1,
-                      color: Colors.redAccent,
-                      onTap: onDeleteProfile,
-                    ),
-                    const SizedBox(width: 10),
-                    _AdminCircleButton(
-                      icon: Icons.add_a_photo,
-                      color: const Color(0xFFFFB300),
-                      onTap: onEditProfile,
-                    ),
-                  ],
-                ),
-              ],
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      _AdminCircleButton(
+                        icon: Icons.person_remove_alt_1,
+                        color: Colors.redAccent,
+                        onTap: onDeleteProfile,
+                      ),
+                      const SizedBox(width: 10),
+                      _AdminCircleButton(
+                        icon: Icons.add_a_photo,
+                        color: const Color(0xFFFFB300),
+                        onTap: onEditProfile,
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
         Positioned(
@@ -1130,8 +1192,8 @@ class _HeroHeader extends StatelessWidget {
           child: Container(
             padding: const EdgeInsets.fromLTRB(18, 16, 18, 16),
             decoration: BoxDecoration(
-              color: Colors.black.withAlpha(70),
-              borderRadius: BorderRadius.circular(20),
+              color: Colors.black.withAlpha(75),
+              borderRadius: BorderRadius.circular(22),
               border: Border.all(color: Colors.white10),
             ),
             child: Row(
@@ -1140,14 +1202,21 @@ class _HeroHeader extends StatelessWidget {
                 GestureDetector(
                   onTap: onOpenProfile,
                   child: Container(
-                    width: 84,
-                    height: 84,
+                    width: 88,
+                    height: 88,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       border: Border.all(
                         color: const Color(0x55FFFFFF),
                         width: 2,
                       ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withAlpha(60),
+                          blurRadius: 18,
+                          offset: const Offset(0, 8),
+                        ),
+                      ],
                     ),
                     child: ClipOval(
                       child: safeProfile.isEmpty
@@ -1239,71 +1308,100 @@ class _AdminCircleButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: 40,
-        height: 40,
-        decoration: BoxDecoration(
-          color: Colors.black.withAlpha(170),
-          shape: BoxShape.circle,
-          border: Border.all(color: Colors.white10),
+    return Tooltip(
+      message: 'Yönetim aksiyonu',
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          width: 44,
+          height: 44,
+          decoration: BoxDecoration(
+            color: Colors.black.withAlpha(180),
+            shape: BoxShape.circle,
+            border: Border.all(color: Colors.white12),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withAlpha(70),
+                blurRadius: 12,
+                offset: const Offset(0, 6),
+              ),
+            ],
+          ),
+          child: Icon(icon, color: color, size: 19),
         ),
-        child: Icon(icon, color: color, size: 18),
       ),
     );
   }
 }
 
-class _StatsRow extends StatelessWidget {
-  final String puan;
-  final String mezun;
-  final String muhur;
+class SectionTitleText extends StatelessWidget {
+  final String text;
 
-  const _StatsRow({
-    required this.puan,
-    required this.mezun,
-    required this.muhur,
+  const SectionTitleText(this.text, {super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const SizedBox.shrink();
+  }
+}
+
+class SectionCard extends StatelessWidget {
+  final Widget child;
+
+  const SectionCard({
+    super.key,
+    required this.child,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Expanded(
-          child: _StatCard(
-            icon: Icons.star_rounded,
-            value: puan,
-            label: 'İTİBAR',
-          ),
-        ),
-        const SizedBox(width: 10),
-        Expanded(
-          child: _StatCard(
-            icon: Icons.school_rounded,
-            value: mezun,
-            label: 'MEZUN',
-          ),
-        ),
-        const SizedBox(width: 10),
-        Expanded(
-          child: _StatCard(
-            icon: Icons.workspace_premium_rounded,
-            value: muhur,
-            label: 'MÜHÜR',
-          ),
-        ),
-      ],
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0xFF121212),
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(color: const Color(0x22FFB300)),
+      ),
+      child: child,
     );
   }
 }
 
-class _StatCard extends StatelessWidget {
+class ChipLabel extends StatelessWidget {
+  final String text;
+
+  const ChipLabel(this.text, {super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      decoration: BoxDecoration(
+        color: Colors.white.withAlpha(8),
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(color: Colors.white10),
+      ),
+      child: Text(
+        text.toUpperCase(),
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 10,
+          fontWeight: FontWeight.w700,
+          letterSpacing: 0.8,
+        ),
+      ),
+    );
+  }
+}
+
+class StatCard extends StatelessWidget {
   final IconData icon;
   final String value;
   final String label;
 
-  const _StatCard({
+  const StatCard({
+    super.key,
     required this.icon,
     required this.value,
     required this.label,
@@ -1320,7 +1418,6 @@ class _StatCard extends StatelessWidget {
       ),
       child: Column(
         children: [
-          const Icon(Icons.circle, color: Colors.transparent, size: 0),
           Icon(icon, color: const Color(0xFFFFB300), size: 22),
           const SizedBox(height: 10),
           Text(
@@ -1347,106 +1444,57 @@ class _StatCard extends StatelessWidget {
   }
 }
 
-class _SectionCard extends StatelessWidget {
-  final Widget child;
+class StatsRow extends StatelessWidget {
+  final String puan;
+  final String mezun;
+  final String muhur;
 
-  const _SectionCard({required this.child});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: const Color(0xFF121212),
-        borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: const Color(0x22FFB300)),
-      ),
-      child: child,
-    );
-  }
-}
-
-class _ChipLabel extends StatelessWidget {
-  final String text;
-
-  const _ChipLabel(this.text);
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-      decoration: BoxDecoration(
-        color: Colors.white.withAlpha(8),
-        borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: Colors.white10),
-      ),
-      child: Text(
-        text.toUpperCase(),
-        style: const TextStyle(
-          color: Colors.white,
-          fontSize: 10,
-          fontWeight: FontWeight.w700,
-          letterSpacing: 0.8,
-        ),
-      ),
-    );
-  }
-}
-
-class _DishCard extends StatelessWidget {
-  final String isim;
-  final String url;
-
-  const _DishCard({
-    required this.isim,
-    required this.url,
+  const StatsRow({
+    super.key,
+    required this.puan,
+    required this.mezun,
+    required this.muhur,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 180,
-      margin: const EdgeInsets.only(right: 12),
-      decoration: BoxDecoration(
-        color: const Color(0xFF101010),
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: Colors.white10),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            child: ClipRRect(
-              borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(18),
-              ),
-              child: _NetworkImage(url: url),
-            ),
+    return Row(
+      children: [
+        Expanded(
+          child: StatCard(
+            icon: Icons.star_rounded,
+            value: puan,
+            label: 'İTİBAR',
           ),
-          Padding(
-            padding: const EdgeInsets.all(12),
-            child: Text(
-              isim,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 12,
-                fontWeight: FontWeight.w800,
-              ),
-            ),
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: StatCard(
+            icon: Icons.school_rounded,
+            value: mezun,
+            label: 'MEZUN',
           ),
-        ],
-      ),
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: StatCard(
+            icon: Icons.workspace_premium_rounded,
+            value: muhur,
+            label: 'MÜHÜR',
+          ),
+        ),
+      ],
     );
   }
 }
 
-class _NetworkImage extends StatelessWidget {
+class NetworkImageWidget extends StatelessWidget {
   final String url;
 
-  const _NetworkImage({required this.url});
+  const NetworkImageWidget({
+    super.key,
+    required this.url,
+  });
 
   @override
   Widget build(BuildContext context) {
