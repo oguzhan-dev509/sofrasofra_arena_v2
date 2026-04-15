@@ -163,10 +163,10 @@ class _KuryeAtamaAksiyonlariState extends State<KuryeAtamaAksiyonlari> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
               decoration: BoxDecoration(
-                color: _statusColor(status).withOpacity(0.12),
+                color: _statusColor(status).withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(999),
                 border:
-                    Border.all(color: _statusColor(status).withOpacity(0.35)),
+                    Border.all(color: _statusColor(status).withValues(alpha: 0.35)),
               ),
               child: Text(
                 _statusLabel(status),
@@ -182,10 +182,10 @@ class _KuryeAtamaAksiyonlariState extends State<KuryeAtamaAksiyonlari> {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                 decoration: BoxDecoration(
-                  color: _retryColor(retryStatus).withOpacity(0.12),
+                  color: _retryColor(retryStatus).withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(999),
                   border: Border.all(
-                      color: _retryColor(retryStatus).withOpacity(0.35)),
+                      color: _retryColor(retryStatus).withValues(alpha: 0.35)),
                 ),
                 child: Text(
                   _retryLabel(retryStatus),

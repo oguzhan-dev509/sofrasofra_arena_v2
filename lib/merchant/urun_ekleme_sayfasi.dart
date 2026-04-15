@@ -510,7 +510,7 @@ if (!validation.ok) {
               decoration: BoxDecoration(
                 color: const Color(0xFF111111),
                 borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: gold.withOpacity(0.30)),
+                border: Border.all(color: gold.withValues(alpha: 0.30)),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -748,7 +748,7 @@ if (!validation.ok) {
                 decoration: BoxDecoration(
                   color: const Color(0xFF111111),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: gold.withOpacity(0.30)),
+                  border: Border.all(color: gold.withValues(alpha: 0.30)),
                 ),
                 child: SwitchListTile(
                   contentPadding: EdgeInsets.zero,
@@ -940,7 +940,7 @@ if (!validation.ok) {
       child: Container(
         padding: const EdgeInsets.all(15),
         decoration: BoxDecoration(
-          border: Border.all(color: c.withOpacity(0.35)),
+          border: Border.all(color: c.withValues(alpha: 0.35)),
           borderRadius: BorderRadius.circular(12),
           color: const Color(0xFF0A0A0A),
         ),

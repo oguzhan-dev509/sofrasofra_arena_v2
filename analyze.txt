@@ -1,0 +1,241 @@
+Analyzing sofrasofra_arena_v2...                                
+
+   info - Constructors in '@immutable' classes should be declared as 'const' - eski_chef_table_745c10c.dart:5:3 - prefer_const_constructors_in_immutables
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - eski_chef_table_745c10c.dart:180:41 - deprecated_member_use
+warning - The value of the field '_panel' isn't used - eski_gastronomi_0317a47.dart:18:22 - unused_field
+warning - The value of the field '_panel2' isn't used - eski_gastronomi_0317a47.dart:19:22 - unused_field
+warning - The value of the field '_softText' isn't used - eski_gastronomi_0317a47.dart:21:22 - unused_field
+warning - The value of the field '_border' isn't used - eski_gastronomi_0317a47.dart:22:22 - unused_field
+warning - The declaration '_hasChefContext' isn't referenced - eski_gastronomi_0317a47.dart:24:8 - unused_element
+   info - Don't invoke 'print' in production code - eski_gastronomi_0317a47.dart:111:5 - avoid_print
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\admin\admin_icerik_paneli.dart:228:22 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\admin\admin_icerik_paneli.dart:230:41 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\admin\admin_icerik_paneli.dart:347:40 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\admin\admin_icerik_paneli.dart:715:32 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\admin\admin_icerik_paneli.dart:716:33 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\admin\admin_icerik_paneli.dart:737:27 - deprecated_member_use
+   info - 'activeColor' is deprecated and shouldn't be used. Use activeThumbColor instead. This feature was deprecated after v3.31.0-2.0.pre - lib\admin\chef_profile_admin_page.dart:338:9 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\admin\kurye_basvurulari.dart:265:50 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\admin\kurye_basvurulari.dart:361:46 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\admin\kurye_basvurulari.dart:433:22 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\admin\kurye_basvurulari.dart:435:41 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\admin\kurye_basvurulari.dart:483:52 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\admin\kurye_basvurulari.dart:626:28 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\admin\kurye_basvurulari.dart:732:33 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\admin\kurye_harita_takip.dart:279:55 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\admin\kurye_harita_takip.dart:314:55 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\admin\kurye_teslim_test_sayfasi.dart:158:22 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\admin\kurye_teslim_test_sayfasi.dart:160:41 - deprecated_member_use
+   info - Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check - lib\admin\kurye_yonetimi.dart:238:33 - use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check - lib\admin\satici_onay_merkezi.dart:172:35 - use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check - lib\admin\satici_onay_merkezi.dart:173:42 - use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check - lib\admin\satici_onay_merkezi.dart:179:42 - use_build_context_synchronously
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\admin\satici_onay_merkezi.dart:666:48 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\admin\satici_onay_merkezi.dart:690:62 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\admin\satici_onay_merkezi.dart:691:60 - deprecated_member_use
+   info - Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check - lib\admin\siparis_yonetimi.dart:403:33 - use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check - lib\admin\siparis_yonetimi.dart:404:40 - use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check - lib\admin\siparis_yonetimi.dart:410:40 - use_build_context_synchronously
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\admin\siparis_yonetimi.dart:830:62 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\admin\siparis_yonetimi.dart:889:48 - deprecated_member_use
+   info - Don't invoke 'print' in production code - lib\admin\usta_sef_admin_sayfasi.dart:138:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\admin\usta_sef_admin_sayfasi.dart:192:7 - avoid_print
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\admin\usta_sef_admin_sayfasi.dart:265:35 - deprecated_member_use
+   info - 'activeColor' is deprecated and shouldn't be used. Use activeThumbColor instead. This feature was deprecated after v3.31.0-2.0.pre - lib\admin\usta_sef_admin_sayfasi.dart:410:19 - deprecated_member_use
+   info - 'activeColor' is deprecated and shouldn't be used. Use activeThumbColor instead. This feature was deprecated after v3.31.0-2.0.pre - lib\admin\usta_sef_admin_sayfasi.dart:419:19 - deprecated_member_use
+   info - 'activeColor' is deprecated and shouldn't be used. Use activeThumbColor instead. This feature was deprecated after v3.31.0-2.0.pre - lib\admin\usta_sef_admin_sayfasi.dart:428:19 - deprecated_member_use
+   info - 'activeColor' is deprecated and shouldn't be used. Use activeThumbColor instead. This feature was deprecated after v3.31.0-2.0.pre - lib\admin\usta_sef_admin_sayfasi.dart:437:19 - deprecated_member_use
+   info - 'activeColor' is deprecated and shouldn't be used. Use activeThumbColor instead. This feature was deprecated after v3.31.0-2.0.pre - lib\admin\usta_sef_admin_sayfasi.dart:524:19 - deprecated_member_use
+   info - Don't use 'BuildContext's across async gaps - lib\admin\usta_sef_admin_sayfasi.dart:655:26 - use_build_context_synchronously
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\admin\usta_sef_gorsel_yonetimi.dart:115:52 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\admin\uyelik_test_sayfasi.dart:178:56 - deprecated_member_use
+   info - 'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre - lib\admin\uyelik_test_sayfasi.dart:205:21 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\admin\widgets\kurye_atama_aksiyonlari.dart:166:45 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\admin\widgets\kurye_atama_aksiyonlari.dart:169:60 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\admin\widgets\kurye_atama_aksiyonlari.dart:185:51 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\admin\widgets\kurye_atama_aksiyonlari.dart:188:55 - deprecated_member_use
+warning - The value of the field '_goldDark' isn't used - lib\cart\sepet_sayfasi.dart:22:22 - unused_field
+warning - The declaration '_sepetiTemizle' isn't referenced - lib\cart\sepet_sayfasi.dart:110:16 - unused_element
+  error - The method 'AnaSayfa' isn't defined for the type '_AppRootState' - lib\core\app_root.dart:19:7 - undefined_method
+warning - Dead code - lib\main.dart:31:53 - dead_code
+warning - Dead code - lib\main.dart:35:56 - dead_code
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\maps\kurye_canli_takip_sayfasi.dart:223:41 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\maps\kurye_harita.dart:215:37 - deprecated_member_use
+warning - The value of the field '_card' isn't used - lib\merchant\ev_orders_sayfasi.dart:13:22 - unused_field
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\merchant\ev_urun_ekleme_sayfasi.dart:124:33 - deprecated_member_use
+warning - The value of the field '_panel' isn't used - lib\merchant\gastronomi_yonetim_merkezi.dart:18:22 - unused_field
+warning - The value of the field '_panel2' isn't used - lib\merchant\gastronomi_yonetim_merkezi.dart:19:22 - unused_field
+warning - The value of the field '_softText' isn't used - lib\merchant\gastronomi_yonetim_merkezi.dart:21:22 - unused_field
+warning - The value of the field '_border' isn't used - lib\merchant\gastronomi_yonetim_merkezi.dart:22:22 - unused_field
+   info - Don't invoke 'print' in production code - lib\merchant\gastronomi_yonetim_merkezi.dart:107:5 - avoid_print
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\merchant\merchant_merkez.dart:336:44 - deprecated_member_use
+   info - 'activeColor' is deprecated and shouldn't be used. Use activeThumbColor instead. This feature was deprecated after v3.31.0-2.0.pre - lib\merchant\merchant_merkez.dart:455:17 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\merchant\restoran_yonetim_paneli.dart:217:46 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\merchant\satici_siparis_paneli.dart:309:35 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\merchant\satici_siparis_paneli.dart:342:30 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\merchant\satici_siparis_paneli.dart:358:31 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\merchant\satici_siparis_paneli.dart:512:47 - deprecated_member_use
+   info - 'groupValue' is deprecated and shouldn't be used. Use a RadioGroup ancestor to manage group value instead. This feature was deprecated after v3.32.0-0.0.pre - lib\merchant\teslimat_ayarlar_sayfasi.dart:140:19 - deprecated_member_use
+   info - 'onChanged' is deprecated and shouldn't be used. Use RadioGroup to handle value change instead. This feature was deprecated after v3.32.0-0.0.pre - lib\merchant\teslimat_ayarlar_sayfasi.dart:146:19 - deprecated_member_use
+   info - 'groupValue' is deprecated and shouldn't be used. Use a RadioGroup ancestor to manage group value instead. This feature was deprecated after v3.32.0-0.0.pre - lib\merchant\teslimat_ayarlar_sayfasi.dart:154:19 - deprecated_member_use
+   info - 'onChanged' is deprecated and shouldn't be used. Use RadioGroup to handle value change instead. This feature was deprecated after v3.32.0-0.0.pre - lib\merchant\teslimat_ayarlar_sayfasi.dart:160:19 - deprecated_member_use
+   info - 'groupValue' is deprecated and shouldn't be used. Use a RadioGroup ancestor to manage group value instead. This feature was deprecated after v3.32.0-0.0.pre - lib\merchant\teslimat_ayarlar_sayfasi.dart:168:19 - deprecated_member_use
+   info - 'onChanged' is deprecated and shouldn't be used. Use RadioGroup to handle value change instead. This feature was deprecated after v3.32.0-0.0.pre - lib\merchant\teslimat_ayarlar_sayfasi.dart:174:19 - deprecated_member_use
+warning - The value of the field '_panelSoft' isn't used - lib\merchant\uretici_yonetim_merkezi_sayfasi.dart:20:22 - unused_field
+warning - The value of the field '_demoOrderId' isn't used - lib\merchant\uretici_yonetim_merkezi_sayfasi.dart:26:23 - unused_field
+warning - The value of the field '_sellerId' isn't used - lib\merchant\uretici_yonetim_merkezi_sayfasi.dart:27:23 - unused_field
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\merchant\uretici_yonetim_merkezi_sayfasi.dart:61:49 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\merchant\uretici_yonetim_merkezi_sayfasi.dart:139:57 - deprecated_member_use
+warning - The value of the field '_panel' isn't used - lib\merchant\uretici_yonetim_merkezi_sayfasi.dart:506:22 - unused_field
+warning - The value of the field '_chefId' isn't used - lib\merchant\uretici_yonetim_merkezi_sayfasi.dart:509:23 - unused_field
+warning - This case is covered by the previous cases - lib\merchant\uretici_yonetim_merkezi_sayfasi.dart:607:19 - unreachable_switch_case
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\merchant\uretici_yonetim_merkezi_sayfasi.dart:714:45 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\merchant\uretici_yonetim_merkezi_sayfasi.dart:763:43 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\merchant\uretici_yonetim_merkezi_sayfasi.dart:785:34 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\merchant\uretici_yonetim_merkezi_sayfasi.dart:787:53 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\merchant\uretici_yonetim_merkezi_sayfasi.dart:899:47 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\merchant\uretici_yonetim_merkezi_sayfasi.dart:909:36 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\merchant\urun_ekleme_sayfasi.dart:513:48 - deprecated_member_use
+   info - Don't use 'BuildContext's across async gaps - lib\merchant\urun_ekleme_sayfasi.dart:580:19 - use_build_context_synchronously
+   info - 'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre - lib\merchant\urun_ekleme_sayfasi.dart:598:15 - deprecated_member_use
+   info - 'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre - lib\merchant\urun_ekleme_sayfasi.dart:640:15 - deprecated_member_use
+   info - 'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre - lib\merchant\urun_ekleme_sayfasi.dart:676:15 - deprecated_member_use
+   info - 'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre - lib\merchant\urun_ekleme_sayfasi.dart:716:17 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\merchant\urun_ekleme_sayfasi.dart:751:50 - deprecated_member_use
+   info - 'activeColor' is deprecated and shouldn't be used. Use activeThumbColor instead. This feature was deprecated after v3.31.0-2.0.pre - lib\merchant\urun_ekleme_sayfasi.dart:755:19 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\merchant\urun_ekleme_sayfasi.dart:943:39 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\merchant\urun_ekleme_sayfasi_v2.dart:500:48 - deprecated_member_use
+   info - 'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre - lib\merchant\urun_ekleme_sayfasi_v2.dart:569:15 - deprecated_member_use
+   info - 'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre - lib\merchant\urun_ekleme_sayfasi_v2.dart:611:15 - deprecated_member_use
+   info - 'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre - lib\merchant\urun_ekleme_sayfasi_v2.dart:647:15 - deprecated_member_use
+   info - 'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre - lib\merchant\urun_ekleme_sayfasi_v2.dart:687:17 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\merchant\urun_ekleme_sayfasi_v2.dart:722:50 - deprecated_member_use
+   info - 'activeColor' is deprecated and shouldn't be used. Use activeThumbColor instead. This feature was deprecated after v3.31.0-2.0.pre - lib\merchant\urun_ekleme_sayfasi_v2.dart:726:19 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\merchant\urun_ekleme_sayfasi_v2.dart:1006:39 - deprecated_member_use
+warning - The value of the field '_panel' isn't used - lib\modules\akademi_kategori_vitrini.dart:14:22 - unused_field
+warning - The value of the field '_panel2' isn't used - lib\modules\akademi_kategori_vitrini.dart:15:22 - unused_field
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\modules\akademi_kategori_vitrini.dart:504:41 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\modules\akademi_kategori_vitrini.dart:507:33 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\modules\akademi_kategori_vitrini.dart:624:22 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\modules\akademi_kategori_vitrini.dart:626:41 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\modules\akademi_kategori_vitrini.dart:756:28 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\modules\akademi_kategori_vitrini.dart:882:35 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\modules\akademi_kategori_vitrini.dart:991:35 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\modules\akademi_kategori_vitrini.dart:1073:22 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\modules\akademi_kategori_vitrini.dart:1075:41 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\modules\akademi_kategori_vitrini.dart:1103:29 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\modules\arena_entry_page.dart:161:55 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\modules\arena_entry_page.dart:201:55 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\modules\arena_entry_page.dart:231:55 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\modules\arena_entry_page.dart:295:55 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\modules\arena_entry_page.dart:381:41 - deprecated_member_use
+   info - 'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre - lib\modules\arena_entry_page.dart:384:9 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\modules\arena_entry_page.dart:425:23 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\modules\arena_entry_page.dart:426:30 - deprecated_member_use
+   info - 'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre - lib\modules\arena_entry_page.dart:430:9 - deprecated_member_use
+   info - Don't use 'BuildContext's across async gaps - lib\modules\chef_table_reservations_page.dart:134:32 - use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps - lib\modules\chef_table_reservations_page.dart:146:30 - use_build_context_synchronously
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\modules\chef_table_reservations_page.dart:313:50 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\modules\chef_table_reservations_page.dart:316:52 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\modules\chef_table_reservations_page.dart:404:31 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\modules\course_detail_page.dart:235:53 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\modules\course_detail_page.dart:238:45 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\modules\course_detail_page.dart:484:54 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\modules\course_detail_page.dart:666:22 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\modules\course_detail_page.dart:668:41 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\modules\course_detail_page.dart:696:29 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\modules\create_reservation_page.dart:256:58 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\modules\create_reservation_page.dart:286:58 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\modules\create_reservation_page.dart:334:49 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\modules\create_reservation_page.dart:351:48 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\modules\create_reservation_page.dart:432:52 - deprecated_member_use
+  error - Undefined name 'arenaUrunHavuzu' - lib\modules\dukkan_detay_sayfasi.dart:13:26 - undefined_identifier
+  error - Undefined name 'arenaUrunHavuzu' - lib\modules\dukkan_kur.dart:122:7 - undefined_identifier
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\modules\ev_lezzetleri_vitrini.dart:103:41 - deprecated_member_use
+warning - The value of the field '_gold' isn't used - lib\modules\kategori_sayfasi.dart:16:22 - unused_field
+   info - 'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre - lib\modules\kategori_sayfasi.dart:702:9 - deprecated_member_use
+   info - 'translate' is deprecated and shouldn't be used. Use translateByVector3, translateByVector4, or translateByDouble instead - lib\modules\kategori_sayfasi.dart:836:40 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\modules\kategori_sayfasi.dart:846:35 - deprecated_member_use
+  error - Undefined name 'urun' - lib\modules\kategori_urun_listesi_sayfasi.dart:286:38 - undefined_identifier
+  error - Undefined name 'urun' - lib\modules\kategori_urun_listesi_sayfasi.dart:287:49 - undefined_identifier
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\modules\kurye_basvuru_merkezi.dart:510:29 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\modules\odeme_sayfasi.dart:87:59 - deprecated_member_use
+  error - Undefined name 'arenaUrunHavuzu' - lib\modules\pasaj_sayfasi.dart:14:23 - undefined_identifier
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\modules\restoran_coming_soon_page.dart:39:34 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\modules\restoran_coming_soon_page.dart:40:34 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\modules\restoran_coming_soon_page.dart:41:34 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\modules\restoran_coming_soon_page.dart:98:40 - deprecated_member_use
+warning - The declaration '_buildQuickActions' isn't referenced - lib\modules\sef_itibar_sayfasi.dart:319:10 - unused_element
+  error - Target of URI doesn't exist: 'sef_vitrini_v2.dart' - lib\modules\sef_vitrini.dart:2:8 - uri_does_not_exist
+  error - The name 'SefVitriniV2' isn't a class - lib\modules\sef_vitrini.dart:9:18 - creation_with_non_type
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\modules\sepetim.dart:46:59 - deprecated_member_use
+warning - The value of the field '_gold' isn't used - lib\modules\signature_dishes_widget.dart:12:16 - unused_field
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\modules\signature_dishes_widget.dart:111:34 - deprecated_member_use
+warning - The value of the field '_surfaceSoft' isn't used - lib\modules\urun_detay.dart:35:22 - unused_field
+warning - The value of the field '_goldSoft' isn't used - lib\modules\urun_detay.dart:37:22 - unused_field
+warning - The declaration '_isHttp' isn't referenced - lib\modules\urun_detay.dart:43:8 - unused_element
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\modules\urun_detay.dart:103:40 - deprecated_member_use
+warning - The declaration '_buildPlaceholder' isn't referenced - lib\modules\urun_detay.dart:153:10 - unused_element
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\modules\urun_detay.dart:323:42 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\modules\urun_detay.dart:692:39 - deprecated_member_use
+   info - Constructors in '@immutable' classes should be declared as 'const' - lib\modules\user_reservations_page.dart:8:3 - prefer_const_constructors_in_immutables
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\modules\user_reservations_page.dart:262:41 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\modules\vitrinler\ev_lezzetleri_vitrini.dart:1015:41 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\modules\vitrinler\ev_lezzetleri_vitrini.dart:1018:33 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\modules\vitrinler\ev_lezzetleri_vitrini.dart:1157:22 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\modules\vitrinler\ev_lezzetleri_vitrini.dart:1159:41 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\modules\vitrinler\ev_lezzetleri_vitrini.dart:1289:28 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\modules\vitrinler\ev_lezzetleri_vitrini.dart:1445:33 - deprecated_member_use
+   info - Don't use 'BuildContext's across async gaps - lib\modules\vitrinler\restoranlar_vitrini.dart:64:40 - use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps - lib\modules\vitrinler\restoranlar_vitrini.dart:89:38 - use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps - lib\modules\vitrinler\restoranlar_vitrini.dart:95:31 - use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps - lib\modules\vitrinler\restoranlar_vitrini.dart:97:38 - use_build_context_synchronously
+warning - The value of the field '_card' isn't used - lib\modules\vitrinler\sef_vitrini_v2.dart:12:22 - unused_field
+warning - The value of the field '_gold' isn't used - lib\modules\vitrinler\sef_vitrini_v2.dart:229:22 - unused_field
+   info - Unnecessary constructor invocation - lib\modules\vitrinler\sef_vitrini_v2.dart:235:27 - prefer_collection_literals
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\modules\vitrinler\sef_vitrini_v2.dart:290:43 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\modules\vitrinler\sef_vitrini_v2.dart:390:43 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\modules\vitrinler\sef_vitrini_v2.dart:450:32 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\modules\vitrinler\sef_vitrini_v2.dart:451:32 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\modules\vitrinler\sef_vitrini_v2.dart:452:32 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\modules\vitrinler\sef_vitrini_v2.dart:465:39 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\modules\vitrinler\sef_vitrini_v2.dart:492:37 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\modules\vitrinler\sef_vitrini_v2.dart:521:49 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\modules\widgets\ev_lezzetleri_cards.dart:70:46 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\modules\widgets\ev_lezzetleri_cards.dart:75:32 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\modules\widgets\ev_lezzetleri_cards.dart:95:49 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\modules\widgets\ev_lezzetleri_cards.dart:165:28 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\modules\widgets\ev_lezzetleri_cards.dart:265:40 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\modules\widgets\ev_lezzetleri_cards.dart:286:27 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\modules\widgets\ev_lezzetleri_cards.dart:291:37 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\modules\widgets\ev_lezzetleri_cards.dart:297:32 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\modules\widgets\ev_lezzetleri_cards.dart:333:45 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\modules\widgets\ev_lezzetleri_cards.dart:558:29 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\modules\widgets\ev_lezzetleri_cards.dart:640:40 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\modules\widgets\ev_lezzetleri_cards.dart:663:29 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\modules\widgets\ev_lezzetleri_cards.dart:669:38 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\orders\musteri_siparis_takip_sayfasi.dart:260:22 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\orders\musteri_siparis_takip_sayfasi.dart:564:40 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\orders\musteri_siparis_takip_sayfasi.dart:1031:54 - deprecated_member_use
+   info - Don't invoke 'print' in production code - lib\services\bildirim_service.dart:12:9 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services\bildirim_service.dart:24:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services\bildirim_service.dart:27:9 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services\bildirim_service.dart:40:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services\bildirim_service.dart:42:7 - avoid_print
+warning - The value of the local variable 'courierData' isn't used - lib\services\kurye_dispatch_engine.dart:93:13 - unused_local_variable
+   info - 'desiredAccuracy' is deprecated and shouldn't be used. use settings parameter with AndroidSettings, AppleSettings, WebSettings, or LocationSettings - lib\services\kurye_konum_servisi.dart:44:9 - deprecated_member_use
+warning - The value of the local variable 'orderData' isn't used - lib\services\kurye_service.dart:153:13 - unused_local_variable
+warning - The declaration 'isBusyValue' isn't referenced - lib\services\otomatik_kurye_atama_servisi.dart:200:12 - unused_element
+   info - Can't use a relative path to import a library in 'lib' - scripts\fix_owner_ids.dart:3:8 - avoid_relative_lib_imports
+   info - Don't invoke 'print' in production code - scripts\fix_owner_ids.dart:12:3 - avoid_print
+   info - Don't invoke 'print' in production code - scripts\fix_owner_ids.dart:43:5 - avoid_print
+   info - Don't invoke 'print' in production code - scripts\fix_owner_ids.dart:47:3 - avoid_print
+   info - Don't invoke 'print' in production code - scripts\fix_owner_ids.dart:48:3 - avoid_print
+   info - Don't invoke 'print' in production code - scripts\fix_owner_ids.dart:49:3 - avoid_print
+   info - Can't use a relative path to import a library in 'lib' - scripts\seed_usta_sef.dart:4:8 - avoid_relative_lib_imports
+   info - Don't invoke 'print' in production code - scripts\seed_usta_sef.dart:16:3 - avoid_print
+   info - Don't invoke 'print' in production code - scripts\seed_usta_sef.dart:38:3 - avoid_print
+   info - Don't invoke 'print' in production code - scripts\seed_usta_sef.dart:90:3 - avoid_print
+   info - Don't invoke 'print' in production code - scripts\seed_usta_sef.dart:106:3 - avoid_print
+   info - Don't invoke 'print' in production code - scripts\seed_usta_sef.dart:108:3 - avoid_print
+

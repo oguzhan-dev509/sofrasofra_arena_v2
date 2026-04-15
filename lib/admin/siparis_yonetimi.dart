@@ -827,7 +827,7 @@ class _SiparisYonetimiState extends State<SiparisYonetimi> {
                                     height: 52,
                                     decoration: BoxDecoration(
                                       color:
-                                          _durumRengi(durum).withOpacity(0.16),
+                                          _durumRengi(durum).withValues(alpha: 0.16),
                                       borderRadius: BorderRadius.circular(14),
                                     ),
                                     child: Icon(
@@ -886,7 +886,7 @@ class _SiparisYonetimiState extends State<SiparisYonetimi> {
                                         ),
                                         decoration: BoxDecoration(
                                           color: _durumRengi(durum)
-                                              .withOpacity(0.18),
+                                              .withValues(alpha: 0.18),
                                           borderRadius:
                                               BorderRadius.circular(30),
                                           border: Border.all(

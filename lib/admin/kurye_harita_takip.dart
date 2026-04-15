@@ -276,7 +276,7 @@ class _KuryeHaritaTakipSistemiState extends State<KuryeHaritaTakipSistemi> {
                     width: 42,
                     height: 42,
                     decoration: BoxDecoration(
-                      color: _uygunlukRengi(uygunluk).withOpacity(0.16),
+                      color: _uygunlukRengi(uygunluk).withValues(alpha: 0.16),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Icon(
@@ -311,7 +311,7 @@ class _KuryeHaritaTakipSistemiState extends State<KuryeHaritaTakipSistemi> {
                     padding:
                         const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                     decoration: BoxDecoration(
-                      color: _uygunlukRengi(uygunluk).withOpacity(0.16),
+                      color: _uygunlukRengi(uygunluk).withValues(alpha: 0.16),
                       borderRadius: BorderRadius.circular(30),
                       border: Border.all(color: _uygunlukRengi(uygunluk)),
                     ),

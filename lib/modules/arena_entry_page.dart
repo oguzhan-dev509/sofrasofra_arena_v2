@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:sofrasofra_arena_v2/modules/kategori_sayfasi.dart';
-import 'package:sofrasofra_arena_v2/merchant/plan_secim_sayfasi.dart';
+
 import '../merchant/uretici_yonetim_merkezi_sayfasi.dart';
 
 class ArenaEntryPage extends StatefulWidget {
@@ -158,7 +158,7 @@ class _ArenaEntryPageState extends State<ArenaEntryPage> {
                     decoration: BoxDecoration(
                       color: _panel,
                       borderRadius: BorderRadius.circular(24),
-                      border: Border.all(color: _gold.withOpacity(0.20)),
+                      border: Border.all(color: _gold.withValues(alpha: 0.20)),
                     ),
                     child: const Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -198,7 +198,7 @@ class _ArenaEntryPageState extends State<ArenaEntryPage> {
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(24),
                       color: const Color(0xFF2A2114),
-                      border: Border.all(color: _gold.withOpacity(0.30)),
+                      border: Border.all(color: _gold.withValues(alpha: 0.30)),
                     ),
                     child: const Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -228,7 +228,7 @@ class _ArenaEntryPageState extends State<ArenaEntryPage> {
                     decoration: BoxDecoration(
                       color: _panel,
                       borderRadius: BorderRadius.circular(24),
-                      border: Border.all(color: _gold.withOpacity(0.20)),
+                      border: Border.all(color: _gold.withValues(alpha: 0.20)),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -292,7 +292,7 @@ class _ArenaEntryPageState extends State<ArenaEntryPage> {
                     decoration: BoxDecoration(
                       color: const Color(0xFF1A1A1A),
                       borderRadius: BorderRadius.circular(24),
-                      border: Border.all(color: _gold.withOpacity(0.20)),
+                      border: Border.all(color: _gold.withValues(alpha: 0.20)),
                     ),
                     child: isMobile
                         ? Column(
@@ -378,7 +378,7 @@ class _ArenaEntryPageState extends State<ArenaEntryPage> {
       decoration: BoxDecoration(
         color: const Color(0xFF1C1C1C),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: _gold.withOpacity(0.16)),
+        border: Border.all(color: _gold.withValues(alpha: 0.16)),
       ),
       child: DropdownButtonFormField<String>(
         value: _selectedCity,
@@ -422,8 +422,8 @@ class _ArenaEntryPageState extends State<ArenaEntryPage> {
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: enabled
-              ? _gold.withOpacity(0.16)
-              : Colors.white.withOpacity(0.08),
+              ? _gold.withValues(alpha: 0.16)
+              : Colors.white.withValues(alpha: 0.08),
         ),
       ),
       child: DropdownButtonFormField<String>(

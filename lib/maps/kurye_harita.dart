@@ -212,7 +212,7 @@ class _KuryeHaritaState extends State<KuryeHarita> {
             child: Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.72),
+                color: Colors.black.withValues(alpha: 0.72),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Text(

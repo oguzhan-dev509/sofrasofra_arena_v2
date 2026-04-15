@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'otomatik_yeniden_atama_servisi.dart';
 
 class SepetService {
   static final FirebaseFirestore _firestore = FirebaseFirestore.instance;

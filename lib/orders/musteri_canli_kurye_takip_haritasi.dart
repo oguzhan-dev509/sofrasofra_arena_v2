@@ -2,7 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
-import 'musteri_canli_kurye_takip_haritasi.dart';
 
 class MusteriCanliKuryeTakipHaritasi extends StatelessWidget {
   final String orderId;

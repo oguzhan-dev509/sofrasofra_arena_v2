@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:sofrasofra_arena_v2/modules/sef_akademi_video_listesi.dart';
 
 class SefAkademiDersDetaySayfasi extends StatelessWidget {
-  final String dersId; // 🔥 EN KRİTİK
+  final String dersId;
   final String baslik;
   final String aciklama;
   final String sure;
@@ -12,7 +12,7 @@ class SefAkademiDersDetaySayfasi extends StatelessWidget {
 
   const SefAkademiDersDetaySayfasi({
     super.key,
-    required this.dersId, // 🔥 BURASI ZORUNLU
+    required this.dersId,
     required this.baslik,
     required this.aciklama,
     required this.sure,
@@ -31,6 +31,7 @@ class SefAkademiDersDetaySayfasi extends StatelessWidget {
       backgroundColor: bg,
       appBar: AppBar(
         backgroundColor: Colors.black,
+        elevation: 0,
         iconTheme: const IconThemeData(color: gold),
         title: const Text(
           'DERS DETAYI',
@@ -43,14 +44,23 @@ class SefAkademiDersDetaySayfasi extends StatelessWidget {
         ),
       ),
       body: ListView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.fromLTRB(16, 18, 16, 24),
         children: [
           Container(
-            padding: const EdgeInsets.all(18),
+            padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: card,
-              borderRadius: BorderRadius.circular(22),
-              border: Border.all(color: const Color(0x22FFB300)),
+              borderRadius: BorderRadius.circular(24),
+              gradient: LinearGradient(
+                colors: [
+                  gold.withOpacity(0.15),
+                  Colors.transparent,
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              border: Border.all(
+                color: Colors.white.withOpacity(0.10),
+              ),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -59,38 +69,50 @@ class SefAkademiDersDetaySayfasi extends StatelessWidget {
                   baslik.toUpperCase(),
                   style: const TextStyle(
                     color: Colors.white,
-                    fontSize: 20,
-                    fontWeight: FontWeight.w800,
+                    fontSize: 21,
+                    fontWeight: FontWeight.w900,
+                    height: 1.2,
                   ),
                 ),
-                const SizedBox(height: 12),
-                Row(
+                const SizedBox(height: 14),
+                Wrap(
+                  spacing: 10,
+                  runSpacing: 10,
                   children: [
                     Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 7),
+                        horizontal: 12,
+                        vertical: 7,
+                      ),
                       decoration: BoxDecoration(
                         color: ucretsiz
-                            ? Colors.green.withAlpha(24)
-                            : Colors.white.withAlpha(10),
+                            ? const Color(0xFF0E3B33)
+                            : Colors.white.withOpacity(0.08),
                         borderRadius: BorderRadius.circular(999),
+                        border: Border.all(
+                          color: ucretsiz
+                              ? const Color(0xFF1F8A70)
+                              : Colors.white.withOpacity(0.12),
+                        ),
                       ),
                       child: Text(
                         ucretsiz ? 'ÜCRETSİZ' : 'PREMIUM',
                         style: TextStyle(
-                          color: ucretsiz ? Colors.greenAccent : Colors.white70,
+                          color: ucretsiz
+                              ? const Color(0xFF8EF0D0)
+                              : Colors.white70,
                           fontSize: 11,
-                          fontWeight: FontWeight.w700,
+                          fontWeight: FontWeight.w800,
                         ),
                       ),
                     ),
-                    const SizedBox(width: 10),
-                    const Icon(Icons.schedule, color: gold, size: 16),
-                    const SizedBox(width: 6),
-                    Text(
-                      sure,
-                      style:
-                          const TextStyle(color: Colors.white70, fontSize: 12),
+                    _InfoChip(
+                      icon: Icons.schedule_rounded,
+                      text: sure,
+                    ),
+                    _InfoChip(
+                      icon: Icons.video_library_rounded,
+                      text: '$videoSayisi video',
                     ),
                   ],
                 ),
@@ -100,31 +122,36 @@ class SefAkademiDersDetaySayfasi extends StatelessWidget {
                   style: const TextStyle(
                     color: Colors.white70,
                     fontSize: 14,
-                    height: 1.5,
+                    height: 1.55,
                   ),
                 ),
               ],
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 18),
           Container(
             padding: const EdgeInsets.all(18),
             decoration: BoxDecoration(
               color: card,
               borderRadius: BorderRadius.circular(22),
-              border: Border.all(color: const Color(0x22FFB300)),
+              border: Border.all(
+                color: Colors.white.withOpacity(0.10),
+              ),
             ),
             child: Row(
               children: [
                 Container(
-                  width: 52,
-                  height: 52,
+                  width: 54,
+                  height: 54,
                   decoration: BoxDecoration(
-                    color: gold.withAlpha(22),
+                    color: gold.withOpacity(0.14),
                     borderRadius: BorderRadius.circular(16),
                   ),
-                  child:
-                      const Icon(Icons.ondemand_video, color: gold, size: 28),
+                  child: const Icon(
+                    Icons.play_circle_fill_rounded,
+                    color: gold,
+                    size: 30,
+                  ),
                 ),
                 const SizedBox(width: 14),
                 Expanded(
@@ -136,7 +163,7 @@ class SefAkademiDersDetaySayfasi extends StatelessWidget {
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 13,
-                          fontWeight: FontWeight.w700,
+                          fontWeight: FontWeight.w800,
                         ),
                       ),
                       const SizedBox(height: 6),
@@ -153,17 +180,16 @@ class SefAkademiDersDetaySayfasi extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 22),
           SizedBox(
             width: double.infinity,
-            child: ElevatedButton.icon(
+            child: ElevatedButton(
               onPressed: () {
-                // 🔥 KRİTİK FIX
                 Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (_) => SefAkademiVideoListesi(
-                      dersId: dersId, // ✅ DOĞRU OLAN
+                      dersId: dersId,
                     ),
                   ),
                 );
@@ -171,16 +197,66 @@ class SefAkademiDersDetaySayfasi extends StatelessWidget {
               style: ElevatedButton.styleFrom(
                 backgroundColor: gold,
                 foregroundColor: Colors.black,
-                padding: const EdgeInsets.symmetric(vertical: 14),
+                padding: const EdgeInsets.symmetric(vertical: 16),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(14),
+                  borderRadius: BorderRadius.circular(16),
                 ),
               ),
-              icon: const Icon(Icons.play_arrow),
-              label: Text(
-                ucretsiz ? 'Dersi Aç' : 'İçeriği Gör',
-                style: const TextStyle(fontWeight: FontWeight.bold),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.play_arrow),
+                  const SizedBox(width: 8),
+                  Text(
+                    ucretsiz ? 'Dersi Başlat' : 'İçeriği Aç',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w800,
+                      fontSize: 14,
+                    ),
+                  ),
+                ],
               ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _InfoChip extends StatelessWidget {
+  final IconData icon;
+  final String text;
+
+  const _InfoChip({
+    required this.icon,
+    required this.text,
+  });
+
+  static const Color gold = Color(0xFFFFB300);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.08),
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(
+          color: Colors.white.withOpacity(0.12),
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 14, color: gold),
+          const SizedBox(width: 6),
+          Text(
+            text,
+            style: const TextStyle(
+              color: Colors.white70,
+              fontSize: 11,
+              fontWeight: FontWeight.w700,
             ),
           ),
         ],

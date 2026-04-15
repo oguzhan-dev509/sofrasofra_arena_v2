@@ -333,7 +333,7 @@ class _VitrinMerkeziSayfasiState extends State<VitrinMerkeziSayfasi> {
                     boxShadow: dolu
                         ? [
                             BoxShadow(
-                              color: _gold.withOpacity(0.16),
+                              color: _gold.withValues(alpha: 0.16),
                               blurRadius: 15,
                             ),
                           ]

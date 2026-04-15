@@ -3,6 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 
 import '../lib/firebase_options.dart';
 
+// ignore_for_file: avoid_print
 Future<void> main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,

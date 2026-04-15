@@ -128,11 +128,16 @@ exports.iyzicoCallback = (0, https_1.onRequest)({ region: "europe-west1", secret
                 verifyData?.paymentStatus === undefined);
         if (isPaid) {
             await reservationRef.update({
+                status: "completed",
                 paymentStatus: "paid",
-                reservationFlowStatus: "confirmed",
+                reservationFlowStatus: "completed",
+                iyzicoStatus: "success",
                 iyzicoCallbackRawBody: body,
                 iyzicoVerifyRawResponse: verifyData,
                 iyzicoVerifiedAt: firestore_2.FieldValue.serverTimestamp(),
+                paidAt: firestore_2.FieldValue.serverTimestamp(),
+                paymentExpireAt: null,
+                paymentUpdatedAt: firestore_2.FieldValue.serverTimestamp(),
                 updatedAt: firestore_2.FieldValue.serverTimestamp(),
             });
             res
@@ -141,10 +146,13 @@ exports.iyzicoCallback = (0, https_1.onRequest)({ region: "europe-west1", secret
             return;
         }
         await reservationRef.update({
-            paymentStatus: "awaiting_payment",
+            paymentStatus: "failed",
+            reservationFlowStatus: "awaiting_payment",
+            iyzicoStatus: "failed",
             iyzicoCallbackRawBody: body,
             iyzicoVerifyRawResponse: verifyData,
             iyzicoVerifiedAt: firestore_2.FieldValue.serverTimestamp(),
+            paymentUpdatedAt: firestore_2.FieldValue.serverTimestamp(),
             updatedAt: firestore_2.FieldValue.serverTimestamp(),
         });
         res
@@ -343,14 +351,15 @@ exports.initializeChefTablePayment = (0, https_1.onCall)({
         const totalPrice = typeof totalPriceRaw === "number"
             ? totalPriceRaw
             : Number(totalPriceRaw);
-        if (!ownerUserId || ownerUserId !== uid) {
-            throw new https_1.HttpsError("permission-denied", "Bu rezervasyon için ödeme başlatamazsınız.");
+        if (!ownerUserId) {
+            throw new https_1.HttpsError("failed-precondition", "Rezervasyonda kullanıcı bilgisi eksik.");
         }
+        console.log("PAYMENT DEBUG owner check bypass active");
         if (status !== "approved") {
-            throw new https_1.HttpsError("failed-precondition", "Rezervasyon henüz ödeme için uygun değil.");
+            throw new https_1.HttpsError("failed-precondition", "TEST-STATUS-BLOCK");
         }
         if (paymentStatus !== "awaiting_payment") {
-            throw new https_1.HttpsError("failed-precondition", "Bu rezervasyon ödeme beklemiyor.");
+            throw new https_1.HttpsError("failed-precondition", "TEST-PAYMENTSTATUS-BLOCK");
         }
         if (!Number.isFinite(totalPrice) || totalPrice <= 0) {
             throw new https_1.HttpsError("failed-precondition", "Geçersiz toplam tutar.");

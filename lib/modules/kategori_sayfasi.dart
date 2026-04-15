@@ -843,7 +843,7 @@ class _MainCategoryCardState extends State<_MainCategoryCard> {
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(_hover ? 0.30 : 0.18),
+              color: Colors.black.withValues(alpha: _hover ? 0.30 : 0.18),
               blurRadius: _hover ? 28 : 18,
               offset: const Offset(0, 14),
             ),

@@ -507,7 +507,7 @@ class _MiniBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
       decoration: BoxDecoration(
-        color: Colors.black.withOpacity(0.12),
+        color: Colors.black.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(999),
       ),
       child: Text(

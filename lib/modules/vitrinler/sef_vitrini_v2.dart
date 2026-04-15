@@ -266,9 +266,9 @@ class _ChefPremiumCardState extends State<_ChefPremiumCard> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (_) => GastronomiYonetimMerkezi(
-                  chefId: chefId,
-                  chefName: item.ad,
+                builder: (_) => SefItibarSayfasi(
+                  dukkanId: chefId,
+                  isAdmin: false,
                 ),
               ),
             );
@@ -287,7 +287,8 @@ class _ChefPremiumCardState extends State<_ChefPremiumCard> {
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(_hover ? 0.42 : 0.26),
+                      color:
+                          Colors.black.withValues(alpha: _hover ? 0.42 : 0.26),
                       blurRadius: _hover ? 28 : 18,
                       offset: const Offset(0, 12),
                     ),
@@ -377,9 +378,9 @@ class _ChefPremiumCardState extends State<_ChefPremiumCard> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (_) => GastronomiYonetimMerkezi(
-                          chefId: chefId,
-                          chefName: item.ad,
+                        builder: (_) => SefItibarSayfasi(
+                          dukkanId: chefId,
+                          isAdmin: false,
                         ),
                       ),
                     );
@@ -387,7 +388,7 @@ class _ChefPremiumCardState extends State<_ChefPremiumCard> {
                   child: Container(
                     padding: const EdgeInsets.all(9),
                     decoration: BoxDecoration(
-                      color: Colors.black.withOpacity(.72),
+                      color: Colors.black.withValues(alpha: .72),
                       borderRadius: BorderRadius.circular(999),
                       border: Border.all(color: const Color(0x33FFFFFF)),
                     ),
@@ -447,9 +448,9 @@ class _HeroImage extends StatelessWidget {
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [
-                  Colors.black.withOpacity(.12),
-                  Colors.black.withOpacity(.20),
-                  Colors.black.withOpacity(.78),
+                  Colors.black.withValues(alpha: .12),
+                  Colors.black.withValues(alpha: .20),
+                  Colors.black.withValues(alpha: .78),
                 ],
               ),
             ),
@@ -462,7 +463,7 @@ class _HeroImage extends StatelessWidget {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                 decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(.72),
+                  color: Colors.black.withValues(alpha: .72),
                   borderRadius: BorderRadius.circular(999),
                   border: Border.all(color: const Color(0x66FFB300)),
                 ),
@@ -489,7 +490,7 @@ class _HeroImage extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
               decoration: BoxDecoration(
-                color: Colors.black.withOpacity(.72),
+                color: Colors.black.withValues(alpha: .72),
                 borderRadius: BorderRadius.circular(999),
                 border: Border.all(color: const Color(0x33FFFFFF)),
               ),
@@ -518,7 +519,7 @@ class _HeroImage extends StatelessWidget {
               children: [
                 CircleAvatar(
                   radius: 28,
-                  backgroundColor: Colors.black.withOpacity(.40),
+                  backgroundColor: Colors.black.withValues(alpha: .40),
                   backgroundImage:
                       imageUrl.isNotEmpty ? NetworkImage(imageUrl) : null,
                   child: imageUrl.isEmpty

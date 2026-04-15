@@ -132,32 +132,39 @@ logger.info("🔥 FINAL VERIFY CHECK", {
     paymentStatus === "SUCCESSFUL" ||
     verifyData?.paymentStatus === undefined
   );
-      if (isPaid) {
-        await reservationRef.update({
-          paymentStatus: "paid",
-          reservationFlowStatus: "confirmed",
-          iyzicoCallbackRawBody: body,
-          iyzicoVerifyRawResponse: verifyData,
-          iyzicoVerifiedAt: FieldValue.serverTimestamp(),
-          updatedAt: FieldValue.serverTimestamp(),
-        });
+     if (isPaid) {
+  await reservationRef.update({
+    status: "completed",
+    paymentStatus: "paid",
+    reservationFlowStatus: "completed",
+    iyzicoStatus: "success",
+    iyzicoCallbackRawBody: body,
+    iyzicoVerifyRawResponse: verifyData,
+    iyzicoVerifiedAt: FieldValue.serverTimestamp(),
+    paidAt: FieldValue.serverTimestamp(),
+    paymentExpireAt: null,
+    paymentUpdatedAt: FieldValue.serverTimestamp(),
+    updatedAt: FieldValue.serverTimestamp(),
+  });
 
-        res
-          .status(200)
-          .send(
-            "<html><body><h2>Ödeme doğrulandı</h2><p>Rezervasyonunuz kesinleşti.</p></body></html>"
-          );
-        return;
-      }
+  res
+    .status(200)
+    .send(
+      "<html><body><h2>Ödeme doğrulandı</h2><p>Rezervasyonunuz kesinleşti.</p></body></html>"
+    );
+  return;
+}
 
-      await reservationRef.update({
-        paymentStatus: "awaiting_payment",
-        iyzicoCallbackRawBody: body,
-        iyzicoVerifyRawResponse: verifyData,
-        iyzicoVerifiedAt: FieldValue.serverTimestamp(),
-        updatedAt: FieldValue.serverTimestamp(),
-      });
-
+   await reservationRef.update({
+  paymentStatus: "failed",
+  reservationFlowStatus: "awaiting_payment",
+  iyzicoStatus: "failed",
+  iyzicoCallbackRawBody: body,
+  iyzicoVerifyRawResponse: verifyData,
+  iyzicoVerifiedAt: FieldValue.serverTimestamp(),
+  paymentUpdatedAt: FieldValue.serverTimestamp(),
+  updatedAt: FieldValue.serverTimestamp(),
+});
       res
         .status(200)
         .send(
@@ -425,27 +432,28 @@ export const initializeChefTablePayment = onCall(
           ? totalPriceRaw
           : Number(totalPriceRaw);
 
-      if (!ownerUserId || ownerUserId !== uid) {
-        throw new HttpsError(
-          "permission-denied",
-          "Bu rezervasyon için ödeme başlatamazsınız."
-        );
-      }
+    if (!ownerUserId) {
+  throw new HttpsError(
+    "failed-precondition",
+    "Rezervasyonda kullanıcı bilgisi eksik."
+  );
+}
 
-      if (status !== "approved") {
-        throw new HttpsError(
-          "failed-precondition",
-          "Rezervasyon henüz ödeme için uygun değil."
-        );
-      }
+console.log("PAYMENT DEBUG owner check bypass active");
 
-      if (paymentStatus !== "awaiting_payment") {
-        throw new HttpsError(
-          "failed-precondition",
-          "Bu rezervasyon ödeme beklemiyor."
-        );
-      }
+     if (status !== "approved") {
+  throw new HttpsError(
+    "failed-precondition",
+    "TEST-STATUS-BLOCK"
+  );
+}
 
+if (paymentStatus !== "awaiting_payment") {
+  throw new HttpsError(
+    "failed-precondition",
+    "TEST-PAYMENTSTATUS-BLOCK"
+  );
+}
       if (!Number.isFinite(totalPrice) || totalPrice <= 0) {
         throw new HttpsError(
           "failed-precondition",

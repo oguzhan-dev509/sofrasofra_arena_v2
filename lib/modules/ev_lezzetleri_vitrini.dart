@@ -100,7 +100,7 @@ class _EvKarti extends StatelessWidget {
         color: Colors.white,
         borderRadius: BorderRadius.circular(22),
         boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.06), blurRadius: 10)
+          BoxShadow(color: Colors.black.withValues(alpha: 0.06), blurRadius: 10)
         ],
       ),
       child: Column(

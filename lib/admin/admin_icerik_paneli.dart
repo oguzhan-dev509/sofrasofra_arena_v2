@@ -225,9 +225,9 @@ class _UrunlerTab extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.12),
+        color: color.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: color.withOpacity(0.75)),
+        border: Border.all(color: color.withValues(alpha: 0.75)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -344,7 +344,7 @@ class _UrunlerTab extends StatelessWidget {
         }
       },
       style: OutlinedButton.styleFrom(
-        backgroundColor: value ? color.withOpacity(0.12) : Colors.transparent,
+        backgroundColor: value ? color.withValues(alpha: 0.12) : Colors.transparent,
         foregroundColor: color,
         side: BorderSide(color: color),
       ),
@@ -712,8 +712,8 @@ Widget _durumRozeti(bool aktifMi) {
     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
     decoration: BoxDecoration(
       color: aktifMi
-          ? Colors.greenAccent.withOpacity(0.12)
-          : Colors.orangeAccent.withOpacity(0.12),
+          ? Colors.greenAccent.withValues(alpha: 0.12)
+          : Colors.orangeAccent.withValues(alpha: 0.12),
       borderRadius: BorderRadius.circular(999),
       border: Border.all(
         color: aktifMi ? Colors.greenAccent : Colors.orangeAccent,
@@ -734,7 +734,7 @@ Widget _miniBilgiChip(String text) {
   return Container(
     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
     decoration: BoxDecoration(
-      color: Colors.white.withOpacity(0.06),
+      color: Colors.white.withValues(alpha: 0.06),
       borderRadius: BorderRadius.circular(999),
       border: Border.all(color: Colors.white10),
     ),

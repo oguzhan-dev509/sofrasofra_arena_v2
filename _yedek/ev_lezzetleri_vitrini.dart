@@ -832,10 +832,10 @@ class _HeroSection extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        border: Border.all(color: _gold.withOpacity(0.35)),
+        border: Border.all(color: _gold.withValues(alpha: 0.35)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.28),
+            color: Colors.black.withValues(alpha: 0.28),
             blurRadius: 24,
             offset: const Offset(0, 12),
           ),
@@ -949,9 +949,9 @@ class _HeroTag extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 10),
       decoration: BoxDecoration(
-        color: _gold.withOpacity(0.12),
+        color: _gold.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: _gold.withOpacity(0.4)),
+        border: Border.all(color: _gold.withValues(alpha: 0.4)),
       ),
       child: Text(
         text,
@@ -1076,7 +1076,7 @@ class _AgentIdeaCard extends StatelessWidget {
             width: 42,
             height: 42,
             decoration: BoxDecoration(
-              color: _gold.withOpacity(0.14),
+              color: _gold.withValues(alpha: 0.14),
               borderRadius: BorderRadius.circular(14),
             ),
             child: const Icon(Icons.auto_awesome, color: _gold),
@@ -1232,7 +1232,7 @@ class _KuryeOlBanner extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(11),
           decoration: BoxDecoration(
-            color: Colors.black.withOpacity(0.10),
+            color: Colors.black.withValues(alpha: 0.10),
             borderRadius: BorderRadius.circular(14),
           ),
           child: const Icon(

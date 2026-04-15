@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:sofrasofra_arena_v2/services/chef_validation_service.dart';
+
 import 'package:sofrasofra_arena_v2/admin/chef_profile_admin_page.dart';
 
 class UstaSefAdminSayfasi extends StatefulWidget {
@@ -262,7 +262,7 @@ class _UstaSefAdminSayfasiState extends State<UstaSefAdminSayfasi>
           labelStyle: const TextStyle(color: Colors.white70),
           hintStyle: const TextStyle(color: Colors.white38),
           filled: true,
-          fillColor: Colors.white.withOpacity(0.05),
+          fillColor: Colors.white.withValues(alpha: 0.05),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
             borderSide: const BorderSide(color: Colors.white10),

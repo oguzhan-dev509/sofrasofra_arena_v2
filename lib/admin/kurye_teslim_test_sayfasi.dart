@@ -155,9 +155,9 @@ class _KuryeTeslimTestSayfasiState extends State<KuryeTeslimTestSayfasi> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.14),
+        color: color.withValues(alpha: 0.14),
         borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: color.withOpacity(0.35)),
+        border: Border.all(color: color.withValues(alpha: 0.35)),
       ),
       child: Text(
         text.isEmpty ? '-' : text,

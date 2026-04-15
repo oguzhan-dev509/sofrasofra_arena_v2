@@ -262,7 +262,7 @@ class _KuryeBasvurulariSayfasiState extends State<KuryeBasvurulariSayfasi> {
               hintStyle: const TextStyle(color: Colors.white54),
               enabledBorder: OutlineInputBorder(
                 borderSide: BorderSide(
-                  color: const Color(0xFFFFB300).withOpacity(0.35),
+                  color: const Color(0xFFFFB300).withValues(alpha: 0.35),
                 ),
                 borderRadius: BorderRadius.circular(12),
               ),
@@ -358,7 +358,7 @@ class _KuryeBasvurulariSayfasiState extends State<KuryeBasvurulariSayfasi> {
           borderRadius: BorderRadius.circular(22),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFFFFB300).withOpacity(0.22),
+              color: const Color(0xFFFFB300).withValues(alpha: 0.22),
               blurRadius: 14,
               spreadRadius: 1,
             ),
@@ -430,9 +430,9 @@ class _KuryeBasvurulariSayfasiState extends State<KuryeBasvurulariSayfasi> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.14),
+        color: color.withValues(alpha: 0.14),
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: color.withOpacity(0.8)),
+        border: Border.all(color: color.withValues(alpha: 0.8)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -480,7 +480,7 @@ class _KuryeBasvurulariSayfasiState extends State<KuryeBasvurulariSayfasi> {
           boxShadow: secili
               ? [
                   BoxShadow(
-                    color: const Color(0xFFFFB300).withOpacity(0.12),
+                    color: const Color(0xFFFFB300).withValues(alpha: 0.12),
                     blurRadius: 18,
                     spreadRadius: 1,
                   ),
@@ -623,7 +623,7 @@ class _KuryeBasvurulariSayfasiState extends State<KuryeBasvurulariSayfasi> {
           borderRadius: BorderRadius.circular(999),
           boxShadow: [
             BoxShadow(
-              color: color.withOpacity(0.22),
+              color: color.withValues(alpha: 0.22),
               blurRadius: 10,
             ),
           ],
@@ -729,7 +729,7 @@ class _KuryeBasvurulariSayfasiState extends State<KuryeBasvurulariSayfasi> {
         border: Border.all(color: const Color(0x33FFB300)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.18),
+            color: Colors.black.withValues(alpha: 0.18),
             blurRadius: 18,
             spreadRadius: 1,
           ),

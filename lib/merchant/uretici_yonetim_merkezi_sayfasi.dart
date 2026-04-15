@@ -2,18 +2,15 @@ import 'package:flutter/material.dart';
 
 import '../admin/admin_paneli_sayfasi.dart';
 
-import '../cart/sepet_sayfasi.dart';
 import '../courier/kurye_paneli.dart';
 import '../modules/akademi_merkezi.dart';
 import '../modules/kurye_basvuru_merkezi.dart';
-import '../modules/sef_itibar_sayfasi.dart';
-import '../orders/musteri_siparis_takip_sayfasi.dart';
+
 import 'ev_orders_sayfasi.dart';
-import 'restoran_yonetim_paneli.dart';
+
 import 'satici_siparis_paneli.dart';
 import 'sef_yonetim_paneli.dart';
 import 'teslimat_ayarlar_sayfasi.dart';
-import 'package:sofrasofra_arena_v2/modules/restoran_coming_soon_page.dart';
 
 class UreticiYonetimMerkeziSayfasi extends StatelessWidget {
   const UreticiYonetimMerkeziSayfasi({super.key});
@@ -61,7 +58,7 @@ class UreticiYonetimMerkeziSayfasi extends StatelessWidget {
               decoration: BoxDecoration(
                 color: _panel,
                 borderRadius: BorderRadius.circular(30),
-                border: Border.all(color: _gold.withOpacity(0.16)),
+                border: Border.all(color: _gold.withValues(alpha: 0.16)),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -139,7 +136,7 @@ class UreticiYonetimMerkeziSayfasi extends StatelessWidget {
                         },
                         style: OutlinedButton.styleFrom(
                           foregroundColor: _gold,
-                          side: BorderSide(color: _gold.withOpacity(0.30)),
+                          side: BorderSide(color: _gold.withValues(alpha: 0.30)),
                           padding: const EdgeInsets.symmetric(
                             horizontal: 18,
                             vertical: 16,
@@ -714,7 +711,7 @@ class _PlaceholderShell extends StatelessWidget {
           decoration: BoxDecoration(
             color: _panel,
             borderRadius: BorderRadius.circular(28),
-            border: Border.all(color: _gold.withOpacity(0.18)),
+            border: Border.all(color: _gold.withValues(alpha: 0.18)),
           ),
           child: Text(
             description,
@@ -763,7 +760,7 @@ class _HubCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: _panel,
           borderRadius: BorderRadius.circular(28),
-          border: Border.all(color: _gold.withOpacity(0.16)),
+          border: Border.all(color: _gold.withValues(alpha: 0.16)),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -785,9 +782,9 @@ class _HubCard extends StatelessWidget {
                     vertical: 6,
                   ),
                   decoration: BoxDecoration(
-                    color: _gold.withOpacity(0.10),
+                    color: _gold.withValues(alpha: 0.10),
                     borderRadius: BorderRadius.circular(999),
-                    border: Border.all(color: _gold.withOpacity(0.22)),
+                    border: Border.all(color: _gold.withValues(alpha: 0.22)),
                   ),
                   child: Text(
                     badge,
@@ -899,7 +896,7 @@ class _MiniPanelCard extends StatelessWidget {
             decoration: BoxDecoration(
               color: _panel,
               borderRadius: BorderRadius.circular(24),
-              border: Border.all(color: _gold.withOpacity(0.16)),
+              border: Border.all(color: _gold.withValues(alpha: 0.16)),
             ),
             child: Padding(
               padding: const EdgeInsets.all(20),
@@ -909,7 +906,7 @@ class _MiniPanelCard extends StatelessWidget {
                     width: 52,
                     height: 52,
                     decoration: BoxDecoration(
-                      color: _gold.withOpacity(0.08),
+                      color: _gold.withValues(alpha: 0.08),
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: Icon(icon, color: _gold),

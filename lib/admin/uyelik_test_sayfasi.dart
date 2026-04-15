@@ -175,7 +175,7 @@ class _UyelikTestSayfasiState extends State<UyelikTestSayfasi> {
                       color: const Color(0xFF111111),
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
-                        color: const Color(0xFFFFB300).withOpacity(0.30),
+                        color: const Color(0xFFFFB300).withValues(alpha: 0.30),
                       ),
                     ),
                     child: Column(

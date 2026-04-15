@@ -214,7 +214,7 @@ class _RestoranYonetimPaneliState extends State<RestoranYonetimPaneli> {
                         border: Border.all(
                           color: _vitrinBytesList[index] != null
                               ? goldColor
-                              : Colors.white.withOpacity(0.05),
+                              : Colors.white.withValues(alpha: 0.05),
                           width: _vitrinBytesList[index] != null ? 1.5 : 1,
                         ),
                       ),

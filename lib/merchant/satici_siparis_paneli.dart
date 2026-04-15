@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import '../services/otomatik_kurye_atama_servisi.dart';
-import '../admin/kurye_harita.dart';
 
 class SaticiSiparisPaneli extends StatefulWidget {
   final String sellerId;
@@ -307,7 +306,7 @@ class _SaticiSiparisPaneliState extends State<SaticiSiparisPaneli> {
             width: double.infinity,
             padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 14),
             decoration: BoxDecoration(
-              color: Colors.green.withOpacity(0.12),
+              color: Colors.green.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(color: Colors.green),
             ),
@@ -340,7 +339,7 @@ class _SaticiSiparisPaneliState extends State<SaticiSiparisPaneli> {
         width: double.infinity,
         padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 14),
         decoration: BoxDecoration(
-          color: Colors.cyan.withOpacity(0.10),
+          color: Colors.cyan.withValues(alpha: 0.10),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: Colors.cyan),
         ),
@@ -356,7 +355,7 @@ class _SaticiSiparisPaneliState extends State<SaticiSiparisPaneli> {
         width: double.infinity,
         padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 14),
         decoration: BoxDecoration(
-          color: Colors.green.withOpacity(0.10),
+          color: Colors.green.withValues(alpha: 0.10),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: Colors.green),
         ),
@@ -510,7 +509,7 @@ class _SaticiSiparisPaneliState extends State<SaticiSiparisPaneli> {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
                 decoration: BoxDecoration(
-                  color: _statusColor(status).withOpacity(0.12),
+                  color: _statusColor(status).withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(999),
                   border: Border.all(color: _statusColor(status)),
                 ),

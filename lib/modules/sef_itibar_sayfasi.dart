@@ -8,6 +8,7 @@ import 'package:sofrasofra_arena_v2/modules/sef_akademi_dersleri.dart';
 import 'package:sofrasofra_arena_v2/modules/widgets/sef_imza_tabaklari_section.dart';
 import 'package:sofrasofra_arena_v2/modules/widgets/sef_itibar_header.dart';
 import 'package:sofrasofra_arena_v2/modules/widgets/sef_catering_section.dart';
+import 'package:sofrasofra_arena_v2/modules/create_reservation_page.dart';
 
 class SefItibarSayfasi extends StatefulWidget {
   final String dukkanId;
@@ -322,139 +323,160 @@ class _SefItibarSayfasiState extends State<SefItibarSayfasi> {
 
   Widget _buildQuickActionsContent(String displayName) {
     return SectionCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _sectionTitle('DASHBOARD HIZLI GEÇİŞ'),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              Expanded(
-                child: InkWell(
-                  borderRadius: BorderRadius.circular(18),
-                  onTap: () {},
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      vertical: 16,
-                      horizontal: 10,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withAlpha(8),
-                      borderRadius: BorderRadius.circular(18),
-                      border: Border.all(color: Colors.white10),
-                    ),
-                    child: const Column(
-                      children: [
-                        Icon(
-                          Icons.verified_outlined,
-                          color: gold,
-                          size: 22,
-                        ),
-                        SizedBox(height: 8),
-                        Text(
-                          'İTİBAR',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 10,
-                            fontWeight: FontWeight.w800,
-                            letterSpacing: 0.8,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(18),
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => CreateReservationPage(
+                chefId: _chefId,
+                chefName: displayName,
+                tableTitle: '8 Kişilik Özel Şef Masası Deneyimi',
+                concept: 'Tadım Menüsü',
+                capacity: '8 Kişi',
+                unitPrice: 1500,
               ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: InkWell(
-                  borderRadius: BorderRadius.circular(18),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => SefAkademiDersleri(
-                          chefId: _chefId,
-                          chefName: displayName,
-                        ),
+            ),
+          );
+        },
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _sectionTitle('DASHBOARD HIZLI GEÇİŞ'),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Expanded(
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(18),
+                    onTap: () {},
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 16,
+                        horizontal: 10,
                       ),
-                    );
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      vertical: 16,
-                      horizontal: 10,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withAlpha(8),
-                      borderRadius: BorderRadius.circular(18),
-                      border: Border.all(color: Colors.white10),
-                    ),
-                    child: const Column(
-                      children: [
-                        Icon(
-                          Icons.school_outlined,
-                          color: gold,
-                          size: 22,
-                        ),
-                        SizedBox(height: 8),
-                        Text(
-                          'AKADEMİ',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 10,
-                            fontWeight: FontWeight.w800,
-                            letterSpacing: 0.8,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withAlpha(8),
+                        borderRadius: BorderRadius.circular(18),
+                        border: Border.all(color: Colors.white10),
+                      ),
+                      child: const Column(
+                        children: [
+                          Icon(Icons.verified_outlined, color: gold, size: 22),
+                          SizedBox(height: 8),
+                          Text(
+                            'İTİBAR',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 10,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: 0.8,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: InkWell(
-                  borderRadius: BorderRadius.circular(18),
-                  onTap: () {},
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      vertical: 16,
-                      horizontal: 10,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withAlpha(8),
-                      borderRadius: BorderRadius.circular(18),
-                      border: Border.all(color: Colors.white10),
-                    ),
-                    child: const Column(
-                      children: [
-                        Icon(
-                          Icons.event_seat_outlined,
-                          color: gold,
-                          size: 22,
-                        ),
-                        SizedBox(height: 8),
-                        Text(
-                          'REZERVASYON',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 10,
-                            fontWeight: FontWeight.w800,
-                            letterSpacing: 0.8,
+                const SizedBox(width: 10),
+                Expanded(
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(18),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => SefAkademiDersleri(
+                            chefId: _chefId,
+                            chefName: displayName,
                           ),
                         ),
-                      ],
+                      );
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 16,
+                        horizontal: 10,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withAlpha(8),
+                        borderRadius: BorderRadius.circular(18),
+                        border: Border.all(color: Colors.white10),
+                      ),
+                      child: const Column(
+                        children: [
+                          Icon(Icons.school_outlined, color: gold, size: 22),
+                          SizedBox(height: 8),
+                          Text(
+                            'AKADEMİ',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 10,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: 0.8,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ],
-          ),
-        ],
+                const SizedBox(width: 10),
+                Expanded(
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(18),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => CreateReservationPage(
+                            chefId: _chefId,
+                            chefName: displayName,
+                            tableTitle: '8 Kişilik Özel Şef Masası Deneyimi',
+                            concept: 'Tadım Menüsü',
+                            capacity: '8 Kişi',
+                            unitPrice: 1500,
+                          ),
+                        ),
+                      );
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 16,
+                        horizontal: 10,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withAlpha(8),
+                        borderRadius: BorderRadius.circular(18),
+                        border: Border.all(color: Colors.white10),
+                      ),
+                      child: const Column(
+                        children: [
+                          Icon(Icons.event_seat_outlined,
+                              color: gold, size: 22),
+                          SizedBox(height: 8),
+                          Text(
+                            'REZERVASYON',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 10,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: 0.8,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -486,10 +508,63 @@ class _SefItibarSayfasiState extends State<SefItibarSayfasi> {
                 child: const ChipLabel('Şef Akademisi'),
               ),
               const ChipLabel('İmza Mutfağı'),
-              const ChipLabel('Şefin Masası'),
-              //const ChipLabel('Kurumsal Davetler'),
+              InkWell(
+                borderRadius: BorderRadius.circular(999),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => CreateReservationPage(
+                        chefId: _chefId,
+                        chefName: displayName,
+                        tableTitle: '8 Kişilik Özel Şef Masası Deneyimi',
+                        concept: 'Tadım Menüsü',
+                        capacity: '8 Kişi',
+                        unitPrice: 1500,
+                      ),
+                    ),
+                  );
+                },
+                child: const ChipLabel('Şefin Masası'),
+              ),
+              // const ChipLabel('Kurumsal Davetler'),
             ],
           ),
+          const SizedBox(height: 14),
+          RichText(
+            text: const TextSpan(
+              children: [
+                TextSpan(
+                  text: 'Rezervasyon oluşturmak için ',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 15.5,
+                    height: 1.6,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                TextSpan(
+                  text: 'Şefin Masası',
+                  style: TextStyle(
+                    color: Color(0xFFFFB300),
+                    fontSize: 15.5,
+                    height: 1.6,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                TextSpan(
+                  text: "'na tıklayın.",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 15.5,
+                    height: 1.6,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 6),
         ],
       ),
     );
@@ -668,7 +743,7 @@ class _SefItibarSayfasiState extends State<SefItibarSayfasi> {
     );
   }
 
-  Widget _chefLiveStatusCard(String chefId) {
+  Widget _chefLiveStatusCard(String chefId, String displayName) {
     return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
       stream: FirebaseFirestore.instance
           .collection('chef_table_reservations')
@@ -736,12 +811,45 @@ class _SefItibarSayfasiState extends State<SefItibarSayfasi> {
             children: [
               _sectionTitle('CANLI DURUM'),
               const SizedBox(height: 12),
-              Text(
-                tableTitle,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 15,
-                  fontWeight: FontWeight.w800,
+              InkWell(
+                borderRadius: BorderRadius.circular(12),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => CreateReservationPage(
+                        chefId: _chefId,
+                        chefName: displayName,
+                        tableTitle: '8 Kişilik Özel Şef Masası Deneyimi',
+                        concept: 'Tadım Menüsü',
+                        capacity: '8 Kişi',
+                        unitPrice: 1500,
+                      ),
+                    ),
+                  );
+                },
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 2),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          tableTitle,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 15,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      const Icon(
+                        Icons.arrow_forward_rounded,
+                        color: gold,
+                        size: 18,
+                      ),
+                    ],
+                  ),
                 ),
               ),
               const SizedBox(height: 8),
@@ -897,7 +1005,7 @@ class _SefItibarSayfasiState extends State<SefItibarSayfasi> {
                       const SizedBox(height: 18),
                       _buildQuickActionsContent(displayName),
                       const SizedBox(height: 18),
-                      _chefLiveStatusCard(_chefId),
+                      _chefLiveStatusCard(_chefId, displayName),
                       const SizedBox(height: 18),
                       _buildQuickAccess(displayName),
                       const SizedBox(height: 18),
@@ -905,7 +1013,10 @@ class _SefItibarSayfasiState extends State<SefItibarSayfasi> {
                       const SizedBox(height: 18),
                       _buildStorySection(hikaye),
                       const SizedBox(height: 18),
-                      const SefCateringSection(),
+                      SefCateringSection(
+                        chefId: _chefId,
+                        chefName: displayName,
+                      ),
                       const SizedBox(height: 18),
                       SectionCard(
                         child: _buildGallerySection(gallery),

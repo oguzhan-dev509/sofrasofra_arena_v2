@@ -84,7 +84,7 @@ class OdemeSayfasi extends StatelessWidget {
       decoration: BoxDecoration(
         color: const Color(0xFF1A1A1A),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFFFB300).withOpacity(0.2)),
+        border: Border.all(color: const Color(0xFFFFB300).withValues(alpha: 0.2)),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,

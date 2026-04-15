@@ -64,7 +64,7 @@ class _UstaSefGorselYonetimiState extends State<UstaSefGorselYonetimi> {
 
     try {
       final ref = FirebaseStorage.instance.ref().child(
-          'chefs/${widget.chefId}/profile_${DateTime.now().msSinceEpoch}.jpg');
+          'chefs/${widget.chefId}/profile_${DateTime.now().millisecondsSinceEpoch}.jpg');
       await ref.putData(bytes);
       final url = await ref.getDownloadURL();
 
@@ -112,7 +112,7 @@ class _UstaSefGorselYonetimiState extends State<UstaSefGorselYonetimi> {
                   decoration: BoxDecoration(
                     color: cardBg,
                     borderRadius: BorderRadius.circular(30),
-                    border: Border.all(color: gold.withOpacity(0.3), width: 2),
+                    border: Border.all(color: gold.withValues(alpha: 0.3), width: 2),
                   ),
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(30),

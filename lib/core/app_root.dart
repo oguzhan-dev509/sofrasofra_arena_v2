@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import '../main.dart';
+
 import '../modules/user_reservations_page.dart';
 import '../modules/create_reservation_page.dart';
-import '../modules/kategori_sayfasi.dart';
 
 class AppRoot extends StatefulWidget {
   const AppRoot({super.key});

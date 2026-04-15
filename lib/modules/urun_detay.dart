@@ -100,7 +100,7 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
                         colors: [
                           Colors.transparent,
                           Colors.transparent,
-                          Colors.black.withOpacity(0.18),
+                          Colors.black.withValues(alpha: 0.18),
                         ],
                       ),
                     ),
@@ -320,7 +320,7 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
                 style: OutlinedButton.styleFrom(
                   foregroundColor: _gold,
                   side: const BorderSide(color: _border),
-                  backgroundColor: _gold.withOpacity(0.05),
+                  backgroundColor: _gold.withValues(alpha: 0.05),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(14),
                   ),
@@ -689,7 +689,7 @@ class _UrunGaleriState extends State<UrunGaleri> {
                   vertical: 5,
                 ),
                 decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.55),
+                  color: Colors.black.withValues(alpha: 0.55),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(

@@ -257,7 +257,7 @@ class _MusteriSiparisTakipSayfasiState
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.15),
+        color: color.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(30),
         border: Border.all(color: color),
       ),
@@ -561,7 +561,7 @@ class _MusteriSiparisTakipSayfasiState
                                 ),
                                 decoration: BoxDecoration(
                                   color: _statusColor(saticiStatus)
-                                      .withOpacity(0.15),
+                                      .withValues(alpha: 0.15),
                                   borderRadius: BorderRadius.circular(30),
                                   border: Border.all(
                                     color: _statusColor(saticiStatus),
@@ -1028,7 +1028,7 @@ class OrderTimeline extends StatelessWidget {
         decoration: BoxDecoration(
           color: const Color(0xFF1A1A1A),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.redAccent.withOpacity(0.45)),
+          border: Border.all(color: Colors.redAccent.withValues(alpha: 0.45)),
         ),
         child: const Row(
           children: [

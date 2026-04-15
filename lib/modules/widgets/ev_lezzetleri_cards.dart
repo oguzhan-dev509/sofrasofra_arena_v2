@@ -67,12 +67,12 @@ class EvKitchenCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(24),
         border: Border.all(
           color:
-              badgeType == 'premium' ? _gold.withOpacity(0.45) : Colors.white10,
+              badgeType == 'premium' ? _gold.withValues(alpha: 0.45) : Colors.white10,
         ),
         boxShadow: badgeType == 'premium'
             ? [
                 BoxShadow(
-                  color: _gold.withOpacity(0.10),
+                  color: _gold.withValues(alpha: 0.10),
                   blurRadius: 20,
                   offset: const Offset(0, 8),
                 ),
@@ -92,7 +92,7 @@ class EvKitchenCard extends StatelessWidget {
                   color: _badgeBg,
                   borderRadius: BorderRadius.circular(999),
                   border: badgeType == 'trusted'
-                      ? Border.all(color: _gold.withOpacity(0.35))
+                      ? Border.all(color: _gold.withValues(alpha: 0.35))
                       : null,
                 ),
                 child: Text(
@@ -162,7 +162,7 @@ class EvKitchenCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
             decoration: BoxDecoration(
-              color: _gold.withOpacity(0.12),
+              color: _gold.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(999),
             ),
             child: const Text(
@@ -262,7 +262,7 @@ class EvPremiumProductCard extends StatelessWidget {
   BoxBorder? get _badgeBorder {
     switch (badgeType) {
       case 'trusted':
-        return Border.all(color: _gold.withOpacity(0.30));
+        return Border.all(color: _gold.withValues(alpha: 0.30));
       default:
         return null;
     }
@@ -283,18 +283,18 @@ class EvPremiumProductCard extends StatelessWidget {
             borderRadius: BorderRadius.circular(28),
             border: Border.all(
               color: badgeType == 'premium'
-                  ? _gold.withOpacity(0.40)
+                  ? _gold.withValues(alpha: 0.40)
                   : Colors.white10,
             ),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.22),
+                color: Colors.black.withValues(alpha: 0.22),
                 blurRadius: 22,
                 offset: const Offset(0, 10),
               ),
               if (badgeType == 'premium')
                 BoxShadow(
-                  color: _gold.withOpacity(0.08),
+                  color: _gold.withValues(alpha: 0.08),
                   blurRadius: 18,
                   offset: const Offset(0, 6),
                 ),
@@ -330,7 +330,7 @@ class EvPremiumProductCard extends StatelessWidget {
                         vertical: 7,
                       ),
                       decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.68),
+                        color: Colors.black.withValues(alpha: 0.68),
                         borderRadius: BorderRadius.circular(999),
                       ),
                       child: Text(
@@ -555,7 +555,7 @@ class EvMiniTag extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 6),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.05),
+        color: Colors.white.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(999),
         border: Border.all(color: Colors.white10),
       ),
@@ -637,7 +637,7 @@ class EvHorizontalFoodCard extends StatelessWidget {
   BoxBorder? get _badgeBorder {
     switch (badgeType) {
       case 'trusted':
-        return Border.all(color: _gold.withOpacity(0.30));
+        return Border.all(color: _gold.withValues(alpha: 0.30));
       default:
         return null;
     }
@@ -660,13 +660,13 @@ class EvHorizontalFoodCard extends StatelessWidget {
               borderRadius: BorderRadius.circular(24),
               border: Border.all(
                 color: badgeType == 'premium'
-                    ? _gold.withOpacity(0.38)
+                    ? _gold.withValues(alpha: 0.38)
                     : Colors.white10,
               ),
               boxShadow: badgeType == 'premium'
                   ? [
                       BoxShadow(
-                        color: _gold.withOpacity(0.08),
+                        color: _gold.withValues(alpha: 0.08),
                         blurRadius: 16,
                         offset: const Offset(0, 6),
                       ),

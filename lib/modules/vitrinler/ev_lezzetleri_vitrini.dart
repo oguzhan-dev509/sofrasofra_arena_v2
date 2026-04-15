@@ -1,19 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:sofrasofra_arena_v2/cart/sepet_sayfasi.dart';
+import 'package:sofrasofra_arena_v2/modules/kurye_basvuru_formu.dart';
+import '../../orders/musteri_siparis_takip_sayfasi.dart';
 import 'package:sofrasofra_arena_v2/modules/urun_detay.dart';
+
 import 'package:sofrasofra_arena_v2/modules/widgets/ev_lezzetleri_cards.dart';
 import 'package:sofrasofra_arena_v2/services/sepet_service.dart';
-
-import '../../admin/admin_icerik_paneli.dart';
-import '../../cart/sepet_sayfasi.dart';
-import '../../merchant/satici_siparis_paneli.dart';
-import '../../merchant/urun_ekleme_sayfasi.dart';
-import '../../orders/musteri_siparis_takip_sayfasi.dart';
-import 'package:sofrasofra_arena_v2/modules/vitrinler/ev_lezzetleri_helpers.dart';
-import 'package:sofrasofra_arena_v2/modules/kurye_basvuru_formu.dart';
-import '../../merchant/merchant_merkez.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:sofrasofra_arena_v2/merchant/ev_orders_sayfasi.dart';
 
 class EvLezzetleriVitrini extends StatefulWidget {
   final String city;
@@ -304,9 +298,7 @@ class _EvLezzetleriVitriniState extends State<EvLezzetleriVitrini> {
     final String sehir = _safeText(data['sehir']);
     final String ilce = _safeText(data['ilce']);
 
-    final String aciklama = _safeText(
-      data['aciklama'] ?? data['tarif'],
-    );
+    final String aciklama = _safeText(data['aciklama'] ?? data['tarif']);
 
     final dynamic fiyatRaw = data['fiyat'] ?? data['gelAlFiyat'];
     final double fiyat = _readPrice(fiyatRaw);
@@ -559,13 +551,6 @@ class _EvLezzetleriVitriniState extends State<EvLezzetleriVitrini> {
           behavior: SnackBarBehavior.floating,
         ),
       );
-
-      // Navigator.push(
-      // context,
-      // MaterialPageRoute(
-      // builder: (_) => const MusteriSiparisTakipSayfasi(),
-      //),
-      //);
     } catch (e) {
       if (!context.mounted) return;
 
@@ -682,48 +667,6 @@ class _EvLezzetleriVitriniState extends State<EvLezzetleriVitrini> {
                 context,
                 MaterialPageRoute(
                   builder: (_) => const SepetSayfasi(),
-                ),
-              );
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.admin_panel_settings_outlined),
-            tooltip: 'Admin İçerik Paneli',
-            color: _gold,
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => const AdminIcerikPaneli(),
-                ),
-              );
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.storefront_outlined),
-            tooltip: 'Satıcı Paneli',
-            color: _gold,
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => SaticiSiparisPaneli(
-                    sellerId: 'nuran_tatlilari',
-                    sellerName: 'Satıcı Paneli',
-                  ),
-                ),
-              );
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.add_box_outlined),
-            tooltip: 'Ürün Ekle',
-            color: _gold,
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => const UrunEklemeSayfasi(),
                 ),
               );
             },
@@ -1069,10 +1012,10 @@ class _HeroSection extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        border: Border.all(color: _gold.withOpacity(0.35)),
+        border: Border.all(color: _gold.withValues(alpha: 0.35)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.28),
+            color: Colors.black.withValues(alpha: 0.28),
             blurRadius: 24,
             offset: const Offset(0, 12),
           ),
@@ -1153,10 +1096,18 @@ class _HeroTextBlock extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Column(
+    final hasCity = city.trim().isNotEmpty;
+    final hasDistrict =
+        district.trim().isNotEmpty && district.trim().toLowerCase() != 'tümü';
+
+    final areaText = hasCity
+        ? (hasDistrict ? '$district / $city bölgesinde' : '$city bölgesinde')
+        : 'bulunduğun bölgede';
+
+    return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
+        const Text(
           'Mahalle Mutfağı',
           style: TextStyle(
             color: _gold,
@@ -1165,20 +1116,22 @@ class _HeroTextBlock extends StatelessWidget {
             height: 1.05,
           ),
         ),
-        SizedBox(height: 10),
+        const SizedBox(height: 10),
         Text(
-          'Ev yapımı günlük yemekler, tatlılar, kahvaltılıklar ve mahalleden gelen sıcak lezzetler.',
-          style: TextStyle(
+          '$areaText ev yapımı günlük yemekler, tatlılar, kahvaltılıklar ve mahalleden gelen sıcak lezzetler.',
+          style: const TextStyle(
             color: Colors.white,
             fontSize: 15,
             height: 1.55,
             fontWeight: FontWeight.w500,
           ),
         ),
-        SizedBox(height: 12),
+        const SizedBox(height: 12),
         Text(
-          'Gerçek üreticiler • güven veren mutfaklar • premium vitrin',
-          style: TextStyle(
+          hasCity
+              ? 'Gerçek üreticiler • güven veren mutfaklar • $areaText premium vitrin'
+              : 'Gerçek üreticiler • güven veren mutfaklar • premium vitrin',
+          style: const TextStyle(
             color: _softGold,
             fontSize: 13,
             fontWeight: FontWeight.w600,
@@ -1201,9 +1154,9 @@ class _HeroTag extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 10),
       decoration: BoxDecoration(
-        color: _gold.withOpacity(0.12),
+        color: _gold.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: _gold.withOpacity(0.4)),
+        border: Border.all(color: _gold.withValues(alpha: 0.4)),
       ),
       child: Text(
         text,
@@ -1333,7 +1286,7 @@ class _AgentIdeaCard extends StatelessWidget {
             width: 42,
             height: 42,
             decoration: BoxDecoration(
-              color: _gold.withOpacity(0.14),
+              color: _gold.withValues(alpha: 0.14),
               borderRadius: BorderRadius.circular(14),
             ),
             child: const Icon(Icons.auto_awesome, color: _gold),
@@ -1489,7 +1442,7 @@ class _KuryeOlBanner extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(11),
           decoration: BoxDecoration(
-            color: Colors.black.withOpacity(0.10),
+            color: Colors.black.withValues(alpha: 0.10),
             borderRadius: BorderRadius.circular(14),
           ),
           child: const Icon(

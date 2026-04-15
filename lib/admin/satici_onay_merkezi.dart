@@ -663,7 +663,7 @@ class _SaticiOnayMerkeziState extends State<SaticiOnayMerkezi> {
                                         ),
                                         decoration: BoxDecoration(
                                           color: _durumRengi(onayDurumu)
-                                              .withOpacity(0.18),
+                                              .withValues(alpha: 0.18),
                                           borderRadius:
                                               BorderRadius.circular(30),
                                           border: Border.all(
@@ -687,8 +687,8 @@ class _SaticiOnayMerkeziState extends State<SaticiOnayMerkezi> {
                                         ),
                                         decoration: BoxDecoration(
                                           color: isActive
-                                              ? Colors.green.withOpacity(0.18)
-                                              : Colors.red.withOpacity(0.18),
+                                              ? Colors.green.withValues(alpha: 0.18)
+                                              : Colors.red.withValues(alpha: 0.18),
                                           borderRadius:
                                               BorderRadius.circular(30),
                                           border: Border.all(

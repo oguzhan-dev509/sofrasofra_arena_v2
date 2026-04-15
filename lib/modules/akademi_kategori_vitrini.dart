@@ -501,10 +501,10 @@ class _HeroSection extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        border: Border.all(color: _gold.withOpacity(0.35)),
+        border: Border.all(color: _gold.withValues(alpha: 0.35)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.28),
+            color: Colors.black.withValues(alpha: 0.28),
             blurRadius: 24,
             offset: const Offset(0, 12),
           ),
@@ -621,9 +621,9 @@ class _HeroTag extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 10),
       decoration: BoxDecoration(
-        color: _gold.withOpacity(0.12),
+        color: _gold.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: _gold.withOpacity(0.4)),
+        border: Border.all(color: _gold.withValues(alpha: 0.4)),
       ),
       child: Text(
         text,
@@ -753,7 +753,7 @@ class _AcademyIdeaCard extends StatelessWidget {
             width: 42,
             height: 42,
             decoration: BoxDecoration(
-              color: _gold.withOpacity(0.14),
+              color: _gold.withValues(alpha: 0.14),
               borderRadius: BorderRadius.circular(14),
             ),
             child: const Icon(Icons.auto_awesome, color: _gold),
@@ -879,7 +879,7 @@ class _HorizontalCourseCard extends StatelessWidget {
           border: Border.all(color: Colors.white10),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.22),
+              color: Colors.black.withValues(alpha: 0.22),
               blurRadius: 18,
               offset: const Offset(0, 8),
             ),
@@ -988,7 +988,7 @@ class _PremiumCourseCard extends StatelessWidget {
           border: Border.all(color: Colors.white10),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.20),
+              color: Colors.black.withValues(alpha: 0.20),
               blurRadius: 18,
               offset: const Offset(0, 10),
             ),
@@ -1070,9 +1070,9 @@ class _MiniBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 7),
       decoration: BoxDecoration(
-        color: _gold.withOpacity(0.12),
+        color: _gold.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: _gold.withOpacity(0.35)),
+        border: Border.all(color: _gold.withValues(alpha: 0.35)),
       ),
       child: Text(
         text,
@@ -1100,7 +1100,7 @@ class _StatChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.05),
+        color: Colors.white.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(999),
         border: Border.all(color: Colors.white10),
       ),

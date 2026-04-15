@@ -43,7 +43,7 @@ class Sepetim extends StatelessWidget {
       decoration: BoxDecoration(
         color: const Color(0xFF1A1A1A),
         borderRadius: BorderRadius.circular(15),
-        border: Border.all(color: const Color(0xFFFFB300).withOpacity(0.1)),
+        border: Border.all(color: const Color(0xFFFFB300).withValues(alpha: 0.1)),
       ),
       child: Row(
         children: [

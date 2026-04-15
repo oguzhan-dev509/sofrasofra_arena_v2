@@ -232,10 +232,10 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                     ),
-                    border: Border.all(color: _gold.withOpacity(0.35)),
+                    border: Border.all(color: _gold.withValues(alpha: 0.35)),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.28),
+                        color: Colors.black.withValues(alpha: 0.28),
                         blurRadius: 24,
                         offset: const Offset(0, 12),
                       ),
@@ -481,7 +481,7 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
                             border: Border.all(
                               color: canOpen
                                   ? Colors.white10
-                                  : Colors.redAccent.withOpacity(0.25),
+                                  : Colors.redAccent.withValues(alpha: 0.25),
                             ),
                           ),
                           child: Column(
@@ -663,9 +663,9 @@ class _MiniBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 7),
       decoration: BoxDecoration(
-        color: _gold.withOpacity(0.12),
+        color: _gold.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: _gold.withOpacity(0.35)),
+        border: Border.all(color: _gold.withValues(alpha: 0.35)),
       ),
       child: Text(
         text,
@@ -693,7 +693,7 @@ class _StatChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.05),
+        color: Colors.white.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(999),
         border: Border.all(color: Colors.white10),
       ),

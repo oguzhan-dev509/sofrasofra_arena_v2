@@ -36,9 +36,9 @@ class RestoranComingSoonPage extends StatelessWidget {
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                   colors: [
-                    Colors.black.withOpacity(0.4),
-                    Colors.black.withOpacity(0.7),
-                    Colors.black.withOpacity(0.9),
+                    Colors.black.withValues(alpha: 0.4),
+                    Colors.black.withValues(alpha: 0.7),
+                    Colors.black.withValues(alpha: 0.9),
                   ],
                 ),
               ),
@@ -95,7 +95,7 @@ class RestoranComingSoonPage extends StatelessWidget {
                       borderRadius: BorderRadius.circular(14),
                       boxShadow: [
                         BoxShadow(
-                          color: _gold.withOpacity(0.4),
+                          color: _gold.withValues(alpha: 0.4),
                           blurRadius: 20,
                           offset: const Offset(0, 8),
                         ),
