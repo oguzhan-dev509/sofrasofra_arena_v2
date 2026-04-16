@@ -1,6 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
+enum ConsultingStatus {
+  pending,
+  inReview,
+  contacted,
+  completed,
+}
+
 class ConsultingRequestsPage extends StatefulWidget {
   final String chefId;
   final String chefName;
@@ -31,8 +38,12 @@ class _ConsultingRequestsPageState extends State<ConsultingRequestsPage> {
   final TextEditingController _budgetController = TextEditingController();
   final TextEditingController _detailsController = TextEditingController();
   final TextEditingController _targetDateController = TextEditingController();
+
   String _selectedType = 'menu_consulting';
   String _selectedBusinessType = 'restaurant';
+
+  bool _submitting = false;
+  bool _showSuccessMessage = false;
 
   static const Map<String, String> _businessTypeLabels = {
     'restaurant': 'Restoran',
@@ -41,8 +52,7 @@ class _ConsultingRequestsPageState extends State<ConsultingRequestsPage> {
     'boutique_kitchen': 'Butik Mutfak',
     'new_venture': 'Yeni Girişim',
   };
-  bool _submitting = false;
-  bool _showSuccessMessage = false;
+
   static const Map<String, String> _typeLabels = {
     'menu_consulting': 'Menü Danışmanlığı',
     'kitchen_setup': 'Mutfak Kurulum',
@@ -50,6 +60,38 @@ class _ConsultingRequestsPageState extends State<ConsultingRequestsPage> {
     'brand_positioning': 'Marka Konumlandırma',
     'training_program': 'Eğitim Programı',
   };
+
+  static const Map<String, String> _statusLabels = {
+    'pending': 'Beklemede',
+    'in_review': 'İnceleniyor',
+    'contacted': 'İletişime Geçildi',
+    'completed': 'Tamamlandı',
+  };
+
+  Color _statusColor(String status) {
+    switch (status) {
+      case 'pending':
+        return Colors.orange;
+      case 'in_review':
+        return Colors.blue;
+      case 'contacted':
+        return Colors.purple;
+      case 'completed':
+        return Colors.green;
+      default:
+        return Colors.grey;
+    }
+  }
+
+  Future<void> _updateStatus(String docId, String newStatus) async {
+    await FirebaseFirestore.instance
+        .collection('consulting_requests')
+        .doc(docId)
+        .update({
+      'status': newStatus,
+      'updatedAt': FieldValue.serverTimestamp(),
+    });
+  }
 
   @override
   void dispose() {
@@ -59,14 +101,7 @@ class _ConsultingRequestsPageState extends State<ConsultingRequestsPage> {
     _districtController.dispose();
     _budgetController.dispose();
     _detailsController.dispose();
-    _nameController.dispose();
-    _phoneController.dispose();
-    _cityController.dispose();
-    _districtController.dispose();
-    _budgetController.dispose();
-    _detailsController.dispose();
     _targetDateController.dispose();
-    super.dispose();
     super.dispose();
   }
 
@@ -128,11 +163,13 @@ class _ConsultingRequestsPageState extends State<ConsultingRequestsPage> {
       _budgetController.clear();
       _detailsController.clear();
       _targetDateController.clear();
+
       setState(() {
         _selectedType = 'menu_consulting';
         _selectedBusinessType = 'restaurant';
         _showSuccessMessage = true;
       });
+
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Danışmanlık talebiniz alındı.'),
@@ -480,6 +517,7 @@ class _ConsultingRequestsPageState extends State<ConsultingRequestsPage> {
                 ),
               ],
             ),
+            const SizedBox(height: 14),
             _buildField(
               'Hedef Tarih',
               _targetDateController,
@@ -556,7 +594,177 @@ class _ConsultingRequestsPageState extends State<ConsultingRequestsPage> {
     );
   }
 
+  Widget _buildRequestCard(DocumentSnapshot doc) {
+    final data = doc.data() as Map<String, dynamic>? ?? {};
+    final status = (data['status'] ?? 'pending').toString();
+
+    final userName = (data['userName'] ?? '-').toString();
+    final phone = (data['phone'] ?? '-').toString();
+    final city = (data['city'] ?? '').toString();
+    final district = (data['district'] ?? '').toString();
+    final details = (data['details'] ?? '').toString();
+    final budget = data['budget'];
+    final targetDate = (data['targetDate'] ?? '').toString();
+    final type = _typeLabels[(data['type'] ?? '').toString()] ??
+        (data['type'] ?? '-').toString();
+    final businessType =
+        _businessTypeLabels[(data['businessType'] ?? '').toString()] ??
+            (data['businessTypeLabel'] ?? '-').toString();
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 14),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0xFF171717),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.white.withOpacity(0.08)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  userName,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                decoration: BoxDecoration(
+                  color: _statusColor(status).withOpacity(0.16),
+                  borderRadius: BorderRadius.circular(999),
+                  border: Border.all(
+                    color: _statusColor(status).withOpacity(0.45),
+                  ),
+                ),
+                child: Text(
+                  _statusLabels[status] ?? status,
+                  style: TextStyle(
+                    color: _statusColor(status),
+                    fontSize: 11,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Text(
+            'Hizmet: $type',
+            style: const TextStyle(
+              color: Colors.white70,
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            'İşletme Tipi: $businessType',
+            style: const TextStyle(
+              color: Colors.white70,
+              fontSize: 12,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            'Telefon: $phone',
+            style: const TextStyle(
+              color: Colors.white70,
+              fontSize: 12,
+            ),
+          ),
+          if (city.isNotEmpty || district.isNotEmpty) ...[
+            const SizedBox(height: 6),
+            Text(
+              'Konum: ${city.isEmpty ? '-' : city}${district.isEmpty ? '' : ' / $district'}',
+              style: const TextStyle(
+                color: Colors.white70,
+                fontSize: 12,
+              ),
+            ),
+          ],
+          if (targetDate.isNotEmpty) ...[
+            const SizedBox(height: 6),
+            Text(
+              'Hedef Tarih: $targetDate',
+              style: const TextStyle(
+                color: Colors.white70,
+                fontSize: 12,
+              ),
+            ),
+          ],
+          if (budget != null) ...[
+            const SizedBox(height: 6),
+            Text(
+              'Bütçe: ₺$budget',
+              style: const TextStyle(
+                color: Colors.white70,
+                fontSize: 12,
+              ),
+            ),
+          ],
+          if (details.isNotEmpty) ...[
+            const SizedBox(height: 10),
+            Text(
+              details,
+              style: const TextStyle(
+                color: Colors.white60,
+                fontSize: 12,
+                height: 1.45,
+              ),
+            ),
+          ],
+          if (widget.isAdmin) ...[
+            const SizedBox(height: 14),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: _statusLabels.entries.map((entry) {
+                final isSelected = entry.key == status;
+                return OutlinedButton(
+                  onPressed: isSelected
+                      ? null
+                      : () => _updateStatus(doc.id, entry.key),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor:
+                        isSelected ? Colors.black : _statusColor(entry.key),
+                    backgroundColor: isSelected
+                        ? _statusColor(entry.key)
+                        : Colors.transparent,
+                    side: BorderSide(color: _statusColor(entry.key)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: Text(
+                    entry.value,
+                    style: const TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                );
+              }).toList(),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
   Widget _buildRequestsSection() {
+    final query = FirebaseFirestore.instance
+        .collection('consulting_requests')
+        .where('chefId', isEqualTo: widget.chefId)
+        .orderBy('createdAt', descending: true);
+
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
@@ -577,13 +785,47 @@ class _ConsultingRequestsPageState extends State<ConsultingRequestsPage> {
             ),
           ),
           const SizedBox(height: 14),
-          const Text(
-            'Danışmanlık talep akışı bir sonraki adımda burada listelenecek.',
-            style: TextStyle(
-              color: Colors.white54,
-              fontSize: 12.5,
-              height: 1.45,
-            ),
+          StreamBuilder<QuerySnapshot>(
+            stream: query.snapshots(),
+            builder: (context, snapshot) {
+              if (snapshot.hasError) {
+                return const Text(
+                  'Talepler yüklenirken hata oluştu.',
+                  style: TextStyle(
+                    color: Colors.redAccent,
+                    fontSize: 12,
+                  ),
+                );
+              }
+
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 18),
+                  child: Center(
+                    child: CircularProgressIndicator(color: gold),
+                  ),
+                );
+              }
+
+              final docs = snapshot.data?.docs ?? [];
+
+              if (docs.isEmpty) {
+                return Text(
+                  widget.isAdmin
+                      ? 'Henüz gelen danışmanlık talebi yok.'
+                      : 'Henüz görüntülenecek danışmanlık talebi yok.',
+                  style: const TextStyle(
+                    color: Colors.white54,
+                    fontSize: 12.5,
+                    height: 1.45,
+                  ),
+                );
+              }
+
+              return Column(
+                children: docs.map(_buildRequestCard).toList(),
+              );
+            },
           ),
         ],
       ),

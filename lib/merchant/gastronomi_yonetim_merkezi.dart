@@ -14,6 +14,8 @@ import 'package:sofrasofra_arena_v2/modules/sef_akademi_dersleri.dart';
 import 'package:sofrasofra_arena_v2/modules/sef_itibar_sayfasi.dart';
 import 'package:sofrasofra_arena_v2/modules/akademi_merkezi.dart';
 import 'package:sofrasofra_arena_v2/dev/academy_master_runner.dart';
+import 'package:sofrasofra_arena_v2/admin/consulting_requests_admin_page.dart';
+import 'package:sofrasofra_arena_v2/modules/sef_marka_kariyer_sayfasi.dart';
 
 class GastronomiYonetimMerkezi extends StatelessWidget {
   final String? chefId;
@@ -266,6 +268,23 @@ class GastronomiYonetimMerkezi extends StatelessWidget {
         onTap: () => _openChefPrestige(context),
       ),
       _DashboardItem(
+        title: 'Şef Marka & Kariyer',
+        subtitle:
+            'Kariyer zaman çizgisi, uzmanlık alanları, ödüller, iş birlikleri ve premium hizmet yüzeyleri.',
+        icon: Icons.workspace_premium_rounded,
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => const SefMarkaKariyerSayfasi(
+                chefName: 'Ahmet Usta',
+                isAdmin: true,
+              ),
+            ),
+          );
+        },
+      ),
+      _DashboardItem(
         title: 'Şef Akademisi',
         subtitle:
             'Dersler, videolar, kategori akışı ve eğitim mimarisini yönetin.',
@@ -312,6 +331,22 @@ class GastronomiYonetimMerkezi extends StatelessWidget {
             'Ödeme bekleyen rezervasyonlar, iyzico akışı ve timeout yönetimi.',
         icon: Icons.payments_rounded,
         onTap: () => _openIyzico(context),
+      ),
+      _DashboardItem(
+        title: 'Danışmanlık Talepleri',
+        subtitle: 'Gelen danışmanlık taleplerini görüntüle ve yönet.',
+        icon: Icons.support_agent_rounded,
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => const ConsultingRequestsAdminPage(
+                chefId: 'gmRQ6eKx6WZ0fqDDFytHEgi88RH3',
+                chefName: 'Ahmet Usta',
+              ),
+            ),
+          );
+        },
       ),
     ];
 
