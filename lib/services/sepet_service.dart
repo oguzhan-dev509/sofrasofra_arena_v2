@@ -1,9 +1,17 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class SepetService {
   static final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  static const String _userId = 'demo_user';
+  static String get _userId {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      throw Exception('Kullanıcı oturumu bulunamadı');
+    }
+    return user.uid;
+  }
+
   static const int _defaultMaxRetryCount = 5;
 
   static Future<void> sepeteEkle({

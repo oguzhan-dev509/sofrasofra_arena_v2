@@ -1,3 +1,5 @@
+// EV LEZZETLERİ - FULL PREMIUM CLEAN VERSION
+
 import 'dart:convert';
 import 'dart:typed_data';
 
@@ -7,7 +9,6 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:image_picker/image_picker.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '../services/membership_plan_service.dart';
 
@@ -19,626 +20,684 @@ class UrunEklemeSayfasiV2 extends StatefulWidget {
 }
 
 class _UrunEklemeSayfasiV2State extends State<UrunEklemeSayfasiV2> {
-  final TextEditingController _dukkanController = TextEditingController();
-  final TextEditingController _urunAdiController = TextEditingController();
-  final TextEditingController _uzmanlikController = TextEditingController();
-  final TextEditingController _videoController = TextEditingController();
-  final TextEditingController _resimUrlController = TextEditingController();
-  final TextEditingController _fiyatController = TextEditingController();
+  final TextEditingController _dukkan = TextEditingController();
+  final TextEditingController _urun = TextEditingController();
+  final TextEditingController _uzmanlik = TextEditingController();
+  final TextEditingController _video = TextEditingController();
+  final TextEditingController _resimUrl = TextEditingController();
+  final TextEditingController _fiyat = TextEditingController();
 
   final List<Uint8List> _webResimler = [];
-  final List<String> _seciliUrlList = [];
+  final List<String> _urlResimler = [];
 
-  bool _yukleniyor = false;
+  bool _loading = false;
   bool _bugunPisiyor = false;
-  String _tip = "Usta Sefler";
-  String _sehir = "";
-  String _ilce = "";
-  String _kategori = "Ev Yemekleri";
+
+  String _sehir = '';
+  String _ilce = '';
+  String _kategori = 'Ev Yemekleri';
 
   Map<String, List<String>> _ilcelerMap = {};
-  bool _lokasyonYukleniyor = true;
 
   String _membershipType = 'free';
-  int _maxPhotoCount = 3;
-  int _maxVideoCount = 0;
+  int _maxPhoto = 3;
+  int _maxVideo = 0;
   bool _canUseYoutube = false;
-  bool _canBeFeatured = false;
-  String _featuredScope = 'none';
-  String _badgeType = 'none';
-  int _priorityScore = 0;
-  bool _membershipLoading = true;
-
-  final List<String> _evLezzetiKategorileri = const [
-    "Ev Yemekleri",
-    "Çikolata & Tatlılar",
-    "Süt Ürünleri",
-    "Turşu & Diğerleri",
-    "Baharat & Soslar",
-  ];
+  bool _lokasyonYukleniyor = true;
 
   static const Color gold = Color(0xFFFFB300);
 
-  int get _toplamSeciliFoto => _webResimler.length + _seciliUrlList.length;
+  final List<String> kategoriler = const [
+    'Ev Yemekleri',
+    'Tatlılar',
+    'Süt Ürünleri',
+    'Turşu & Reçel',
+    'Sos & Baharat',
+  ];
+
+  int get toplamFoto => _webResimler.length + _urlResimler.length;
 
   @override
   void initState() {
     super.initState();
     _ilceleriYukle();
-    _uyelikPlaniniYukle();
+    _uyelikYukle();
   }
 
   @override
   void dispose() {
-    _dukkanController.dispose();
-    _urunAdiController.dispose();
-    _uzmanlikController.dispose();
-    _videoController.dispose();
-    _resimUrlController.dispose();
-    _fiyatController.dispose();
+    _dukkan.dispose();
+    _urun.dispose();
+    _uzmanlik.dispose();
+    _video.dispose();
+    _resimUrl.dispose();
+    _fiyat.dispose();
     super.dispose();
   }
 
-  Future<void> _uyelikPlaniniYukle() async {
+  Future<void> _uyelikYukle() async {
     try {
       final user = FirebaseAuth.instance.currentUser;
-      final uid = user?.uid ?? 'demo_user';
+      if (user == null) return;
 
-      final doc =
-          await FirebaseFirestore.instance.collection('sellers').doc(uid).get();
+      final doc = await FirebaseFirestore.instance
+          .collection('sellers')
+          .doc(user.uid)
+          .get();
 
-      final data = doc.data() ?? {};
-      final plan = MembershipPlanService.fromSellerData(data);
-
-      if (!mounted) return;
-
-      setState(() {
-        _membershipType = plan.type;
-        _maxPhotoCount = plan.maxPhotoCount;
-        _maxVideoCount = plan.maxVideoCount;
-        _canUseYoutube = plan.canUseYoutube;
-        _canBeFeatured = plan.canBeFeatured;
-        _featuredScope = plan.featuredScope;
-        _badgeType = plan.badgeType;
-        _priorityScore = plan.priorityScore;
-        _membershipLoading = false;
-      });
-    } catch (_) {
-      final plan = MembershipPlanService.free;
+      final plan = MembershipPlanService.fromSellerData(doc.data() ?? {});
 
       if (!mounted) return;
-
       setState(() {
         _membershipType = plan.type;
-        _maxPhotoCount = plan.maxPhotoCount;
-        _maxVideoCount = plan.maxVideoCount;
+        _maxPhoto = plan.maxPhotoCount;
+        _maxVideo = plan.maxVideoCount;
         _canUseYoutube = plan.canUseYoutube;
-        _canBeFeatured = plan.canBeFeatured;
-        _featuredScope = plan.featuredScope;
-        _badgeType = plan.badgeType;
-        _priorityScore = plan.priorityScore;
-        _membershipLoading = false;
       });
-    }
+    } catch (_) {}
   }
 
   Future<void> _ilceleriYukle() async {
     try {
       final raw = await rootBundle.loadString('assets/ilceler.json');
-      final Map<String, dynamic> decoded = jsonDecode(raw);
-
-      final map = decoded.map((k, v) {
-        final list = (v as List).map((e) => e.toString()).toList();
-        return MapEntry(k.toString(), list);
-      });
+      final data = jsonDecode(raw) as Map<String, dynamic>;
 
       if (!mounted) return;
       setState(() {
-        _ilcelerMap = Map<String, List<String>>.from(map);
+        _ilcelerMap = data.map(
+          (k, v) => MapEntry(k, List<String>.from(v as List)),
+        );
         _lokasyonYukleniyor = false;
       });
     } catch (e) {
       if (!mounted) return;
       setState(() => _lokasyonYukleniyor = false);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("❌ İl/İlçe listesi yüklenemedi: $e")),
+        SnackBar(content: Text('❌ İl/İlçe listesi yüklenemedi: $e')),
       );
     }
   }
 
-  bool _isHttpUrl(String s) {
-    final t = s.trim();
-    return t.startsWith("http://") || t.startsWith("https://");
+  bool _isYoutubeUrl(String value) {
+    final t = value.trim().toLowerCase();
+    return t.contains('youtube.com') || t.contains('youtu.be');
   }
 
-  bool _isYoutubeUrl(String s) {
-    final t = s.trim().toLowerCase();
-    return t.contains("youtube.com") || t.contains("youtu.be");
+  Future<String> _upload(Uint8List bytes) async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      throw Exception('Giriş yapan kullanıcı bulunamadı.');
+    }
+
+    final fileName =
+        'urun_${DateTime.now().millisecondsSinceEpoch}_${bytes.length}.jpg';
+
+    final ref = FirebaseStorage.instance
+        .ref()
+        .child('urunler')
+        .child(user.uid)
+        .child(fileName);
+
+    debugPrint('📤 UPLOAD PATH: ${ref.fullPath}');
+
+    final snap = await ref.putData(
+      bytes,
+      SettableMetadata(contentType: 'image/jpeg'),
+    );
+
+    final url = await snap.ref.getDownloadURL();
+    debugPrint('✅ UPLOAD OK: $url');
+
+    return url;
   }
 
-  Future<void> _youtubeLinkiniAc() async {
-    if (!_canUseYoutube) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            "❌ YouTube linki eklemek için Pro veya Premium paket gerekir.",
-          ),
-        ),
-      );
-      return;
-    }
-
-    final url = _videoController.text.trim();
-
-    if (url.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("❌ Önce YouTube linki giriniz.")),
-      );
-      return;
-    }
-
-    if (!_isYoutubeUrl(url)) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("❌ Geçerli bir YouTube linki giriniz.")),
-      );
-      return;
-    }
-
-    final uri = Uri.tryParse(url);
-    if (uri == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("❌ Link açılamadı.")),
-      );
-      return;
-    }
-
-    final ok = await launchUrl(uri, mode: LaunchMode.externalApplication);
-
-    if (!ok && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("❌ YouTube bağlantısı açılamadı.")),
-      );
-    }
-  }
-
-  Future<void> _dosyaGezgininiAc() async {
-    try {
-      if (_toplamSeciliFoto >= _maxPhotoCount) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              '❌ Fotoğraf limitine ulaştınız. Paketiniz en fazla $_maxPhotoCount fotoğraf destekliyor.',
-            ),
-          ),
-        );
-        return;
-      }
-
-      final picker = ImagePicker();
-      final XFile? image = await picker.pickImage(
-        source: ImageSource.gallery,
-        imageQuality: 70,
-      );
-
-      if (image == null) return;
-
-      final bytes = await image.readAsBytes();
-
-      if (!mounted) return;
-      setState(() {
-        _webResimler.add(bytes);
-      });
-
+  Future<void> _pick() async {
+    if (toplamFoto >= _maxPhoto) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-            '✅ Fotoğraf eklendi. ($_toplamSeciliFoto / $_maxPhotoCount)',
-          ),
+          content: Text('❌ Limit doldu ($_maxPhoto fotoğraf)'),
         ),
       );
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("❌ Foto seçim hatası: $e")),
-      );
+      return;
     }
+
+    final picker = ImagePicker();
+    final file = await picker.pickImage(
+      source: ImageSource.gallery,
+      imageQuality: 70,
+    );
+
+    if (file == null) return;
+
+    final bytes = await file.readAsBytes();
+
+    if (!mounted) return;
+    setState(() {
+      _webResimler.add(bytes);
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('✅ Fotoğraf eklendi. ($toplamFoto / $_maxPhoto)'),
+      ),
+    );
   }
 
   void _urlEkle() {
-    final url = _resimUrlController.text.trim();
+    final url = _resimUrl.text.trim();
 
-    if (_toplamSeciliFoto >= _maxPhotoCount) {
+    if (toplamFoto >= _maxPhoto) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-            '❌ Fotoğraf limitine ulaştınız. Paketiniz en fazla $_maxPhotoCount fotoğraf destekliyor.',
-          ),
+          content: Text('❌ Limit doldu ($_maxPhoto fotoğraf)'),
         ),
       );
       return;
     }
 
-    if (!_isHttpUrl(url)) {
+    if (!(url.startsWith('http://') || url.startsWith('https://'))) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("❌ Geçerli http/https resim linki gir.")),
+        const SnackBar(
+          content: Text('❌ Geçerli bir resim linki giriniz.'),
+        ),
       );
       return;
     }
 
     setState(() {
-      _seciliUrlList.add(url);
+      _urlResimler.add(url);
+      _resimUrl.clear();
     });
-
-    _resimUrlController.clear();
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(
-          '✅ Resim linki eklendi. ($_toplamSeciliFoto / $_maxPhotoCount)',
-        ),
+        content: Text('✅ Resim linki eklendi. ($toplamFoto / $_maxPhoto)'),
       ),
     );
   }
 
-  Future<String> _bulutaYukle(String uid, Uint8List bytes) async {
-    final dosyaAdi = "urun_${DateTime.now().millisecondsSinceEpoch}.jpg";
+  Future<void> _yayinla() async {
+    final user = FirebaseAuth.instance.currentUser;
 
-    final ref = FirebaseStorage.instance
-        .ref()
-        .child("urun_resimleri")
-        .child(uid)
-        .child(dosyaAdi);
+    if (user == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('❌ Giriş yapmalısın')),
+      );
+      return;
+    }
 
-    final task = ref.putData(
-      bytes,
-      SettableMetadata(contentType: "image/jpeg"),
-    );
+    final dukkan = _dukkan.text.trim();
+    final urun = _urun.text.trim();
+    final uzmanlik = _uzmanlik.text.trim();
+    final youtubeUrl = _video.text.trim();
+    final fiyatText = _fiyat.text.trim();
+    final fiyat = double.tryParse(fiyatText.replaceAll(',', '.')) ?? 0;
 
-    final snap = await task;
-    return await snap.ref.getDownloadURL();
-  }
+    if (dukkan.isEmpty ||
+        urun.isEmpty ||
+        _sehir.isEmpty ||
+        _ilce.isEmpty ||
+        toplamFoto == 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('❌ Tüm alanları doldur')),
+      );
+      return;
+    }
 
-  Future<void> _arenadaYayinla() async {
-    final dukkan = _dukkanController.text.trim();
-    final urunAdi = _urunAdiController.text.trim();
-    final uzmanlik = _uzmanlikController.text.trim();
-    final videoUrl = _videoController.text.trim();
-    final fiyatText = _fiyatController.text.trim();
-    final double fiyat = double.tryParse(fiyatText.replaceAll(',', '.')) ?? 0;
-
-    if (videoUrl.isNotEmpty) {
+    if (youtubeUrl.isNotEmpty) {
       if (!_canUseYoutube) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text(
-              "❌ YouTube linki eklemek için Pro veya Premium paket gerekir.",
+              '❌ YouTube linki eklemek için daha üst paket gerekir.',
             ),
           ),
         );
         return;
       }
 
-      if (!_isYoutubeUrl(videoUrl)) {
+      if (!_isYoutubeUrl(youtubeUrl)) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("❌ Geçerli YouTube linki giriniz.")),
+          const SnackBar(
+            content: Text('❌ Geçerli bir YouTube linki giriniz.'),
+          ),
         );
         return;
       }
     }
 
-    if (dukkan.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("❌ Dükkan / Şef adı zorunlu.")),
-      );
-      return;
-    }
-
-    if (_sehir.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("❌ Şehir seçmek zorunlu.")),
-      );
-      return;
-    }
-
-    if (_tip == "Ev Lezzetleri" && _ilce.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("❌ Ev Lezzetleri için ilçe zorunlu.")),
-      );
-      return;
-    }
-
-    if (_tip == "Ev Lezzetleri" && urunAdi.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("❌ Ev Lezzetleri için ürün/yemek adı zorunlu."),
-        ),
-      );
-      return;
-    }
-
-    final bool fotoVar = _webResimler.isNotEmpty || _seciliUrlList.isNotEmpty;
-
-    if (!fotoVar) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("❌ En az 1 foto eklemelisin.")),
-      );
-      return;
-    }
-
-    setState(() => _yukleniyor = true);
+    setState(() => _loading = true);
 
     try {
-      final user = FirebaseAuth.instance.currentUser;
-      final uid = user?.uid ?? 'demo_user';
+      final List<String> urls = [];
 
-      List<String> uploadedImages = [];
-
-// Galeriden seçilenleri yükle
-      for (final bytes in _webResimler) {
-        final url = await _bulutaYukle(uid, bytes);
-        uploadedImages.add(url);
+      for (final img in _webResimler) {
+        final uploadedUrl = await _upload(img);
+        if (uploadedUrl.trim().isNotEmpty) {
+          urls.add(uploadedUrl);
+        }
       }
 
-// URL ile eklenenleri ekle
-      uploadedImages.addAll(_seciliUrlList);
-
-// Ana görsel
-      String imgUrl = uploadedImages.isNotEmpty ? uploadedImages.first : '';
-
-      if (!_isHttpUrl(imgUrl)) {
-        throw Exception("img URL geçersiz üretildi.");
+      for (final url in _urlResimler) {
+        final clean = url.trim();
+        if (clean.isNotEmpty) {
+          urls.add(clean);
+        }
       }
 
-      final List<String> allImages = [];
-
-      if (_webResimler.isNotEmpty) {
-        allImages.add('[local_images_pending_upload]');
+      if (urls.isEmpty) {
+        throw Exception('Hiçbir görsel URL üretilemedi.');
       }
 
-      if (_seciliUrlList.isNotEmpty) {
-        allImages.addAll(_seciliUrlList);
-      }
+      final primaryImage = urls.first;
 
-      await FirebaseFirestore.instance.collection('urunler').add({
-        "ad": (_tip == "Ev Lezzetleri") ? urunAdi : "",
-        "img": imgUrl,
-        "images": uploadedImages,
-        "dukkan": dukkan,
-        "dukkanId": uid,
-        "sehir": _sehir,
-        "ilce": _ilce,
-        "uzmanlik": uzmanlik,
-        "youtubeUrl": videoUrl,
-        "tip": _tip,
-        "kategori": _tip == "Ev Lezzetleri" ? _kategori : _tip,
-        "bugunPisiyor": _tip == "Ev Lezzetleri" ? _bugunPisiyor : false,
-        "onayDurumu": "onaylandi",
-        "fiyat": fiyat,
-        "isActive": true,
-        "sellerMembershipType": _membershipType,
-        "sellerBadgeType": _badgeType,
-        "featuredScope": _featuredScope,
-        "isFeatured": false,
-        "featureRank": 0,
-        "photoCount": _toplamSeciliFoto,
-        "listingScore": _priorityScore,
-        "kayitTarihi": FieldValue.serverTimestamp(),
-        "createdAt": FieldValue.serverTimestamp(),
-      });
+      final Map<String, dynamic> payload = {
+        'ad': urun,
+        'img': primaryImage,
+        'images': urls,
+        'dukkan': dukkan,
+        'dukkanAdi': dukkan,
+        'dukkanId': user.uid,
+        'sellerId': user.uid,
+        'ownerId': user.uid,
+        'sehir': _sehir,
+        'ilce': _ilce,
+        'kategori': _kategori,
+        'tip': 'Ev Lezzetleri',
+        'bugunPisiyor': _bugunPisiyor,
+        'uzmanlik': uzmanlik,
+        'youtubeUrl': youtubeUrl,
+        'fiyat': fiyat,
+        'gelAlFiyat': fiyat > 0 ? fiyat.toStringAsFixed(0) : '',
+        'goturFiyat': '',
+        'sellerMembershipType': _membershipType,
+        'photoCount': urls.length,
+        'aktifMi': true,
+        'isActive': true,
+        'onayDurumu': 'onaylandi',
+        'createdAt': FieldValue.serverTimestamp(),
+        'updatedAt': FieldValue.serverTimestamp(),
+      };
+
+      debugPrint('🧠 URUN PAYLOAD: $payload');
+
+      final docRef =
+          await FirebaseFirestore.instance.collection('urunler').add(payload);
+
+      debugPrint('✅ URUN YAZILDI: ${docRef.id}');
 
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            _toplamSeciliFoto > 1
-                ? "✅ Ürün yayınlandı. Çoklu upload’un tam sürümü sonraki adımda açılacak."
-                : "✅ Arena’da yayınlandı!",
-          ),
-        ),
+        const SnackBar(content: Text('✅ Ürün başarıyla yayınlandı')),
       );
 
-      setState(() {
-        _dukkanController.clear();
-        _urunAdiController.clear();
-        _uzmanlikController.clear();
-        _videoController.clear();
-        _resimUrlController.clear();
-        _fiyatController.clear();
-        _webResimler.clear();
-        _seciliUrlList.clear();
-        _kategori = "Ev Yemekleri";
-        _bugunPisiyor = false;
-        _ilce = "";
-      });
-
       Navigator.pop(context);
-    } catch (e) {
+    } catch (e, st) {
+      debugPrint('❌ YAYINLA HATA: $e');
+      debugPrint('$st');
+
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("❌ Hata: $e")),
+        SnackBar(content: Text('Hata: $e')),
       );
     } finally {
       if (mounted) {
-        setState(() => _yukleniyor = false);
+        setState(() => _loading = false);
       }
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final bool fotoSecildi =
-        _webResimler.isNotEmpty || _seciliUrlList.isNotEmpty;
+  String _planTitle() {
+    switch (_membershipType.toLowerCase()) {
+      case 'premium':
+        return 'Premium';
+      case 'pro':
+        return 'Pro';
+      default:
+        return 'Ücretsiz';
+    }
+  }
 
-    final List<String> ilceler =
-        _sehir.isEmpty ? <String>[] : (_ilcelerMap[_sehir] ?? <String>[]);
+  String _upgradeTitle() {
+    switch (_membershipType.toLowerCase()) {
+      case 'pro':
+        return "Premium'a yükselt";
+      case 'premium':
+        return "Premium aktif";
+      default:
+        return "PRO'ya yükselt";
+    }
+  }
 
-    final String planName =
-        MembershipPlanService.planDisplayName(_membershipType);
-    final String badgeLabel = MembershipPlanService.badgeLabel(_badgeType);
+  String _upgradeSubtitle() {
+    switch (_membershipType.toLowerCase()) {
+      case 'pro':
+        return '24 fotoğraf + 3 video linki + daha güçlü vitrin';
+      case 'premium':
+        return 'En yüksek görünürlük paketi aktif';
+      default:
+        return '8 fotoğraf + 1 video linki + daha güçlü görünürlük';
+    }
+  }
 
-    return Scaffold(
-      backgroundColor: Colors.black,
-      appBar: AppBar(
-        backgroundColor: Colors.black,
-        title: const Text(
-          "ÜRÜN YÖNETİM MERKEZİ V2",
-          style: TextStyle(color: gold, fontSize: 13),
-        ),
-        iconTheme: const IconThemeData(color: gold),
+  void _showPlanSheet() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: const Color(0xFF111111),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(25),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(14),
-              decoration: BoxDecoration(
-                color: const Color(0xFF111111),
-                borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: gold.withValues(alpha: 0.30)),
+      builder: (context) {
+        return SafeArea(
+          child: DraggableScrollableSheet(
+            expand: false,
+            initialChildSize: 0.72,
+            minChildSize: 0.50,
+            maxChildSize: 0.90,
+            builder: (context, scrollController) {
+              return SingleChildScrollView(
+                controller: scrollController,
+                padding: const EdgeInsets.fromLTRB(20, 20, 20, 28),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Center(
+                      child: SizedBox(
+                        width: 42,
+                        child: Divider(
+                          thickness: 3,
+                          color: Colors.white24,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    const Text(
+                      'Paket Karşılaştırması',
+                      style: TextStyle(
+                        color: gold,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    _planCard(
+                      title: 'Ücretsiz',
+                      features: const [
+                        '3 fotoğraf',
+                        '0 video linki',
+                        'Temel görünürlük',
+                      ],
+                      highlighted: _membershipType.toLowerCase() == 'free',
+                    ),
+                    const SizedBox(height: 12),
+                    _planCard(
+                      title: 'Pro',
+                      features: const [
+                        '8 fotoğraf',
+                        '1 video linki',
+                        'Daha güçlü görünürlük',
+                      ],
+                      highlighted: _membershipType.toLowerCase() == 'pro',
+                    ),
+                    const SizedBox(height: 12),
+                    _planCard(
+                      title: 'Premium',
+                      features: const [
+                        '24 fotoğraf',
+                        '3 video linki',
+                        'En güçlü vitrin etkisi',
+                      ],
+                      highlighted: _membershipType.toLowerCase() == 'premium',
+                    ),
+                    const SizedBox(height: 18),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                          ScaffoldMessenger.of(this.context).showSnackBar(
+                            const SnackBar(
+                              content:
+                                  Text('Yükseltme akışı yakında açılacak.'),
+                            ),
+                          );
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: gold,
+                          foregroundColor: Colors.black,
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                        ),
+                        child: const Text(
+                          'Yakında Açılacak',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _planCard({
+    required String title,
+    required List<String> features,
+    required bool highlighted,
+  }) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: const Color(0xFF181818),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: highlighted ? gold : Colors.white12,
+          width: highlighted ? 1.4 : 1,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: TextStyle(
+              color: highlighted ? gold : Colors.white,
+              fontWeight: FontWeight.bold,
+              fontSize: 14,
+            ),
+          ),
+          const SizedBox(height: 8),
+          for (final feature in features) ...[
+            Text(
+              '• $feature',
+              style: const TextStyle(
+                color: Colors.white70,
+                fontSize: 12,
               ),
+            ),
+            const SizedBox(height: 4),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _upgradeCta() {
+    if (_membershipType.toLowerCase() == 'premium') {
+      return Container(
+        margin: const EdgeInsets.only(top: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        decoration: BoxDecoration(
+          color: const Color(0xFF181818),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: gold.withOpacity(0.25)),
+        ),
+        child: Row(
+          children: const [
+            Icon(Icons.workspace_premium_rounded, color: gold, size: 18),
+            SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                'Premium aktif · En yüksek görünürlük paketi',
+                style: TextStyle(
+                  color: Colors.white70,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return InkWell(
+      onTap: _showPlanSheet,
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        margin: const EdgeInsets.only(top: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        decoration: BoxDecoration(
+          color: const Color(0xFF181818),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: gold.withOpacity(0.25)),
+        ),
+        child: Row(
+          children: [
+            const Icon(Icons.trending_up_rounded, color: gold, size: 18),
+            const SizedBox(width: 8),
+            Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    _membershipLoading
-                        ? "Paket bilgisi yükleniyor..."
-                        : "Paket: $planName",
+                    _upgradeTitle(),
                     style: const TextStyle(
                       color: gold,
-                      fontSize: 13,
+                      fontSize: 12,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  const SizedBox(height: 6),
+                  const SizedBox(height: 2),
                   Text(
-                    "Fotoğraf hakkı: $_maxPhotoCount • Video hakkı: $_maxVideoCount",
-                    style: const TextStyle(
-                      color: Colors.white70,
-                      fontSize: 11,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    _canUseYoutube
-                        ? "YouTube linki kullanabilirsiniz."
-                        : "YouTube linki için Pro veya Premium gerekir.",
+                    _upgradeSubtitle(),
                     style: const TextStyle(
                       color: Colors.white54,
                       fontSize: 11,
                     ),
                   ),
-                  if (_canBeFeatured) ...[
-                    const SizedBox(height: 4),
-                    Text(
-                      "Öne çıkarma kapsamı: $_featuredScope",
-                      style: const TextStyle(
-                        color: Colors.white54,
-                        fontSize: 11,
-                      ),
-                    ),
-                  ],
-                  if (badgeLabel.isNotEmpty) ...[
-                    const SizedBox(height: 6),
-                    Text(
-                      "Rozet: $badgeLabel",
-                      style: const TextStyle(
-                        color: Colors.white70,
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
-                  const SizedBox(height: 6),
-                  Text(
-                    "Seçilen görseller: $_toplamSeciliFoto / $_maxPhotoCount",
-                    style: const TextStyle(
-                      color: Colors.white70,
-                      fontSize: 11,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
                 ],
               ),
             ),
-            const SizedBox(height: 15),
-            DropdownButtonFormField<String>(
-              dropdownColor: Colors.black,
-              value: _tip,
-              style: const TextStyle(color: Colors.white),
-              items: const [
-                DropdownMenuItem(
-                  value: "Usta Sefler",
-                  child: Text("Usta Şefler"),
-                ),
-                DropdownMenuItem(
-                  value: "Restoranlar",
-                  child: Text("Restoranlar"),
-                ),
-                DropdownMenuItem(
-                  value: "Ev Lezzetleri",
-                  child: Text("Ev Lezzetleri"),
-                ),
-              ],
-              onChanged: _yukleniyor
-                  ? null
-                  : (v) {
-                      if (v == null) return;
-                      setState(() {
-                        _tip = v;
-                        if (_tip != "Ev Lezzetleri") {
-                          _urunAdiController.clear();
-                          _bugunPisiyor = false;
-                        }
-                      });
-                    },
-              decoration: const InputDecoration(
-                labelText: "TİP",
-                labelStyle: TextStyle(color: Colors.white24, fontSize: 11),
-                enabledBorder: UnderlineInputBorder(
-                  borderSide: BorderSide(color: Colors.white24),
-                ),
-                focusedBorder: UnderlineInputBorder(
-                  borderSide: BorderSide(color: gold),
-                ),
+            const Icon(Icons.chevron_right_rounded, color: gold),
+          ],
+        ),
+      ),
+    );
+  }
+
+  InputDecoration _decoration(String label) {
+    return const InputDecoration().copyWith(
+      labelText: label,
+      labelStyle: const TextStyle(color: Colors.white70),
+      enabledBorder: const UnderlineInputBorder(
+        borderSide: BorderSide(color: Colors.white24),
+      ),
+      focusedBorder: const UnderlineInputBorder(
+        borderSide: BorderSide(color: gold),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final List<String> ilceler =
+        _sehir.isEmpty ? <String>[] : (_ilcelerMap[_sehir] ?? <String>[]);
+
+    return Scaffold(
+      backgroundColor: Colors.black,
+      appBar: AppBar(
+        title: const Text(
+          'ÜRÜN EKLE',
+          style: TextStyle(color: gold),
+        ),
+        backgroundColor: Colors.black,
+        iconTheme: const IconThemeData(color: gold),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(20),
+        child: ListView(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: const Color(0xFF111111),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: gold.withOpacity(0.30)),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Paket: ${_planTitle()}',
+                    style: const TextStyle(
+                      color: gold,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    'Fotoğraf hakkı: $_maxPhoto',
+                    style: const TextStyle(color: Colors.white70),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Video hakkı: $_maxVideo',
+                    style: const TextStyle(color: Colors.white54),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    'Seçilen: $toplamFoto / $_maxPhoto',
+                    style: const TextStyle(
+                      color: Colors.white70,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  _upgradeCta(),
+                ],
               ),
             ),
-            const SizedBox(height: 15),
+            const SizedBox(height: 14),
             DropdownButtonFormField<String>(
               dropdownColor: Colors.black,
               value: _sehir.isEmpty ? null : _sehir,
               style: const TextStyle(color: Colors.white),
               items: _ilcelerMap.keys
-                  .map((k) => DropdownMenuItem<String>(
-                        value: k,
-                        child: Text(k),
-                      ))
+                  .map(
+                    (e) => DropdownMenuItem<String>(
+                      value: e,
+                      child: Text(e),
+                    ),
+                  )
                   .toList(),
-              onChanged: (_yukleniyor || _lokasyonYukleniyor)
+              onChanged: (_loading || _lokasyonYukleniyor)
                   ? null
                   : (v) {
                       if (v == null) return;
                       setState(() {
                         _sehir = v;
-                        _ilce = "";
+                        _ilce = '';
                       });
                     },
-              decoration: InputDecoration(
-                labelText: _lokasyonYukleniyor
-                    ? "ŞEHİR (Yükleniyor...)"
-                    : "ŞEHİR (ZORUNLU)",
-                labelStyle: const TextStyle(
-                  color: Colors.white24,
-                  fontSize: 11,
-                ),
-                enabledBorder: const UnderlineInputBorder(
-                  borderSide: BorderSide(color: Colors.white24),
-                ),
-                focusedBorder: const UnderlineInputBorder(
-                  borderSide: BorderSide(color: gold),
-                ),
+              decoration: _decoration(
+                _lokasyonYukleniyor ? 'Şehir (Yükleniyor...)' : 'Şehir',
               ),
             ),
             const SizedBox(height: 12),
@@ -647,332 +706,104 @@ class _UrunEklemeSayfasiV2State extends State<UrunEklemeSayfasiV2> {
               value: _ilce.isEmpty ? null : _ilce,
               style: const TextStyle(color: Colors.white),
               items: ilceler
-                  .map((x) => DropdownMenuItem<String>(
-                        value: x,
-                        child: Text(x),
-                      ))
+                  .map(
+                    (e) => DropdownMenuItem<String>(
+                      value: e,
+                      child: Text(e),
+                    ),
+                  )
                   .toList(),
-              onChanged: (_yukleniyor || _lokasyonYukleniyor || _sehir.isEmpty)
+              onChanged: (_loading || _lokasyonYukleniyor || _sehir.isEmpty)
                   ? null
                   : (v) {
                       if (v == null) return;
                       setState(() => _ilce = v);
                     },
-              decoration: InputDecoration(
-                labelText: (_tip == "Ev Lezzetleri")
-                    ? "İLÇE (ZORUNLU)"
-                    : "İLÇE (OPSİYONEL)",
-                labelStyle: const TextStyle(
-                  color: Colors.white24,
-                  fontSize: 11,
-                ),
-                enabledBorder: const UnderlineInputBorder(
-                  borderSide: BorderSide(color: Colors.white24),
-                ),
-                focusedBorder: const UnderlineInputBorder(
-                  borderSide: BorderSide(color: gold),
-                ),
+              decoration: _decoration('İlçe'),
+            ),
+            const SizedBox(height: 12),
+            _input('Dükkan', _dukkan),
+            const SizedBox(height: 12),
+            _input('Ürün', _urun),
+            const SizedBox(height: 12),
+            _input('Fiyat', _fiyat),
+            const SizedBox(height: 12),
+            DropdownButtonFormField<String>(
+              dropdownColor: Colors.black,
+              value: _kategori,
+              style: const TextStyle(color: Colors.white),
+              items: kategoriler
+                  .map(
+                    (e) => DropdownMenuItem<String>(
+                      value: e,
+                      child: Text(e),
+                    ),
+                  )
+                  .toList(),
+              onChanged: _loading
+                  ? null
+                  : (v) {
+                      if (v == null) return;
+                      setState(() => _kategori = v);
+                    },
+              decoration: _decoration('Kategori'),
+            ),
+            const SizedBox(height: 12),
+            SwitchListTile(
+              value: _bugunPisiyor,
+              onChanged:
+                  _loading ? null : (v) => setState(() => _bugunPisiyor = v),
+              activeColor: gold,
+              title: const Text(
+                'Bugün Pişiyor',
+                style: TextStyle(color: Colors.white),
+              ),
+              subtitle: const Text(
+                "Açık olursa ürün vitrinde öne çıkar.",
+                style: TextStyle(color: Colors.white54),
               ),
             ),
             const SizedBox(height: 12),
-            _input("DÜKKAN / ŞEF ADI", _dukkanController),
-            if (_tip == "Ev Lezzetleri") ...[
-              const SizedBox(height: 12),
-              _input("YEMEK / ÜRÜN ADI", _urunAdiController),
-              const SizedBox(height: 12),
-              _input("FİYAT (örn: 120)", _fiyatController),
-              const SizedBox(height: 12),
-              DropdownButtonFormField<String>(
-                dropdownColor: Colors.black,
-                value: _kategori,
-                style: const TextStyle(color: Colors.white),
-                items: _evLezzetiKategorileri
-                    .map((x) => DropdownMenuItem<String>(
-                          value: x,
-                          child: Text(x),
-                        ))
-                    .toList(),
-                onChanged: _yukleniyor
-                    ? null
-                    : (v) {
-                        if (v == null) return;
-                        setState(() => _kategori = v);
-                      },
-                decoration: const InputDecoration(
-                  labelText: "ÜRÜN KATEGORİSİ",
-                  labelStyle: TextStyle(
-                    color: Colors.white24,
-                    fontSize: 11,
-                  ),
-                  enabledBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: Colors.white24),
-                  ),
-                  focusedBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: gold),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 14),
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF111111),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: gold.withValues(alpha: 0.30)),
-                ),
-                child: SwitchListTile(
-                  contentPadding: EdgeInsets.zero,
-                  activeColor: gold,
-                  value: _bugunPisiyor,
-                  onChanged: _yukleniyor
-                      ? null
-                      : (value) {
-                          setState(() {
-                            _bugunPisiyor = value;
-                          });
-                        },
-                  title: const Text(
-                    "Bugün Pişiyor",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 13,
-                    ),
-                  ),
-                  subtitle: const Text(
-                    "Açık olursa ürün 'Bugün Evde Ne Pişiyor' vitrininte öne çıkar.",
-                    style: TextStyle(
-                      color: Colors.white54,
-                      fontSize: 11,
-                    ),
-                  ),
-                ),
-              ),
-            ],
+            _input('Uzmanlık', _uzmanlik),
             const SizedBox(height: 12),
-            _input("UZMANLIK (opsiyonel)", _uzmanlikController),
+            _input('YouTube', _video),
             const SizedBox(height: 12),
-            TextField(
-              controller: _videoController,
-              enabled: _canUseYoutube && !_yukleniyor,
-              style: TextStyle(
-                color: _canUseYoutube ? Colors.white : Colors.white38,
-              ),
-              decoration: InputDecoration(
-                labelText: "YOUTUBE LİNKİ (opsiyonel)",
-                hintText: _canUseYoutube
-                    ? "https://youtube.com/... veya https://youtu.be/..."
-                    : "Bu alan Pro / Premium pakette açılır",
-                hintStyle: const TextStyle(
-                  color: Colors.white24,
-                  fontSize: 12,
-                ),
-                labelStyle: const TextStyle(
-                  color: Colors.white24,
-                  fontSize: 11,
-                ),
-                enabledBorder: const UnderlineInputBorder(
-                  borderSide: BorderSide(color: Colors.white24),
-                ),
-                focusedBorder: const UnderlineInputBorder(
-                  borderSide: BorderSide(color: gold),
-                ),
-                disabledBorder: const UnderlineInputBorder(
-                  borderSide: BorderSide(color: Colors.white24),
-                ),
-              ),
+            ElevatedButton(
+              onPressed: _loading ? null : _pick,
+              child: const Text('Fotoğraf Seç'),
             ),
             const SizedBox(height: 12),
             Row(
               children: [
-                Expanded(
-                  child: _medyaKutusu(
-                    "🎬 YOUTUBE LİNKİNİ TEST ET",
-                    Icons.play_circle_outline,
-                    Colors.redAccent,
-                    (_yukleniyor || !_canUseYoutube) ? null : _youtubeLinkiniAc,
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: _medyaKutusu(
-                    "🧹 VİDEO LİNKİNİ TEMİZLE",
-                    Icons.delete_outline,
-                    Colors.orangeAccent,
-                    _yukleniyor
-                        ? null
-                        : () {
-                            setState(() {
-                              _videoController.clear();
-                            });
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text("✅ Video linki temizlendi."),
-                              ),
-                            );
-                          },
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 18),
-            Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _resimUrlController,
-                    style: const TextStyle(color: Colors.white),
-                    decoration: const InputDecoration(
-                      hintText: "Resim linki (http/https)",
-                      hintStyle: TextStyle(
-                        color: Colors.white24,
-                        fontSize: 12,
-                      ),
-                      enabledBorder: UnderlineInputBorder(
-                        borderSide: BorderSide(color: Colors.white24),
-                      ),
-                      focusedBorder: UnderlineInputBorder(
-                        borderSide: BorderSide(color: gold),
-                      ),
-                    ),
-                  ),
-                ),
+                Expanded(child: _input('Resim URL', _resimUrl)),
                 IconButton(
-                  icon: const Icon(Icons.add_link, color: Colors.blue),
-                  onPressed: _yukleniyor ? null : _urlEkle,
+                  onPressed: _loading ? null : _urlEkle,
+                  icon: const Icon(Icons.add, color: gold),
                 ),
               ],
             ),
-            const SizedBox(height: 14),
-            _medyaKutusu(
-              fotoSecildi
-                  ? "✅ FOTOĞRAF EKLE ($_toplamSeciliFoto / $_maxPhotoCount)"
-                  : "FOTOĞRAF SEÇ",
-              Icons.add_photo_alternate,
-              Colors.blue,
-              _yukleniyor ? null : _dosyaGezgininiAc,
-            ),
-            if (_webResimler.isNotEmpty || _seciliUrlList.isNotEmpty) ...[
-              const SizedBox(height: 14),
-              Wrap(
-                spacing: 10,
-                runSpacing: 10,
-                children: [
-                  for (int i = 0; i < _webResimler.length; i++)
-                    Stack(
-                      children: [
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(12),
-                          child: Image.memory(
-                            _webResimler[i],
-                            width: 86,
-                            height: 86,
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                        Positioned(
-                          top: 4,
-                          right: 4,
-                          child: InkWell(
-                            onTap: () {
-                              setState(() {
-                                _webResimler.removeAt(i);
-                              });
-                            },
-                            child: Container(
-                              padding: const EdgeInsets.all(4),
-                              decoration: const BoxDecoration(
-                                color: Colors.black87,
-                                shape: BoxShape.circle,
-                              ),
-                              child: const Icon(
-                                Icons.close,
-                                size: 14,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  for (int i = 0; i < _seciliUrlList.length; i++)
-                    Stack(
-                      children: [
-                        Container(
-                          width: 86,
-                          height: 86,
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF151515),
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: Colors.white12),
-                          ),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(12),
-                            child: Image.network(
-                              _seciliUrlList[i],
-                              fit: BoxFit.cover,
-                              errorBuilder: (_, __, ___) {
-                                return const Center(
-                                  child: Icon(
-                                    Icons.link,
-                                    color: Colors.white54,
-                                  ),
-                                );
-                              },
-                            ),
-                          ),
-                        ),
-                        Positioned(
-                          top: 4,
-                          right: 4,
-                          child: InkWell(
-                            onTap: () {
-                              setState(() {
-                                _seciliUrlList.removeAt(i);
-                              });
-                            },
-                            child: Container(
-                              padding: const EdgeInsets.all(4),
-                              decoration: const BoxDecoration(
-                                color: Colors.black87,
-                                shape: BoxShape.circle,
-                              ),
-                              child: const Icon(
-                                Icons.close,
-                                size: 14,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                ],
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: _loading ? null : _yayinla,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: gold,
               ),
-            ],
-            const SizedBox(height: 25),
-            SizedBox(
-              height: 50,
-              child: ElevatedButton(
-                onPressed: _yukleniyor ? null : _arenadaYayinla,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: gold,
-                ),
-                child: _yukleniyor
-                    ? const SizedBox(
-                        width: 18,
-                        height: 18,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : const Text(
-                        "ARENA'DA YAYINLA",
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontWeight: FontWeight.bold,
-                        ),
+              child: _loading
+                  ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
                       ),
-              ),
+                    )
+                  : const Text(
+                      "ARENA'DA YAYINLA",
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
             ),
           ],
         ),
@@ -980,50 +811,11 @@ class _UrunEklemeSayfasiV2State extends State<UrunEklemeSayfasiV2> {
     );
   }
 
-  Widget _input(String l, TextEditingController c) {
+  Widget _input(String title, TextEditingController controller) {
     return TextField(
-      controller: c,
+      controller: controller,
       style: const TextStyle(color: Colors.white),
-      decoration: InputDecoration(
-        labelText: l,
-        labelStyle: const TextStyle(color: Colors.white24, fontSize: 11),
-        enabledBorder: const UnderlineInputBorder(
-          borderSide: BorderSide(color: Colors.white24),
-        ),
-        focusedBorder: const UnderlineInputBorder(
-          borderSide: BorderSide(color: gold),
-        ),
-      ),
-    );
-  }
-
-  Widget _medyaKutusu(String t, IconData i, Color c, VoidCallback? onTap) {
-    return InkWell(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(15),
-        decoration: BoxDecoration(
-          border: Border.all(color: c.withValues(alpha: 0.35)),
-          borderRadius: BorderRadius.circular(12),
-          color: const Color(0xFF0A0A0A),
-        ),
-        child: Row(
-          children: [
-            Icon(i, color: c),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Text(
-                t,
-                style: TextStyle(
-                  color: c,
-                  fontSize: 11,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
+      decoration: _decoration(title),
     );
   }
 }

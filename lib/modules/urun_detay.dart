@@ -1,5 +1,9 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:sofrasofra_arena_v2/modules/widgets/ev_product_gallery.dart';
+import 'package:sofrasofra_arena_v2/modules/widgets/ev_gallery_manager.dart';
+import 'package:sofrasofra_arena_v2/modules/widgets/ev_product_media_admin_bar.dart';
 
 class UrunDetaySayfasi extends StatefulWidget {
   final String urunAdi;
@@ -11,6 +15,13 @@ class UrunDetaySayfasi extends StatefulWidget {
   final String youtubeUrl;
   final List<String>? urunGorseller;
 
+  final String? productId;
+  final String? sellerId;
+  final bool isAdmin;
+
+  final num? gelAlFiyat;
+  final num? goturFiyat;
+
   const UrunDetaySayfasi({
     super.key,
     required this.urunAdi,
@@ -21,6 +32,11 @@ class UrunDetaySayfasi extends StatefulWidget {
     required this.konum,
     required this.youtubeUrl,
     this.urunGorseller,
+    this.productId,
+    this.sellerId,
+    this.isAdmin = false,
+    this.gelAlFiyat,
+    this.goturFiyat,
   });
 
   @override
@@ -29,162 +45,804 @@ class UrunDetaySayfasi extends StatefulWidget {
 
 class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
   int adet = 1;
+  int _selectedGalleryIndex = 0;
+  bool _mediaBusy = false;
+
+  List<String> _liveImages = <String>[];
+  String _liveFallbackImage = '';
+
+  num? _liveGelAlFiyat;
+  num? _liveGoturFiyat;
+
+  int _hoveredIndex = -1;
+  String _selectedDeliveryType = 'gel_al';
 
   static const Color _bg = Color(0xFF070707);
   static const Color _surface = Color(0xFF111111);
-  static const Color _surfaceSoft = Color(0xFF171717);
   static const Color _gold = Color(0xFFFFB300);
-  static const Color _goldSoft = Color(0xFFFFD36A);
   static const Color _textPrimary = Colors.white;
   static const Color _textMuted = Color(0xFFB8B8B8);
   static const Color _border = Color(0x26FFB300);
   static const Color _chipBg = Color(0xFF151515);
 
-  bool _isHttp(String s) {
-    return s.startsWith('http://') || s.startsWith('https://');
+  String get _coverImageUrl {
+    final fallback = _liveFallbackImage.trim();
+    if (fallback.isNotEmpty) return fallback;
+    return widget.urunGorsel.trim();
   }
 
-  Future<void> _youtubeAc() async {
-    final raw = widget.youtubeUrl.trim();
-    if (raw.isEmpty) return;
+  List<String> get _galleryImageUrls {
+    return _liveImages
+        .map((e) => e.toString().trim())
+        .where((e) =>
+            e.isNotEmpty &&
+            isHttpUrl(e) &&
+            !e.contains('/cover/') &&
+            !e.contains('%2Fcover%2F'))
+        .toSet()
+        .toList();
+  }
 
-    final uri = Uri.tryParse(raw);
-    if (uri == null) {
-      if (!mounted) return;
+  List<String> get _heroSliderImages {
+    final result = <String>[];
+
+    final cover = _coverImageUrl;
+    if (cover.isNotEmpty) result.add(cover);
+
+    for (final url in _galleryImageUrls) {
+      if (!result.contains(url)) {
+        result.add(url);
+      }
+    }
+
+    return result;
+  }
+
+  Future<void> _openPriceEditDialog() async {
+    final productId = (widget.productId ?? '').trim();
+
+    if (productId.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Geçerli bir YouTube linki bulunamadı.'),
-        ),
+        const SnackBar(content: Text('Ürün ID bulunamadı.')),
       );
       return;
     }
 
-    final ok = await launchUrl(uri, mode: LaunchMode.externalApplication);
+    final gelAlController = TextEditingController(
+      text: _effectiveGelAlPrice?.toStringAsFixed(0) ?? '',
+    );
 
-    if (!ok && mounted) {
+    final goturController = TextEditingController(
+      text: _effectiveGoturPrice?.toStringAsFixed(0) ?? '',
+    );
+
+    await showDialog(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          backgroundColor: const Color(0xFF111111),
+          title: const Text(
+            'Fiyat Yönetimi',
+            style: TextStyle(
+              color: _gold,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: gelAlController,
+                keyboardType: TextInputType.number,
+                style: const TextStyle(color: Colors.white),
+                decoration: const InputDecoration(
+                  labelText: 'Gel-Al Fiyatı',
+                  labelStyle: TextStyle(color: Colors.white70),
+                ),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: goturController,
+                keyboardType: TextInputType.number,
+                style: const TextStyle(color: Colors.white),
+                decoration: const InputDecoration(
+                  labelText: 'Götür Fiyatı',
+                  labelStyle: TextStyle(color: Colors.white70),
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext),
+              child: const Text('Vazgeç'),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                final gelAlText = gelAlController.text.trim();
+                final goturText = goturController.text.trim();
+
+                if (gelAlText.isEmpty && goturText.isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('En az bir fiyat girilmeli.')),
+                  );
+                  return;
+                }
+
+                final gelAlNum =
+                    num.tryParse(gelAlText.replaceAll(',', '.')) ?? 0;
+
+                await FirebaseFirestore.instance
+                    .collection('urunler')
+                    .doc(productId)
+                    .update({
+                  'gelAlFiyat': gelAlText,
+                  'goturFiyat': goturText,
+                  'fiyat': gelAlNum,
+                  'priceUpdatedAt': FieldValue.serverTimestamp(),
+                  'updatedAt': FieldValue.serverTimestamp(),
+                });
+
+                if (!mounted) return;
+
+                setState(() {
+                  _liveGelAlFiyat = _parsePrice(gelAlText);
+                  _liveGoturFiyat = _parsePrice(goturText);
+                });
+
+                Navigator.pop(dialogContext);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Fiyat güncellendi.')),
+                );
+              },
+              style: ElevatedButton.styleFrom(backgroundColor: _gold),
+              child: const Text(
+                'Kaydet',
+                style: TextStyle(
+                  color: Colors.black,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+
+    gelAlController.dispose();
+    goturController.dispose();
+  }
+
+  String _priceText(num? value) {
+    if (value == null) return '';
+    if (value == value.roundToDouble()) {
+      return '${value.toInt()} ₺';
+    }
+    return '${value.toStringAsFixed(2)} ₺';
+  }
+
+  num? _parsePrice(dynamic value) {
+    if (value == null) return null;
+    if (value is num) return value;
+
+    final raw = value
+        .toString()
+        .replaceAll('₺', '')
+        .replaceAll('TL', '')
+        .replaceAll(',', '.')
+        .trim();
+
+    if (raw.isEmpty) return null;
+    return num.tryParse(raw);
+  }
+
+  num? get _effectiveGelAlPrice {
+    return _liveGelAlFiyat ??
+        widget.gelAlFiyat ??
+        _parsePrice(widget.urunFiyat);
+  }
+
+  num? get _effectiveGoturPrice {
+    return _liveGoturFiyat ?? widget.goturFiyat;
+  }
+
+  bool get _hasGelAlPrice => _effectiveGelAlPrice != null;
+  bool get _hasGoturPrice => _effectiveGoturPrice != null;
+
+  num? get _selectedUnitPrice {
+    if (_selectedDeliveryType == 'gotur') {
+      return _effectiveGoturPrice ?? _effectiveGelAlPrice;
+    }
+    return _effectiveGelAlPrice ?? _effectiveGoturPrice;
+  }
+
+  String get _selectedUnitPriceText => _priceText(_selectedUnitPrice);
+
+  String get _selectedDeliveryLabel {
+    return _selectedDeliveryType == 'gotur' ? 'Götür' : 'Gel-Al';
+  }
+
+  num get _selectedTotalPrice {
+    final unit = _selectedUnitPrice ?? 0;
+    return unit * adet;
+  }
+
+  static bool isHttpUrl(String value) {
+    return value.startsWith('http://') || value.startsWith('https://');
+  }
+
+  bool get _canManageMedia {
+    return widget.isAdmin &&
+        (widget.productId ?? '').trim().isNotEmpty &&
+        (widget.sellerId ?? '').trim().isNotEmpty;
+  }
+
+  List<String> get _effectiveImages {
+    return EvGalleryManager.normalizeImages(
+      images: _liveImages,
+      fallbackImage: _liveFallbackImage,
+    );
+  }
+
+  List<String> get _galleryOnlyImages {
+    return _effectiveImages
+        .map((e) => e.toString().trim())
+        .where((e) =>
+            e.isNotEmpty &&
+            isHttpUrl(e) &&
+            !e.contains('/cover/') &&
+            !e.contains('%2Fcover%2F'))
+        .toSet()
+        .toList();
+  }
+
+  String get _currentImageUrl {
+    final images = _galleryImageUrls;
+    if (images.isEmpty) return '';
+    final safeIndex = _selectedGalleryIndex.clamp(0, images.length - 1);
+    return images[safeIndex];
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    _liveImages = EvGalleryManager.normalizeImages(
+      images: widget.urunGorseller,
+      fallbackImage: widget.urunGorsel,
+    );
+    _liveFallbackImage = widget.urunGorsel.trim();
+
+    if (!_hasGelAlPrice && _hasGoturPrice) {
+      _selectedDeliveryType = 'gotur';
+    }
+  }
+
+  Future<void> _youtubeAc() async {
+    final url = widget.youtubeUrl.trim();
+    if (url.isEmpty) return;
+
+    try {
+      final uri = Uri.parse(url);
+      final opened = await launchUrl(
+        uri,
+        mode: LaunchMode.externalApplication,
+      );
+
+      if (!opened) {
+        throw 'Açılamadı';
+      }
+    } catch (_) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('YouTube bağlantısı açılamadı.'),
+          content: Text('YouTube linki açılamadı'),
         ),
       );
+    }
+  }
+
+  Future<void> _replaceCoverPhoto() async {
+    if (!_canManageMedia || _mediaBusy) return;
+
+    final productId = (widget.productId ?? '').trim();
+    final sellerId = (widget.sellerId ?? '').trim();
+
+    if (productId.isEmpty || sellerId.isEmpty) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('productId / sellerId eksik.')),
+      );
+      return;
+    }
+
+    setState(() => _mediaBusy = true);
+
+    try {
+      final bytes = await EvGalleryManager.pickSingleImage();
+      if (bytes == null) return;
+
+      final url = await EvGalleryManager.uploadCoverImage(
+        sellerId: sellerId,
+        productId: productId,
+        bytes: bytes,
+      );
+
+      await EvGalleryManager.replaceCoverImage(
+        productId: productId,
+        sellerId: sellerId,
+        existingImages: _galleryOnlyImages,
+        newCoverUrl: url,
+      );
+
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Kapak görseli güncellendi.')),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Kapak güncellenemedi: $e')),
+      );
+    } finally {
+      if (mounted) {
+        setState(() => _mediaBusy = false);
+      }
+    }
+  }
+
+  Future<void> _deleteCoverPhoto() async {
+    if (!_canManageMedia || _mediaBusy) return;
+
+    final productId = (widget.productId ?? '').trim();
+    final sellerId = (widget.sellerId ?? '').trim();
+
+    if (productId.isEmpty || sellerId.isEmpty) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('productId / sellerId eksik.')),
+      );
+      return;
+    }
+
+    setState(() => _mediaBusy = true);
+
+    try {
+      await EvGalleryManager.removeCoverImage(
+        productId: productId,
+        sellerId: sellerId,
+        existingImages: _galleryOnlyImages,
+      );
+
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Kapak görseli silindi.')),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Kapak silinemedi: $e')),
+      );
+    } finally {
+      if (mounted) {
+        setState(() => _mediaBusy = false);
+      }
+    }
+  }
+
+  Future<void> _addPhotoToGallery() async {
+    if (!_canManageMedia || _mediaBusy) return;
+
+    final productId = (widget.productId ?? '').trim();
+    final sellerId = (widget.sellerId ?? '').trim();
+
+    if (productId.isEmpty || sellerId.isEmpty) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('productId / sellerId eksik.')),
+      );
+      return;
+    }
+
+    setState(() => _mediaBusy = true);
+
+    try {
+      final bytes = await EvGalleryManager.pickSingleImage();
+      if (bytes == null) return;
+
+      final url = await EvGalleryManager.uploadImage(
+        sellerId: sellerId,
+        productId: productId,
+        bytes: bytes,
+      );
+
+      await EvGalleryManager.addGalleryImages(
+        productId: productId,
+        sellerId: sellerId,
+        existingImages: _effectiveImages,
+        newUrls: [url],
+      );
+
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Galeriye fotoğraf eklendi.')),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Fotoğraf eklenemedi: $e')),
+      );
+    } finally {
+      if (mounted) {
+        setState(() => _mediaBusy = false);
+      }
+    }
+  }
+
+  Future<void> _deleteCurrentPhoto() async {
+    if (!_canManageMedia || _mediaBusy) return;
+
+    final productId = (widget.productId ?? '').trim();
+    final sellerId = (widget.sellerId ?? '').trim();
+
+    if (productId.isEmpty || sellerId.isEmpty) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('productId / sellerId eksik.')),
+      );
+      return;
+    }
+
+    final currentUrl = _currentImageUrl;
+    if (currentUrl.trim().isEmpty) return;
+
+    setState(() => _mediaBusy = true);
+
+    try {
+      await EvGalleryManager.removeGalleryImage(
+        productId: productId,
+        sellerId: sellerId,
+        existingImages: _effectiveImages,
+        imageUrl: currentUrl,
+      );
+
+      await EvGalleryManager.deleteStorageByUrl(currentUrl);
+
+      if (!mounted) return;
+
+      setState(() {
+        _selectedGalleryIndex = 0;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Görsel silindi.')),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Görsel silinemedi: $e')),
+      );
+    } finally {
+      if (mounted) {
+        setState(() => _mediaBusy = false);
+      }
+    }
+  }
+
+  Future<void> _setCurrentAsCover() async {
+    if (!_canManageMedia || _mediaBusy) return;
+
+    final productId = (widget.productId ?? '').trim();
+    final sellerId = (widget.sellerId ?? '').trim();
+
+    if (productId.isEmpty || sellerId.isEmpty) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('productId / sellerId eksik.')),
+      );
+      return;
+    }
+
+    final currentUrl = _currentImageUrl;
+    if (currentUrl.trim().isEmpty) return;
+
+    setState(() => _mediaBusy = true);
+
+    try {
+      await EvGalleryManager.setAsCoverImage(
+        productId: productId,
+        sellerId: sellerId,
+        existingImages: _effectiveImages,
+        imageUrl: currentUrl,
+      );
+
+      if (!mounted) return;
+
+      setState(() {
+        _selectedGalleryIndex = 0;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Kapak görseli güncellendi.')),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Kapak güncellenemedi: $e')),
+      );
+    } finally {
+      if (mounted) {
+        setState(() => _mediaBusy = false);
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final productId = (widget.productId ?? '').trim();
+
     return Scaffold(
       backgroundColor: _bg,
-      body: CustomScrollView(
-        slivers: [
-          SliverAppBar(
-            expandedHeight: 420,
-            pinned: true,
-            elevation: 0,
-            backgroundColor: _bg,
-            surfaceTintColor: Colors.transparent,
-            iconTheme: const IconThemeData(color: _textPrimary),
-            flexibleSpace: FlexibleSpaceBar(
-              background: Stack(
-                fit: StackFit.expand,
-                children: [
-                  Container(
-                    color: Colors.black,
-                    child: _buildHeroImage(),
-                  ),
-                  Container(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        stops: const [0.0, 0.72, 1.0],
-                        colors: [
-                          Colors.transparent,
-                          Colors.transparent,
-                          Colors.black.withValues(alpha: 0.18),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+      body: productId.isEmpty
+          ? _buildScaffoldBody()
+          : StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
+              stream: FirebaseFirestore.instance
+                  .collection('urunler')
+                  .doc(productId)
+                  .snapshots(),
+              builder: (context, snapshot) {
+                final liveData = snapshot.data?.data() ?? <String, dynamic>{};
+
+                final rawImages = ((liveData['images'] as List?) ?? [])
+                    .map((e) => e.toString().trim())
+                    .where((e) => e.isNotEmpty)
+                    .toList();
+
+                final liveFallback =
+                    (liveData['img'] ?? widget.urunGorsel).toString().trim();
+
+                _liveImages = EvGalleryManager.normalizeImages(
+                  images:
+                      rawImages.isNotEmpty ? rawImages : widget.urunGorseller,
+                  fallbackImage: liveFallback.isNotEmpty
+                      ? liveFallback
+                      : widget.urunGorsel,
+                );
+
+                _liveFallbackImage = liveFallback;
+                _liveGelAlFiyat = _parsePrice(
+                  liveData['gelAlFiyat'] ?? liveData['fiyat'],
+                );
+
+                _liveGoturFiyat = _parsePrice(
+                  liveData['goturFiyat'],
+                );
+                if (_effectiveImages.isEmpty) {
+                  _selectedGalleryIndex = 0;
+                } else if (_selectedGalleryIndex >= _galleryImageUrls.length &&
+                    _galleryImageUrls.isNotEmpty) {
+                  _selectedGalleryIndex = 0;
+                }
+
+                return _buildScaffoldBody();
+              },
             ),
-          ),
-          SliverToBoxAdapter(
-            child: Container(
-              transform: Matrix4.translationValues(0, -16, 0),
-              decoration: const BoxDecoration(
-                color: _bg,
-                borderRadius: BorderRadius.vertical(
-                  top: Radius.circular(28),
-                ),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(20, 18, 20, 140),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildPriceAndChipsCard(),
-                    const SizedBox(height: 14),
-                    _buildMetaCard(),
-                    const SizedBox(height: 14),
-                    _buildDescriptionCard(),
-                    const SizedBox(height: 14),
-                    _buildQuantityCard(),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
       bottomSheet: _buildBottomBar(),
     );
   }
 
-  Widget _buildHeroImage() {
-    return UrunGaleri(
-      images: widget.urunGorseller,
-      fallbackImage: widget.urunGorsel,
-      height: 420,
-      borderRadius: BorderRadius.circular(0),
+  Widget _buildScaffoldBody() {
+    return CustomScrollView(
+      slivers: [
+        SliverAppBar(
+          expandedHeight: 420,
+          pinned: true,
+          elevation: 0,
+          backgroundColor: _bg,
+          surfaceTintColor: Colors.transparent,
+          iconTheme: const IconThemeData(color: _textPrimary),
+          flexibleSpace: FlexibleSpaceBar(
+            background: Stack(
+              fit: StackFit.expand,
+              children: [
+                Container(
+                  color: Colors.black,
+                  child: _buildHeroImage(),
+                ),
+                Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      stops: const [0.0, 0.72, 1.0],
+                      colors: [
+                        Colors.transparent,
+                        Colors.transparent,
+                        Colors.black.withValues(alpha: 0.18),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        SliverToBoxAdapter(
+          child: Container(
+            decoration: const BoxDecoration(
+              color: _bg,
+              borderRadius: BorderRadius.vertical(
+                top: Radius.circular(28),
+              ),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(20, 18, 20, 140),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (_canManageMedia) ...[
+                    EvProductMediaAdminBar(
+                      busy: _mediaBusy,
+                      onAddCoverPhoto: _replaceCoverPhoto,
+                      onDeleteCoverPhoto: _deleteCoverPhoto,
+                      onAddGalleryPhoto: _addPhotoToGallery,
+                      onDeleteCurrentGalleryPhoto: _deleteCurrentPhoto,
+                      onSetCurrentAsCover: _setCurrentAsCover,
+                    ),
+                    const SizedBox(height: 14),
+                  ],
+                  _buildPriceAndChipsCard(),
+                  const SizedBox(height: 14),
+                  _buildMetaCard(),
+                  const SizedBox(height: 14),
+                  _buildDescriptionCard(),
+                  const SizedBox(height: 14),
+                  if (_galleryImageUrls.isNotEmpty) ...[
+                    _buildGalleryStripCard(),
+                    const SizedBox(height: 14),
+                    const SizedBox(height: 10),
+                    SizedBox(
+                      width: double.infinity,
+                      child: OutlinedButton.icon(
+                        onPressed: _openPriceEditDialog,
+                        icon: const Icon(Icons.payments_outlined),
+                        label: const Text('Fiyat Değiştir / Ekle'),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: _gold,
+                          side: const BorderSide(color: _border),
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                  _buildQuantityCard(),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
-  Widget _buildPlaceholder({bool isLoading = false}) {
+  Widget _buildHeroImage() {
+    return EvProductGallery(
+      images: _heroSliderImages,
+      fallbackImage: _coverImageUrl,
+      height: 420,
+      borderRadius: BorderRadius.circular(0),
+      showThumbnails: false,
+      onIndexChanged: (index) {
+        if (_selectedGalleryIndex == index) return;
+        setState(() {
+          _selectedGalleryIndex = index;
+        });
+      },
+    );
+  }
+
+  Widget _buildGalleryStripCard() {
+    final images = _galleryImageUrls;
+
+    final screenWidth = MediaQuery.of(context).size.width;
+    const cardPadding = 36.0;
+    const innerPadding = 36.0;
+    const spacing = 14.0;
+    final itemWidth =
+        (screenWidth - cardPadding - innerPadding - (spacing * 2)) / 3;
+
     return Container(
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Color(0xFF0E0E0E),
-            Color(0xFF1A1A1A),
-            Color(0xFF2A1B00),
-          ],
-        ),
-      ),
-      child: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              isLoading
-                  ? Icons.hourglass_top_rounded
-                  : Icons.restaurant_menu_rounded,
-              size: 48,
+      padding: const EdgeInsets.all(18),
+      decoration: _cardDecoration(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'ÜRÜN GALERİSİ',
+            style: TextStyle(
               color: _gold,
+              fontWeight: FontWeight.w900,
+              letterSpacing: 1.1,
+              fontSize: 12,
             ),
-            const SizedBox(height: 10),
-            Text(
-              isLoading ? 'Görsel yükleniyor' : 'Premium Ev Lezzeti',
-              style: const TextStyle(
-                color: _textPrimary,
-                fontSize: 16,
-                fontWeight: FontWeight.w800,
-              ),
+          ),
+          const SizedBox(height: 14),
+          SizedBox(
+            height: itemWidth,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              itemCount: images.length,
+              separatorBuilder: (_, __) => const SizedBox(width: 14),
+              itemBuilder: (context, index) {
+                final imageUrl = images[index];
+                final isSelected = index == _selectedGalleryIndex;
+                final isHovered = index == _hoveredIndex;
+
+                return MouseRegion(
+                  onEnter: (_) {
+                    setState(() {
+                      _hoveredIndex = index;
+                    });
+                  },
+                  onExit: (_) {
+                    setState(() {
+                      _hoveredIndex = -1;
+                    });
+                  },
+                  child: GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        _selectedGalleryIndex = index;
+                      });
+                    },
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 160),
+                      curve: Curves.easeOut,
+                      width: itemWidth,
+                      height: itemWidth,
+                      transform: (isSelected || isHovered)
+                          ? (Matrix4.identity()..scale(1.06))
+                          : Matrix4.identity(),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(22),
+                        border: Border.all(
+                          color: isSelected ? _gold : _border,
+                          width: isSelected ? 3 : 1.2,
+                        ),
+                        color: _chipBg,
+                        boxShadow: isSelected
+                            ? [
+                                BoxShadow(
+                                  color: _gold.withOpacity(0.35),
+                                  blurRadius: 14,
+                                  spreadRadius: 1,
+                                ),
+                              ]
+                            : const [],
+                      ),
+                      clipBehavior: Clip.antiAlias,
+                      child: Image.network(
+                        imageUrl,
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, __, ___) => Container(
+                          color: Colors.black12,
+                          alignment: Alignment.center,
+                          child: const Icon(
+                            Icons.image_not_supported_outlined,
+                            color: _textMuted,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              },
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -209,6 +867,7 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
           ),
           const SizedBox(height: 14),
           Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Expanded(
                 child: Text(
@@ -232,9 +891,11 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
                   border: Border.all(color: _border),
                 ),
                 child: Text(
-                  widget.urunFiyat.trim().isEmpty
-                      ? 'Fiyat yok'
-                      : widget.urunFiyat,
+                  _selectedUnitPriceText.isEmpty
+                      ? (widget.urunFiyat.trim().isEmpty
+                          ? 'Fiyat yok'
+                          : widget.urunFiyat)
+                      : _selectedUnitPriceText,
                   style: const TextStyle(
                     color: _gold,
                     fontSize: 22,
@@ -244,7 +905,38 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
               ),
             ],
           ),
-          const SizedBox(height: 28),
+          if (_hasGelAlPrice || _hasGoturPrice) ...[
+            const SizedBox(height: 18),
+            Wrap(
+              spacing: 10,
+              runSpacing: 10,
+              children: [
+                if (_hasGelAlPrice)
+                  _deliveryChip(
+                    title: 'Gel-Al',
+                    price: _priceText(_effectiveGelAlPrice),
+                    selected: _selectedDeliveryType == 'gel_al',
+                    onTap: () {
+                      setState(() {
+                        _selectedDeliveryType = 'gel_al';
+                      });
+                    },
+                  ),
+                if (_hasGoturPrice)
+                  _deliveryChip(
+                    title: 'Götür',
+                    price: _priceText(_effectiveGoturPrice),
+                    selected: _selectedDeliveryType == 'gotur',
+                    onTap: () {
+                      setState(() {
+                        _selectedDeliveryType = 'gotur';
+                      });
+                    },
+                  ),
+              ],
+            ),
+          ],
+          const SizedBox(height: 24),
           Wrap(
             spacing: 8,
             runSpacing: 8,
@@ -421,16 +1113,27 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                '$adet adet seçildi',
-                style: const TextStyle(
-                  color: _textMuted,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w700,
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    '$adet adet seçildi • $_selectedDeliveryLabel',
+                    style: const TextStyle(
+                      color: _textMuted,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
                 ),
-              ),
+                Text(
+                  _priceText(_selectedTotalPrice),
+                  style: const TextStyle(
+                    color: _gold,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 10),
             SizedBox(
@@ -438,11 +1141,21 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
               height: 58,
               child: ElevatedButton(
                 onPressed: () {
+                  if (_selectedUnitPrice == null) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Bu ürün için fiyat tanımlı değil.'),
+                        backgroundColor: Colors.redAccent,
+                      ),
+                    );
+                    return;
+                  }
+
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       backgroundColor: _gold,
                       content: Text(
-                        '${widget.urunAdi} sepete eklendi!',
+                        '${widget.urunAdi} • $_selectedDeliveryLabel • ${_priceText(_selectedTotalPrice)} sepete eklendi!',
                         style: const TextStyle(
                           color: Colors.black,
                           fontWeight: FontWeight.w900,
@@ -475,6 +1188,63 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
     );
   }
 
+  Widget _deliveryChip({
+    required String title,
+    required String price,
+    required bool selected,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(16),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        curve: Curves.easeOut,
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        decoration: BoxDecoration(
+          color: selected ? const Color(0x14FFB300) : _chipBg,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: selected ? _gold : _border,
+            width: selected ? 1.6 : 1,
+          ),
+          boxShadow: selected
+              ? [
+                  BoxShadow(
+                    color: _gold.withOpacity(0.22),
+                    blurRadius: 10,
+                    spreadRadius: 0.5,
+                  ),
+                ]
+              : const [],
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              title,
+              style: TextStyle(
+                color: selected ? _gold : _textPrimary,
+                fontSize: 12,
+                fontWeight: FontWeight.w900,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              price,
+              style: const TextStyle(
+                color: _textPrimary,
+                fontSize: 15,
+                fontWeight: FontWeight.w900,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _miniChip(IconData icon, String text) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -486,11 +1256,7 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
-            icon,
-            size: 14,
-            color: _gold,
-          ),
+          Icon(icon, size: 14, color: _gold),
           const SizedBox(width: 6),
           Text(
             text,
@@ -568,165 +1334,6 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
           offset: Offset(0, 10),
         ),
       ],
-    );
-  }
-}
-
-class UrunGaleri extends StatefulWidget {
-  final List<String>? images;
-  final String fallbackImage;
-  final double height;
-  final BorderRadius borderRadius;
-
-  const UrunGaleri({
-    super.key,
-    this.images,
-    required this.fallbackImage,
-    required this.height,
-    required this.borderRadius,
-  });
-
-  @override
-  State<UrunGaleri> createState() => _UrunGaleriState();
-}
-
-class _UrunGaleriState extends State<UrunGaleri> {
-  late final PageController _pageController;
-  int _currentIndex = 0;
-
-  @override
-  void initState() {
-    super.initState();
-    _pageController = PageController();
-  }
-
-  @override
-  void dispose() {
-    _pageController.dispose();
-    super.dispose();
-  }
-
-  List<String> _resolveImages() {
-    final list = widget.images ?? [];
-
-    if (list.isNotEmpty) {
-      return list.where((e) => e.trim().isNotEmpty).toList();
-    }
-
-    if (widget.fallbackImage.trim().isNotEmpty) {
-      return [widget.fallbackImage];
-    }
-
-    return [];
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final images = _resolveImages();
-
-    if (images.isEmpty) {
-      return Container(
-        height: widget.height,
-        width: double.infinity,
-        color: Colors.grey.shade200,
-        alignment: Alignment.center,
-        child: const Icon(
-          Icons.image_not_supported_outlined,
-          size: 42,
-          color: Colors.grey,
-        ),
-      );
-    }
-
-    return ClipRRect(
-      borderRadius: widget.borderRadius,
-      child: Stack(
-        children: [
-          SizedBox(
-            height: widget.height,
-            width: double.infinity,
-            child: PageView.builder(
-              controller: _pageController,
-              itemCount: images.length,
-              onPageChanged: (index) {
-                setState(() {
-                  _currentIndex = index;
-                });
-              },
-              itemBuilder: (context, index) {
-                final imageUrl = images[index];
-
-                return Container(
-                  color: Colors.grey.shade100,
-                  child: Image.network(
-                    imageUrl,
-                    width: double.infinity,
-                    height: widget.height,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) {
-                      return Container(
-                        color: Colors.grey.shade200,
-                        alignment: Alignment.center,
-                        child: const Icon(
-                          Icons.broken_image_outlined,
-                          size: 42,
-                          color: Colors.grey,
-                        ),
-                      );
-                    },
-                  ),
-                );
-              },
-            ),
-          ),
-          if (images.length > 1)
-            Positioned(
-              top: 12,
-              right: 12,
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 5,
-                ),
-                decoration: BoxDecoration(
-                  color: Colors.black.withValues(alpha: 0.55),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Text(
-                  '${_currentIndex + 1}/${images.length}',
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-            ),
-          if (images.length > 1)
-            Positioned(
-              bottom: 14,
-              left: 0,
-              right: 0,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: List.generate(images.length, (index) {
-                  final isActive = index == _currentIndex;
-
-                  return AnimatedContainer(
-                    duration: const Duration(milliseconds: 220),
-                    margin: const EdgeInsets.symmetric(horizontal: 4),
-                    height: 8,
-                    width: isActive ? 24 : 8,
-                    decoration: BoxDecoration(
-                      color: isActive ? Colors.white : Colors.white54,
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                  );
-                }),
-              ),
-            ),
-        ],
-      ),
     );
   }
 }

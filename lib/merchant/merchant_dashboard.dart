@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../modules/vitrinler/sef_vitrini.dart';
 import 'restoran_yonetim_paneli.dart';
 import 'teslimat_ayarlar_sayfasi.dart';
-import '../modules/vitrinler/ev_lezzetleri_vitrini.dart';
+import 'merchant_merkez.dart';
 
 class MerchantDashboard extends StatelessWidget {
   const MerchantDashboard({super.key});
@@ -45,10 +45,7 @@ class MerchantDashboard extends StatelessWidget {
             context,
             "EV LEZZETLERİ",
             Icons.home_work_rounded,
-            const EvLezzetleriVitrini(
-              city: 'İstanbul',
-              district: 'Kadıköy',
-            ),
+            const VitrinMerkeziSayfasi(),
           ),
           _buildCard(
             context,

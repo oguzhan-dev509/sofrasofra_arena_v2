@@ -139,43 +139,58 @@ class _ChefContentEditorPageState extends State<ChefContentEditorPage> {
   Future<void> _save() async {
     setState(() => isSaving = true);
 
-    await FirebaseFirestore.instance
-        .collection('chef_profiles')
-        .doc(widget.chefId)
-        .set({
-      'heroTagline': _heroTaglineController.text.trim(),
-      'heroDescription': _heroDescriptionController.text.trim(),
-      'careerSummary': _summaryController.text.trim(),
-      'careerHighlights': _splitList(_highlightsController.text),
-      'expertise': _splitList(_expertiseController.text),
-      'timeline2024Title': _timeline2024TitleController.text.trim(),
-      'timeline2024Subtitle': _timeline2024SubtitleController.text.trim(),
-      'timeline2021Title': _timeline2021TitleController.text.trim(),
-      'timeline2021Subtitle': _timeline2021SubtitleController.text.trim(),
-      'timeline2018Title': _timeline2018TitleController.text.trim(),
-      'timeline2018Subtitle': _timeline2018SubtitleController.text.trim(),
-      'timeline2013Title': _timeline2013TitleController.text.trim(),
-      'timeline2013Subtitle': _timeline2013SubtitleController.text.trim(),
-      'awardsPressText': _awardsPressTextController.text.trim(),
-      'brandCollaborationsText': _brandCollaborationsTextController.text.trim(),
-      'workshopStageText': _workshopStageTextController.text.trim(),
-      'mediaKitText': _mediaKitTextController.text.trim(),
-      'serviceConsultingText': _serviceConsultingController.text.trim(),
-      'servicePrivateDiningText': _servicePrivateDiningController.text.trim(),
-      'serviceWorkshopText': _serviceWorkshopController.text.trim(),
-      'serviceCateringText': _serviceCateringController.text.trim(),
-      'serviceSpeakingText': _serviceSpeakingController.text.trim(),
-    }, SetOptions(merge: true));
+    try {
+      await FirebaseFirestore.instance
+          .collection('chef_profiles')
+          .doc(widget.chefId)
+          .set({
+        'heroTagline': _heroTaglineController.text.trim(),
+        'heroDescription': _heroDescriptionController.text.trim(),
+        'careerSummary': _summaryController.text.trim(),
+        'careerHighlights': _splitList(_highlightsController.text),
+        'expertise': _splitList(_expertiseController.text),
+        'timeline2024Title': _timeline2024TitleController.text.trim(),
+        'timeline2024Subtitle': _timeline2024SubtitleController.text.trim(),
+        'timeline2021Title': _timeline2021TitleController.text.trim(),
+        'timeline2021Subtitle': _timeline2021SubtitleController.text.trim(),
+        'timeline2018Title': _timeline2018TitleController.text.trim(),
+        'timeline2018Subtitle': _timeline2018SubtitleController.text.trim(),
+        'timeline2013Title': _timeline2013TitleController.text.trim(),
+        'timeline2013Subtitle': _timeline2013SubtitleController.text.trim(),
+        'awardsPressText': _awardsPressTextController.text.trim(),
+        'brandCollaborationsText':
+            _brandCollaborationsTextController.text.trim(),
+        'workshopStageText': _workshopStageTextController.text.trim(),
+        'mediaKitText': _mediaKitTextController.text.trim(),
+        'serviceConsultingText': _serviceConsultingController.text.trim(),
+        'servicePrivateDiningText': _servicePrivateDiningController.text.trim(),
+        'serviceWorkshopText': _serviceWorkshopController.text.trim(),
+        'serviceCateringText': _serviceCateringController.text.trim(),
+        'serviceSpeakingText': _serviceSpeakingController.text.trim(),
+      }, SetOptions(merge: true));
 
-    if (!mounted) return;
+      if (!mounted) return;
 
-    setState(() => isSaving = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('İçerik başarıyla kaydedildi.'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Kaydedildi')),
-    );
-
-    Navigator.pop(context);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Kaydetme sırasında bir sorun oluştu: $e'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() => isSaving = false);
+      }
+    }
   }
 
   Widget _sectionTitle(String text) {
@@ -249,38 +264,72 @@ class _ChefContentEditorPageState extends State<ChefContentEditorPage> {
             _field('Uzmanlık (virgül ile)', _expertiseController, maxLines: 3),
             _sectionTitle('Kariyer Timeline'),
             _field('2024 Başlık', _timeline2024TitleController),
-            _field('2024 Açıklama', _timeline2024SubtitleController,
-                maxLines: 4),
-            _field('2021 Başlık', _timeline2021TitleController),
-            _field('2021 Açıklama', _timeline2021SubtitleController,
-                maxLines: 4),
-            _field('2018 Başlık', _timeline2018TitleController),
-            _field('2018 Açıklama', _timeline2018SubtitleController,
-                maxLines: 4),
-            _field('2013 Başlık', _timeline2013TitleController),
-            _field('2013 Açıklama', _timeline2013SubtitleController,
-                maxLines: 4),
-            _sectionTitle('Diğer Bölümler'),
-            _field('Ödüller & Basın Metni', _awardsPressTextController,
-                maxLines: 5),
             _field(
-                'Marka İş Birlikleri Metni', _brandCollaborationsTextController,
-                maxLines: 5),
-            _field('Workshop & Sahne Gücü Metni', _workshopStageTextController,
-                maxLines: 5),
+              '2024 Açıklama',
+              _timeline2024SubtitleController,
+              maxLines: 4,
+            ),
+            _field('2021 Başlık', _timeline2021TitleController),
+            _field(
+              '2021 Açıklama',
+              _timeline2021SubtitleController,
+              maxLines: 4,
+            ),
+            _field('2018 Başlık', _timeline2018TitleController),
+            _field(
+              '2018 Açıklama',
+              _timeline2018SubtitleController,
+              maxLines: 4,
+            ),
+            _field('2013 Başlık', _timeline2013TitleController),
+            _field(
+              '2013 Açıklama',
+              _timeline2013SubtitleController,
+              maxLines: 4,
+            ),
+            _sectionTitle('Diğer Bölümler'),
+            _field(
+              'Ödüller & Basın Metni',
+              _awardsPressTextController,
+              maxLines: 5,
+            ),
+            _field(
+              'Marka İş Birlikleri Metni',
+              _brandCollaborationsTextController,
+              maxLines: 5,
+            ),
+            _field(
+              'Workshop & Sahne Gücü Metni',
+              _workshopStageTextController,
+              maxLines: 5,
+            ),
             _field('Medya Kiti Metni', _mediaKitTextController, maxLines: 5),
             _sectionTitle('Premium Hizmetler'),
-            _field('Danışmanlık Metni', _serviceConsultingController,
-                maxLines: 5),
-            _field('Private Dining Metni', _servicePrivateDiningController,
-                maxLines: 4),
-            _field('Workshop & Eğitim Metni', _serviceWorkshopController,
-                maxLines: 4),
             _field(
-                'Kurumsal Davet & Catering Metni', _serviceCateringController,
-                maxLines: 4),
-            _field('Konuşmacılık / Sahne Metni', _serviceSpeakingController,
-                maxLines: 4),
+              'Danışmanlık Metni',
+              _serviceConsultingController,
+              maxLines: 5,
+            ),
+            _field(
+              'Private Dining Metni',
+              _servicePrivateDiningController,
+              maxLines: 4,
+            ),
+            _field(
+              'Workshop & Eğitim Metni',
+              _serviceWorkshopController,
+              maxLines: 4,
+            ),
+            _field(
+              'Kurumsal Davet & Catering Metni',
+              _serviceCateringController,
+              maxLines: 4,
+            ),
+            _field(
+              'Konuşmacılık / Sahne Metni',
+              _serviceSpeakingController,
+              maxLines: 4,
+            ),
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: isSaving ? null : _save,

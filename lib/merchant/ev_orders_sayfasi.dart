@@ -31,7 +31,7 @@ class EvOrdersSayfasi extends StatelessWidget {
       ),
       body: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
         stream: FirebaseFirestore.instance
-            .collection('ev_orders')
+            .collection('sellerOrders')
             .where('sellerId', isEqualTo: sellerId)
             .orderBy('createdAt', descending: true)
             .snapshots(),
@@ -166,7 +166,7 @@ class _OrderCard extends StatelessWidget {
                   child: ElevatedButton(
                     onPressed: () async {
                       await FirebaseFirestore.instance
-                          .collection('ev_orders')
+                          .collection('sellerOrders')
                           .doc(docId)
                           .update({
                         'orderStatus': 'approved',

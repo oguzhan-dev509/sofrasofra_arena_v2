@@ -15,7 +15,8 @@ import 'package:sofrasofra_arena_v2/modules/sef_itibar_sayfasi.dart';
 import 'package:sofrasofra_arena_v2/modules/akademi_merkezi.dart';
 import 'package:sofrasofra_arena_v2/dev/academy_master_runner.dart';
 import 'package:sofrasofra_arena_v2/admin/consulting_requests_admin_page.dart';
-import 'package:sofrasofra_arena_v2/modules/sef_marka_kariyer_sayfasi.dart';
+import 'package:sofrasofra_arena_v2/modules/chef_brand_career_page.dart';
+import 'package:sofrasofra_arena_v2/modules/workshop_requests_admin_page.dart';
 
 class GastronomiYonetimMerkezi extends StatelessWidget {
   final String? chefId;
@@ -276,9 +277,25 @@ class GastronomiYonetimMerkezi extends StatelessWidget {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (_) => const SefMarkaKariyerSayfasi(
+              builder: (_) => ChefBrandCareerPage(
+                chefId: 'gmRQ6eKx6WZ0fqDDFytHEgi88RH3',
                 chefName: 'Ahmet Usta',
-                isAdmin: true,
+              ),
+            ),
+          );
+        },
+      ),
+      _DashboardItem(
+        title: 'Workshop Talepleri',
+        subtitle: 'Workshop başvurularını ve gelen talepleri yönetin.',
+        icon: Icons.groups_rounded,
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => WorkshopRequestsAdminPage(
+                chefId: _currentChefId,
+                chefName: _heroName,
               ),
             ),
           );

@@ -31,8 +31,8 @@ class _UrunEklemeSayfasiState extends State<UrunEklemeSayfasi> {
   final TextEditingController _resimUrlController = TextEditingController();
   final TextEditingController _fiyatController = TextEditingController();
 
-  Uint8List? _webResimVerisi;
-  String? _seciliUrl;
+  final List<Uint8List> _webResimListesi = [];
+  final List<String> _seciliUrlListesi = [];
 
   bool _yukleniyor = false;
   bool _bugunPisiyor = false;
@@ -216,26 +216,42 @@ class _UrunEklemeSayfasiState extends State<UrunEklemeSayfasi> {
       }
 
       final picker = ImagePicker();
-      final XFile? image = await picker.pickImage(
-        source: ImageSource.gallery,
+
+      final List<XFile> secilenler = await picker.pickMultiImage(
         imageQuality: 70,
       );
 
-      if (image == null) return;
+      if (secilenler.isEmpty) return;
 
-      final bytes = await image.readAsBytes();
+      final mevcut = _webResimListesi.length + _seciliUrlListesi.length;
+      final kalanHak = _maxPhotoCount - mevcut;
+
+      if (kalanHak <= 0) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content:
+                Text("❌ Maksimum $_maxPhotoCount fotoğraf yükleyebilirsiniz."),
+          ),
+        );
+        return;
+      }
+
+      final alinacaklar = secilenler.take(kalanHak).toList();
+
+      final bytesList = <Uint8List>[];
+      for (final image in alinacaklar) {
+        bytesList.add(await image.readAsBytes());
+      }
 
       if (!mounted) return;
       setState(() {
-        _webResimVerisi = bytes;
-        _seciliUrl = null;
-        _resimUrlController.clear();
+        _webResimListesi.addAll(bytesList);
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            "✅ Fotoğraf seçildi. Paketiniz: ${MembershipPlanService.planDisplayName(_membershipType)}",
+            "✅ ${bytesList.length} fotoğraf eklendi. Toplam: ${_webResimListesi.length + _seciliUrlListesi.length}/$_maxPhotoCount",
           ),
         ),
       );
@@ -266,9 +282,18 @@ class _UrunEklemeSayfasiState extends State<UrunEklemeSayfasi> {
       return;
     }
 
+    final toplam = _webResimListesi.length + _seciliUrlListesi.length;
+    if (toplam >= _maxPhotoCount) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("❌ En fazla $_maxPhotoCount görsel ekleyebilirsiniz."),
+        ),
+      );
+      return;
+    }
+
     setState(() {
-      _seciliUrl = url;
-      _webResimVerisi = null;
+      _seciliUrlListesi.add(url);
     });
 
     _resimUrlController.clear();
@@ -294,6 +319,30 @@ class _UrunEklemeSayfasiState extends State<UrunEklemeSayfasi> {
 
     final snap = await task;
     return await snap.ref.getDownloadURL();
+  }
+
+  Future<List<String>> _bulutaTopluYukle(
+      String uid, List<Uint8List> files) async {
+    final futures = files.map((bytes) async {
+      final dosyaAdi =
+          "urun_${DateTime.now().millisecondsSinceEpoch}_${bytes.length}.jpg";
+
+      final ref = FirebaseStorage.instance
+          .ref()
+          .child("urun_resimleri")
+          .child(uid)
+          .child(dosyaAdi);
+
+      final task = ref.putData(
+        bytes,
+        SettableMetadata(contentType: "image/jpeg"),
+      );
+
+      final snap = await task;
+      return await snap.ref.getDownloadURL();
+    });
+
+    return await Future.wait(futures);
   }
 
   Future<void> _arenadaYayinla() async {
@@ -354,8 +403,8 @@ class _UrunEklemeSayfasiState extends State<UrunEklemeSayfasi> {
       return;
     }
 
-    final bool fotoVar = (_webResimVerisi != null) ||
-        (_seciliUrl != null && _seciliUrl!.isNotEmpty);
+    final bool fotoVar =
+        _webResimListesi.isNotEmpty || _seciliUrlListesi.isNotEmpty;
 
     if (!fotoVar) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -364,86 +413,91 @@ class _UrunEklemeSayfasiState extends State<UrunEklemeSayfasi> {
       return;
     }
 
-   setState(() => _yukleniyor = true);
+    setState(() => _yukleniyor = true);
 
-try {
-  final user = FirebaseAuth.instance.currentUser;
-  final uid = user?.uid ?? 'demo_user';
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      final uid = user?.uid ?? 'demo_user';
 
-  String imgUrl;
-  if (_webResimVerisi != null) {
-    imgUrl = await _bulutaYukle(uid, _webResimVerisi!);
-  } else {
-    imgUrl = _seciliUrl!.trim();
-  }
+      final uploadedUrls = _webResimListesi.isNotEmpty
+          ? await _bulutaTopluYukle(uid, _webResimListesi)
+          : <String>[];
 
-  if (!_isHttpUrl(imgUrl)) {
-    throw Exception("img URL geçersiz üretildi.");
-  }
+      final allImageUrls = <String>[
+        ...uploadedUrls,
+        ..._seciliUrlListesi.map((e) => e.trim()),
+      ].where((e) => e.isNotEmpty && _isHttpUrl(e)).toSet().toList();
 
- if (_tip == "Usta Sefler") {
- final chefDisplayName =
-    dukkan.trim().isNotEmpty ? dukkan.trim() : urunAdi.trim();
+      if (allImageUrls.isEmpty) {
+        throw Exception("Geçerli görsel URL üretilemedi.");
+      }
 
-await ChefProfileBootstrapService.ensureChefProfile(
-  chefId: uid,
-  dukkanId: uid,
-  displayName: chefDisplayName,
-  sehir: _sehir,
-  ilce: _ilce,
-  uzmanlik: uzmanlik,
-  img: imgUrl,
-  youtubeUrl: videoUrl,
-);
-await ChefAcademyBootstrapService.ensureAcademy(
-  chefId: uid,
-);
+      final imgUrl = allImageUrls.first;
 
- final validation =
-    await ChefValidationService.validateChefProductBeforeCreate(
-  ownerId: uid,
-  dukkanId: uid,
-  ad: chefDisplayName,
-);
+      if (_tip == "Usta Sefler") {
+        final chefDisplayName =
+            dukkan.trim().isNotEmpty ? dukkan.trim() : urunAdi.trim();
 
-if (!validation.ok) {
-  if (!mounted) return;
+        await ChefProfileBootstrapService.ensureChefProfile(
+          chefId: uid,
+          dukkanId: uid,
+          displayName: chefDisplayName,
+          sehir: _sehir,
+          ilce: _ilce,
+          uzmanlik: uzmanlik,
+          img: imgUrl,
+          youtubeUrl: videoUrl,
+        );
+        await ChefAcademyBootstrapService.ensureAcademy(
+          chefId: uid,
+        );
 
-  ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(content: Text(validation.message)),
-  );
+        final validation =
+            await ChefValidationService.validateChefProductBeforeCreate(
+          ownerId: uid,
+          dukkanId: uid,
+          ad: chefDisplayName,
+        );
 
-  setState(() => _yukleniyor = false);
-  return;
-}
-}
+        if (!validation.ok) {
+          if (!mounted) return;
 
-  await FirebaseFirestore.instance.collection('urunler').add({
-    "ad": (_tip == "Ev Lezzetleri") ? urunAdi : "",
-    "img": imgUrl,
-    "dukkan": dukkan,
-    "dukkanId": uid,
-    "ownerId": (_tip == "Usta Sefler") ? uid : "",
-    "sehir": _sehir,
-    "ilce": _ilce,
-    "uzmanlik": uzmanlik,
-    "youtubeUrl": videoUrl,
-    "tip": _tip,
-    "kategori": _tip == "Ev Lezzetleri" ? _kategori : _tip,
-    "bugunPisiyor": _tip == "Ev Lezzetleri" ? _bugunPisiyor : false,
-    "onayDurumu": "onaylandi",
-    "fiyat": fiyat,
-    "isActive": true,
-    "sellerMembershipType": _membershipType,
-    "sellerBadgeType": _badgeType,
-    "featuredScope": _featuredScope,
-    "isFeatured": false,
-    "featureRank": 0,
-    "photoCount": 1,
-    "listingScore": _priorityScore,
-    "kayitTarihi": FieldValue.serverTimestamp(),
-    "createdAt": FieldValue.serverTimestamp(),
-  });
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(validation.message)),
+          );
+
+          setState(() => _yukleniyor = false);
+          return;
+        }
+      }
+
+      await FirebaseFirestore.instance.collection('urunler').add({
+        "ad": (_tip == "Ev Lezzetleri") ? urunAdi : "",
+        "img": imgUrl,
+        "images": allImageUrls,
+        "dukkan": dukkan,
+        "dukkanId": uid,
+        "ownerId": (_tip == "Usta Sefler") ? uid : "",
+        "sehir": _sehir,
+        "ilce": _ilce,
+        "uzmanlik": uzmanlik,
+        "youtubeUrl": videoUrl,
+        "tip": _tip,
+        "kategori": _tip == "Ev Lezzetleri" ? _kategori : _tip,
+        "bugunPisiyor": _tip == "Ev Lezzetleri" ? _bugunPisiyor : false,
+        "onayDurumu": "onaylandi",
+        "fiyat": fiyat,
+        "isActive": true,
+        "sellerMembershipType": _membershipType,
+        "sellerBadgeType": _badgeType,
+        "featuredScope": _featuredScope,
+        "isFeatured": false,
+        "featureRank": 0,
+        "photoCount": allImageUrls.length,
+        "listingScore": _priorityScore,
+        "kayitTarihi": FieldValue.serverTimestamp(),
+        "createdAt": FieldValue.serverTimestamp(),
+      });
 
       if (!mounted) return;
 
@@ -458,8 +512,8 @@ if (!validation.ok) {
         _videoController.clear();
         _resimUrlController.clear();
         _fiyatController.clear();
-        _webResimVerisi = null;
-        _seciliUrl = null;
+        _webResimListesi.clear();
+        _seciliUrlListesi.clear();
         _kategori = "Ev Yemekleri";
         _bugunPisiyor = false;
         _ilce = "";
@@ -480,8 +534,8 @@ if (!validation.ok) {
 
   @override
   Widget build(BuildContext context) {
-    final bool fotoSecildi = _webResimVerisi != null ||
-        (_seciliUrl != null && _seciliUrl!.isNotEmpty);
+    final bool fotoSecildi =
+        _webResimListesi.isNotEmpty || _seciliUrlListesi.isNotEmpty;
 
     final List<String> ilceler =
         _sehir.isEmpty ? <String>[] : (_ilcelerMap[_sehir] ?? <String>[]);
@@ -882,6 +936,83 @@ if (!validation.ok) {
               ),
             ),
             const SizedBox(height: 14),
+            if (fotoSecildi) ...[
+              const SizedBox(height: 12),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  "Galeri Önizleme (${_webResimListesi.length + _seciliUrlListesi.length}/$_maxPhotoCount)",
+                  style: const TextStyle(
+                    color: Colors.white70,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 10),
+              GridView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: _webResimListesi.length + _seciliUrlListesi.length,
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 3,
+                  crossAxisSpacing: 8,
+                  mainAxisSpacing: 8,
+                  childAspectRatio: 1,
+                ),
+                itemBuilder: (context, index) {
+                  final localCount = _webResimListesi.length;
+                  final isLocal = index < localCount;
+
+                  return Stack(
+                    children: [
+                      Positioned.fill(
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(12),
+                          child: isLocal
+                              ? Image.memory(
+                                  _webResimListesi[index],
+                                  fit: BoxFit.cover,
+                                )
+                              : Image.network(
+                                  _seciliUrlListesi[index - localCount],
+                                  fit: BoxFit.cover,
+                                ),
+                        ),
+                      ),
+                      Positioned(
+                        top: 6,
+                        right: 6,
+                        child: InkWell(
+                          onTap: () {
+                            setState(() {
+                              if (isLocal) {
+                                _webResimListesi.removeAt(index);
+                              } else {
+                                _seciliUrlListesi.removeAt(index - localCount);
+                              }
+                            });
+                          },
+                          child: Container(
+                            decoration: const BoxDecoration(
+                              color: Colors.black87,
+                              shape: BoxShape.circle,
+                            ),
+                            padding: const EdgeInsets.all(4),
+                            child: const Icon(
+                              Icons.close,
+                              size: 16,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  );
+                },
+              ),
+              const SizedBox(height: 14),
+            ],
             _medyaKutusu(
               fotoSecildi ? "✅ FOTO HAZIR" : "FOTOĞRAF SEÇ",
               Icons.add_photo_alternate,

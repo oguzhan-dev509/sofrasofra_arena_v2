@@ -7,10 +7,11 @@ import '../modules/akademi_merkezi.dart';
 import '../modules/kurye_basvuru_merkezi.dart';
 
 import 'ev_orders_sayfasi.dart';
-
+import 'package:sofrasofra_arena_v2/merchant/urun_ekleme_sayfasi_v2.dart';
 import 'satici_siparis_paneli.dart';
 import 'sef_yonetim_paneli.dart';
 import 'teslimat_ayarlar_sayfasi.dart';
+import 'package:sofrasofra_arena_v2/merchant/merchant_merkez.dart';
 
 class UreticiYonetimMerkeziSayfasi extends StatelessWidget {
   const UreticiYonetimMerkeziSayfasi({super.key});
@@ -136,7 +137,8 @@ class UreticiYonetimMerkeziSayfasi extends StatelessWidget {
                         },
                         style: OutlinedButton.styleFrom(
                           foregroundColor: _gold,
-                          side: BorderSide(color: _gold.withValues(alpha: 0.30)),
+                          side:
+                              BorderSide(color: _gold.withValues(alpha: 0.30)),
                           padding: const EdgeInsets.symmetric(
                             horizontal: 18,
                             vertical: 16,
@@ -328,6 +330,12 @@ class UreticiPanelleriSayfasi extends StatelessWidget {
           icon: Icons.restaurant_menu_rounded,
           pageType: _PanelPageType.restoran,
         ),
+        _PanelItemData(
+          title: 'Mahalle Mutfağı Vitrini',
+          subtitle: 'Ürün ekle, fotoğraf yükle, vitrini düzenle',
+          icon: Icons.storefront_rounded,
+          pageType: _PanelPageType.vitrinDuzenle,
+        ),
       ],
     );
   }
@@ -472,9 +480,10 @@ enum _PanelPageType {
   kuryePaneli,
   kuryeBasvuru,
   adminPaneli,
-
   akademi,
   placeholder,
+
+  vitrinDuzenle, // 🔥 BURAYA EKLE
 }
 
 class _PanelItemData {
@@ -582,6 +591,7 @@ class _PanelShell extends StatelessWidget {
                         ),
                       ),
                     );
+
                     break;
                   case _PanelPageType.saticiSiparis:
                     Navigator.push(
@@ -594,16 +604,6 @@ class _PanelShell extends StatelessWidget {
                     );
                     break;
 
-                  case _PanelPageType.evOrders:
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const EvOrdersSayfasi(
-                          sellerId: 'RhkyTCD5TgWJFdEzP50mvCOrz5a2',
-                        ),
-                      ),
-                    );
-                    break;
                   case _PanelPageType.evOrders:
                     Navigator.push(
                       context,
@@ -646,7 +646,14 @@ class _PanelShell extends StatelessWidget {
                       ),
                     );
                     break;
-
+                  case _PanelPageType.vitrinDuzenle:
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const UrunEklemeSayfasiV2(),
+                      ),
+                    );
+                    break;
                   case _PanelPageType.akademi:
                     Navigator.push(
                       context,

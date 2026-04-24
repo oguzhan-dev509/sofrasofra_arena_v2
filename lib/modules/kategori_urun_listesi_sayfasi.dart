@@ -270,6 +270,15 @@ class KategoriUrunListesiSayfasi extends StatelessWidget {
                       child: InkWell(
                         borderRadius: BorderRadius.circular(20),
                         onTap: () {
+                          final String youtubeUrl =
+                              (data['youtubeUrl'] ?? '').toString();
+
+                          final List<String> urunGorseller =
+                              ((data['images'] as List?) ?? [])
+                                  .map((e) => e.toString().trim())
+                                  .where((e) => e.isNotEmpty)
+                                  .toList();
+
                           Navigator.push(
                             context,
                             MaterialPageRoute(
@@ -282,11 +291,13 @@ class KategoriUrunListesiSayfasi extends StatelessWidget {
                                 aciklama: aciklama,
                                 dukkanAdi: dukkanAdi,
                                 konum: konum,
-                                youtubeUrl:
-                                    (urun['youtubeUrl'] ?? '').toString(),
-                                urunGorseller: (urun['images'] as List?)
-                                    ?.map((e) => e.toString())
-                                    .toList(),
+                                youtubeUrl: youtubeUrl,
+                                urunGorseller: urunGorseller,
+                                productId: doc.id,
+                                sellerId:
+                                    (data['dukkanId'] ?? data['sellerId'] ?? '')
+                                        .toString(),
+                                isAdmin: true,
                               ),
                             ),
                           );

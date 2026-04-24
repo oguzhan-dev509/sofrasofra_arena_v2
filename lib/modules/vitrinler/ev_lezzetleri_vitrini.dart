@@ -8,6 +8,8 @@ import 'package:sofrasofra_arena_v2/modules/urun_detay.dart';
 
 import 'package:sofrasofra_arena_v2/modules/widgets/ev_lezzetleri_cards.dart';
 import 'package:sofrasofra_arena_v2/services/sepet_service.dart';
+import 'package:sofrasofra_arena_v2/merchant/uretici_yonetim_merkezi_sayfasi.dart';
+import 'package:sofrasofra_arena_v2/core/media/urun_gorsel_resolver.dart';
 
 class EvLezzetleriVitrini extends StatefulWidget {
   final String city;
@@ -41,9 +43,7 @@ class _EvLezzetleriVitriniState extends State<EvLezzetleriVitrini> {
   Query<Map<String, dynamic>> _query() {
     return FirebaseFirestore.instance
         .collection('urunler')
-        .where('tip', isEqualTo: 'Ev Lezzetleri')
-        .where('onayDurumu', isEqualTo: 'onaylandi')
-        .where('isActive', isEqualTo: true);
+        .where('tip', isEqualTo: 'Ev Lezzetleri');
   }
 
   String _normalizeText(dynamic value) {
@@ -52,17 +52,16 @@ class _EvLezzetleriVitriniState extends State<EvLezzetleriVitrini> {
         .trim()
         .toLowerCase()
         .replaceAll('ı', 'i')
-        .replaceAll('İ', 'i')
-        .replaceAll('ş', 's')
-        .replaceAll('Ş', 's')
+        .replaceAll('i̇', 'i')
         .replaceAll('ğ', 'g')
-        .replaceAll('Ğ', 'g')
         .replaceAll('ü', 'u')
-        .replaceAll('Ü', 'u')
+        .replaceAll('ş', 's')
         .replaceAll('ö', 'o')
-        .replaceAll('Ö', 'o')
         .replaceAll('ç', 'c')
-        .replaceAll('Ç', 'c');
+        .replaceAll('â', 'a')
+        .replaceAll('î', 'i')
+        .replaceAll('û', 'u')
+        .replaceAll(RegExp(r'\s+'), ' ');
   }
 
   bool _matchesLocation(Map<String, dynamic> data) {
@@ -70,27 +69,43 @@ class _EvLezzetleriVitriniState extends State<EvLezzetleriVitrini> {
     final selectedDistrict = _normalizeText(widget.district);
 
     final dataCity = _normalizeText(
-      data['sehir'] ?? data['city'] ?? data['il'] ?? data['province'],
+      data['sehir'] ??
+          data['şehir'] ??
+          data['city'] ??
+          data['il'] ??
+          data['province'] ??
+          data['adresIl'] ??
+          data['locationCity'],
     );
 
     final dataDistrict = _normalizeText(
-      data['ilce'] ?? data['district'] ?? data['ilçe'] ?? data['bolge'],
+      data['ilce'] ??
+          data['ilçe'] ??
+          data['district'] ??
+          data['bolge'] ??
+          data['adresIlce'] ??
+          data['locationDistrict'],
     );
 
     if (selectedCity.isEmpty) return true;
 
-    final cityMatches = dataCity.isEmpty || dataCity == selectedCity;
+    final cityMatches = dataCity.isEmpty ||
+        dataCity == selectedCity ||
+        dataCity.contains(selectedCity) ||
+        selectedCity.contains(dataCity);
+
     if (!cityMatches) return false;
 
     if (selectedDistrict.isEmpty || selectedDistrict == 'tumu') {
       return true;
     }
 
-    if (dataDistrict.isEmpty) {
-      return true;
-    }
+    final districtMatches = dataDistrict.isEmpty ||
+        dataDistrict == selectedDistrict ||
+        dataDistrict.contains(selectedDistrict) ||
+        selectedDistrict.contains(dataDistrict);
 
-    return dataDistrict == selectedDistrict;
+    return districtMatches;
   }
 
   bool _isValidProduct(Map<String, dynamic> data) {
@@ -103,11 +118,7 @@ class _EvLezzetleriVitriniState extends State<EvLezzetleriVitrini> {
             .toString()
             .trim();
 
-    final String img = (data['img'] ?? data['imgUrl'] ?? data['resim'] ?? '')
-        .toString()
-        .trim();
-
-    return ad.isNotEmpty && dukkan.isNotEmpty && img.isNotEmpty;
+    return ad.isNotEmpty && dukkan.isNotEmpty;
   }
 
   double _readPrice(dynamic value) {
@@ -251,10 +262,29 @@ class _EvLezzetleriVitriniState extends State<EvLezzetleriVitrini> {
       return _sortByScore(docs).take(10).toList();
     }
 
+    final dominantNorm = _normalizeText(dominant);
+
     final local = docs.where((doc) {
-      final ilce = _safeText(doc.data()['ilce']).toUpperCase();
-      return ilce == dominant;
+      final data = doc.data();
+
+      final ilce = _normalizeText(
+        data['ilce'] ??
+            data['ilçe'] ??
+            data['district'] ??
+            data['bolge'] ??
+            data['adresIlce'] ??
+            data['locationDistrict'],
+      );
+
+      return ilce.isNotEmpty &&
+          (ilce == dominantNorm ||
+              ilce.contains(dominantNorm) ||
+              dominantNorm.contains(ilce));
     }).toList();
+
+    if (local.isEmpty) {
+      return _sortByScore(docs).take(10).toList();
+    }
 
     return _sortByScore(local).take(10).toList();
   }
@@ -304,15 +334,29 @@ class _EvLezzetleriVitriniState extends State<EvLezzetleriVitrini> {
     final double fiyat = _readPrice(fiyatRaw);
     final String fiyatText = fiyat <= 0 ? '' : '${fiyat.toStringAsFixed(0)} ₺';
 
-    final String img = _safeText(
-      data['img'] ?? data['imgUrl'] ?? data['resim'],
-    );
+    final List<String> urunGorseller = ((data['images'] as List?) ?? [])
+        .map((e) => e.toString().trim())
+        .where((e) => e.isNotEmpty)
+        .toList();
+    debugPrint('DEBUG ${ad} → images: ${urunGorseller.length}');
+    print('DEBUG images length: ${urunGorseller.length}');
+    final String img = urunGorseller.isNotEmpty
+        ? urunGorseller.first
+        : (data['img'] ?? data['imgUrl'] ?? data['resim'] ?? '')
+            .toString()
+            .trim();
 
     final String konum = [
       if (ilce.isNotEmpty) ilce,
       if (sehir.isNotEmpty) sehir,
     ].join(' / ');
-
+    debugPrint('=== TAP PRODUCT START ===');
+    debugPrint('TAP DOC ID: ${doc.id}');
+    debugPrint('TAP AD: $ad');
+    debugPrint('TAP IMG: $img');
+    debugPrint('TAP IMAGES COUNT: ${urunGorseller.length}');
+    debugPrint('TAP IMAGES: $urunGorseller');
+    debugPrint('=== TAP PRODUCT END ===');
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -320,10 +364,14 @@ class _EvLezzetleriVitriniState extends State<EvLezzetleriVitrini> {
           urunAdi: ad,
           urunFiyat: fiyatText,
           urunGorsel: img,
+          urunGorseller: urunGorseller,
           aciklama: aciklama,
           dukkanAdi: dukkan,
           konum: konum,
           youtubeUrl: (data['youtubeUrl'] ?? data['videoUrl'] ?? '').toString(),
+          productId: doc.id,
+          sellerId: (data['dukkanId'] ?? data['sellerId'] ?? '').toString(),
+          isAdmin: true,
         ),
       ),
     );
@@ -343,9 +391,17 @@ class _EvLezzetleriVitriniState extends State<EvLezzetleriVitrini> {
       data['dukkan'] ?? data['dukkanAdi'] ?? data['satici'],
     );
 
-    final String img = _safeText(
-      data['img'] ?? data['imgUrl'] ?? data['resim'],
-    );
+    final List<dynamic> rawImages = (data['images'] as List?) ?? [];
+    final List<String> detailImages = rawImages
+        .map((e) => e.toString().trim())
+        .where((e) => e.isNotEmpty)
+        .toList();
+
+    final String img = detailImages.isNotEmpty
+        ? detailImages.first
+        : _safeText(
+            data['img'] ?? data['imgUrl'] ?? data['resim'],
+          );
 
     final String category = _mapCategory(data);
 
@@ -482,71 +538,32 @@ class _EvLezzetleriVitriniState extends State<EvLezzetleriVitrini> {
         return;
       }
 
+      await _addToCart(context, doc);
+
       final data = doc.data();
 
-      final String urunAdi = _safeText(
-        data['ad'] ?? data['urunAdi'] ?? data['yemekAdi'],
+      final String sehir = _safeText(data['sehir']).isEmpty
+          ? 'istanbul'
+          : _safeText(data['sehir']).toLowerCase().trim();
+
+      final String ilce = _safeText(data['ilce']).isEmpty
+          ? 'kadikoy'
+          : _safeText(data['ilce']).toLowerCase().trim();
+
+      final String orderId = await SepetService.siparisiTamamla(
+        musteriAd: 'Demo Müşteri',
+        musteriTelefon: '0555 000 00 00',
+        teslimatAdresi: '${ilce.toUpperCase()} / ${sehir.toUpperCase()}',
+        sehir: sehir,
+        ilce: ilce,
+        paymentMethod: 'cash',
       );
-
-      final String dukkanAdi = _safeText(
-        data['dukkan'] ?? data['dukkanAdi'] ?? data['satici'],
-      );
-
-      final String sehir = _safeText(data['sehir']);
-      final String ilce = _safeText(data['ilce']);
-
-      final String img = _safeText(
-        data['img'] ?? data['imgUrl'] ?? data['resim'],
-      );
-
-      final String category = _mapCategory(data);
-      final double birimFiyat = _readPrice(data['fiyat'] ?? data['gelAlFiyat']);
-      final int adet = 1;
-      final double toplamFiyat = birimFiyat * adet;
-
-      final String sellerId = _safeText(
-        data['sellerId'] ??
-            data['ownerId'] ??
-            data['dukkanId'] ??
-            data['merchantId'],
-      );
-
-      final orderRef = FirebaseFirestore.instance.collection('ev_orders').doc();
-
-      await orderRef.set({
-        'orderType': 'ev_lezzetleri',
-        'orderStatus': 'pending_vendor_approval',
-        'paymentStatus': 'cash_on_delivery',
-        'deliveryStatus': 'awaiting_assignment',
-        'source': 'vitrin_direct_order',
-        'userId': user.uid,
-        'sellerId': sellerId,
-        'sellerName': dukkanAdi,
-        'city': sehir,
-        'district': ilce,
-        'totalPrice': toplamFiyat,
-        'itemCount': 1,
-        'note': '',
-        'createdAt': FieldValue.serverTimestamp(),
-        'updatedAt': FieldValue.serverTimestamp(),
-        'items': [
-          {
-            'productId': doc.id,
-            'title': urunAdi,
-            'category': category,
-            'imageUrl': img,
-            'unitPrice': birimFiyat,
-            'quantity': adet,
-            'totalPrice': toplamFiyat,
-          }
-        ],
-      });
 
       if (!context.mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('$urunAdi için sipariş oluşturuldu.'),
+          content: Text('Sipariş oluşturuldu. No: $orderId'),
           backgroundColor: _gold,
           behavior: SnackBarBehavior.floating,
         ),
@@ -588,7 +605,16 @@ class _EvLezzetleriVitriniState extends State<EvLezzetleriVitrini> {
             itemBuilder: (context, index) {
               final doc = docs[index];
               final data = doc.data();
+              final List<String> cardImages = ((data['images'] as List?) ?? [])
+                  .map((e) => e.toString().trim())
+                  .where((e) => e.isNotEmpty)
+                  .toList();
 
+              final String cardImage = cardImages.isNotEmpty
+                  ? cardImages.first
+                  : (data['img'] ?? data['imgUrl'] ?? data['resim'] ?? '')
+                      .toString()
+                      .trim();
               final String ad = _safeText(
                 data['ad'] ?? data['urunAdi'] ?? data['yemekAdi'],
               );
@@ -604,10 +630,32 @@ class _EvLezzetleriVitriniState extends State<EvLezzetleriVitrini> {
                 data['aciklama'] ?? data['tarif'],
               );
 
-              final String img = _safeText(
-                data['img'] ?? data['imgUrl'] ?? data['resim'],
-              );
+              final dynamic rawImages = data['images'] ??
+                  data['urunGorseller'] ??
+                  data['galeri'] ??
+                  data['fotoGalerisi'];
 
+              final List<String> urunGorseller = rawImages is Iterable
+                  ? rawImages
+                      .map((e) => e.toString().trim())
+                      .where((e) => e.isNotEmpty)
+                      .toList()
+                  : <String>[];
+
+              final String img = urunGorseller.isNotEmpty
+                  ? urunGorseller.first
+                  : _safeText(
+                      data['img'] ??
+                          data['imgUrl'] ??
+                          data['resim'] ??
+                          data['image'],
+                    );
+
+              debugPrint('### DOC ID: ${doc.id}');
+              debugPrint('### RAW IMAGES TYPE: ${rawImages.runtimeType}');
+              debugPrint('### RAW IMAGES: $rawImages');
+              debugPrint('### CARD GALERI LENGTH: ${urunGorseller.length}');
+              debugPrint('### CARD IMG: $img');
               final dynamic fiyatRaw = data['fiyat'] ?? data['gelAlFiyat'];
               final double fiyat = _readPrice(fiyatRaw);
               final String fiyatText = fiyat <= 0
@@ -672,6 +720,19 @@ class _EvLezzetleriVitriniState extends State<EvLezzetleriVitrini> {
             },
           ),
           IconButton(
+            icon:
+                const Icon(Icons.storefront_rounded, color: Color(0xFFFFB300)),
+            tooltip: 'Yönetim Merkezi',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const UreticiYonetimMerkeziSayfasi(),
+                ),
+              );
+            },
+          ),
+          IconButton(
             icon: const Icon(Icons.receipt_long_outlined),
             tooltip: 'Sipariş Takibi',
             color: _gold,
@@ -704,15 +765,9 @@ class _EvLezzetleriVitriniState extends State<EvLezzetleriVitrini> {
 
           final allDocs = snap.data?.docs ?? [];
 
-          final validDocs = allDocs
-              .where((doc) => _isValidProduct(doc.data()))
-              .where((doc) => _matchesLocation(doc.data()))
-              .toList();
+          final validDocs = allDocs; // 🔥 TÜM FİLTREYİ BYPASS
 
-          final docs = validDocs
-              .where((doc) => _matchesSelectedCategory(doc.data()))
-              .toList();
-
+          final docs = allDocs;
           if (validDocs.isEmpty) {
             return _CenterInfo(
               icon: Icons.storefront_outlined,
@@ -865,7 +920,7 @@ class _EvLezzetleriVitriniState extends State<EvLezzetleriVitrini> {
                           (context, index) {
                             final doc = docs[index];
                             final data = doc.data();
-
+                            debugPrint('DOC RAW: ${doc.data()}');
                             final String ad = _safeText(
                               data['ad'] ?? data['urunAdi'] ?? data['yemekAdi'],
                             );

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:sofrasofra_arena_v2/modules/vitrinler/ev_lezzetleri_vitrini.dart';
 import 'package:sofrasofra_arena_v2/modules/vitrinler/restoranlar_vitrini.dart';
 import 'package:sofrasofra_arena_v2/modules/vitrinler/sef_vitrini_v2.dart';
+import 'package:sofrasofra_arena_v2/modules/vitrinler/ev_lezzetleri_vitrini_clean.dart';
 
 class KategoriSayfasi extends StatefulWidget {
   const KategoriSayfasi({super.key});

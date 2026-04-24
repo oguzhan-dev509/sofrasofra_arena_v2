@@ -25,44 +25,7 @@ class SefVitriniV2 extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: _bg,
         iconTheme: const IconThemeData(color: _gold),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 12),
-            child: TextButton.icon(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => const GastronomiYonetimMerkezi(
-                      chefId: 'RhkyTCD5TgWJFdEzP50mvCOrz5a2',
-                      chefName: 'Nurselam Narın',
-                    ),
-                  ),
-                );
-              },
-              icon: const Icon(
-                Icons.dashboard_customize_rounded,
-                color: Colors.black,
-                size: 18,
-              ),
-              label: const Text(
-                'Merkez',
-                style: TextStyle(
-                  color: Colors.black,
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-              style: TextButton.styleFrom(
-                backgroundColor: _gold,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(999),
-                ),
-              ),
-            ),
-          ),
-        ],
+        actions: const [],
       ),
       body: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
         stream: _query().snapshots(),
@@ -229,6 +192,113 @@ class _ChefPremiumCardState extends State<_ChefPremiumCard> {
   static const Color _gold = Color(0xFFFFB300);
   static const Color _card = Color(0xFF151515);
 
+  String _resolvedChefId(_ChefV2Item item) {
+    if (item.ownerId.isNotEmpty) return item.ownerId;
+    if (item.dukkanId.isNotEmpty) return item.dukkanId;
+    return item.docId;
+  }
+
+  Future<void> _openCenterWithPin(_ChefV2Item item) async {
+    final controller = TextEditingController();
+    final chefId = _resolvedChefId(item);
+
+    final ok = await showDialog<bool>(
+      context: context,
+      barrierDismissible: true,
+      builder: (dialogContext) {
+        return AlertDialog(
+          backgroundColor: const Color(0xFF151515),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          title: const Text(
+            'Merkez Girişi',
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
+                'Devam etmek için şifre girin.',
+                style: TextStyle(
+                  color: Colors.white70,
+                  height: 1.5,
+                ),
+              ),
+              const SizedBox(height: 14),
+              TextField(
+                controller: controller,
+                obscureText: true,
+                style: const TextStyle(color: Colors.white),
+                decoration: InputDecoration(
+                  hintText: 'PIN / Şifre',
+                  hintStyle: const TextStyle(color: Colors.white38),
+                  filled: true,
+                  fillColor: Colors.white.withOpacity(0.05),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(14),
+                    borderSide: BorderSide(
+                      color: Colors.white.withOpacity(0.10),
+                    ),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(14),
+                    borderSide: const BorderSide(color: _gold),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext, false),
+              child: const Text(
+                'Vazgeç',
+                style: TextStyle(color: Colors.white70),
+              ),
+            ),
+            TextButton(
+              onPressed: () {
+                if (controller.text.trim() == '1234') {
+                  Navigator.pop(dialogContext, true);
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Şifre yanlış'),
+                      backgroundColor: Colors.black,
+                    ),
+                  );
+                }
+              },
+              child: const Text(
+                'Giriş',
+                style: TextStyle(
+                  color: _gold,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (ok == true && mounted) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => GastronomiYonetimMerkezi(
+            chefId: chefId,
+            chefName: item.ad,
+          ),
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final item = widget.item;
@@ -252,9 +322,7 @@ class _ChefPremiumCardState extends State<_ChefPremiumCard> {
         child: InkWell(
           borderRadius: BorderRadius.circular(28),
           onTap: () {
-            final chefId = item.ownerId.isNotEmpty
-                ? item.ownerId
-                : (item.dukkanId.isNotEmpty ? item.dukkanId : item.docId);
+            final chefId = _resolvedChefId(item);
 
             debugPrint('--- CARD DEBUG ---');
             debugPrint('ad       = ${item.ad}');
@@ -369,21 +437,7 @@ class _ChefPremiumCardState extends State<_ChefPremiumCard> {
                 left: 14,
                 child: GestureDetector(
                   onTap: () {
-                    final chefId = item.ownerId.isNotEmpty
-                        ? item.ownerId
-                        : (item.dukkanId.isNotEmpty
-                            ? item.dukkanId
-                            : item.docId);
-
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => SefItibarSayfasi(
-                          dukkanId: chefId,
-                          isAdmin: false,
-                        ),
-                      ),
-                    );
+                    _openCenterWithPin(item);
                   },
                   child: Container(
                     padding: const EdgeInsets.all(9),

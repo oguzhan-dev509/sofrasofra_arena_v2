@@ -1,8 +1,7 @@
 {
-  "projects": {
-    "default": "sofrasofra-a3344",
-    "& \"$env:APPDATA\\npm\\firebase.cmd\" deploy --only functions:initializeChefTablePayment,functions:iyzicoCallback": "ruhdas-ai"
-  },
-  "targets": {},
-  "etags": {}
+"projects": {
+ "default": "sofrasofra-a3344"
+},
+"targets": {},
+"etags": {}
 }

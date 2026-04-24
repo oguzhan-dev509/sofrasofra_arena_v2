@@ -9,6 +9,11 @@ import 'package:sofrasofra_arena_v2/modules/widgets/sef_imza_tabaklari_section.d
 import 'package:sofrasofra_arena_v2/modules/widgets/sef_itibar_header.dart';
 import 'package:sofrasofra_arena_v2/modules/widgets/sef_catering_section.dart';
 import 'package:sofrasofra_arena_v2/modules/create_reservation_page.dart';
+import 'package:sofrasofra_arena_v2/modules/widgets/sef_akademi_section.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:sofrasofra_arena_v2/services/membership_plan_service.dart';
+import 'package:sofrasofra_arena_v2/modules/widgets/sef_membership_card.dart';
+import 'package:sofrasofra_arena_v2/modules/sef_vitrin_icerik_yonetimi.dart';
 
 class SefItibarSayfasi extends StatefulWidget {
   final String dukkanId;
@@ -38,32 +43,121 @@ class _SefItibarSayfasiState extends State<SefItibarSayfasi> {
 
   final ImagePicker _picker = ImagePicker();
   bool _busy = false;
-
-  String get _chefId => widget.dukkanId.trim();
+  String _membershipType = 'free';
+  int _maxGalleryPhoto = 6;
+  int _maxVideoLink = 0;
+  bool _membershipLoading = true;
+  String get _chefId =>
+      (FirebaseAuth.instance.currentUser?.uid ?? widget.dukkanId).trim();
 
   DocumentReference<Map<String, dynamic>> get _chefProfileRef =>
       FirebaseFirestore.instance.collection('chef_profiles').doc(_chefId);
+  @override
+  void initState() {
+    super.initState();
+    _loadChefMembership();
+  }
+
+  Future<void> _loadChefMembership() async {
+    try {
+      final doc = await FirebaseFirestore.instance
+          .collection('chef_profiles')
+          .doc(_chefId)
+          .get();
+
+      final data = doc.data() ?? <String, dynamic>{};
+      final rawType =
+          (data['membershipType'] ?? 'free').toString().toLowerCase();
+      debugPrint(
+          '### SEF_ITIBAR_SAYFASI BUILD aktif | chefId=$_chefId | isAdmin=${widget.isAdmin}');
+      if (!mounted) return;
+
+      setState(() {
+        _membershipType = rawType;
+        _membershipLoading = false;
+
+        switch (rawType) {
+          case 'premium':
+            _maxGalleryPhoto = 40;
+            _maxVideoLink = 3;
+            break;
+          case 'pro':
+            _maxGalleryPhoto = 15;
+            _maxVideoLink = 1;
+            break;
+          default:
+            _maxGalleryPhoto = 6;
+            _maxVideoLink = 0;
+        }
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _membershipType = 'free';
+        _maxGalleryPhoto = 6;
+        _maxVideoLink = 0;
+        _membershipLoading = false;
+      });
+    }
+  }
 
   Future<Uint8List?> _pickImage() async {
-    final file = await _picker.pickImage(
-      source: ImageSource.gallery,
-      imageQuality: 90,
-    );
-    if (file == null) return null;
-    return file.readAsBytes();
+    try {
+      final file = await _picker.pickImage(
+        source: ImageSource.gallery,
+        imageQuality: 90,
+      );
+
+      if (file == null) {
+        debugPrint('IMAGE PICK CANCELLED');
+        return null;
+      }
+
+      final bytes = await file.readAsBytes();
+      debugPrint('IMAGE PICKED bytes=${bytes.length}');
+      return bytes;
+    } catch (e, st) {
+      debugPrint('IMAGE PICK ERROR => $e');
+      debugPrintStack(stackTrace: st);
+      return null;
+    }
   }
 
   Future<String> _upload(Uint8List data, String path) async {
-    final ref = FirebaseStorage.instance.ref().child(path);
-    final task = await ref.putData(
-      data,
-      SettableMetadata(contentType: 'image/jpeg'),
-    );
-    return task.ref.getDownloadURL();
+    try {
+      debugPrint('AUTH UID=${FirebaseAuth.instance.currentUser?.uid}');
+      debugPrint('CHEF ID=$_chefId');
+      debugPrint(
+          'UPLOAD START path=$path bytes=${data.length} chefId=$_chefId');
+
+      final ref = FirebaseStorage.instance.ref().child(path);
+
+      final task = await ref.putData(
+        data,
+        SettableMetadata(contentType: 'image/jpeg'),
+      );
+
+      final url = await task.ref.getDownloadURL();
+      debugPrint('UPLOAD SUCCESS url=$url');
+      return url;
+    } catch (e, st) {
+      debugPrint('UPLOAD ERROR => $e');
+      debugPrintStack(stackTrace: st);
+      rethrow;
+    }
   }
 
   Future<void> _updateProfileImage() async {
     if (_busy) return;
+
+    if (_chefId.trim().isEmpty) {
+      debugPrint('PROFILE IMAGE ERROR => chefId is empty');
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Şef kimliği bulunamadı.')),
+      );
+      return;
+    }
 
     final img = await _pickImage();
     if (img == null) return;
@@ -84,11 +178,16 @@ class _SefItibarSayfasiState extends State<SefItibarSayfasi> {
         'updatedAt': FieldValue.serverTimestamp(),
       }, SetOptions(merge: true));
 
+      debugPrint('PROFILE IMAGE FIRESTORE UPDATED chefId=$_chefId');
+
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Profil fotoğrafı güncellendi.')),
       );
-    } catch (e) {
+    } catch (e, st) {
+      debugPrint('PROFILE IMAGE UPDATE ERROR => $e');
+      debugPrintStack(stackTrace: st);
+
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Profil fotoğrafı yüklenemedi: $e')),
@@ -103,6 +202,15 @@ class _SefItibarSayfasiState extends State<SefItibarSayfasi> {
   Future<void> _removeProfileImage() async {
     if (_busy) return;
 
+    if (_chefId.trim().isEmpty) {
+      debugPrint('REMOVE PROFILE IMAGE ERROR => chefId is empty');
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Şef kimliği bulunamadı.')),
+      );
+      return;
+    }
+
     setState(() => _busy = true);
 
     try {
@@ -111,11 +219,16 @@ class _SefItibarSayfasiState extends State<SefItibarSayfasi> {
         'updatedAt': FieldValue.serverTimestamp(),
       }, SetOptions(merge: true));
 
+      debugPrint('PROFILE IMAGE REMOVED chefId=$_chefId');
+
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Profil fotoğrafı silindi.')),
       );
-    } catch (e) {
+    } catch (e, st) {
+      debugPrint('REMOVE PROFILE IMAGE ERROR => $e');
+      debugPrintStack(stackTrace: st);
+
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Profil fotoğrafı silinemedi: $e')),
@@ -507,6 +620,21 @@ class _SefItibarSayfasiState extends State<SefItibarSayfasi> {
                 },
                 child: const ChipLabel('Şef Akademisi'),
               ),
+              InkWell(
+                borderRadius: BorderRadius.circular(999),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => SefVitrinIcerikYonetimiSayfasi(
+                        chefId: _chefId,
+                        chefName: displayName,
+                      ),
+                    ),
+                  );
+                },
+                child: const ChipLabel('Şef Vitrin Yönetimi'),
+              ),
               const ChipLabel('İmza Mutfağı'),
               InkWell(
                 borderRadius: BorderRadius.circular(999),
@@ -577,16 +705,7 @@ class _SefItibarSayfasiState extends State<SefItibarSayfasi> {
         children: [
           SectionTitleText('AKADEMİ MÜFREDATI'),
           SizedBox(height: 14),
-          Wrap(
-            spacing: 10,
-            runSpacing: 10,
-            children: [
-              ChipLabel('Osmanlı'),
-              ChipLabel('Tabak Tasarım'),
-              ChipLabel('Dünya Mutfağı'),
-              ChipLabel('Maliyet'),
-            ],
-          ),
+          const SefAkademiSection(),
         ],
       ),
     );
@@ -948,7 +1067,7 @@ class _SefItibarSayfasiState extends State<SefItibarSayfasi> {
               ? bio
               : '$displayName, Arena’nın öne çıkan şeflerinden biridir. '
                   '${uzmanlik.isNotEmpty ? uzmanlik : 'gastronomi'} alanında güçlü birikimiyle öne çıkar.';
-
+          debugPrint('### HERO HEADER CURRENT FILE CALISIYOR');
           return CustomScrollView(
             slivers: [
               SliverAppBar(
@@ -1001,6 +1120,14 @@ class _SefItibarSayfasiState extends State<SefItibarSayfasi> {
                         puan: puan,
                         mezun: mezun,
                         muhur: muhur,
+                      ),
+                      const SizedBox(height: 18),
+                      SefMembershipCard(
+                        membershipType: _membershipType,
+                        isLoading: _membershipLoading,
+                        galleryLimit: _maxGalleryPhoto,
+                        videoLimit: _maxVideoLink,
+                        onTapUpgrade: () {},
                       ),
                       const SizedBox(height: 18),
                       _buildQuickActionsContent(displayName),
