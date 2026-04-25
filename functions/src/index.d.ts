@@ -11,4 +11,6 @@ export declare const initializeChefTablePayment: import("firebase-functions/v2/h
     token: any;
     checkoutUrl: any;
 }>>;
+export { initializeEvOrderPayment } from "./ev_order_payment";
+export { evIyzicoCallback } from "./ev_iyzico_callback";
 //# sourceMappingURL=index.d.ts.map

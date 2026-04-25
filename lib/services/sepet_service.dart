@@ -1,5 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
+
+import 'otomatik_kurye_atama_servisi.dart';
 
 class SepetService {
   static final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -268,9 +271,11 @@ class SepetService {
       'sellerCourierName': null,
 
       // Order status
-      'status': initialStatus,
-      'durum': initialStatus,
-
+      'status': 'awaiting_payment',
+      'durum': 'awaiting_payment',
+      'paymentProvider': 'iyzico',
+      'iyzicoToken': null,
+      'paymentConversationId': null,
       // Totals
       'araToplam': araToplam,
       'teslimatUcreti': teslimatUcreti,
@@ -374,14 +379,20 @@ class SepetService {
     await batch.commit();
 
     await orderRef.set({
-      'courierAssignmentTriggered': false,
-      'courierAssignmentCheckedAt': null,
-      'courierAssignmentResult': 'deferred',
-      'assignmentStatus': deliveryMode == 'platform_kurye'
-          ? 'waiting_courier'
-          : assignmentStatus,
+      'courierAssignmentTriggered': true,
+      'courierAssignmentCheckedAt': FieldValue.serverTimestamp(),
       'updatedAt': FieldValue.serverTimestamp(),
     }, SetOptions(merge: true));
+
+// 🔥 KURYEYİ ANINDA ATA
+    try {
+      // await OtomatikKuryeAtamaServisi.sipariseKuryeAta(
+      //  orderId: orderRef.id,
+      // );
+    } catch (e) {
+      debugPrint('Kurye atama hatası: $e');
+    }
+
     return orderRef.id;
   }
 

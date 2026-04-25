@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
-import 'musteri_canli_kurye_takip_haritasi.dart';
+import 'musteri_canli_takip_sayfasi.dart';
 
 class MusteriSiparisTakipSayfasi extends StatefulWidget {
   const MusteriSiparisTakipSayfasi({super.key});
@@ -18,8 +18,15 @@ class _MusteriSiparisTakipSayfasiState
   Stream<QuerySnapshot<Map<String, dynamic>>> _siparislerStream() {
     return FirebaseFirestore.instance
         .collection('orders')
+        .where('userId', isEqualTo: userId)
         .orderBy('createdAt', descending: true)
-        .limit(20)
+        .snapshots();
+  }
+
+  Stream<DocumentSnapshot<Map<String, dynamic>>> _orderStream(String orderId) {
+    return FirebaseFirestore.instance
+        .collection('orders')
+        .doc(orderId)
         .snapshots();
   }
 
@@ -406,7 +413,7 @@ class _MusteriSiparisTakipSayfasiState
                       value: kuryeAdi,
                     ),
                   ],
-                  if (courierId.isNotEmpty) ...[
+                  if (courierId.isNotEmpty && status == 'on_the_way') ...[
                     const SizedBox(height: 14),
                     SizedBox(
                       width: double.infinity,
@@ -415,7 +422,7 @@ class _MusteriSiparisTakipSayfasiState
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (_) => MusteriCanliKuryeTakipHaritasi(
+                              builder: (_) => MusteriCanliTakipSayfasi(
                                 orderId: siparisDoc.id,
                               ),
                             ),
@@ -964,7 +971,13 @@ class _MusteriSiparisTakipSayfasiState
             padding: const EdgeInsets.all(12),
             itemCount: docs.length,
             itemBuilder: (context, index) {
-              return _buildSiparisKart(context, docs[index]);
+              return ListView.builder(
+                padding: const EdgeInsets.all(12),
+                itemCount: docs.length,
+                itemBuilder: (context, index) {
+                  return _buildSiparisKart(context, docs[index]);
+                },
+              );
             },
           );
         },
@@ -975,7 +988,6 @@ class _MusteriSiparisTakipSayfasiState
 
 class OrderTimeline extends StatelessWidget {
   final String status;
-
   const OrderTimeline({
     super.key,
     required this.status,

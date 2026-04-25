@@ -41,8 +41,8 @@ class KuryeYanitServisi {
       }
 
       tx.update(orderRef, {
-        'status': 'on_the_way',
-        'durum': 'on_the_way',
+        'status': 'accepted',
+        'durum': 'accepted',
         'assignmentStatus': 'assigned',
         'courierOfferStatus': 'accepted',
         'courierRespondedAt': FieldValue.serverTimestamp(),
@@ -153,6 +153,20 @@ class KuryeYanitServisi {
     await OtomatikKuryeAtamaServisi.sipariseKuryeAta(
       orderId: orderId,
     );
+  }
+
+  static Future<void> yolaCik({
+    required String orderId,
+    required String courierId,
+  }) async {
+    final orderRef = _firestore.collection('orders').doc(orderId);
+
+    await orderRef.update({
+      'status': 'on_the_way',
+      'durum': 'on_the_way',
+      'courierStartedAt': FieldValue.serverTimestamp(),
+      'updatedAt': FieldValue.serverTimestamp(),
+    });
   }
 
   static int _toInt(dynamic value, {int defaultValue = 0}) {

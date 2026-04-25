@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'widgets/order_status_timeline.dart';
 
 class UserReservationsPage extends StatelessWidget {
   UserReservationsPage({super.key});
@@ -275,6 +276,12 @@ class UserReservationsPage extends StatelessWidget {
                           fontSize: 18,
                         ),
                       ),
+                      const SizedBox(height: 12),
+                      OrderStatusTimeline(
+                        orderStatus: data['reservationFlowStatus'] ?? '',
+                        deliveryStatus: data['deliveryStatus'] ?? '',
+                      ),
+                      const SizedBox(height: 12),
                       if (concept.isNotEmpty) ...[
                         const SizedBox(height: 6),
                         Text(

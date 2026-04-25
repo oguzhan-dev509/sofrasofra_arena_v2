@@ -10,6 +10,7 @@ import 'package:sofrasofra_arena_v2/modules/widgets/ev_lezzetleri_cards.dart';
 import 'package:sofrasofra_arena_v2/services/sepet_service.dart';
 import 'package:sofrasofra_arena_v2/merchant/uretici_yonetim_merkezi_sayfasi.dart';
 import 'package:sofrasofra_arena_v2/core/media/urun_gorsel_resolver.dart';
+import 'package:sofrasofra_arena_v2/modules/widgets/sepet_badge.dart';
 
 class EvLezzetleriVitrini extends StatefulWidget {
   final String city;
@@ -707,7 +708,7 @@ class _EvLezzetleriVitriniState extends State<EvLezzetleriVitrini> {
         iconTheme: const IconThemeData(color: _gold),
         actions: [
           IconButton(
-            icon: const Icon(Icons.shopping_cart_outlined),
+            icon: const SepetBadge(),
             tooltip: 'Sepetim',
             color: _gold,
             onPressed: () {

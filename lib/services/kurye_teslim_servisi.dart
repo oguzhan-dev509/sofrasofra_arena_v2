@@ -17,9 +17,6 @@ class KuryeTeslimServisi {
 
       final orderData = orderSnap.data() as Map<String, dynamic>;
 
-      final String assignmentStatus =
-          (orderData['assignmentStatus'] ?? '').toString().trim().toLowerCase();
-
       final String status = (orderData['status'] ?? orderData['durum'] ?? '')
           .toString()
           .trim()
@@ -38,12 +35,8 @@ class KuryeTeslimServisi {
         throw Exception('Bu siparişe atanmış kurye yok.');
       }
 
-      if (assignmentStatus == 'completed' || status == 'delivered') {
+      if (status == 'delivered') {
         throw Exception('Bu sipariş zaten teslim edilmiş.');
-      }
-
-      if (assignmentStatus != 'assigned') {
-        throw Exception('Teslim işlemi için sipariş atanmış olmalı.');
       }
 
       final courierRef = _firestore.collection('couriers').doc(courierId);
@@ -54,56 +47,32 @@ class KuryeTeslimServisi {
       }
 
       final courierData = courierSnap.data() as Map<String, dynamic>;
-
-      final int aktifSiparis = _toInt(courierData['aktifSiparis']);
       final int toplamTeslimat = _toInt(courierData['toplamTeslimat']);
-
-      final int yeniAktifSiparis = aktifSiparis > 0 ? aktifSiparis - 1 : 0;
-      final bool musaitMi = yeniAktifSiparis == 0;
-
-      final String currentOrderId =
-          (courierData['currentOrderId'] ?? '').toString().trim();
-
-      final timelineRef = _firestore.collection('orderTimeline').doc();
 
       transaction.update(orderRef, {
         'status': 'delivered',
         'durum': 'delivered',
         'assignmentStatus': 'completed',
         'courierOfferStatus': 'accepted',
-        'courierRespondedAt': FieldValue.serverTimestamp(),
         'deliveryCompletedAt': FieldValue.serverTimestamp(),
-        'courierLoadDecrementedAt': FieldValue.serverTimestamp(),
         'deliveredAt': FieldValue.serverTimestamp(),
-        'adminLastAction': 'status_update',
-        'adminLastActionAt': FieldValue.serverTimestamp(),
-        'assignmentUpdatedAt': FieldValue.serverTimestamp(),
         'updatedAt': FieldValue.serverTimestamp(),
       });
 
-      final courierUpdate = <String, dynamic>{
-        'aktifSiparis': yeniAktifSiparis,
+      transaction.update(courierRef, {
+        'aktifSiparis': 0,
         'toplamTeslimat': toplamTeslimat + 1,
-        'lastDeliveredAt': FieldValue.serverTimestamp(),
-        'updatedAt': FieldValue.serverTimestamp(),
-        'adminLastAction': 'delivery_completed',
-        'adminLastActionAt': FieldValue.serverTimestamp(),
-
-        // aktiflik alanlarını senkron tut
+        'currentOrderId': null,
+        'availability': 'musait',
+        'uygunlukDurumu': 'musait',
+        'uygunluk': 'Müsait',
         'aktifMi': true,
         'isActive': true,
+        'lastDeliveredAt': FieldValue.serverTimestamp(),
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
 
-        // uygunluk alanlarını senkron tut
-        'availability': musaitMi ? 'musait' : 'gorevde',
-        'uygunlukDurumu': musaitMi ? 'musait' : 'gorevde',
-        'uygunluk': musaitMi ? 'Müsait' : 'Görevde',
-      };
-
-      if (currentOrderId == orderId) {
-        courierUpdate['currentOrderId'] = null;
-      }
-
-      transaction.update(courierRef, courierUpdate);
+      final timelineRef = _firestore.collection('orderTimeline').doc();
 
       transaction.set(timelineRef, {
         'orderId': orderId,

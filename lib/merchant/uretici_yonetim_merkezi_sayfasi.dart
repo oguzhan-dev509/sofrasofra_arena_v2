@@ -12,6 +12,7 @@ import 'satici_siparis_paneli.dart';
 import 'sef_yonetim_paneli.dart';
 import 'teslimat_ayarlar_sayfasi.dart';
 import 'package:sofrasofra_arena_v2/merchant/merchant_merkez.dart';
+import 'package:sofrasofra_arena_v2/courier/kurye_mobil_paneli.dart';
 
 class UreticiYonetimMerkeziSayfasi extends StatelessWidget {
   const UreticiYonetimMerkeziSayfasi({super.key});
@@ -626,7 +627,7 @@ class _PanelShell extends StatelessWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (_) => const KuryePaneli(),
+                        builder: (_) => const KuryeMobilPaneli(),
                       ),
                     );
                     break;

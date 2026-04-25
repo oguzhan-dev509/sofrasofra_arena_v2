@@ -885,11 +885,24 @@ class _VitrinMerkeziSayfasiState extends State<VitrinMerkeziSayfasi> {
   }
 
   void _urunDetayFormuAc(int i) {
-    final ad = TextEditingController(text: _onSekizUrun[i]['ad']);
-    final tarif = TextEditingController(text: _onSekizUrun[i]['tarif']);
-    final gelAl = TextEditingController(text: _onSekizUrun[i]['gelAlFiyat']);
-    final gotur = TextEditingController(text: _onSekizUrun[i]['goturFiyat']);
-    bool teslim = _onSekizUrun[i]['teslimat'] == true;
+    final current = _onSekizUrun[i];
+
+    final ad = TextEditingController(text: current['ad']);
+    final tarif = TextEditingController(text: current['tarif']);
+    final gelAl = TextEditingController(text: current['gelAlFiyat']);
+    final gotur = TextEditingController(text: current['goturFiyat']);
+
+    final kalanAdetController = TextEditingController(
+      text: (current['kalanAdet'] ?? '').toString(),
+    );
+
+    final chefNoteController = TextEditingController(
+      text: (current['chefNote'] ?? '').toString(),
+    );
+
+    bool teslim = current['teslimat'] == true;
+    bool bugunHazirlandi = current['bugunHazirlandi'] == true;
+    bool sinirliAdet = current['sinirliAdet'] == true;
 
     showModalBottomSheet(
       context: context,
@@ -923,7 +936,7 @@ class _VitrinMerkeziSayfasiState extends State<VitrinMerkeziSayfasi> {
                 decoration: BoxDecoration(
                   color: const Color(0xFF151515),
                   borderRadius: BorderRadius.circular(18),
-                  border: Border.all(color: _gold.withOpacity(0.35)),
+                  border: Border.all(color: _gold.withValues(alpha: 0.35)),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -974,6 +987,77 @@ class _VitrinMerkeziSayfasiState extends State<VitrinMerkeziSayfasi> {
                     ),
                   ],
                 ),
+              ),
+              const SizedBox(height: 14),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF151515),
+                  borderRadius: BorderRadius.circular(18),
+                  border: Border.all(color: _gold.withValues(alpha: 0.35)),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Row(
+                      children: [
+                        Icon(Icons.verified_outlined, color: _gold, size: 18),
+                        SizedBox(width: 8),
+                        Text(
+                          'GÜNLÜK DURUM',
+                          style: TextStyle(
+                            color: _gold,
+                            fontWeight: FontWeight.w900,
+                            fontSize: 13,
+                            letterSpacing: 0.8,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    SwitchListTile(
+                      value: bugunHazirlandi,
+                      activeColor: _gold,
+                      contentPadding: EdgeInsets.zero,
+                      title: const Text(
+                        'Bugün hazırlandı',
+                        style: TextStyle(color: Colors.white70, fontSize: 12),
+                      ),
+                      onChanged: (val) {
+                        setModal(() {
+                          bugunHazirlandi = val;
+                        });
+                      },
+                    ),
+                    SwitchListTile(
+                      value: sinirliAdet,
+                      activeColor: _gold,
+                      contentPadding: EdgeInsets.zero,
+                      title: const Text(
+                        'Sınırlı adet',
+                        style: TextStyle(color: Colors.white70, fontSize: 12),
+                      ),
+                      onChanged: (val) {
+                        setModal(() {
+                          sinirliAdet = val;
+                        });
+                      },
+                    ),
+                    if (sinirliAdet)
+                      _inputWidget(
+                        kalanAdetController,
+                        'Kalan Adet',
+                        Icons.numbers,
+                      ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 14),
+              _inputWidget(
+                chefNoteController,
+                'Üreticiden Not',
+                Icons.edit_note,
               ),
               SwitchListTile(
                 title: const Text(

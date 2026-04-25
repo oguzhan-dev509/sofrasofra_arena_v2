@@ -1,8 +1,9 @@
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-
+import 'package:sofrasofra_arena_v2/services/kurye_konum_servisi.dart';
 import '../services/otomatik_kurye_atama_servisi.dart';
 
 class KuryeMobilPaneli extends StatefulWidget {
@@ -15,8 +16,9 @@ class KuryeMobilPaneli extends StatefulWidget {
 class _KuryeMobilPaneliState extends State<KuryeMobilPaneli> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  // Şimdilik test için sabit kurye
-  static const String _aktifKuryeId = 'ali_kurye';
+  // Geçiş modu: gerçek kurye hesabı varsa UID kullanır,
+// yoksa mevcut test kuryesiyle sistemi kırmadan çalışır.
+  String get _aktifKuryeId => 'ali_kurye';
 
   String? _lastShownOrderId;
 
@@ -28,12 +30,7 @@ class _KuryeMobilPaneliState extends State<KuryeMobilPaneli> {
     return _firestore
         .collection('orders')
         .where('assignedCourierId', isEqualTo: _aktifKuryeId)
-        .where('status', whereIn: [
-      'assigned',
-      'accepted',
-      'on_the_way',
-      'ready',
-    ]).snapshots();
+        .snapshots();
   }
 
   Stream<QuerySnapshot<Map<String, dynamic>>> _activeOfferStream() {
@@ -275,7 +272,9 @@ class _KuryeMobilPaneliState extends State<KuryeMobilPaneli> {
     final bool teslimEdildi = status.toLowerCase() == 'delivered' ||
         assignmentStatus.toLowerCase() == 'completed';
     final bool yolda = status.toLowerCase() == 'on_the_way';
-
+    final bool kuryede = status.toLowerCase() == 'assigned' ||
+        status.toLowerCase() == 'accepted' ||
+        assignmentStatus.toLowerCase() == 'assigned';
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(14),
@@ -384,11 +383,19 @@ class _KuryeMobilPaneliState extends State<KuryeMobilPaneli> {
                   backgroundColor: Colors.blue,
                   foregroundColor: Colors.white,
                 ),
-                onPressed: (!teslimEdildi && !yolda)
-                    ? () => _siparisDurumuGuncelle(
+                onPressed: (kuryede && !yolda && !teslimEdildi)
+                    ? () async {
+                        debugPrint('YOLA ÇIKTIM');
+
+                        await _siparisDurumuGuncelle(
                           orderId: doc.id,
                           yeniStatus: 'on_the_way',
-                        )
+                        );
+
+                        await KuryeKonumServisi.baslat(
+                          courierId: _aktifKuryeId,
+                        );
+                      }
                     : null,
                 icon: const Icon(Icons.two_wheeler),
                 label: const Text('Yola Çıktım'),
@@ -399,7 +406,10 @@ class _KuryeMobilPaneliState extends State<KuryeMobilPaneli> {
                   foregroundColor: Colors.white,
                 ),
                 onPressed: (yolda && !teslimEdildi)
-                    ? () => _teslimEt(orderId: doc.id)
+                    ? () async {
+                        await _teslimEt(orderId: doc.id);
+                        await KuryeKonumServisi.durdur();
+                      }
                     : null,
                 icon: const Icon(Icons.check_circle),
                 label: const Text('Teslim Ettim'),

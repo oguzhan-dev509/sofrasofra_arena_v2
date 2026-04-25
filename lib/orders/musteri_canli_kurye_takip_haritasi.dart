@@ -10,7 +10,6 @@ class MusteriCanliKuryeTakipHaritasi extends StatelessWidget {
     super.key,
     required this.orderId,
   });
-
   FirebaseFirestore get _firestore => FirebaseFirestore.instance;
 
   double? _toDouble(dynamic value) {
@@ -418,6 +417,30 @@ class MusteriCanliKuryeTakipHaritasi extends StatelessWidget {
                                   'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                               userAgentPackageName: 'com.uybattech.sofrasofra',
                             ),
+                            if (kuryeLat != null && kuryeLng != null)
+                              PolylineLayer(
+                                polylines: [
+                                  // ALT KATMAN (shadow / border)
+                                  Polyline(
+                                    points: [
+                                      LatLng(kuryeLat, kuryeLng),
+                                      LatLng(siparisLat, siparisLng),
+                                    ],
+                                    strokeWidth: 10,
+                                    color: Colors.black.withOpacity(0.6),
+                                  ),
+
+                                  // ÜST KATMAN (altın çizgi)
+                                  Polyline(
+                                    points: [
+                                      LatLng(kuryeLat, kuryeLng),
+                                      LatLng(siparisLat, siparisLng),
+                                    ],
+                                    strokeWidth: 5,
+                                    color: const Color(0xFFFFB300),
+                                  ),
+                                ],
+                              ),
                             MarkerLayer(markers: markers),
                           ],
                         ),

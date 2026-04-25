@@ -27,17 +27,14 @@ class _EvProductGalleryState extends State<EvProductGallery> {
   int _currentIndex = 0;
 
   List<String> get _images {
-    final fallback = widget.fallbackImage.trim();
+    final raw = widget.images ?? [];
 
-    final gallery = ((widget.images ?? <String>[]))
+    final gallery = raw
         .map((e) => e.toString().trim())
         .where((e) => e.isNotEmpty)
-        .where((e) => e != fallback)
-        .where((e) => !e.contains('/cover/') && !e.contains('%2Fcover%2F'))
-        .toList();
+        .toList(growable: false); // 🔥 kritik
 
-    if (fallback.isEmpty) return gallery;
-    return [fallback, ...gallery];
+    return List.unmodifiable(gallery); // 🔥 kilitle
   }
 
   @override

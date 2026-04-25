@@ -1,8 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-
+import 'package:firebase_auth/firebase_auth.dart';
 import '../orders/musteri_siparis_takip_sayfasi.dart';
 import '../services/sepet_service.dart';
+import 'package:cloud_functions/cloud_functions.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class SepetSayfasi extends StatefulWidget {
   const SepetSayfasi({super.key});
@@ -12,7 +14,7 @@ class SepetSayfasi extends StatefulWidget {
 }
 
 class _SepetSayfasiState extends State<SepetSayfasi> {
-  final String userId = 'demo_user';
+  String get userId => FirebaseAuth.instance.currentUser?.uid ?? '';
   bool _siparisOlusturuluyor = false;
 
   static const Color _bg = Color(0xFF070707);
@@ -141,12 +143,30 @@ class _SepetSayfasiState extends State<SepetSayfasi> {
       );
 
       if (!mounted) return;
+      final callable = FirebaseFunctions.instanceFor(
+        region: 'europe-west1',
+      ).httpsCallable('initializeEvOrderPayment');
 
+      final paymentResult = await callable.call({
+        'orderId': orderId,
+      });
+      final data = Map<String, dynamic>.from(paymentResult.data as Map);
+      final checkoutUrl = (data['checkoutUrl'] ?? '').toString();
+
+      if (checkoutUrl.isEmpty) {
+        throw Exception('iyzico checkoutUrl boş geldi.');
+      }
+
+      await launchUrl(
+        Uri.parse(checkoutUrl),
+        webOnlyWindowName: '_self',
+      );
+      debugPrint('EV PAYMENT TEST RESULT: ${paymentResult.data}');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          backgroundColor: _gold,
+          backgroundColor: Colors.orange,
           content: Text(
-            'Sipariş oluşturuldu: $orderId',
+            'Sipariş oluşturuldu, ödeme bekleniyor: $orderId',
             style: const TextStyle(
               color: Colors.black,
               fontWeight: FontWeight.w700,
@@ -155,24 +175,8 @@ class _SepetSayfasiState extends State<SepetSayfasi> {
         ),
       );
 
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (_) => const MusteriSiparisTakipSayfasi(),
-        ),
-      );
-    } catch (e) {
-      if (!mounted) return;
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          backgroundColor: Colors.red.shade700,
-          content: Text(
-            'Sipariş oluşturulamadı: $e',
-            style: const TextStyle(color: Colors.white),
-          ),
-        ),
-      );
+// ÖNEMLİ:
+// Ödeme tamamlanmadan takip sayfasına göndermiyoruz.
     } finally {
       if (mounted) {
         setState(() {

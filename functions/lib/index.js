@@ -36,7 +36,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.initializeChefTablePayment = exports.notifyCustomerWhenCourierAssigned = exports.notifySellerOnNewOrder = exports.iyzicoCallback = void 0;
+exports.evIyzicoCallback = exports.initializeEvOrderPayment = exports.initializeChefTablePayment = exports.notifyCustomerWhenCourierAssigned = exports.notifySellerOnNewOrder = exports.iyzicoCallback = void 0;
 const firestore_1 = require("firebase-functions/v2/firestore");
 const app_1 = require("firebase-admin/app");
 const firestore_2 = require("firebase-admin/firestore");
@@ -484,4 +484,8 @@ exports.initializeChefTablePayment = (0, https_1.onCall)({
         throw new https_1.HttpsError("internal", error?.message ?? "initializeChefTablePayment failed");
     }
 });
+var ev_order_payment_1 = require("./ev_order_payment");
+Object.defineProperty(exports, "initializeEvOrderPayment", { enumerable: true, get: function () { return ev_order_payment_1.initializeEvOrderPayment; } });
+var ev_iyzico_callback_1 = require("./ev_iyzico_callback");
+Object.defineProperty(exports, "evIyzicoCallback", { enumerable: true, get: function () { return ev_iyzico_callback_1.evIyzicoCallback; } });
 //# sourceMappingURL=index.js.map

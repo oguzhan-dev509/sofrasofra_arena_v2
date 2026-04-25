@@ -620,3 +620,5 @@ const iyzicoResponse = await axios.post(
     }
   }
 );
+export { initializeEvOrderPayment } from "./ev_order_payment";
+export { evIyzicoCallback } from "./ev_iyzico_callback";
