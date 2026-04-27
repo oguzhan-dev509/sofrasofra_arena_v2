@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:sofrasofra_arena_v2/firebase_options.dart';
 import 'package:sofrasofra_arena_v2/modules/arena_entry_page.dart';
 import 'package:sofrasofra_arena_v2/dev/academy_brand_kariyer_seed.dart';
+import 'package:sofrasofra_arena_v2/onboarding/onayli_panel_yonlendirici.dart';
 
 const bool shouldRunAcademyBrandCareerBootstrap = false;
 

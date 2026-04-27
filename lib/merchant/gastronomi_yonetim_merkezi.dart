@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sofrasofra_arena_v2/admin/platform_operasyon_merkezi.dart';
 import 'package:sofrasofra_arena_v2/admin/chef_profile_admin_page.dart';
 import 'package:sofrasofra_arena_v2/admin/kurye_atama_motoru.dart';
 import 'package:sofrasofra_arena_v2/admin/kurye_basvurulari.dart';
@@ -17,6 +18,10 @@ import 'package:sofrasofra_arena_v2/dev/academy_master_runner.dart';
 import 'package:sofrasofra_arena_v2/admin/consulting_requests_admin_page.dart';
 import 'package:sofrasofra_arena_v2/modules/chef_brand_career_page.dart';
 import 'package:sofrasofra_arena_v2/modules/workshop_requests_admin_page.dart';
+import 'package:sofrasofra_arena_v2/admin/platform_operasyon_merkezi_sayfasi.dart';
+import 'package:sofrasofra_arena_v2/admin/producer_applications_admin_sayfasi.dart';
+import 'package:sofrasofra_arena_v2/onboarding/onayli_panel_yonlendirici.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class GastronomiYonetimMerkezi extends StatelessWidget {
   final String? chefId;
@@ -368,6 +373,34 @@ class GastronomiYonetimMerkezi extends StatelessWidget {
     ];
 
     final evCards = <_DashboardItem>[
+      _DashboardItem(
+        title: 'Platform Operasyon Merkezi',
+        subtitle:
+            'Tüm platform verilerini tek ekranda takip et: başvurular, siparişler, ödemeler, kuryeler ve abonelikler.',
+        icon: Icons.insights_rounded,
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => const PlatformOperasyonMerkezi(),
+            ),
+          );
+        },
+      ),
+      _DashboardItem(
+        title: 'Başvuru Yönetimi',
+        subtitle:
+            'Ev Lezzetleri ve Usta Şef başvurularını incele, onayla veya reddet.',
+        icon: Icons.assignment_turned_in_rounded,
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => const ProducerApplicationsAdminSayfasi(),
+            ),
+          );
+        },
+      ),
       _DashboardItem(
         title: 'Üretici Yönetim Merkezi',
         subtitle:
@@ -931,76 +964,118 @@ class _DashboardCard extends StatelessWidget {
       child: InkWell(
         onTap: item.onTap,
         borderRadius: BorderRadius.circular(26),
-        child: Ink(
-          decoration: BoxDecoration(
-            color: const Color(0xFF151515),
-            borderRadius: BorderRadius.circular(26),
-            border: Border.all(color: const Color(0x22FFFFFF)),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.24),
-                blurRadius: 20,
-                offset: const Offset(0, 10),
+        child: Stack(
+          children: [
+            Ink(
+              decoration: BoxDecoration(
+                color: const Color(0xFF151515),
+                borderRadius: BorderRadius.circular(26),
+                border: Border.all(color: const Color(0x22FFFFFF)),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.24),
+                    blurRadius: 20,
+                    offset: const Offset(0, 10),
+                  ),
+                ],
               ),
-            ],
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(18),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  width: 52,
-                  height: 52,
-                  decoration: BoxDecoration(
-                    color: _gold.withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: _gold.withValues(alpha: 0.20)),
-                  ),
-                  child: Icon(item.icon, color: _gold, size: 28),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  item.title,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Expanded(
-                  child: Text(
-                    item.subtitle,
-                    style: const TextStyle(
-                      color: Colors.white70,
-                      fontSize: 12.8,
-                      height: 1.5,
+              child: Padding(
+                padding: const EdgeInsets.all(18),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      width: 52,
+                      height: 52,
+                      decoration: BoxDecoration(
+                        color: _gold.withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(16),
+                        border:
+                            Border.all(color: _gold.withValues(alpha: 0.20)),
+                      ),
+                      child: Icon(item.icon, color: _gold, size: 28),
                     ),
-                  ),
-                ),
-                const SizedBox(height: 14),
-                Row(
-                  children: const [
+                    const SizedBox(height: 16),
                     Text(
-                      'Modülü Aç',
-                      style: TextStyle(
-                        color: _gold,
-                        fontSize: 12.5,
+                      item.title,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
                         fontWeight: FontWeight.w800,
                       ),
                     ),
-                    SizedBox(width: 6),
-                    Icon(
-                      Icons.arrow_forward_rounded,
-                      color: _gold,
-                      size: 18,
+                    const SizedBox(height: 8),
+                    Expanded(
+                      child: Text(
+                        item.subtitle,
+                        style: const TextStyle(
+                          color: Colors.white70,
+                          fontSize: 12.8,
+                          height: 1.5,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 14),
+                    Row(
+                      children: const [
+                        Text(
+                          'Modülü Aç',
+                          style: TextStyle(
+                            color: _gold,
+                            fontSize: 12.5,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                        SizedBox(width: 6),
+                        Icon(
+                          Icons.arrow_forward_rounded,
+                          color: _gold,
+                          size: 18,
+                        ),
+                      ],
                     ),
                   ],
                 ),
-              ],
+              ),
             ),
-          ),
+
+            // 🔴 BADGE (SADECE BAŞVURU YÖNETİMİ İÇİN)
+            if (item.title == 'Başvuru Yönetimi')
+              Positioned(
+                top: 10,
+                right: 10,
+                child: StreamBuilder<QuerySnapshot>(
+                  stream: FirebaseFirestore.instance
+                      .collection('producer_applications')
+                      .where('status', isEqualTo: 'submitted')
+                      .snapshots(),
+                  builder: (context, snapshot) {
+                    final count = snapshot.data?.docs.length ?? 0;
+
+                    if (count == 0) return const SizedBox();
+
+                    return Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.redAccent,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Text(
+                        '$count',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+          ],
         ),
       ),
     );

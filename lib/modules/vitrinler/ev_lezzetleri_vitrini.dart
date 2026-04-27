@@ -11,6 +11,7 @@ import 'package:sofrasofra_arena_v2/services/sepet_service.dart';
 import 'package:sofrasofra_arena_v2/merchant/uretici_yonetim_merkezi_sayfasi.dart';
 import 'package:sofrasofra_arena_v2/core/media/urun_gorsel_resolver.dart';
 import 'package:sofrasofra_arena_v2/modules/widgets/sepet_badge.dart';
+import 'package:sofrasofra_arena_v2/onboarding/uretici_basvuru_secim_sayfasi.dart';
 
 class EvLezzetleriVitrini extends StatefulWidget {
   final String city;
@@ -488,9 +489,15 @@ class _EvLezzetleriVitriniState extends State<EvLezzetleriVitrini> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: _gold,
                       foregroundColor: Colors.black,
-                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      elevation: 0,
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 18, vertical: 12),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(14),
+                      ),
+                    ).copyWith(
+                      overlayColor: MaterialStateProperty.all(
+                        Colors.black.withOpacity(0.1),
                       ),
                     ),
                   ),
@@ -728,7 +735,7 @@ class _EvLezzetleriVitriniState extends State<EvLezzetleriVitrini> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (_) => const UreticiYonetimMerkeziSayfasi(),
+                  builder: (_) => const UreticiBasvuruSecimSayfasi(),
                 ),
               );
             },
@@ -766,9 +773,18 @@ class _EvLezzetleriVitriniState extends State<EvLezzetleriVitrini> {
 
           final allDocs = snap.data?.docs ?? [];
 
-          final validDocs = allDocs; // 🔥 TÜM FİLTREYİ BYPASS
+          final validDocs = allDocs.where((doc) {
+            final data = doc.data();
+            return _isValidProduct(data) && _matchesLocation(data);
+          }).toList();
 
-          final docs = allDocs;
+          final docs = validDocs
+              .where((doc) => _matchesSelectedCategory(doc.data()))
+              .toList();
+
+          final categoryDocs = validDocs
+              .where((doc) => _matchesSelectedCategory(doc.data()))
+              .toList();
           if (validDocs.isEmpty) {
             return _CenterInfo(
               icon: Icons.storefront_outlined,
@@ -779,10 +795,10 @@ class _EvLezzetleriVitriniState extends State<EvLezzetleriVitrini> {
           }
 
           final featuredKitchens = _extractFeaturedKitchens(validDocs);
-          final mahalleDocs = _mahalleDocs(docs);
-          final bugunDocs = _bugunDocs(docs);
-          final trendDocs = _trendDocs(docs);
-          final yeniDocs = _yeniDocs(docs);
+          final mahalleDocs = _mahalleDocs(categoryDocs);
+          final bugunDocs = _bugunDocs(categoryDocs);
+          final trendDocs = _trendDocs(categoryDocs);
+          final yeniDocs = _yeniDocs(categoryDocs);
           final dominantDistrict = _dominantDistrict(validDocs);
 
           return LayoutBuilder(
@@ -1458,15 +1474,15 @@ class _KuryeOlBanner extends StatelessWidget {
       width: double.infinity,
       padding: EdgeInsets.all(isMobile ? 16 : 20),
       decoration: BoxDecoration(
+        color: const Color(0xFF090909),
         borderRadius: BorderRadius.circular(24),
-        gradient: const LinearGradient(
-          colors: [_gold, _gold2],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+        border: Border.all(
+          color: const Color(0xFFFFB300),
+          width: 1,
         ),
         boxShadow: const [
           BoxShadow(
-            color: Color(0x55FFB300),
+            color: Color(0x22FFB300),
             blurRadius: 18,
             offset: Offset(0, 8),
           ),
@@ -1498,12 +1514,12 @@ class _KuryeOlBanner extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(11),
           decoration: BoxDecoration(
-            color: Colors.black.withValues(alpha: 0.10),
+            color: const Color(0xFF151515),
             borderRadius: BorderRadius.circular(14),
           ),
           child: const Icon(
             Icons.delivery_dining_rounded,
-            color: Colors.black,
+            color: Color(0xFFFFB300),
             size: 30,
           ),
         ),
@@ -1519,7 +1535,7 @@ class _KuryeOlBanner extends StatelessWidget {
                   Text(
                     'Kurye Ol',
                     style: TextStyle(
-                      color: Colors.black,
+                      color: Colors.white,
                       fontSize: 20,
                       fontWeight: FontWeight.w900,
                     ),
@@ -1531,7 +1547,7 @@ class _KuryeOlBanner extends StatelessWidget {
               Text(
                 'Teslimat ağına katıl, bulunduğun bölgede sipariş taşıyarak gelir elde et.',
                 style: TextStyle(
-                  color: Colors.black87,
+                  color: Colors.white70,
                   fontSize: 13.5,
                   fontWeight: FontWeight.w600,
                   height: 1.35,
@@ -1541,7 +1557,7 @@ class _KuryeOlBanner extends StatelessWidget {
               Text(
                 'Esnek çalışma • Bölgesel teslimat • Hızlı başvuru',
                 style: TextStyle(
-                  color: Colors.black54,
+                  color: Colors.white54,
                   fontSize: 11.5,
                   fontWeight: FontWeight.w700,
                 ),
@@ -1572,8 +1588,8 @@ class _KuryeOlBanner extends StatelessWidget {
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         style: ElevatedButton.styleFrom(
-          backgroundColor: _dark,
-          foregroundColor: Colors.white,
+          backgroundColor: _gold,
+          foregroundColor: Colors.black,
           elevation: 0,
           padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
           shape: RoundedRectangleBorder(

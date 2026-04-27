@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:sofrasofra_arena_v2/modules/kategori_sayfasi.dart';
 
 import '../merchant/uretici_yonetim_merkezi_sayfasi.dart';
+import 'package:sofrasofra_arena_v2/onboarding/onayli_panel_yonlendirici.dart';
 
 class ArenaEntryPage extends StatefulWidget {
   const ArenaEntryPage({super.key});
@@ -318,7 +319,7 @@ class _ArenaEntryPageState extends State<ArenaEntryPage> {
                                     context,
                                     MaterialPageRoute(
                                       builder: (_) =>
-                                          const UreticiYonetimMerkeziSayfasi(),
+                                          const OnayliPanelYonlendirici(),
                                     ),
                                   );
                                 },
@@ -353,7 +354,15 @@ class _ArenaEntryPageState extends State<ArenaEntryPage> {
                                 ),
                               ),
                               ElevatedButton(
-                                onPressed: () {},
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) =>
+                                          const OnayliPanelYonlendirici(),
+                                    ),
+                                  );
+                                },
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: _gold,
                                   foregroundColor: Colors.black,

@@ -86,7 +86,12 @@ export const evIyzicoCallback = onRequest(
         conversationId,
       });
 
-      res.status(200).send("Ev ödeme başarılı");
+   const orderId = orderRef.id;
+
+res.redirect(
+  302,
+  `https://sofrasofra.com/order-success?orderId=${orderId}`
+);
     } catch (error: any) {
       logger.error("❌ evIyzicoCallback ERROR", {
         message: error?.message,

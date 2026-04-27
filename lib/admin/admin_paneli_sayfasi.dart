@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'satici_onay_merkezi.dart';
 import '../firestore_test_page.dart';
+import 'package:sofrasofra_arena_v2/admin/platform_operasyon_merkezi_sayfasi.dart';
 
 class AdminPaneliSayfasi extends StatelessWidget {
   const AdminPaneliSayfasi({super.key});
@@ -63,6 +64,18 @@ class AdminPaneliSayfasi extends StatelessWidget {
             icon: Icons.delivery_dining,
             baslik: 'Kurye Yönetimi',
             aciklama: 'Teslimat modeli, bölge ve operasyon yönetimi.',
+          ),
+          ElevatedButton.icon(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const PlatformOperasyonMerkeziSayfasi(),
+                ),
+              );
+            },
+            icon: const Icon(Icons.insights_rounded),
+            label: const Text('Platform Operasyon Merkezi'),
           ),
           const SizedBox(height: 12),
           _yakindaKart(
