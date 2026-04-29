@@ -178,52 +178,46 @@ class _MetricCard extends StatelessWidget {
     required this.stream,
   });
 
-  static const Color _card = Color(0xFF111111);
-  static const Color _gold = Color(0xFFFFB300);
-  static const Color _border = Color(0x44FFB300);
-
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: 180,
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: _card,
-          borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: _border),
-        ),
-        child: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-          stream: stream,
-          builder: (context, snapshot) {
-            final count = snapshot.data?.docs.length ?? 0;
+    return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+      stream: stream,
+      builder: (context, snapshot) {
+        final count = snapshot.data?.docs.length ?? 0;
 
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Icon(icon, color: _gold),
-                const SizedBox(height: 10),
-                Text(
-                  '$count',
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 22,
-                    fontWeight: FontWeight.w900,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
+        return Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: const Color(0xFF151515),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: const Color(0x33FFB300)),
+          ),
+          child: Row(
+            children: [
+              Icon(icon, color: const Color(0xFFFFB300), size: 28),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
                   title,
                   style: const TextStyle(
-                    color: Colors.white60,
-                    fontSize: 12,
+                    color: Colors.white70,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
-              ],
-            );
-          },
-        ),
-      ),
+              ),
+              Text(
+                '$count',
+                style: const TextStyle(
+                  color: Color(0xFFFFB300),
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

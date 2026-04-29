@@ -6,7 +6,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:sofrasofra_arena_v2/modules/arena_entry_page.dart';
 import 'package:sofrasofra_arena_v2/modules/widgets/global_radio_mini_player.dart';
 import 'package:sofrasofra_arena_v2/services/sofrasofra_radio_service.dart';
-import 'package:flutter/foundation.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -43,10 +42,7 @@ class SofrasofraZirve extends StatelessWidget {
         return Stack(
           children: [
             child ?? const SizedBox.shrink(),
-            const Align(
-              alignment: Alignment.bottomCenter,
-              child: GlobalRadioMiniPlayer(),
-            ),
+            const GlobalRadioMiniPlayer(),
           ],
         );
       },
