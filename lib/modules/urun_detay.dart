@@ -74,14 +74,17 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
   static const Color _chipBg = Color(0xFF151515);
 
   String get _coverImageUrl {
+    final fallback = _liveFallbackImage.trim();
+    if (fallback.isNotEmpty && isHttpUrl(fallback)) return fallback;
+
+    final widgetCover = widget.urunGorsel.trim();
+    if (widgetCover.isNotEmpty && isHttpUrl(widgetCover)) return widgetCover;
+
     if (_galleryImageUrls.isNotEmpty) {
       return _galleryImageUrls.first;
     }
 
-    final fallback = _liveFallbackImage.trim();
-    if (fallback.isNotEmpty) return fallback;
-
-    return widget.urunGorsel.trim();
+    return '';
   }
 
   Future<void> _openStatusNoteDialog() async {
@@ -247,16 +250,21 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
   }
 
   List<String> get _heroSliderImages {
+    final cover = _coverImageUrl;
+
+    final List<String> result = [];
+
+    if (cover.isNotEmpty) {
+      result.add(cover);
+    }
+
     if (_effectiveImages.isNotEmpty) {
-      return _effectiveImages;
+      result.addAll(
+        _effectiveImages.where((e) => e != cover),
+      );
     }
 
-    final fallback = _coverImageUrl;
-    if (fallback.isNotEmpty) {
-      return [fallback];
-    }
-
-    return [];
+    return result;
   }
 
   Future<void> _openPriceEditDialog() async {
@@ -433,9 +441,7 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
   }
 
   bool get _canManageMedia {
-    return widget.isAdmin &&
-        (widget.productId ?? '').trim().isNotEmpty &&
-        (widget.sellerId ?? '').trim().isNotEmpty;
+    return widget.isAdmin && (widget.productId ?? '').trim().isNotEmpty;
   }
 
   List<String> get _effectiveImages {
@@ -501,15 +507,17 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
   }
 
   Future<void> _replaceCoverPhoto() async {
-    if (!_canManageMedia || _mediaBusy) return;
+    if (_mediaBusy) return;
 
     final productId = (widget.productId ?? '').trim();
-    final sellerId = (widget.sellerId ?? '').trim();
+    final sellerId = (widget.sellerId ?? '').trim().isNotEmpty
+        ? (widget.sellerId ?? '').trim()
+        : (FirebaseAuth.instance.currentUser?.uid ?? 'guest');
 
-    if (productId.isEmpty || sellerId.isEmpty) {
+    if (productId.isEmpty) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('productId / sellerId eksik.')),
+        const SnackBar(content: Text('productId eksik.')),
       );
       return;
     }
@@ -526,14 +534,21 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
         bytes: bytes,
       );
 
-      await EvGalleryManager.replaceCoverImage(
-        productId: productId,
-        sellerId: sellerId,
-        existingImages: _galleryOnlyImages,
-        newCoverUrl: url,
-      );
+      await FirebaseFirestore.instance
+          .collection('urunler')
+          .doc(productId)
+          .set({
+        'img': url.trim(),
+        'updatedAt': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
 
       if (!mounted) return;
+
+      setState(() {
+        _liveFallbackImage = url.trim();
+        _selectedGalleryIndex = 0;
+      });
+
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Kapak görseli güncellendi.')),
       );
@@ -550,15 +565,14 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
   }
 
   Future<void> _deleteCoverPhoto() async {
-    if (!_canManageMedia || _mediaBusy) return;
+    if (_mediaBusy) return;
 
     final productId = (widget.productId ?? '').trim();
-    final sellerId = (widget.sellerId ?? '').trim();
 
-    if (productId.isEmpty || sellerId.isEmpty) {
+    if (productId.isEmpty) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('productId / sellerId eksik.')),
+        const SnackBar(content: Text('productId eksik.')),
       );
       return;
     }
@@ -566,13 +580,25 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
     setState(() => _mediaBusy = true);
 
     try {
-      await EvGalleryManager.removeCoverImage(
-        productId: productId,
-        sellerId: sellerId,
-        existingImages: _galleryOnlyImages,
-      );
+      final oldCoverUrl = _liveFallbackImage.trim();
+
+      await FirebaseFirestore.instance
+          .collection('urunler')
+          .doc(productId)
+          .set({
+        'img': '',
+        'updatedAt': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
+
+      await EvGalleryManager.deleteStorageByUrl(oldCoverUrl);
 
       if (!mounted) return;
+
+      setState(() {
+        _liveFallbackImage = '';
+        _selectedGalleryIndex = 0;
+      });
+
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Kapak görseli silindi.')),
       );
@@ -951,15 +977,6 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   if (_canManageMedia) ...[
-                    EvProductMediaAdminBar(
-                      busy: _mediaBusy,
-                      onAddCoverPhoto: _replaceCoverPhoto,
-                      onDeleteCoverPhoto: _deleteCoverPhoto,
-                      onAddGalleryPhoto: _addPhotoToGallery,
-                      onDeleteCurrentGalleryPhoto: _deleteCurrentPhoto,
-                      onSetCurrentAsCover: _setCurrentAsCover,
-                    ),
-                    const SizedBox(height: 10),
                     SizedBox(
                       width: double.infinity,
                       child: OutlinedButton.icon(
@@ -1009,6 +1026,17 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
                   _buildDescriptionCard(),
                   const SizedBox(height: 14),
                   if (_galleryImageUrls.isNotEmpty) ...[
+                    if (_canManageMedia) ...[
+                      EvProductMediaAdminBar(
+                        busy: _mediaBusy,
+                        onAddCoverPhoto: _replaceCoverPhoto,
+                        onDeleteCoverPhoto: _deleteCoverPhoto,
+                        onAddGalleryPhoto: _addPhotoToGallery,
+                        onDeleteCurrentGalleryPhoto: _deleteCurrentPhoto,
+                        onSetCurrentAsCover: _setCurrentAsCover,
+                      ),
+                      const SizedBox(height: 10),
+                    ],
                     _buildGalleryStripCard(),
                     const SizedBox(height: 14),
                   ],
@@ -1029,6 +1057,16 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
       height: 420,
       borderRadius: BorderRadius.circular(0),
       showThumbnails: false,
+      isOwner: true,
+      onAddPhoto: () {
+        debugPrint('GALERI FOTO EKLE TEST');
+      },
+      onDeletePhoto: (index) {
+        debugPrint('GALERI FOTO SIL TEST: $index');
+      },
+      onSetCoverPhoto: (index) {
+        debugPrint('KAPAK YAP TEST: $index');
+      },
       onIndexChanged: (index) {
         if (_selectedGalleryIndex == index) return;
         setState(() {

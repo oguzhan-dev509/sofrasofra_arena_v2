@@ -1,12 +1,12 @@
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:sofrasofra_arena_v2/firebase_options.dart';
-import 'package:sofrasofra_arena_v2/modules/arena_entry_page.dart';
-import 'package:sofrasofra_arena_v2/dev/academy_brand_kariyer_seed.dart';
-import 'package:sofrasofra_arena_v2/onboarding/onayli_panel_yonlendirici.dart';
+import 'package:firebase_core/firebase_core.dart';
 
-const bool shouldRunAcademyBrandCareerBootstrap = false;
+import 'firebase_options.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:sofrasofra_arena_v2/modules/arena_entry_page.dart';
+import 'package:sofrasofra_arena_v2/modules/widgets/global_radio_mini_player.dart';
+import 'package:sofrasofra_arena_v2/services/sofrasofra_radio_service.dart';
+import 'package:flutter/foundation.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -14,26 +14,13 @@ Future<void> main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-
-  try {
-    if (FirebaseAuth.instance.currentUser == null) {
-      final credential = await FirebaseAuth.instance.signInAnonymously();
-      debugPrint('AUTH READY uid=${credential.user?.uid}');
-    } else {
-      debugPrint(
-          'AUTH READY existing uid=${FirebaseAuth.instance.currentUser?.uid}');
-    }
-  } catch (e, st) {
-    debugPrint('AUTH INIT ERROR => $e');
-    debugPrintStack(stackTrace: st);
+  if (FirebaseAuth.instance.currentUser == null) {
+    await FirebaseAuth.instance.signInAnonymously();
   }
 
-  if (shouldRunAcademyBrandCareerBootstrap) {
-    await runAcademyBrandCareerBootstrapOnce(
-      chefId: 'demo_chef_ahmet_usta',
-      chefName: 'Ahmet Usta',
-    );
-  }
+  debugPrint('AUTH READY uid=${FirebaseAuth.instance.currentUser?.uid}');
+  // Mini player'ın boş kalmaması için radyo servisini uygulama açılışında hazırla.
+  SofrasofraRadioService.instance.prepare();
 
   runApp(const SofrasofraZirve());
 }
@@ -44,10 +31,25 @@ class SofrasofraZirve extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      debugShowCheckedModeBanner: false,
       title: 'Sofrasofra Arena',
-      theme: ThemeData.dark(),
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        useMaterial3: true,
+        brightness: Brightness.dark,
+        scaffoldBackgroundColor: Colors.black,
+      ),
       home: const ArenaEntryPage(),
+      builder: (context, child) {
+        return Stack(
+          children: [
+            child ?? const SizedBox.shrink(),
+            const Align(
+              alignment: Alignment.bottomCenter,
+              child: GlobalRadioMiniPlayer(),
+            ),
+          ],
+        );
+      },
     );
   }
 }

@@ -3,6 +3,8 @@ import 'package:sofrasofra_arena_v2/modules/kategori_sayfasi.dart';
 
 import '../merchant/uretici_yonetim_merkezi_sayfasi.dart';
 import 'package:sofrasofra_arena_v2/onboarding/onayli_panel_yonlendirici.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:sofrasofra_arena_v2/modules/widgets/campaign_counter_panel.dart';
 
 class ArenaEntryPage extends StatefulWidget {
   const ArenaEntryPage({super.key});
@@ -21,6 +23,7 @@ class _ArenaEntryPageState extends State<ArenaEntryPage> {
   final Map<String, List<String>> _cityDistricts = const {
     'İstanbul': [
       'Adalar',
+      'Arnavutköy',
       'Ataşehir',
       'Avcılar',
       'Bağcılar',
@@ -33,19 +36,26 @@ class _ArenaEntryPageState extends State<ArenaEntryPage> {
       'Beylikdüzü',
       'Beyoğlu',
       'Büyükçekmece',
+      'Çatalca',
       'Çekmeköy',
+      'Esenler',
       'Esenyurt',
       'Eyüpsultan',
       'Fatih',
+      'Gaziosmanpaşa',
+      'Güngören', // 🔥 SENİN İLÇE
       'Kadıköy',
-      'Kartal',
       'Kağıthane',
+      'Kartal',
       'Küçükçekmece',
       'Maltepe',
       'Pendik',
       'Sancaktepe',
       'Sarıyer',
       'Silivri',
+      'Sultanbeyli',
+      'Sultangazi',
+      'Şile',
       'Şişli',
       'Tuzla',
       'Ümraniye',
@@ -53,28 +63,61 @@ class _ArenaEntryPageState extends State<ArenaEntryPage> {
       'Zeytinburnu',
     ],
     'Ankara': [
+      'Akyurt',
       'Altındağ',
+      'Ayaş',
+      'Bala',
+      'Beypazarı',
+      'Çamlıdere',
       'Çankaya',
+      'Çubuk',
+      'Elmadağ',
       'Etimesgut',
+      'Evren',
+      'Gölbaşı',
+      'Güdül',
+      'Haymana',
+      'Kalecik',
+      'Kazan',
       'Keçiören',
+      'Kızılcahamam',
       'Mamak',
+      'Nallıhan',
+      'Polatlı',
       'Pursaklar',
       'Sincan',
+      'Şereflikoçhisar',
       'Yenimahalle',
     ],
     'İzmir': [
       'Aliağa',
       'Balçova',
+      'Bayındır',
       'Bayraklı',
+      'Bergama',
       'Bornova',
       'Buca',
       'Çeşme',
+      'Çiğli',
+      'Dikili',
+      'Foça',
       'Gaziemir',
+      'Güzelbahçe',
       'Karabağlar',
+      'Karaburun',
       'Karşıyaka',
+      'Kemalpaşa',
+      'Kınık',
+      'Kiraz',
       'Konak',
+      'Menderes',
       'Menemen',
       'Narlıdere',
+      'Ödemiş',
+      'Seferihisar',
+      'Selçuk',
+      'Tire',
+      'Torbalı',
       'Urla',
     ],
     'Bursa': [
@@ -103,7 +146,6 @@ class _ArenaEntryPageState extends State<ArenaEntryPage> {
     'Trabzon': ['Akçaabat', 'Ortahisar', 'Yomra'],
     'Kıbrıs': ['Lefkoşa', 'Girne', 'Gazimağusa', 'İskele', 'Güzelyurt'],
   };
-
   String? _selectedCity;
   String? _selectedDistrict;
 
@@ -154,12 +196,41 @@ class _ArenaEntryPageState extends State<ArenaEntryPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
+                    stream: FirebaseFirestore.instance
+                        .collection('site_settings')
+                        .doc('home_banner')
+                        .snapshots(),
+                    builder: (context, snapshot) {
+                      final data = snapshot.data?.data();
+                      final imageUrl = (data?['imageUrl'] ?? '').toString();
+
+                      if (imageUrl.isEmpty) return const SizedBox.shrink();
+                      return Padding(
+                        padding: const EdgeInsets.fromLTRB(0, 0, 0, 16),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(20),
+                          child: SizedBox(
+                            height: 440,
+                            width: double.infinity,
+                            child: Image.network(
+                              imageUrl,
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
                   Container(
                     padding: const EdgeInsets.all(24),
                     decoration: BoxDecoration(
                       color: _panel,
                       borderRadius: BorderRadius.circular(24),
-                      border: Border.all(color: _gold.withValues(alpha: 0.20)),
+                      border: Border.all(
+                        color: _gold,
+                        width: 1.4,
+                      ),
                     ),
                     child: const Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -173,13 +244,13 @@ class _ArenaEntryPageState extends State<ArenaEntryPage> {
                           ),
                         ),
                         SizedBox(height: 12),
+                        const SizedBox(height: 12),
                         Text(
-                          'Türkiye’nin seçkin gastronomi ağına hoş geldiniz',
+                          'Gerçek üreticiler, gerçek tatlar.',
                           style: TextStyle(
-                            color: _text,
-                            fontSize: 28,
-                            fontWeight: FontWeight.bold,
-                            height: 1.2,
+                            color: Colors.white70,
+                            fontSize: 16,
+                            height: 1.4,
                           ),
                         ),
                         SizedBox(height: 10),
@@ -194,35 +265,7 @@ class _ArenaEntryPageState extends State<ArenaEntryPage> {
                     ),
                   ),
                   const SizedBox(height: 24),
-                  Container(
-                    padding: const EdgeInsets.all(24),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(24),
-                      color: const Color(0xFF2A2114),
-                      border: Border.all(color: _gold.withValues(alpha: 0.30)),
-                    ),
-                    child: const Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'İlk 100 aboneye 1 yıl ücretsiz',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        SizedBox(height: 8),
-                        Text(
-                          '30 gün ücretsiz deneyin',
-                          style: TextStyle(
-                            color: Color(0xFFE6DCCB),
-                            fontSize: 16,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+                  const CampaignCounterPanel(),
                   const SizedBox(height: 24),
                   Container(
                     padding: const EdgeInsets.all(24),
@@ -465,6 +508,63 @@ class _ArenaEntryPageState extends State<ArenaEntryPage> {
               }
             : null,
       ),
+    );
+  }
+}
+
+// =====================
+// BANNER HELPER (EN ALTTA OLACAK)
+// =====================
+class _HomeBannerImage extends StatelessWidget {
+  final String imageUrl;
+
+  const _HomeBannerImage({
+    required this.imageUrl,
+  });
+
+  static const Color _gold = Color(0xFFFFB300);
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        Image.network(
+          imageUrl,
+          fit: BoxFit.cover,
+        ),
+        Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.bottomCenter,
+              end: Alignment.center,
+              colors: [
+                Colors.black.withValues(alpha: 0.7),
+                Colors.transparent,
+              ],
+            ),
+          ),
+        ),
+        Positioned(
+          top: 18,
+          right: 18,
+          child: Text(
+            'SOFRASOFRA.COM',
+            style: TextStyle(
+              color: _gold,
+              fontSize: 14,
+              fontWeight: FontWeight.w900,
+              letterSpacing: 1.4,
+              shadows: [
+                Shadow(
+                  color: Colors.black.withValues(alpha: 0.75),
+                  blurRadius: 8,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

@@ -4,6 +4,8 @@ import 'package:sofrasofra_arena_v2/modules/vitrinler/ev_lezzetleri_vitrini.dart
 import 'package:sofrasofra_arena_v2/modules/vitrinler/restoranlar_vitrini.dart';
 import 'package:sofrasofra_arena_v2/modules/vitrinler/sef_vitrini_v2.dart';
 import 'package:sofrasofra_arena_v2/modules/vitrinler/ev_lezzetleri_vitrini_clean.dart';
+import 'package:sofrasofra_arena_v2/modules/radyo/radyo_merkezi_sayfasi.dart';
+import 'package:sofrasofra_arena_v2/onboarding/uretici_basvuru_secim_sayfasi.dart';
 
 class KategoriSayfasi extends StatefulWidget {
   const KategoriSayfasi({super.key});
@@ -306,7 +308,49 @@ class _KategoriSayfasiState extends State<KategoriSayfasi> {
                           ],
                         ),
                         const SizedBox(height: 28),
-                        _PromoStrip(isMobile: isMobile),
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(20),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF111111),
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(color: const Color(0x44FFB300)),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'Kendi Mutfağınızın Patronu Olun',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w900,
+                                ),
+                              ),
+                              const SizedBox(height: 12),
+                              const Text(
+                                'Ürün sizin, emek sizin.\n'
+                                'Kazanç da sizin olacak.\n\n'
+                                'Sofrasofra’da satış yaptığınız anda, '
+                                'ödemeler gecikmeden hesabınıza aktarılır.\n\n'
+                                'Aracı yok, karmaşa yok.\n'
+                                'Sadece üretin, kazanın.',
+                                style: TextStyle(
+                                  color: Colors.white70,
+                                  height: 1.5,
+                                ),
+                              ),
+                              const SizedBox(height: 12),
+                              const Text(
+                                'Asıl farkı ilk satışınızda göreceksiniz.',
+                                style: TextStyle(
+                                  color: Color(0xFFFFB300),
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                         const SizedBox(height: 20),
                         _RadioComingSoonCard(isMobile: isMobile),
                         const SizedBox(height: 20),
@@ -462,7 +506,6 @@ class _HeroTextBlock extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: const [
-        _GoldChip(label: 'İlk 100 aboneye 1 yıl ücretsiz'),
         SizedBox(height: 16),
         Text(
           'Ev Lezzetlerinden\nUsta Şeflere uzanan\npremium gastronomi platformu',
@@ -1068,37 +1111,28 @@ class _PromoItem extends StatelessWidget {
 class _RadioComingSoonCard extends StatelessWidget {
   final bool isMobile;
 
-  const _RadioComingSoonCard({
-    required this.isMobile,
-  });
+  const _RadioComingSoonCard({required this.isMobile});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.all(isMobile ? 18 : 22),
+      padding: EdgeInsets.all(isMobile ? 18 : 24),
       decoration: BoxDecoration(
+        color: const Color(0xFF111111),
         borderRadius: BorderRadius.circular(28),
-        gradient: const LinearGradient(
-          begin: Alignment.centerLeft,
-          end: Alignment.centerRight,
-          colors: [
-            Color(0xFF16181C),
-            Color(0xFF1A150B),
-          ],
-        ),
-        border: Border.all(color: const Color(0x28FFD54F)),
+        border: Border.all(color: const Color(0x33FFB300)),
       ),
       child: isMobile
-          ? Column(
+          ? const Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
+              children: [
                 _RadioTextBlock(),
-                SizedBox(height: 16),
+                SizedBox(height: 18),
                 _RadioVisual(),
               ],
             )
-          : Row(
-              children: const [
+          : const Row(
+              children: [
                 Expanded(flex: 7, child: _RadioTextBlock()),
                 SizedBox(width: 20),
                 Expanded(flex: 3, child: _RadioVisual()),
@@ -1113,29 +1147,92 @@ class _RadioTextBlock extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: const [
-        _GoldChip(label: 'Yakında: Sofrasofra Radyo'),
-        SizedBox(height: 14),
-        Text(
-          'Dinleyerek öğrenen kullanıcılar için sesli rehber akışı',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 22,
-            fontWeight: FontWeight.w800,
+    return InkWell(
+      borderRadius: BorderRadius.circular(28),
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => const RadyoMerkeziSayfasi(),
           ),
-        ),
-        SizedBox(height: 8),
-        Text(
-          'Platforma nasıl abone olunur, nasıl kullanılır, nasıl satış yapılır gibi kritik alanlar sesli anlatımla desteklenecek.',
-          style: TextStyle(
-            color: Color(0xFFB8BDC7),
-            fontSize: 14.2,
-            height: 1.55,
+        );
+      },
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 42,
+                height: 42,
+                decoration: BoxDecoration(
+                  color: const Color(0x22FFB300),
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(color: const Color(0x55FFB300)),
+                ),
+                child: const Icon(
+                  Icons.mic_rounded,
+                  color: Color(0xFFFFB300),
+                  size: 24,
+                ),
+              ),
+              const SizedBox(width: 10),
+              const Icon(
+                Icons.graphic_eq_rounded,
+                color: Color(0xFFFFB300),
+                size: 22,
+              ),
+              const SizedBox(width: 10),
+              const _GoldChip(label: 'Sofrasofra Radyo'),
+              const SizedBox(width: 8),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: Colors.redAccent,
+                  borderRadius: BorderRadius.circular(999),
+                ),
+                child: const Text(
+                  'CANLI',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 10,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 0.4,
+                  ),
+                ),
+              ),
+            ],
           ),
-        ),
-      ],
+          const SizedBox(height: 14),
+          const Text(
+            'Dinleyerek öğrenen kullanıcılar için sesli rehber akışı',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 22,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            'Platforma nasıl abone olunur, nasıl kullanılır, nasıl satış yapılır gibi kritik alanlar sesli anlatımla desteklenecek.',
+            style: TextStyle(
+              color: Color(0xFFB8BDC7),
+              fontSize: 14.2,
+              height: 1.55,
+            ),
+          ),
+          const SizedBox(height: 12),
+          const Text(
+            'Şu an yayında ▶',
+            style: TextStyle(
+              color: Color(0xFFFFB300),
+              fontSize: 12,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

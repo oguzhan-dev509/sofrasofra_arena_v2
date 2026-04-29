@@ -14,7 +14,18 @@ class SepetSayfasi extends StatefulWidget {
 }
 
 class _SepetSayfasiState extends State<SepetSayfasi> {
-  String get userId => FirebaseAuth.instance.currentUser?.uid ?? '';
+  User? get _user => FirebaseAuth.instance.currentUser;
+  String get _cartId {
+    final user = FirebaseAuth.instance.currentUser;
+
+    if (user != null && user.uid.isNotEmpty) {
+      return user.uid;
+    }
+
+    // 👇 guest kullanıcı
+    return 'guest_cart';
+  }
+
   bool _siparisOlusturuluyor = false;
 
   static const Color _bg = Color(0xFF070707);
@@ -30,9 +41,15 @@ class _SepetSayfasiState extends State<SepetSayfasi> {
   static const Color _dangerBorder = Color(0x55FF6B6B);
 
   Stream<QuerySnapshot<Map<String, dynamic>>> _sepetStream() {
+    final user = _user;
+
+    if (user == null || user.uid.isEmpty) {
+      return const Stream.empty();
+    }
+
     return FirebaseFirestore.instance
         .collection('sepetler')
-        .doc(userId)
+        .doc(user.uid)
         .collection('items')
         .snapshots();
   }
@@ -61,7 +78,7 @@ class _SepetSayfasiState extends State<SepetSayfasi> {
 
     await FirebaseFirestore.instance
         .collection('sepetler')
-        .doc(userId)
+        .doc(_cartId)
         .collection('items')
         .doc(targetDoc.id)
         .update({
@@ -80,7 +97,7 @@ class _SepetSayfasiState extends State<SepetSayfasi> {
 
     final docRef = FirebaseFirestore.instance
         .collection('sepetler')
-        .doc(userId)
+        .doc(_cartId)
         .collection('items')
         .doc(targetDoc.id);
 
@@ -103,7 +120,7 @@ class _SepetSayfasiState extends State<SepetSayfasi> {
 
     await FirebaseFirestore.instance
         .collection('sepetler')
-        .doc(userId)
+        .doc(_cartId)
         .collection('items')
         .doc(targetDoc.id)
         .delete();

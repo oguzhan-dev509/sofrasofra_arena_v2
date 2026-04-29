@@ -8,6 +8,13 @@ class EvProductGallery extends StatefulWidget {
   final BorderRadius borderRadius;
   final ValueChanged<int>? onIndexChanged;
   final bool showThumbnails;
+
+  // Admin opsiyonları
+  final bool isOwner;
+  final VoidCallback? onAddPhoto;
+  final ValueChanged<int>? onDeletePhoto;
+  final ValueChanged<int>? onSetCoverPhoto;
+
   const EvProductGallery({
     super.key,
     this.images,
@@ -16,6 +23,10 @@ class EvProductGallery extends StatefulWidget {
     required this.borderRadius,
     this.onIndexChanged,
     this.showThumbnails = true,
+    this.isOwner = false,
+    this.onAddPhoto,
+    this.onDeletePhoto,
+    this.onSetCoverPhoto,
   });
 
   @override
@@ -26,15 +37,17 @@ class _EvProductGalleryState extends State<EvProductGallery> {
   late final PageController _pageController;
   int _currentIndex = 0;
 
+  static const Color _gold = Color(0xFFFFB300);
+
   List<String> get _images {
     final raw = widget.images ?? [];
 
     final gallery = raw
         .map((e) => e.toString().trim())
         .where((e) => e.isNotEmpty)
-        .toList(growable: false); // 🔥 kritik
+        .toList(growable: false);
 
-    return List.unmodifiable(gallery); // 🔥 kilitle
+    return List.unmodifiable(gallery);
   }
 
   @override
@@ -98,11 +111,27 @@ class _EvProductGalleryState extends State<EvProductGallery> {
         child: InkWell(
           customBorder: const CircleBorder(),
           onTap: onTap,
-          child: Icon(
-            icon,
-            color: Colors.white,
-            size: 28,
-          ),
+          child: Icon(icon, color: Colors.white, size: 28),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildOwnerButton({
+    required IconData icon,
+    required VoidCallback onTap,
+    Color iconColor = Colors.white,
+  }) {
+    return Material(
+      color: Colors.black.withValues(alpha: 0.72),
+      shape: const CircleBorder(),
+      child: InkWell(
+        customBorder: const CircleBorder(),
+        onTap: onTap,
+        child: SizedBox(
+          width: 34,
+          height: 34,
+          child: Icon(icon, color: iconColor, size: 18),
         ),
       ),
     );
@@ -122,7 +151,7 @@ class _EvProductGalleryState extends State<EvProductGallery> {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: isActive ? const Color(0xFFFFB300) : Colors.white24,
+            color: isActive ? _gold : Colors.white24,
             width: isActive ? 2 : 1,
           ),
         ),
@@ -146,21 +175,57 @@ class _EvProductGalleryState extends State<EvProductGallery> {
     );
   }
 
+  Widget _buildEmptyGallery() {
+    return Container(
+      height: widget.height,
+      width: double.infinity,
+      color: const Color(0xFF151515),
+      alignment: Alignment.center,
+      child: widget.isOwner && widget.onAddPhoto != null
+          ? GestureDetector(
+              onTap: widget.onAddPhoto,
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 18,
+                  vertical: 12,
+                ),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF1D1D1D),
+                  borderRadius: BorderRadius.circular(18),
+                  border: Border.all(color: const Color(0x55FFB300)),
+                ),
+                child: const Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.add_photo_alternate_outlined, color: _gold),
+                    SizedBox(width: 8),
+                    Text(
+                      'Fotoğraf ekle',
+                      style: TextStyle(
+                        color: _gold,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            )
+          : const Icon(
+              Icons.image_not_supported_outlined,
+              size: 42,
+              color: Colors.white38,
+            ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final images = _images;
 
     if (images.isEmpty) {
-      return Container(
-        height: widget.height,
-        width: double.infinity,
-        color: const Color(0xFF151515),
-        alignment: Alignment.center,
-        child: const Icon(
-          Icons.image_not_supported_outlined,
-          size: 42,
-          color: Colors.white38,
-        ),
+      return ClipRRect(
+        borderRadius: widget.borderRadius,
+        child: _buildEmptyGallery(),
       );
     }
 
@@ -206,9 +271,7 @@ class _EvProductGalleryState extends State<EvProductGallery> {
                       loadingBuilder: (context, child, loadingProgress) {
                         if (loadingProgress == null) return child;
                         return const Center(
-                          child: CircularProgressIndicator(
-                            color: Color(0xFFFFB300),
-                          ),
+                          child: CircularProgressIndicator(color: _gold),
                         );
                       },
                       errorBuilder: (_, __, ___) => Container(
@@ -248,6 +311,40 @@ class _EvProductGalleryState extends State<EvProductGallery> {
                   icon: Icons.chevron_right,
                   onTap: () => _goToPage(_currentIndex + 1),
                 ),
+              ),
+            ),
+          if (widget.isOwner)
+            Positioned(
+              top: 12,
+              left: 12,
+              child: Row(
+                children: [
+                  if (widget.onAddPhoto != null)
+                    _buildOwnerButton(
+                      icon: Icons.add_photo_alternate_outlined,
+                      iconColor: _gold,
+                      onTap: widget.onAddPhoto!,
+                    ),
+                  if (widget.onAddPhoto != null &&
+                      widget.onSetCoverPhoto != null)
+                    const SizedBox(width: 8),
+                  if (widget.onSetCoverPhoto != null)
+                    _buildOwnerButton(
+                      icon: Icons.star_rounded,
+                      iconColor: _gold,
+                      onTap: () => widget.onSetCoverPhoto!(_currentIndex),
+                    ),
+                ],
+              ),
+            ),
+          if (widget.isOwner && widget.onDeletePhoto != null)
+            Positioned(
+              top: 12,
+              right: images.length > 1 ? 64 : 12,
+              child: _buildOwnerButton(
+                icon: Icons.close_rounded,
+                iconColor: Colors.white,
+                onTap: () => widget.onDeletePhoto!(_currentIndex),
               ),
             ),
           if (images.length > 1)

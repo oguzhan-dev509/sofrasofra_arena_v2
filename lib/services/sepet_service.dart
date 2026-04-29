@@ -7,12 +7,14 @@ import 'otomatik_kurye_atama_servisi.dart';
 class SepetService {
   static final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  static String get _userId {
+  static String get _cartId {
     final user = FirebaseAuth.instance.currentUser;
-    if (user == null) {
-      throw Exception('Kullanıcı oturumu bulunamadı');
+
+    if (user != null && user.uid.isNotEmpty) {
+      return user.uid;
     }
-    return user.uid;
+
+    return 'guest_cart';
   }
 
   static const int _defaultMaxRetryCount = 5;
@@ -27,9 +29,10 @@ class SepetService {
     String? saticiId,
     String? dukkanId,
   }) async {
-    final sepetRef = _firestore.collection('sepetler').doc(_userId);
+    final sepetRef = _firestore.collection('sepetler').doc(_cartId);
     final itemsRef = sepetRef.collection('items');
-
+    debugPrint(
+        'SEPET DEBUG cartId=$_cartId urunId=$urunId saticiId=$saticiId dukkanId=$dukkanId');
     final String finalSaticiId = _normalizeSellerId(
       saticiId ?? dukkanId ?? dukkanAdi,
     );
@@ -93,7 +96,7 @@ class SepetService {
     batch.set(
       sepetRef,
       {
-        'userId': _userId,
+        'userId': _cartId,
         'dukkanId': finalSaticiId,
         'dukkanAd': dukkanAdi,
         'saticiId': finalSaticiId,
@@ -159,7 +162,7 @@ class SepetService {
     double? lng,
     String paymentMethod = 'cash',
   }) async {
-    final sepetRef = _firestore.collection('sepetler').doc(_userId);
+    final sepetRef = _firestore.collection('sepetler').doc(_cartId);
     final sepetSnap = await sepetRef.get();
 
     if (!sepetSnap.exists) {
@@ -217,7 +220,7 @@ class SepetService {
 
     batch.set(orderRef, {
       'siparisNo': siparisNo,
-      'userId': _userId,
+      'userId': _cartId,
       'musteriAd': musteriAd,
       'musteriTelefon': musteriTelefon,
       'teslimatAdresi': teslimatAdresi,
@@ -303,7 +306,7 @@ class SepetService {
     batch.set(sellerOrderRef, {
       'orderId': orderRef.id,
       'siparisNo': siparisNo,
-      'userId': _userId,
+      'userId': _cartId,
       'saticiId': saticiId,
       'saticiAdi': dukkanAdi,
       'status': initialStatus,
@@ -345,7 +348,7 @@ class SepetService {
       'siparisNo': siparisNo,
       'status': initialStatus,
       'actorType': 'system',
-      'actorId': _userId,
+      'actorId': _cartId,
       'note': 'Sipariş oluşturuldu',
       'createdAt': FieldValue.serverTimestamp(),
     });
@@ -397,7 +400,7 @@ class SepetService {
   }
 
   static Future<void> _sepetToplamlariniGuncelle() async {
-    final sepetRef = _firestore.collection('sepetler').doc(_userId);
+    final sepetRef = _firestore.collection('sepetler').doc(_cartId);
     final sepetSnap = await sepetRef.get();
     final sepetData = sepetSnap.data() ?? {};
 
@@ -429,7 +432,7 @@ class SepetService {
         urunSayisi == 0 ? 0 : (araToplam + teslimatUcreti);
 
     await sepetRef.set({
-      'userId': _userId,
+      'userId': _cartId,
       'araToplam': araToplam,
       'teslimatUcreti': teslimatUcreti,
       'genelToplam': genelToplam,

@@ -22,6 +22,9 @@ import 'package:sofrasofra_arena_v2/admin/platform_operasyon_merkezi_sayfasi.dar
 import 'package:sofrasofra_arena_v2/admin/producer_applications_admin_sayfasi.dart';
 import 'package:sofrasofra_arena_v2/onboarding/onayli_panel_yonlendirici.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:sofrasofra_arena_v2/admin/abone_admin_sayfasi.dart';
+import 'package:sofrasofra_arena_v2/admin/mahalle_mutfagi_admin_sayfasi.dart';
+import 'package:sofrasofra_arena_v2/admin/home_banner_admin_sayfasi.dart';
 
 class GastronomiYonetimMerkezi extends StatelessWidget {
   final String? chefId;
@@ -383,6 +386,45 @@ class GastronomiYonetimMerkezi extends StatelessWidget {
             context,
             MaterialPageRoute(
               builder: (_) => const PlatformOperasyonMerkezi(),
+            ),
+          );
+        },
+      ),
+      _DashboardItem(
+        title: 'Abone Yönetimi',
+        subtitle: 'Aboneleri ekle, sil ve yönet',
+        icon: Icons.mark_email_read_rounded,
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => const AboneAdminSayfasi(),
+            ),
+          );
+        },
+      ),
+      _DashboardItem(
+        title: 'Mahalle Mutfağı Admin',
+        subtitle: 'Mutfakları listele, sil, aktif/pasif yap ve öne çıkar.',
+        icon: Icons.store_mall_directory_rounded,
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => const MahalleMutfagiAdminSayfasi(),
+            ),
+          );
+        },
+      ),
+      _DashboardItem(
+        title: 'Ana Banner Yönetimi',
+        subtitle: 'Ana giriş üst fotoğrafını ekle, değiştir veya kaldır.',
+        icon: Icons.image_rounded,
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => const HomeBannerAdminSayfasi(),
             ),
           );
         },

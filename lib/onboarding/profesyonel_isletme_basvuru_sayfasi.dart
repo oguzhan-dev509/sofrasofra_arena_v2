@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:sofrasofra_arena_v2/services/campaign_service.dart';
 
 class ProfesyonelIsletmeBasvuruSayfasi extends StatefulWidget {
   const ProfesyonelIsletmeBasvuruSayfasi({super.key});
@@ -82,8 +83,9 @@ class _ProfesyonelIsletmeBasvuruSayfasiState
         'updatedAt': FieldValue.serverTimestamp(),
       });
 
-      if (!mounted) return;
+      await CampaignService.decreaseQuota('sef');
 
+      if (!mounted) return;
       _showSnack('Usta Şef / Restoran başvurunuz alındı.');
       Navigator.pop(context);
     } catch (e) {

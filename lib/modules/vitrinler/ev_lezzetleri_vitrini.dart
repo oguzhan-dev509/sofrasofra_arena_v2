@@ -372,7 +372,12 @@ class _EvLezzetleriVitriniState extends State<EvLezzetleriVitrini> {
           konum: konum,
           youtubeUrl: (data['youtubeUrl'] ?? data['videoUrl'] ?? '').toString(),
           productId: doc.id,
-          sellerId: (data['dukkanId'] ?? data['sellerId'] ?? '').toString(),
+          sellerId: (data['dukkanId'] ??
+                  data['sellerId'] ??
+                  data['ownerId'] ??
+                  data['uid'] ??
+                  '')
+              .toString(),
           isAdmin: true,
         ),
       ),

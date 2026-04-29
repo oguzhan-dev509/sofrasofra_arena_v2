@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:flutter/foundation.dart';
 
 class EvGalleryManager {
   EvGalleryManager._();
@@ -94,7 +95,8 @@ class EvGalleryManager {
     required Uint8List bytes,
   }) async {
     final fileName = '${DateTime.now().millisecondsSinceEpoch}.jpg';
-
+    debugPrint(
+        'STORAGE DEBUG gallery sellerId=$sellerId productId=$productId bytes=${bytes.length}');
     final ref = FirebaseStorage.instance
         .ref()
         .child('urunler')

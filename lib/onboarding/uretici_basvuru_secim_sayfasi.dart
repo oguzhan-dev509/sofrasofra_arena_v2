@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 import 'ev_lezzetleri_basvuru_sayfasi.dart';
@@ -8,6 +9,36 @@ class UreticiBasvuruSecimSayfasi extends StatelessWidget {
 
   static const Color _bg = Color(0xFF090909);
   static const Color _gold = Color(0xFFFFB300);
+
+  Future<void> _openIfQuotaAvailable({
+    required BuildContext context,
+    required String field,
+    required String fullMessage,
+    required Widget page,
+  }) async {
+    final doc = await FirebaseFirestore.instance
+        .collection('campaignSettings')
+        .doc('main')
+        .get();
+
+    final data = doc.data() ?? {};
+    final kalan = data[field] ?? 0;
+
+    if (kalan <= 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(fullMessage),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => page),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -61,14 +92,12 @@ class UreticiBasvuruSecimSayfasi extends StatelessWidget {
                     'Şehir / ilçe / mutfak adı',
                     'Onay sonrası Ürün Ekle sayfasına geçiş',
                   ],
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const EvLezzetleriBasvuruSayfasi(),
-                      ),
-                    );
-                  },
+                  onTap: () => _openIfQuotaAvailable(
+                    context: context,
+                    field: 'evKalan',
+                    fullMessage: 'Ev Lezzetleri kontenjanı doldu.',
+                    page: const EvLezzetleriBasvuruSayfasi(),
+                  ),
                 ),
                 const SizedBox(height: 16),
                 _ChoiceCard(
@@ -81,15 +110,12 @@ class UreticiBasvuruSecimSayfasi extends StatelessWidget {
                     'Vergi levhası ve IBAN',
                     'Onay sonrası şef/restoran yönetim paneli',
                   ],
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) =>
-                            const ProfesyonelIsletmeBasvuruSayfasi(),
-                      ),
-                    );
-                  },
+                  onTap: () => _openIfQuotaAvailable(
+                    context: context,
+                    field: 'sefKalan',
+                    fullMessage: 'Usta Şef kontenjanı doldu.',
+                    page: const ProfesyonelIsletmeBasvuruSayfasi(),
+                  ),
                 ),
               ],
             ),

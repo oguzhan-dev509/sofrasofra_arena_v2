@@ -1,8 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-
+import 'package:sofrasofra_arena_v2/services/campaign_service.dart';
 import 'package:sofrasofra_arena_v2/modules/common/basvuru_alindi_sayfasi.dart';
+import 'package:sofrasofra_arena_v2/services/campaign_service.dart';
 
 class EvLezzetleriBasvuruSayfasi extends StatefulWidget {
   const EvLezzetleriBasvuruSayfasi({super.key});
@@ -23,6 +24,7 @@ class _EvLezzetleriBasvuruSayfasiState
 
   final _adSoyadCtrl = TextEditingController();
   final _telefonCtrl = TextEditingController();
+  final _ibanCtrl = TextEditingController();
   final _sehirCtrl = TextEditingController();
   final _ilceCtrl = TextEditingController();
   final _mutfakAdiCtrl = TextEditingController();
@@ -35,6 +37,7 @@ class _EvLezzetleriBasvuruSayfasiState
   void dispose() {
     _adSoyadCtrl.dispose();
     _telefonCtrl.dispose();
+    _ibanCtrl.dispose();
     _sehirCtrl.dispose();
     _ilceCtrl.dispose();
     _mutfakAdiCtrl.dispose();
@@ -67,6 +70,7 @@ class _EvLezzetleriBasvuruSayfasiState
         'riskLevel': 'unknown',
         'adSoyad': _adSoyadCtrl.text.trim(),
         'telefon': _telefonCtrl.text.trim(),
+        'iban': _ibanCtrl.text.trim().replaceAll(' ', '').toUpperCase(),
         'sehir': _sehirCtrl.text.trim().toUpperCase(),
         'ilce': _ilceCtrl.text.trim().toUpperCase(),
         'mutfakAdi': _mutfakAdiCtrl.text.trim(),
@@ -75,6 +79,9 @@ class _EvLezzetleriBasvuruSayfasiState
         'createdAt': FieldValue.serverTimestamp(),
         'updatedAt': FieldValue.serverTimestamp(),
       });
+
+      await CampaignService.decreaseQuota('ev');
+
       if (!mounted) return;
 
       Navigator.pushReplacement(
@@ -114,6 +121,25 @@ class _EvLezzetleriBasvuruSayfasiState
     if (value == null || value.trim().isEmpty) {
       return 'Bu alan zorunlu.';
     }
+
+    return null;
+  }
+
+  String? _ibanValidator(String? value) {
+    final iban = (value ?? '').trim().replaceAll(' ', '').toUpperCase();
+
+    if (iban.isEmpty) {
+      return 'IBAN zorunlu.';
+    }
+
+    if (!iban.startsWith('TR')) {
+      return 'IBAN TR ile başlamalı.';
+    }
+
+    if (iban.length != 26) {
+      return 'IBAN 26 karakter olmalı.';
+    }
+
     return null;
   }
 
@@ -175,6 +201,14 @@ class _EvLezzetleriBasvuruSayfasiState
                         icon: Icons.phone_rounded,
                         keyboardType: TextInputType.phone,
                         validator: _required,
+                      ),
+                      _field(
+                        controller: _ibanCtrl,
+                        label: 'IBAN',
+                        hint: 'TR...',
+                        icon: Icons.account_balance_rounded,
+                        keyboardType: TextInputType.text,
+                        validator: _ibanValidator,
                       ),
                       _field(
                         controller: _sehirCtrl,
