@@ -22,9 +22,9 @@ class RadioProgram {
 
     return RadioProgram(
       id: doc.id,
-      title: (data['title'] ?? '').toString(),
-      audioUrl: (data['audioUrl'] ?? '').toString(),
-      kategori: (data['kategori'] ?? 'genel').toString(),
+      title: (data['title'] ?? '').toString().trim(),
+      audioUrl: (data['audioUrl'] ?? '').toString().trim(),
+      kategori: (data['kategori'] ?? 'genel').toString().trim(),
       order: data['order'] is int ? data['order'] as int : 999,
     );
   }
@@ -43,8 +43,8 @@ class SofrasofraRadioService {
 
   bool _prepared = false;
 
-  Future<void> prepare() async {
-    if (_prepared || loading.value) return;
+  Future<void> prepare({bool forceRefresh = false}) async {
+    if (!forceRefresh && (_prepared || loading.value)) return;
 
     try {
       loading.value = true;
@@ -68,10 +68,14 @@ class SofrasofraRadioService {
 
       final sources = items.map((program) {
         return AudioSource.uri(
-          Uri.parse(program.audioUrl),
+          Uri.parse(program.audioUrl.trim()),
           tag: program.title,
         );
       }).toList();
+
+      if (forceRefresh) {
+        await player.stop();
+      }
 
       await player.setAudioSource(
         ConcatenatingAudioSource(children: sources),
@@ -81,6 +85,11 @@ class SofrasofraRadioService {
     } finally {
       loading.value = false;
     }
+  }
+
+  Future<void> refresh() async {
+    _prepared = false;
+    await prepare(forceRefresh: true);
   }
 
   Future<void> playProgram(int index) async {

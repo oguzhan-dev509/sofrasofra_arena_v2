@@ -13,7 +13,7 @@ class RestoranComingSoonPage extends StatelessWidget {
           /// 🔥 FULLSCREEN GÖRSEL
           Positioned.fill(
             child: Image.asset(
-              'assets/Gemini_Generated_Image_wel0cmwel0cmwel0.png',
+              'assets/restoranlar_kurye_lansman.png',
               fit: BoxFit.cover,
               errorBuilder: (context, error, stackTrace) {
                 return Container(

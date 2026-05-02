@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:sofrasofra_arena_v2/modules/kategori_sayfasi.dart';
 
-import '../merchant/uretici_yonetim_merkezi_sayfasi.dart';
 import 'package:sofrasofra_arena_v2/onboarding/onayli_panel_yonlendirici.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:sofrasofra_arena_v2/modules/widgets/campaign_counter_panel.dart';
+
+import 'package:sofrasofra_arena_v2/modules/widgets/kurumsal_footer_links.dart';
 
 class ArenaEntryPage extends StatefulWidget {
   const ArenaEntryPage({super.key});
@@ -246,7 +247,7 @@ class _ArenaEntryPageState extends State<ArenaEntryPage> {
                         SizedBox(height: 12),
                         const SizedBox(height: 12),
                         Text(
-                          'Gerçek üreticiler, gerçek tatlar.',
+                          'Evde pişen emek, mahallede değer bulur.',
                           style: TextStyle(
                             color: Colors.white70,
                             fontSize: 16,
@@ -255,7 +256,7 @@ class _ArenaEntryPageState extends State<ArenaEntryPage> {
                         ),
                         SizedBox(height: 10),
                         Text(
-                          'Ev Lezzetleri, Usta Şefler ve Restoranlar için güçlü bir platform.',
+                          'Sofrasofra Arena; Ev Lezzetleri, Usta Şefler, Restoranlar, Kurye Ağı ve Mahalle Mutfak Ağı’nı aynı güvenli gastronomi çatısı altında buluşturur.',
                           style: TextStyle(
                             color: _muted,
                             fontSize: 16,
@@ -415,6 +416,9 @@ class _ArenaEntryPageState extends State<ArenaEntryPage> {
                             ],
                           ),
                   ),
+                  const SizedBox(height: 28),
+                  const KurumsalFooterLinks(),
+                  const SizedBox(height: 90),
                 ],
               ),
             ),

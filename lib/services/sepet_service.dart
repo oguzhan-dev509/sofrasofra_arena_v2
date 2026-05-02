@@ -2,8 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 
-import 'otomatik_kurye_atama_servisi.dart';
-
 class SepetService {
   static final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
@@ -26,6 +24,9 @@ class SepetService {
     required String kategori,
     required String img,
     required double fiyat,
+    double? gelAlFiyat,
+    double? goturFiyat,
+    String teslimatTipi = 'gel_al',
     String? saticiId,
     String? dukkanId,
   }) async {
@@ -123,8 +124,15 @@ class SepetService {
         'dukkan': dukkanAdi,
         'kategori': kategori,
         'img': img,
-        'fiyat': fiyat,
-        'birimFiyat': fiyat,
+        'fiyat': teslimatTipi == 'gotur'
+            ? (goturFiyat ?? fiyat)
+            : (gelAlFiyat ?? fiyat),
+        'birimFiyat': teslimatTipi == 'gotur'
+            ? (goturFiyat ?? fiyat)
+            : (gelAlFiyat ?? fiyat),
+        'gelAlFiyat': gelAlFiyat ?? fiyat,
+        'goturFiyat': goturFiyat ?? fiyat,
+        'teslimatTipi': teslimatTipi,
         'adet': mevcutAdet + 1,
         'saticiId': finalSaticiId,
         'addedAt': FieldValue.serverTimestamp(),
@@ -139,8 +147,15 @@ class SepetService {
         'dukkan': dukkanAdi,
         'kategori': kategori,
         'img': img,
-        'fiyat': fiyat,
-        'birimFiyat': fiyat,
+        'fiyat': teslimatTipi == 'gotur'
+            ? (goturFiyat ?? fiyat)
+            : (gelAlFiyat ?? fiyat),
+        'birimFiyat': teslimatTipi == 'gotur'
+            ? (goturFiyat ?? fiyat)
+            : (gelAlFiyat ?? fiyat),
+        'gelAlFiyat': gelAlFiyat ?? fiyat,
+        'goturFiyat': goturFiyat ?? fiyat,
+        'teslimatTipi': teslimatTipi,
         'adet': 1,
         'saticiId': finalSaticiId,
         'addedAt': FieldValue.serverTimestamp(),
@@ -161,6 +176,7 @@ class SepetService {
     double? lat,
     double? lng,
     String paymentMethod = 'cash',
+    Map<String, dynamic>? finance,
   }) async {
     final sepetRef = _firestore.collection('sepetler').doc(_cartId);
     final sepetSnap = await sepetRef.get();
@@ -284,7 +300,17 @@ class SepetService {
       'teslimatUcreti': teslimatUcreti,
       'genelToplam': genelToplam,
       'urunSayisi': urunSayisi,
-
+// Finance
+      'finance': finance ?? <String, dynamic>{},
+      'productTotal': finance?['productTotal'] ?? araToplam,
+      'deliveryFee': finance?['deliveryFee'] ?? teslimatUcreti,
+      'customerTotalPayment': finance?['customerTotalPayment'] ?? genelToplam,
+      'producerNetAmount': finance?['producerNetAmount'] ?? araToplam,
+      'courierNetAmount': finance?['courierNetAmount'] ?? teslimatUcreti,
+      'platformTotalRevenue': finance?['platformTotalRevenue'] ?? 0,
+      'paymentProcessingFee': finance?['paymentProcessingFee'] ?? 0,
+      'producerCommissionAmount': finance?['producerCommissionAmount'] ?? 0,
+      'courierCommissionAmount': finance?['courierCommissionAmount'] ?? 0,
       // Location
       'lat': lat,
       'lng': lng,
@@ -317,6 +343,12 @@ class SepetService {
       'teslimatUcreti': teslimatUcreti,
       'genelToplam': genelToplam,
       'urunSayisi': urunSayisi,
+      // Finance
+      'finance': finance ?? <String, dynamic>{},
+      'producerNetAmount': finance?['producerNetAmount'] ?? araToplam,
+      'platformTotalRevenue': finance?['platformTotalRevenue'] ?? 0,
+      'paymentProcessingFee': finance?['paymentProcessingFee'] ?? 0,
+      'producerCommissionAmount': finance?['producerCommissionAmount'] ?? 0,
       'createdAt': FieldValue.serverTimestamp(),
       'updatedAt': FieldValue.serverTimestamp(),
     });

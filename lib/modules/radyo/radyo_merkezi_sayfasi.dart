@@ -82,6 +82,21 @@ class _RadyoMerkeziSayfasiState extends State<RadyoMerkeziSayfasi> {
     }
   }
 
+  Future<void> _refreshPrograms() async {
+    try {
+      await _radio.refresh();
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Yayın listesi yenilenemedi: $e'),
+          backgroundColor: Colors.redAccent,
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -122,7 +137,23 @@ class _RadyoMerkeziSayfasiState extends State<RadyoMerkeziSayfasi> {
                       setState(() => _selectedCategory = value);
                     },
                   ),
-                  const SizedBox(height: 18),
+                  const SizedBox(height: 12),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: TextButton.icon(
+                      onPressed: loading ? null : _refreshPrograms,
+                      icon: const Icon(Icons.refresh_rounded, size: 18),
+                      label: const Text('Yayınları Yenile'),
+                      style: TextButton.styleFrom(
+                        foregroundColor: _gold,
+                        textStyle: const TextStyle(
+                          fontWeight: FontWeight.w800,
+                          fontSize: 13,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
                   _NowPlayingCard(radio: _radio),
                   const SizedBox(height: 18),
                   _ProgramList(
@@ -452,7 +483,7 @@ class _ProgramList extends StatelessWidget {
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
-                                  _categoryLabel(program.kategori),
+                                  '${_categoryLabel(program.kategori)} • Sıra ${program.order}',
                                   style: const TextStyle(
                                     color: Colors.white54,
                                     fontSize: 12,
@@ -462,11 +493,36 @@ class _ProgramList extends StatelessWidget {
                               ],
                             ),
                           ),
-                          if (selected)
-                            const Icon(
-                              Icons.volume_up_rounded,
-                              color: _gold,
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 7),
+                            decoration: BoxDecoration(
+                              color: selected ? _gold : Colors.transparent,
+                              borderRadius: BorderRadius.circular(999),
+                              border: Border.all(color: _gold),
                             ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  selected
+                                      ? Icons.volume_up_rounded
+                                      : Icons.play_arrow_rounded,
+                                  color: selected ? Colors.black : _gold,
+                                  size: 16,
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  selected ? 'Çalıyor' : 'Dinle',
+                                  style: TextStyle(
+                                    color: selected ? Colors.black : _gold,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w900,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                         ],
                       ),
                     ),

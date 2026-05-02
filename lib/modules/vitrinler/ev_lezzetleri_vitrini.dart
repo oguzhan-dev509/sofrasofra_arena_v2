@@ -8,8 +8,7 @@ import 'package:sofrasofra_arena_v2/modules/urun_detay.dart';
 
 import 'package:sofrasofra_arena_v2/modules/widgets/ev_lezzetleri_cards.dart';
 import 'package:sofrasofra_arena_v2/services/sepet_service.dart';
-import 'package:sofrasofra_arena_v2/merchant/uretici_yonetim_merkezi_sayfasi.dart';
-import 'package:sofrasofra_arena_v2/core/media/urun_gorsel_resolver.dart';
+
 import 'package:sofrasofra_arena_v2/modules/widgets/sepet_badge.dart';
 import 'package:sofrasofra_arena_v2/onboarding/uretici_basvuru_secim_sayfasi.dart';
 
@@ -618,16 +617,7 @@ class _EvLezzetleriVitriniState extends State<EvLezzetleriVitrini> {
             itemBuilder: (context, index) {
               final doc = docs[index];
               final data = doc.data();
-              final List<String> cardImages = ((data['images'] as List?) ?? [])
-                  .map((e) => e.toString().trim())
-                  .where((e) => e.isNotEmpty)
-                  .toList();
 
-              final String cardImage = cardImages.isNotEmpty
-                  ? cardImages.first
-                  : (data['img'] ?? data['imgUrl'] ?? data['resim'] ?? '')
-                      .toString()
-                      .trim();
               final String ad = _safeText(
                 data['ad'] ?? data['urunAdi'] ?? data['yemekAdi'],
               );

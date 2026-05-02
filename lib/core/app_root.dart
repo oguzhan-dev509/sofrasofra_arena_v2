@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:sofrasofra_arena_v2/modules/arena_entry_page.dart';
 import '../modules/user_reservations_page.dart';
 import '../modules/create_reservation_page.dart';
 
@@ -16,7 +17,7 @@ class _AppRootState extends State<AppRoot> {
   @override
   Widget build(BuildContext context) {
     final pages = [
-      AnaSayfa(),
+      const ArenaEntryPage(),
       UserReservationsPage(),
       const CreateReservationPage(
         chefId: 'RhkyTCD5TgWJFdEzP50mvCOrz5a2',

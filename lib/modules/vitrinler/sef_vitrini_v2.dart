@@ -127,7 +127,7 @@ class SefVitriniV2 extends StatelessWidget {
                   crossAxisCount: crossAxisCount,
                   mainAxisSpacing: 18,
                   crossAxisSpacing: 18,
-                  childAspectRatio: width >= 1100 ? 0.78 : 0.82,
+                  mainAxisExtent: width >= 1100 ? 465 : 465,
                 ),
                 itemBuilder: (context, index) {
                   final item = items[index];

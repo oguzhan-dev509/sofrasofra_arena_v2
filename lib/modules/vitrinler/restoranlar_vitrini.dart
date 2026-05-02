@@ -85,7 +85,29 @@ class _RestoranlarVitriniState extends State<RestoranlarVitrini> {
                   'createdAt': FieldValue.serverTimestamp(),
                   'updatedAt': FieldValue.serverTimestamp(),
                 });
+                final campaignRef = FirebaseFirestore.instance
+                    .collection('siteSettings')
+                    .doc('campaign');
 
+                await FirebaseFirestore.instance
+                    .runTransaction((transaction) async {
+                  final campaignSnap = await transaction.get(campaignRef);
+                  final campaignData = campaignSnap.data();
+
+                  final current = campaignData?['restoranKalan'];
+                  final kalan = current is int ? current : 100;
+
+                  final yeniKalan = kalan > 0 ? kalan - 1 : 0;
+
+                  transaction.set(
+                    campaignRef,
+                    {
+                      'restoranKalan': yeniKalan,
+                      'updatedAt': FieldValue.serverTimestamp(),
+                    },
+                    SetOptions(merge: true),
+                  );
+                });
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
                     content: Text('Kaydınız alındı 🚀'),
@@ -108,10 +130,10 @@ class _RestoranlarVitriniState extends State<RestoranlarVitrini> {
                 borderRadius: BorderRadius.circular(20),
               ),
               title: const Text(
-                'İlk Açılıştan Haberdar Ol',
+                'Kurucu Restoran Üyeliği',
                 style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
+                  color: _gold,
+                  fontWeight: FontWeight.w900,
                 ),
               ),
               content: SizedBox(
@@ -119,6 +141,16 @@ class _RestoranlarVitriniState extends State<RestoranlarVitrini> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
+                    const Text(
+                      'İlk 100 kurucu restoran arasına katılın, 1 yıl ücretsiz avantaj ve erken görünürlük fırsatını yakalayın.',
+                      style: TextStyle(
+                        color: Colors.white70,
+                        fontSize: 13.5,
+                        height: 1.4,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
                     TextField(
                       controller: _nameController,
                       style: const TextStyle(color: Colors.white),
@@ -223,7 +255,7 @@ class _RestoranlarVitriniState extends State<RestoranlarVitrini> {
         children: [
           Positioned.fill(
             child: Image.asset(
-              'assets/restoran_bg.jpg',
+              'assets/restoranlar_kurye_lansman.png',
               fit: BoxFit.cover,
               alignment: Alignment.center,
               filterQuality: FilterQuality.low,
@@ -245,104 +277,170 @@ class _RestoranlarVitriniState extends State<RestoranlarVitrini> {
             ),
           ),
           Align(
-            alignment: Alignment.bottomCenter,
+            alignment: const Alignment(-0.92, -0.18),
             child: SingleChildScrollView(
-              padding: const EdgeInsets.fromLTRB(24, 24, 24, 40),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 14,
-                      vertical: 8,
+              padding: const EdgeInsets.fromLTRB(34, 24, 24, 40),
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 470),
+                child: Container(
+                  padding: const EdgeInsets.all(18),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withValues(alpha: 0.28),
+                    borderRadius: BorderRadius.circular(28),
+                    border: Border.all(
+                      color: _gold.withValues(alpha: 0.28),
                     ),
-                    decoration: BoxDecoration(
-                      color: _gold.withValues(alpha: 0.14),
-                      borderRadius: BorderRadius.circular(999),
-                      border: Border.all(
-                        color: _gold.withValues(alpha: 0.35),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.24),
+                        blurRadius: 18,
+                        offset: const Offset(0, 10),
                       ),
-                    ),
-                    child: const Text(
-                      'ÇOK YAKINDA',
-                      style: TextStyle(
-                        color: _gold,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w700,
-                        letterSpacing: 1.4,
+                    ],
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Wrap(
+                        spacing: 10,
+                        runSpacing: 10,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 14,
+                              vertical: 8,
+                            ),
+                            decoration: BoxDecoration(
+                              color: _gold.withValues(alpha: 0.14),
+                              borderRadius: BorderRadius.circular(999),
+                              border: Border.all(
+                                color: _gold.withValues(alpha: 0.45),
+                              ),
+                            ),
+                            child: const Text(
+                              'İlk 100 Kurucu Restoran',
+                              style: TextStyle(
+                                color: _gold,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w900,
+                                letterSpacing: 0.6,
+                              ),
+                            ),
+                          ),
+                          StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
+                            stream: FirebaseFirestore.instance
+                                .collection('siteSettings')
+                                .doc('campaign')
+                                .snapshots(),
+                            builder: (context, snapshot) {
+                              final data = snapshot.data?.data();
+                              final kalan = data?['restoranKalan'] ?? 100;
+
+                              return Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 14,
+                                  vertical: 8,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: _gold,
+                                  borderRadius: BorderRadius.circular(999),
+                                ),
+                                child: Text(
+                                  '$kalan Kaldı',
+                                  style: const TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w900,
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ],
                       ),
-                    ),
-                  ),
-                  const SizedBox(height: 18),
-                  const Text(
-                    'Çok Yakında Hizmetinizde',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 34,
-                      fontWeight: FontWeight.bold,
-                      height: 1.15,
-                      shadows: [
-                        Shadow(
-                          color: Colors.black54,
-                          blurRadius: 20,
-                          offset: Offset(0, 6),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 18),
-                  const Text(
-                    'Ürün sizin. Emek sizin. Kazanç sizin.\n\n'
-                    'Tahsilat aynı gün hesabınızda.\n'
-                    'Asıl farkı ise ilk açılışta göreceksiniz.',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 18,
-                      height: 1.6,
-                      shadows: [
-                        Shadow(
-                          color: Colors.black45,
-                          blurRadius: 10,
-                          offset: Offset(0, 3),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 28),
-                  MouseRegion(
-                    cursor: SystemMouseCursors.click,
-                    child: GestureDetector(
-                      onTap: _openWaitlistDialog,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 22,
-                          vertical: 14,
-                        ),
-                        decoration: BoxDecoration(
-                          color: _gold,
-                          borderRadius: BorderRadius.circular(14),
-                          boxShadow: [
-                            BoxShadow(
-                              color: _gold.withValues(alpha: 0.5),
-                              blurRadius: 30,
-                              offset: const Offset(0, 12),
+                      const SizedBox(height: 20),
+                      const Text(
+                        'Restoranlar Çok Yakında Sofrasofra’da',
+                        textAlign: TextAlign.left,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 34,
+                          fontWeight: FontWeight.w900,
+                          height: 1.12,
+                          shadows: [
+                            Shadow(
+                              color: Colors.black54,
+                              blurRadius: 20,
+                              offset: Offset(0, 6),
                             ),
                           ],
                         ),
-                        child: const Text(
-                          'İlk Açılıştan Haberdar Ol',
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 14,
+                      ),
+                      const SizedBox(height: 16),
+                      const Text(
+                        'Ürün sizin, emek sizin, kazanç sizin.',
+                        textAlign: TextAlign.left,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 23,
+                          fontWeight: FontWeight.w900,
+                          height: 1.25,
+                          shadows: [
+                            Shadow(
+                              color: Colors.black45,
+                              blurRadius: 12,
+                              offset: Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 14),
+                      const Text(
+                        'Kurucu restoranlar için 1 yıl ücretsiz avantaj ve erken görünürlük fırsatı.',
+                        textAlign: TextAlign.left,
+                        style: TextStyle(
+                          color: Colors.white70,
+                          fontSize: 16,
+                          height: 1.45,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                      MouseRegion(
+                        cursor: SystemMouseCursors.click,
+                        child: GestureDetector(
+                          onTap: _openWaitlistDialog,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 22,
+                              vertical: 15,
+                            ),
+                            decoration: BoxDecoration(
+                              color: _gold,
+                              borderRadius: BorderRadius.circular(16),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: _gold.withValues(alpha: 0.45),
+                                  blurRadius: 26,
+                                  offset: const Offset(0, 12),
+                                ),
+                              ],
+                            ),
+                            child: const Text(
+                              '1 Yıl Ücretsiz Katıl',
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontWeight: FontWeight.w900,
+                                fontSize: 15,
+                              ),
+                            ),
                           ),
                         ),
                       ),
-                    ),
+                    ],
                   ),
-                ],
+                ),
               ),
             ),
           ),

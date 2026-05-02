@@ -33,8 +33,8 @@ class CampaignCounterPanel extends StatelessWidget {
                   Expanded(
                     child: _CampaignCard(
                       title: 'Ev Lezzetleri',
-                      headline: 'İlk 100 üreticiye 1 yıl ücretsiz',
-                      subtitle: 'Ev mutfağınızı kazanca dönüştürün.',
+                      headline: 'İlk 100 kurucu üreticiye 1 yıl ücretsiz',
+                      subtitle: 'Evde pişen emeğinizi mahallede görünür kılın.',
                       remaining: evKalan,
                     ),
                   ),
@@ -42,8 +42,9 @@ class CampaignCounterPanel extends StatelessWidget {
                   Expanded(
                     child: _CampaignCard(
                       title: 'Usta Şefler',
-                      headline: 'İlk 100 şefe 1 yıl ücretsiz',
-                      subtitle: 'Markanızı ve bilginizi gelire dönüştürün.',
+                      headline: 'İlk 100 kurucu şefe 1 yıl ücretsiz',
+                      subtitle:
+                          'İmza mutfağınızı, eğitiminizi ve uzmanlığınızı görünür kılın.',
                       remaining: sefKalan,
                     ),
                   ),
@@ -105,7 +106,7 @@ class _TopCampaignBox extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            '30 GÜN ÜCRETSİZ DENEYİN',
+            'YAYIN ÖNCESİ KURUCU KONTENJAN',
             style: TextStyle(
               color: _gold,
               fontSize: 14,
@@ -115,7 +116,7 @@ class _TopCampaignBox extends StatelessWidget {
           ),
           SizedBox(height: 6),
           Text(
-            'Yayın öncesi özel kontenjan açıldı.',
+            'Kurucu üretici ve kurucu şef başvuruları açıldı.',
             style: TextStyle(
               color: Colors.white,
               fontSize: 22,
@@ -124,7 +125,7 @@ class _TopCampaignBox extends StatelessWidget {
           ),
           SizedBox(height: 6),
           Text(
-            'Ev Lezzetleri ve Usta Şefler için sınırlı sayıda ücretsiz katılım fırsatı.',
+            'Ev Lezzetleri ve Usta Şefler için sınırlı süre ücretsiz katılım fırsatı.',
             style: TextStyle(
               color: Colors.white70,
               fontSize: 13,

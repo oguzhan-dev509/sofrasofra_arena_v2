@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'sef_vitrini_v2.dart';
+import 'package:sofrasofra_arena_v2/modules/vitrinler/sef_vitrini_v2.dart';
 
 class SefVitrini extends StatelessWidget {
   const SefVitrini({super.key});

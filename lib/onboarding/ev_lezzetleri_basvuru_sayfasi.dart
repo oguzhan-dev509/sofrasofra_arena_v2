@@ -3,7 +3,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:sofrasofra_arena_v2/services/campaign_service.dart';
 import 'package:sofrasofra_arena_v2/modules/common/basvuru_alindi_sayfasi.dart';
-import 'package:sofrasofra_arena_v2/services/campaign_service.dart';
 
 class EvLezzetleriBasvuruSayfasi extends StatefulWidget {
   const EvLezzetleriBasvuruSayfasi({super.key});

@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:sofrasofra_arena_v2/modules/widgets/sef_imza_tabagi_premium_card.dart';
+import 'package:sofrasofra_arena_v2/services/sepet_service.dart';
+import 'package:sofrasofra_arena_v2/cart/sepet_sayfasi.dart';
 
 class SefImzaTabaklariSection extends StatefulWidget {
   final String chefId;
@@ -44,13 +47,46 @@ class _SefImzaTabaklariSectionState extends State<SefImzaTabaklariSection> {
 
       final url = await ref.getDownloadURL();
 
+      final urunRef =
+          await FirebaseFirestore.instance.collection('urunler').add({
+        'ad': 'Yeni İmza Tabağı',
+        'urunAdi': 'Yeni İmza Tabağı',
+        'title': 'Yeni İmza Tabağı',
+        'img': url,
+        'imageUrl': url,
+        'images': [url],
+        'aciklama': '',
+        'description': '',
+        'fiyat': 0,
+        'price': 0,
+        'gelAlFiyat': 0,
+        'goturFiyat': 0,
+        'kategori': 'Usta Şefler',
+        'tip': 'Usta Şefler',
+        'dukkanAdi': 'Şefin İmza Mutfağı',
+        'dukkan': 'Şefin İmza Mutfağı',
+        'dukkanId': widget.chefId,
+        'sellerId': widget.chefId,
+        'chefId': widget.chefId,
+        'isActive': true,
+        'aktifMi': true,
+        'onayDurumu': 'onaylandi',
+        'createdAt': FieldValue.serverTimestamp(),
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+
       await FirebaseFirestore.instance.collection('chef_signature_dishes').add({
         'chefId': widget.chefId,
+        'urunDocId': urunRef.id,
         'imageUrl': url,
         'title': 'Yeni İmza Tabağı',
+        'description': '',
         'price': 0,
+        'gelAlFiyat': 0,
+        'goturFiyat': 0,
         'isActive': true,
         'createdAt': FieldValue.serverTimestamp(),
+        'updatedAt': FieldValue.serverTimestamp(),
       });
 
       if (!mounted) return;
@@ -66,10 +102,188 @@ class _SefImzaTabaklariSectionState extends State<SefImzaTabaklariSection> {
   }
 
   Future<void> _deleteDish(String docId) async {
-    await FirebaseFirestore.instance
+    final dishRef = FirebaseFirestore.instance
         .collection('chef_signature_dishes')
-        .doc(docId)
-        .delete();
+        .doc(docId);
+
+    final snap = await dishRef.get();
+    final data = snap.data() ?? {};
+    final urunDocId = (data['urunDocId'] ?? '').toString();
+
+    await dishRef.delete();
+
+    if (urunDocId.isNotEmpty) {
+      await FirebaseFirestore.instance
+          .collection('urunler')
+          .doc(urunDocId)
+          .delete();
+    }
+  }
+
+  Future<void> _addSignatureDishToCart(
+    String docId,
+    Map<String, dynamic> data,
+  ) async {
+    final priceRaw = data['price'] ?? data['fiyat'] ?? 0;
+
+    final double price = priceRaw is num
+        ? priceRaw.toDouble()
+        : double.tryParse(priceRaw.toString().replaceAll(',', '.')) ?? 0;
+
+    if (price <= 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Bu imza tabağı için fiyat eklenmemiş.'),
+        ),
+      );
+      return;
+    }
+
+    final imageUrl = (data['imageUrl'] ?? data['img'] ?? '').toString();
+
+    final title =
+        (data['title'] ?? data['name'] ?? data['ad'] ?? 'Şefin İmza Tabağı')
+            .toString();
+
+    await SepetService.sepeteEkle(
+      urunId: (data['urunDocId'] ?? docId).toString(),
+      urunAdi: title,
+      dukkanAdi: 'Şefin İmza Mutfağı',
+      kategori: 'Usta Şefler',
+      img: imageUrl,
+      fiyat: price,
+      gelAlFiyat:
+          _asDouble(data['gelAlFiyat'] ?? data['price'] ?? data['fiyat']),
+      goturFiyat: _asDouble(data['goturFiyat']),
+      teslimatTipi: 'gel_al',
+      saticiId: widget.chefId,
+      dukkanId: widget.chefId,
+    );
+
+    if (!mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('İmza tabağı sepete eklendi.')),
+    );
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const SepetSayfasi(),
+      ),
+    );
+  }
+
+  Future<void> _editDishInfo(
+    String docId,
+    dynamic currentPrice,
+    String currentDescription,
+    Map<String, dynamic> data,
+  ) async {
+    final gelAlController = TextEditingController(
+      text: (data['gelAlFiyat'] ?? data['price'] ?? data['fiyat'] ?? '')
+          .toString(),
+    );
+
+    final goturController = TextEditingController(
+      text: (data['goturFiyat'] ?? '').toString(),
+    );
+
+    final descController = TextEditingController(text: currentDescription);
+
+    await showDialog<void>(
+      context: context,
+      builder: (_) {
+        return AlertDialog(
+          title: const Text('İmza Tabağı Bilgileri'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: gelAlController,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(
+                  labelText: 'Gel-Al Fiyatı (₺)',
+                  hintText: 'Örn: 1500',
+                ),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: goturController,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(
+                  labelText: 'Götür Fiyatı (₺)',
+                  hintText: 'Örn: 1600',
+                ),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: descController,
+                maxLines: 4,
+                decoration: const InputDecoration(
+                  labelText: 'Tarif / Açıklama',
+                  hintText: 'Yemeğin kısa tarifini yazın',
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('İptal'),
+            ),
+            TextButton(
+              onPressed: () async {
+                final gelAlPrice = double.tryParse(
+                      gelAlController.text.trim().replaceAll(',', '.'),
+                    ) ??
+                    0;
+
+                final goturPrice = double.tryParse(
+                      goturController.text.trim().replaceAll(',', '.'),
+                    ) ??
+                    0;
+
+                final description = descController.text.trim();
+
+                await FirebaseFirestore.instance
+                    .collection('chef_signature_dishes')
+                    .doc(docId)
+                    .update({
+                  'price': gelAlPrice,
+                  'fiyat': gelAlPrice,
+                  'gelAlFiyat': gelAlPrice,
+                  'goturFiyat': goturPrice,
+                  'description': description,
+                  'aciklama': description,
+                  'updatedAt': FieldValue.serverTimestamp(),
+                });
+
+                final urunDocId = (data['urunDocId'] ?? '').toString();
+
+                if (urunDocId.isNotEmpty) {
+                  await FirebaseFirestore.instance
+                      .collection('urunler')
+                      .doc(urunDocId)
+                      .update({
+                    'price': gelAlPrice,
+                    'fiyat': gelAlPrice,
+                    'gelAlFiyat': gelAlPrice,
+                    'goturFiyat': goturPrice,
+                    'description': description,
+                    'aciklama': description,
+                    'updatedAt': FieldValue.serverTimestamp(),
+                  });
+                }
+
+                if (!mounted) return;
+                Navigator.pop(context);
+              },
+              child: const Text('Kaydet'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -77,7 +291,6 @@ class _SefImzaTabaklariSectionState extends State<SefImzaTabaklariSection> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        /// HEADER
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -92,16 +305,21 @@ class _SefImzaTabaklariSectionState extends State<SefImzaTabaklariSection> {
               onTap: _addDish,
               borderRadius: BorderRadius.circular(999),
               child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 10,
+                ),
                 decoration: BoxDecoration(
                   color: gold,
                   borderRadius: BorderRadius.circular(999),
                 ),
                 child: const Row(
                   children: [
-                    Icon(Icons.add_a_photo_rounded,
-                        size: 16, color: Colors.black),
+                    Icon(
+                      Icons.add_a_photo_rounded,
+                      size: 16,
+                      color: Colors.black,
+                    ),
                     SizedBox(width: 6),
                     Text(
                       'Ekle',
@@ -116,10 +334,7 @@ class _SefImzaTabaklariSectionState extends State<SefImzaTabaklariSection> {
             ),
           ],
         ),
-
         const SizedBox(height: 12),
-
-        /// LISTE
         StreamBuilder<QuerySnapshot>(
           stream: FirebaseFirestore.instance
               .collection('chef_signature_dishes')
@@ -136,52 +351,45 @@ class _SefImzaTabaklariSectionState extends State<SefImzaTabaklariSection> {
               return const Text('Henüz imza tabağı yok.');
             }
 
-            return GridView.builder(
+            return ListView.builder(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               itemCount: docs.length,
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                mainAxisSpacing: 12,
-                crossAxisSpacing: 12,
-              ),
               itemBuilder: (context, index) {
                 final doc = docs[index];
                 final data = doc.data() as Map<String, dynamic>;
 
-                return Stack(
-                  children: [
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(16),
-                      child: Image.network(
-                        data['imageUrl'] ?? '',
-                        fit: BoxFit.cover,
-                        width: double.infinity,
-                        height: double.infinity,
-                      ),
-                    ),
+                final imageUrl =
+                    (data['imageUrl'] ?? data['img'] ?? '').toString();
 
-                    /// DELETE BUTTON
-                    Positioned(
-                      top: 6,
-                      right: 6,
-                      child: InkWell(
-                        onTap: () => _deleteDish(doc.id),
-                        child: Container(
-                          padding: const EdgeInsets.all(6),
-                          decoration: const BoxDecoration(
-                            color: Colors.black54,
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Icon(
-                            Icons.delete,
-                            size: 16,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
+                final title = (data['title'] ??
+                        data['name'] ??
+                        data['ad'] ??
+                        'Şefin İmza Tabağı')
+                    .toString();
+
+                final description = (data['description'] ??
+                        data['tarif'] ??
+                        data['aciklama'] ??
+                        '')
+                    .toString();
+
+                return SefImzaTabagiPremiumCard(
+                  imageUrl: imageUrl,
+                  title: title,
+                  description: description,
+                  price: data['price'] ?? data['fiyat'],
+                  gelAlFiyat:
+                      data['gelAlFiyat'] ?? data['price'] ?? data['fiyat'],
+                  goturFiyat: data['goturFiyat'],
+                  onEdit: () => _editDishInfo(
+                    doc.id,
+                    data['price'] ?? data['fiyat'],
+                    description,
+                    data,
+                  ),
+                  onDelete: () => _deleteDish(doc.id),
+                  onAddToCart: () => _addSignatureDishToCart(doc.id, data),
                 );
               },
             );
@@ -190,4 +398,12 @@ class _SefImzaTabaklariSectionState extends State<SefImzaTabaklariSection> {
       ],
     );
   }
+}
+
+double _asDouble(dynamic value) {
+  if (value == null) return 0;
+  if (value is double) return value;
+  if (value is int) return value.toDouble();
+  if (value is num) return value.toDouble();
+  return double.tryParse(value.toString().replaceAll(',', '.')) ?? 0;
 }

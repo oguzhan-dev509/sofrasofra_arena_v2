@@ -64,6 +64,43 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
 
   int _hoveredIndex = -1;
   String _selectedDeliveryType = 'gel_al';
+  Widget _priceMiniBox({
+    required String title,
+    required String price,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+      decoration: BoxDecoration(
+        color: const Color(0xFF171717),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: _gold.withValues(alpha: 0.28),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: TextStyle(
+              color: Colors.white.withValues(alpha: 0.70),
+              fontSize: 12,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          const SizedBox(height: 5),
+          Text(
+            price,
+            style: const TextStyle(
+              color: _gold,
+              fontSize: 18,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
   static const Color _bg = Color(0xFF070707);
   static const Color _surface = Color(0xFF111111);
@@ -284,7 +321,9 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
     final goturController = TextEditingController(
       text: _effectiveGoturPrice?.toStringAsFixed(0) ?? '',
     );
-
+    final aciklamaController = TextEditingController(
+      text: '',
+    );
     await showDialog(
       context: context,
       builder: (dialogContext) {
@@ -316,6 +355,16 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
                 style: const TextStyle(color: Colors.white),
                 decoration: const InputDecoration(
                   labelText: 'Götür Fiyatı',
+                  labelStyle: TextStyle(color: Colors.white70),
+                ),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: aciklamaController,
+                maxLines: 3,
+                style: const TextStyle(color: Colors.white),
+                decoration: const InputDecoration(
+                  labelText: 'Tarif / Açıklama',
                   labelStyle: TextStyle(color: Colors.white70),
                 ),
               ),
@@ -1199,6 +1248,21 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
               height: 1.08,
             ),
           ),
+          if (widget.aciklama.trim().isNotEmpty) ...[
+            const SizedBox(height: 8),
+            Text(
+              widget.aciklama,
+              maxLines: 3,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                color: Colors.white.withValues(alpha: 0.72),
+                fontSize: 14,
+                height: 1.35,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+          const SizedBox(height: 14),
           const SizedBox(height: 14),
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -1239,34 +1303,38 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
               ),
             ],
           ),
-          if (_hasGelAlPrice || goturDisplayPrice != null) ...[
+          if (_hasGelAlPrice ||
+              goturDisplayPrice != null ||
+              widget.urunFiyat.trim().isNotEmpty) ...[
             const SizedBox(height: 18),
             Wrap(
               spacing: 10,
               runSpacing: 10,
               children: [
-                if (_hasGelAlPrice)
-                  _deliveryChip(
-                    title: 'Gel-Al',
-                    price: _priceText(_effectiveGelAlPrice),
-                    selected: _selectedDeliveryType == 'gel_al',
-                    onTap: () {
-                      setState(() {
-                        _selectedDeliveryType = 'gel_al';
-                      });
-                    },
-                  ),
-                if (goturDisplayPrice != null)
-                  _deliveryChip(
-                    title: 'Götür',
-                    price: _priceText(goturDisplayPrice),
-                    selected: _selectedDeliveryType == 'gotur',
-                    onTap: () {
-                      setState(() {
-                        _selectedDeliveryType = 'gotur';
-                      });
-                    },
-                  ),
+                _deliveryChip(
+                  title: 'Gel-Al',
+                  price: _hasGelAlPrice
+                      ? _priceText(_effectiveGelAlPrice)
+                      : widget.urunFiyat,
+                  selected: _selectedDeliveryType == 'gel_al',
+                  onTap: () {
+                    setState(() {
+                      _selectedDeliveryType = 'gel_al';
+                    });
+                  },
+                ),
+                _deliveryChip(
+                  title: 'Götür',
+                  price: goturDisplayPrice == null
+                      ? '—'
+                      : _priceText(goturDisplayPrice),
+                  selected: _selectedDeliveryType == 'gotur',
+                  onTap: () {
+                    setState(() {
+                      _selectedDeliveryType = 'gotur';
+                    });
+                  },
+                ),
               ],
             ),
           ],

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../admin/admin_paneli_sayfasi.dart';
 
-import '../courier/kurye_paneli.dart';
 import '../modules/akademi_merkezi.dart';
 import '../modules/kurye_basvuru_merkezi.dart';
 
@@ -11,7 +10,7 @@ import 'package:sofrasofra_arena_v2/merchant/urun_ekleme_sayfasi_v2.dart';
 import 'satici_siparis_paneli.dart';
 import 'sef_yonetim_paneli.dart';
 import 'teslimat_ayarlar_sayfasi.dart';
-import 'package:sofrasofra_arena_v2/merchant/merchant_merkez.dart';
+
 import 'package:sofrasofra_arena_v2/courier/kurye_mobil_paneli.dart';
 
 class UreticiYonetimMerkeziSayfasi extends StatelessWidget {

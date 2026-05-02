@@ -220,10 +220,8 @@ class OtomatikKuryeAtamaServisi {
 // Eğer aktifSiparis kapasiteyi doldurmuşsa yine uygun sayma.
       final kapasiteUygun = aktifSiparis < maxAktifSiparis;
 
-// Sadece eski 'uygunluk' alanı Görevde diye kuryeyi eleme.
-// Çünkü sende gerçek canlı durum availability / uygunlukDurumu içinde tutuluyor.
-      // TEST STABİLİZASYON
-      return true;
+// Sadece uygun durumda ve kapasitesi dolmamış kuryeyi uygun say.
+      return durumUygun && kapasiteUygun;
     }
 
     bool saticiyaBagliMi(Map<String, dynamic> data) {

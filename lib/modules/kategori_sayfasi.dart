@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'package:sofrasofra_arena_v2/modules/vitrinler/ev_lezzetleri_vitrini.dart';
 import 'package:sofrasofra_arena_v2/modules/vitrinler/restoranlar_vitrini.dart';
 import 'package:sofrasofra_arena_v2/modules/vitrinler/sef_vitrini_v2.dart';
-import 'package:sofrasofra_arena_v2/modules/vitrinler/ev_lezzetleri_vitrini_clean.dart';
 import 'package:sofrasofra_arena_v2/modules/radyo/radyo_merkezi_sayfasi.dart';
-import 'package:sofrasofra_arena_v2/onboarding/uretici_basvuru_secim_sayfasi.dart';
+import 'package:sofrasofra_arena_v2/onboarding/kurye_basvuru_sayfasi.dart';
 
 class KategoriSayfasi extends StatefulWidget {
   const KategoriSayfasi({super.key});
@@ -252,6 +252,17 @@ class _KategoriSayfasiState extends State<KategoriSayfasi> {
                               'Platformun ana omurgası: Ev Lezzetleri, Usta Şefler ve Restoranlar.',
                         ),
                         const SizedBox(height: 16),
+                        _KurucuKuryeStrip(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => const KuryeBasvuruSayfasi(),
+                              ),
+                            );
+                          },
+                        ),
+                        const SizedBox(height: 16),
                         _CategoryGrid(
                           isMobile: isMobile,
                           children: [
@@ -327,17 +338,14 @@ class _KategoriSayfasiState extends State<KategoriSayfasi> {
                                   fontWeight: FontWeight.w900,
                                 ),
                               ),
-                              const SizedBox(height: 12),
+                              const SizedBox(height: 8),
                               const Text(
-                                'Ürün sizin, emek sizin.\n'
-                                'Kazanç da sizin olacak.\n\n'
-                                'Sofrasofra’da satış yaptığınız anda, '
-                                'ödemeler gecikmeden hesabınıza aktarılır.\n\n'
-                                'Aracı yok, karmaşa yok.\n'
-                                'Sadece üretin, kazanın.',
+                                '30 gün ücretsiz deneyin • yayın öncesi kurucu katılım fırsatı',
                                 style: TextStyle(
-                                  color: Colors.white70,
-                                  height: 1.5,
+                                  color: Color(0xFFFFB300),
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w800,
+                                  height: 1.35,
                                 ),
                               ),
                               const SizedBox(height: 12),
@@ -488,9 +496,17 @@ class _HeroBanner extends StatelessWidget {
                   child: _HeroTextBlock(),
                 ),
                 const SizedBox(width: 24),
-                Expanded(
+                Flexible(
                   flex: 4,
                   child: _HeroActionBlock(onPrimaryTap: onPrimaryTap),
+                ),
+                const Text(
+                  'Kurye Ol →',
+                  style: TextStyle(
+                    color: Color(0xFFFFB300),
+                    fontWeight: FontWeight.w800,
+                    fontSize: 12.5,
+                  ),
                 ),
               ],
             ),
@@ -1495,6 +1511,107 @@ class _MiniInfoChip extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _KurucuKuryeStrip extends StatelessWidget {
+  final VoidCallback onTap;
+
+  const _KurucuKuryeStrip({
+    required this.onTap,
+  });
+
+  static const Color _gold = Color(0xFFFFB300);
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(18),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
+        decoration: BoxDecoration(
+          color: const Color(0xFF111111),
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(
+            color: _gold.withValues(alpha: 0.38),
+          ),
+        ),
+        child: Row(
+          children: [
+            const Icon(
+              Icons.delivery_dining_rounded,
+              color: _gold,
+              size: 22,
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
+                stream: FirebaseFirestore.instance
+                    .collection('siteSettings')
+                    .doc('campaign')
+                    .snapshots(),
+                builder: (context, snapshot) {
+                  final data = snapshot.data?.data();
+                  final kalan = data?['kuryeKalan'] ?? 500;
+
+                  return Wrap(
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    spacing: 8,
+                    runSpacing: 6,
+                    children: [
+                      const Text(
+                        'İlk 500 Kurucu Kurye • 3 Ay %0 Komisyon',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 13.5,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 5,
+                        ),
+                        decoration: BoxDecoration(
+                          color: _gold,
+                          borderRadius: BorderRadius.circular(999),
+                        ),
+                        child: Text(
+                          '$kalan Kaldı',
+                          style: const TextStyle(
+                            color: Colors.black,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w900,
+                          ),
+                        ),
+                      ),
+                    ],
+                  );
+                },
+              ),
+            ),
+            const SizedBox(width: 10),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+              decoration: BoxDecoration(
+                color: _gold,
+                borderRadius: BorderRadius.circular(999),
+              ),
+              child: const Text(
+                'Kurye Ol →',
+                style: TextStyle(
+                  color: Colors.black,
+                  fontWeight: FontWeight.w900,
+                  fontSize: 12.5,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

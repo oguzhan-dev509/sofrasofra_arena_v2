@@ -90,7 +90,6 @@ class KuryeDispatchEngine {
       }
 
       final courierId = nearestCourier.id;
-      final courierData = nearestCourier.data();
 
       final courierRef = _firestore.collection('couriers').doc(courierId);
 

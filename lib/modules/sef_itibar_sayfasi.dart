@@ -11,9 +11,11 @@ import 'package:sofrasofra_arena_v2/modules/widgets/sef_catering_section.dart';
 import 'package:sofrasofra_arena_v2/modules/create_reservation_page.dart';
 import 'package:sofrasofra_arena_v2/modules/widgets/sef_akademi_section.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:sofrasofra_arena_v2/services/membership_plan_service.dart';
+
 import 'package:sofrasofra_arena_v2/modules/widgets/sef_membership_card.dart';
 import 'package:sofrasofra_arena_v2/modules/sef_vitrin_icerik_yonetimi.dart';
+
+import 'package:sofrasofra_arena_v2/modules/widgets/chef_gallery_sales_bridge.dart';
 
 class SefItibarSayfasi extends StatefulWidget {
   final String dukkanId;
@@ -47,8 +49,7 @@ class _SefItibarSayfasiState extends State<SefItibarSayfasi> {
   int _maxGalleryPhoto = 6;
   int _maxVideoLink = 0;
   bool _membershipLoading = true;
-  String get _chefId =>
-      (FirebaseAuth.instance.currentUser?.uid ?? widget.dukkanId).trim();
+  String get _chefId => widget.dukkanId.trim();
 
   DocumentReference<Map<String, dynamic>> get _chefProfileRef =>
       FirebaseFirestore.instance.collection('chef_profiles').doc(_chefId);
@@ -832,6 +833,16 @@ class _SefItibarSayfasiState extends State<SefItibarSayfasi> {
                           borderRadius: BorderRadius.circular(18),
                         ),
                       ),
+                      Positioned(
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        child: ChefGallerySalesActions(
+                          chefId: _chefId,
+                          imageUrl: url,
+                          isAdmin: widget.isAdmin,
+                        ),
+                      ),
                       if (widget.isAdmin)
                         Positioned(
                           top: 6,
@@ -917,6 +928,7 @@ class _SefItibarSayfasiState extends State<SefItibarSayfasi> {
         }
 
         final data = docs.first.data();
+
         final tableTitle = (data['tableTitle'] ?? 'Rezervasyon').toString();
         final flowStatus =
             (data['reservationFlowStatus'] ?? 'bilinmiyor').toString();
@@ -961,6 +973,25 @@ class _SefItibarSayfasiState extends State<SefItibarSayfasi> {
                           ),
                         ),
                       ),
+                      const SizedBox(width: 8),
+                      if (widget.isAdmin)
+                        Row(
+                          children: [
+                            const Text(
+                              '1500 ₺',
+                              style: TextStyle(
+                                color: Color(0xFFFFB300),
+                                fontSize: 14,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
+                            const SizedBox(width: 6),
+                            Icon(Icons.edit, color: Colors.white70, size: 18),
+                            const SizedBox(width: 4),
+                            Icon(Icons.delete,
+                                color: Colors.redAccent, size: 18),
+                          ],
+                        ),
                       const SizedBox(width: 8),
                       const Icon(
                         Icons.arrow_forward_rounded,

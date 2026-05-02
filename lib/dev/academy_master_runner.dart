@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+
 import 'package:sofrasofra_arena_v2/dev/academy_master_tools.dart';
 import 'package:sofrasofra_arena_v2/dev/academy_demo_content_seed.dart';
 

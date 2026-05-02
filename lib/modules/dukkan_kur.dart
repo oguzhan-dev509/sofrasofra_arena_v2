@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import '../main.dart'; // Merkezi hafıza bağlantısı
+
+import 'package:sofrasofra_arena_v2/data/arena_dummy_data.dart';
 
 class DukkanKurSayfasi extends StatefulWidget {
   const DukkanKurSayfasi({super.key});

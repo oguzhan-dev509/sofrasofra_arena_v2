@@ -150,7 +150,6 @@ class KuryeService {
         throw Exception('Kurye bulunamadı.');
       }
 
-      final orderData = orderSnap.data() ?? {};
       final currentCourierData = courierSnap.data() ?? {};
 
       final currentKurye =

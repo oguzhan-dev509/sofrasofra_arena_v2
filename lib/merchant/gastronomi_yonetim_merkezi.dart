@@ -13,18 +13,20 @@ import 'package:sofrasofra_arena_v2/merchant/urun_ekleme_sayfasi.dart';
 import 'package:sofrasofra_arena_v2/modules/chef_table_reservations_page.dart';
 import 'package:sofrasofra_arena_v2/modules/sef_akademi_dersleri.dart';
 import 'package:sofrasofra_arena_v2/modules/sef_itibar_sayfasi.dart';
-import 'package:sofrasofra_arena_v2/modules/akademi_merkezi.dart';
+
 import 'package:sofrasofra_arena_v2/dev/academy_master_runner.dart';
 import 'package:sofrasofra_arena_v2/admin/consulting_requests_admin_page.dart';
 import 'package:sofrasofra_arena_v2/modules/chef_brand_career_page.dart';
 import 'package:sofrasofra_arena_v2/modules/workshop_requests_admin_page.dart';
-import 'package:sofrasofra_arena_v2/admin/platform_operasyon_merkezi_sayfasi.dart';
+
 import 'package:sofrasofra_arena_v2/admin/producer_applications_admin_sayfasi.dart';
-import 'package:sofrasofra_arena_v2/onboarding/onayli_panel_yonlendirici.dart';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:sofrasofra_arena_v2/admin/abone_admin_sayfasi.dart';
 import 'package:sofrasofra_arena_v2/admin/mahalle_mutfagi_admin_sayfasi.dart';
 import 'package:sofrasofra_arena_v2/admin/home_banner_admin_sayfasi.dart';
+import 'package:sofrasofra_arena_v2/admin/finans_operasyon_merkezi_sayfasi.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class GastronomiYonetimMerkezi extends StatelessWidget {
   final String? chefId;
@@ -39,6 +41,16 @@ class GastronomiYonetimMerkezi extends StatelessWidget {
     this.sellerId,
     this.sellerName,
   });
+  bool get _isAdmin {
+    const adminIds = {
+      'fW2t8hLgBqSJt8fP4sFP7gwIEep2',
+      'hIIFekhNJ9SXAQeMyQlHOv9ys1D2',
+      '0MBSw5r4J5Zn7uRYqy2f2zBLuG92', // 🔥 YENİ EKLE
+    };
+
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    return uid != null && adminIds.contains(uid);
+  }
 
   static const Color _bg = Color(0xFF090909);
   static const Color _panel = Color(0xFF111111);
@@ -523,6 +535,20 @@ class GastronomiYonetimMerkezi extends StatelessWidget {
           description:
               'Bu alan daha sonra SOP, saha prosedürleri ve eğitim notları için açılacak.',
         ),
+      ),
+      _DashboardItem(
+        title: 'Finans Operasyon Merkezi',
+        subtitle:
+            'Ciro, platform geliri, üretici ve kurye hakedişlerini takip edin.',
+        icon: Icons.analytics_rounded,
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => const FinansOperasyonMerkeziSayfasi(),
+            ),
+          );
+        },
       ),
     ];
 
@@ -1032,8 +1058,9 @@ class _DashboardCard extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: _gold.withValues(alpha: 0.12),
                         borderRadius: BorderRadius.circular(16),
-                        border:
-                            Border.all(color: _gold.withValues(alpha: 0.20)),
+                        border: Border.all(
+                          color: _gold.withValues(alpha: 0.20),
+                        ),
                       ),
                       child: Icon(item.icon, color: _gold, size: 28),
                     ),
@@ -1080,8 +1107,6 @@ class _DashboardCard extends StatelessWidget {
                 ),
               ),
             ),
-
-            // 🔴 BADGE (SADECE BAŞVURU YÖNETİMİ İÇİN)
             if (item.title == 'Başvuru Yönetimi')
               Positioned(
                 top: 10,
@@ -1116,6 +1141,12 @@ class _DashboardCard extends StatelessWidget {
                     );
                   },
                 ),
+              ),
+            if (item.title == 'Finans Operasyon Merkezi')
+              const Positioned(
+                top: 10,
+                right: 10,
+                child: _TodayPlatformRevenueBadge(),
               ),
           ],
         ),
@@ -1212,6 +1243,122 @@ class _PlaceholderPage extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+class _TodayPlatformRevenueBadge extends StatelessWidget {
+  const _TodayPlatformRevenueBadge();
+
+  static const Color _gold = Color(0xFFFFB300);
+  static const Color _green = Color(0xFF4CAF50);
+  static const Color _red = Color(0xFFE53935);
+
+  DateTime _startOfDay(DateTime d) => DateTime(d.year, d.month, d.day);
+
+  num _readPlatformRevenue(Map<String, dynamic> data) {
+    final value = data['platformTotalRevenue'];
+
+    if (value is num) return value;
+    if (value is String) {
+      return num.tryParse(value.replaceAll(',', '.')) ?? 0;
+    }
+    return 0;
+  }
+
+  bool _isPaid(Map<String, dynamic> data) {
+    final status = (data['paymentStatus'] ?? '').toString().toLowerCase();
+    return status == 'paid' ||
+        status == 'success' ||
+        status == 'completed' ||
+        status == 'odendi' ||
+        status == 'ödendi';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final now = DateTime.now();
+    final todayStart = _startOfDay(now);
+    final yesterdayStart = _startOfDay(now.subtract(const Duration(days: 1)));
+
+    return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+      stream: FirebaseFirestore.instance.collection('orders').snapshots(),
+      builder: (context, snapshot) {
+        num todayTotal = 0;
+        num yesterdayTotal = 0;
+
+        if (snapshot.hasData) {
+          for (final doc in snapshot.data!.docs) {
+            final data = doc.data();
+
+            if (!_isPaid(data)) continue;
+
+            final ts = data['createdAt'];
+            if (ts == null) continue;
+
+            final dt = (ts as Timestamp).toDate();
+
+            final value = _readPlatformRevenue(data);
+
+            if (dt.isAfter(todayStart)) {
+              todayTotal += value;
+            } else if (dt.isAfter(yesterdayStart) && dt.isBefore(todayStart)) {
+              yesterdayTotal += value;
+            }
+          }
+        }
+
+        double changePercent = 0;
+        if (yesterdayTotal > 0) {
+          changePercent =
+              ((todayTotal - yesterdayTotal) / yesterdayTotal) * 100;
+        }
+
+        final isUp = changePercent >= 0;
+        final trendColor = isUp ? _green : _red;
+        final arrow = isUp ? '▲' : '▼';
+
+        return Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+          decoration: BoxDecoration(
+            color: const Color(0xFF111111),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: _gold.withValues(alpha: 0.38)),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.local_fire_department_rounded,
+                  color: _gold, size: 16),
+              const SizedBox(width: 6),
+
+              // 🔥 Ana gelir
+              Text(
+                '${todayTotal.toStringAsFixed(2)} ₺',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w800,
+                  fontSize: 12,
+                ),
+              ),
+
+              const SizedBox(width: 6),
+
+              // 🔺 Trend
+              Text(
+                yesterdayTotal > 0
+                    ? '$arrow ${changePercent.toStringAsFixed(1)}%'
+                    : '—',
+                style: TextStyle(
+                  color: yesterdayTotal > 0 ? trendColor : Colors.white38,
+                  fontWeight: FontWeight.w800,
+                  fontSize: 11,
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

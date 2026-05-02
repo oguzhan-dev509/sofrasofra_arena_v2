@@ -1,10 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import '../orders/musteri_siparis_takip_sayfasi.dart';
+
 import '../services/sepet_service.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:sofrasofra_arena_v2/finance/sofrasofra_finance_calculator.dart';
+import 'package:sofrasofra_arena_v2/finance/sofrasofra_pricing_model.dart';
 
 class SepetSayfasi extends StatefulWidget {
   const SepetSayfasi({super.key});
@@ -148,6 +150,17 @@ class _SepetSayfasiState extends State<SepetSayfasi> {
     });
 
     try {
+      // 🔥 FINANCE HESAPLAMA (GERÇEK SİPARİŞ)
+      final araToplam = _araToplamHesapla(docs);
+      final teslimatUcreti = _teslimatUcretiHesapla(araToplam);
+
+      final finance = SofrasofraFinanceCalculator.calculate(
+        productTotal: araToplam,
+        deliveryFee: teslimatUcreti,
+        userType: UserType.evLezzetleri,
+        plan: PlanType.free,
+      );
+
       final orderId = await SepetService.siparisiTamamla(
         musteriAd: 'Mehmet',
         musteriTelefon: '0555 555 55 55',
@@ -157,6 +170,7 @@ class _SepetSayfasiState extends State<SepetSayfasi> {
         not: 'Sepet ekranından oluşturuldu',
         lat: 40.991,
         lng: 29.028,
+        finance: finance.toMap(),
       );
 
       if (!mounted) return;
@@ -352,8 +366,14 @@ class _SepetSayfasiState extends State<SepetSayfasi> {
               ),
             );
           }
-
-          final docs = _sortDocs(snapshot.data?.docs ?? []);
+          if (!snapshot.hasData) {
+            return const Center(
+              child: CircularProgressIndicator(
+                color: _gold,
+              ),
+            );
+          }
+          final docs = _sortDocs(snapshot.data!.docs);
 
           if (docs.isEmpty) {
             return Center(
@@ -408,7 +428,20 @@ class _SepetSayfasiState extends State<SepetSayfasi> {
 
           final araToplam = _araToplamHesapla(docs);
           final teslimatUcreti = _teslimatUcretiHesapla(araToplam);
-          final genelToplam = araToplam + teslimatUcreti;
+
+          final finance = SofrasofraFinanceCalculator.calculate(
+            productTotal: araToplam,
+            deliveryFee: teslimatUcreti,
+            userType: UserType.evLezzetleri,
+            plan: PlanType.free,
+          );
+
+          debugPrint("=== FINANCE DEBUG ===");
+          debugPrint("Müşteri: ${finance.customerTotalPayment}");
+          debugPrint("Üretici Net: ${finance.producerNetAmount}");
+          debugPrint("Kurye Net: ${finance.courierNetAmount}");
+          debugPrint("Platform: ${finance.platformTotalRevenue}");
+          debugPrint("=====================");
           final toplamUrun = _toplamUrunAdedi(docs);
 
           return Column(
@@ -717,8 +750,15 @@ class _SepetSayfasiState extends State<SepetSayfasi> {
                               ),
                             ),
                             _ozetSatiri(
+                              'Ödeme İşlem Ücreti',
+                              _price(finance.paymentProcessingFee),
+                              valueColor: _textMuted,
+                            ),
+                            const SizedBox(height: 10),
+                            _ozetSatiri(
                               'Genel Toplam',
-                              _price(genelToplam),
+                              _price(finance.customerTotalPayment +
+                                  finance.paymentProcessingFee),
                               isStrong: true,
                               valueColor: _gold,
                             ),

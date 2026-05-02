@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+
 import 'package:flutter/material.dart';
 import 'package:sofrasofra_arena_v2/services/kurye_konum_servisi.dart';
 import '../services/otomatik_kurye_atama_servisi.dart';

@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:flutter/foundation.dart' show kIsWeb;
-import '../main.dart';
+
 import 'dukkan_detay_sayfasi.dart';
+import 'package:sofrasofra_arena_v2/data/arena_dummy_data.dart';
 
 class PasajSayfasi extends StatelessWidget {
   final String kategori; // EV LEZZETLERİ, RESTORANLAR vs.

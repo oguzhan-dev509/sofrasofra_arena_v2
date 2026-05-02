@@ -293,7 +293,9 @@ class KategoriUrunListesiSayfasi extends StatelessWidget {
                                 konum: konum,
                                 youtubeUrl: youtubeUrl,
                                 urunGorseller: urunGorseller,
-                                productId: doc.id,
+                                productId:
+                                    (data['id'] ?? data['productId'] ?? '')
+                                        .toString(),
                                 sellerId:
                                     (data['dukkanId'] ?? data['sellerId'] ?? '')
                                         .toString(),

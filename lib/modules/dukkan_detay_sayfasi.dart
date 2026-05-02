@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:flutter/foundation.dart' show kIsWeb;
-import '../main.dart';
+
+import 'package:sofrasofra_arena_v2/data/arena_dummy_data.dart';
 
 class DukkanDetaySayfasi extends StatelessWidget {
   final String dukkanAdi;
