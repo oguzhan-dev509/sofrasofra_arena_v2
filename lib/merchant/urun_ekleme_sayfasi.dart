@@ -303,6 +303,7 @@ class _UrunEklemeSayfasiState extends State<UrunEklemeSayfasi> {
     );
   }
 
+// ignore: unused_element
   Future<String> _bulutaYukle(String uid, Uint8List bytes) async {
     final dosyaAdi = "urun_${DateTime.now().millisecondsSinceEpoch}.jpg";
 

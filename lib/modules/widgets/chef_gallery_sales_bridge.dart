@@ -146,6 +146,33 @@ class ChefGallerySalesActions extends StatelessWidget {
               ),
               child: Row(
                 children: [
+                  if (isAdmin) ...[
+                    InkWell(
+                      borderRadius: BorderRadius.circular(999),
+                      onTap: () => _editPrice(context, ref, price),
+                      child: Container(
+                        width: 30,
+                        height: 30,
+                        margin: const EdgeInsets.only(right: 6),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFFB300),
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.35),
+                              blurRadius: 8,
+                              offset: const Offset(0, 3),
+                            ),
+                          ],
+                        ),
+                        child: const Icon(
+                          Icons.edit_rounded,
+                          color: Colors.black,
+                          size: 17,
+                        ),
+                      ),
+                    ),
+                  ],
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -187,6 +214,12 @@ class ChefGallerySalesActions extends StatelessWidget {
                   ),
                   IconButton(
                     tooltip: 'İncele',
+                    iconSize: 18,
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(
+                      minWidth: 30,
+                      minHeight: 30,
+                    ),
                     icon: const Icon(Icons.visibility, color: Colors.white),
                     onPressed: () {
                       Navigator.push(
@@ -203,6 +236,7 @@ class ChefGallerySalesActions extends StatelessWidget {
                             urunGorseller: [imageUrl],
                             productId: ref.id,
                             sellerId: chefId,
+                            kategori: 'Usta Şefler',
                             gelAlFiyat: gelAlPrice,
                             goturFiyat: goturPrice,
                           ),
@@ -212,6 +246,12 @@ class ChefGallerySalesActions extends StatelessWidget {
                   ),
                   IconButton(
                     tooltip: 'Sepete ekle',
+                    iconSize: 18,
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(
+                      minWidth: 30,
+                      minHeight: 30,
+                    ),
                     icon: const Icon(
                       Icons.add_shopping_cart,
                       color: Colors.white,
@@ -219,16 +259,103 @@ class ChefGallerySalesActions extends StatelessWidget {
                     onPressed: price <= 0
                         ? null
                         : () async {
+                            final gelAlFinalPrice =
+                                gelAlPrice > 0 ? gelAlPrice : price;
+                            final goturFinalPrice =
+                                goturPrice > 0 ? goturPrice : null;
+
+                            final selected = await showModalBottomSheet<
+                                Map<String, dynamic>>(
+                              context: context,
+                              backgroundColor: const Color(0xFF151515),
+                              shape: const RoundedRectangleBorder(
+                                borderRadius: BorderRadius.vertical(
+                                  top: Radius.circular(24),
+                                ),
+                              ),
+                              builder: (sheetContext) {
+                                return SafeArea(
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(18),
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        const Text(
+                                          'Teslimat tercihi seçin',
+                                          style: TextStyle(
+                                            color: Color(0xFFFFB300),
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.w900,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 12),
+                                        ListTile(
+                                          contentPadding: EdgeInsets.zero,
+                                          title: const Text(
+                                            'Gel-Al',
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.w800,
+                                            ),
+                                          ),
+                                          subtitle: Text(
+                                            '${gelAlFinalPrice.toStringAsFixed(0)} ₺',
+                                            style: const TextStyle(
+                                                color: Colors.white70),
+                                          ),
+                                          onTap: () {
+                                            Navigator.pop(sheetContext, {
+                                              'tip': 'gel_al',
+                                              'fiyat': gelAlFinalPrice,
+                                            });
+                                          },
+                                        ),
+                                        if (goturFinalPrice != null)
+                                          ListTile(
+                                            contentPadding: EdgeInsets.zero,
+                                            title: const Text(
+                                              'Götür',
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.w800,
+                                              ),
+                                            ),
+                                            subtitle: Text(
+                                              '${goturFinalPrice.toStringAsFixed(0)} ₺',
+                                              style: const TextStyle(
+                                                  color: Colors.white70),
+                                            ),
+                                            onTap: () {
+                                              Navigator.pop(sheetContext, {
+                                                'tip': 'gotur',
+                                                'fiyat': goturFinalPrice,
+                                              });
+                                            },
+                                          ),
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              },
+                            );
+
+                            if (selected == null) return;
+
+                            final selectedTip = selected['tip'].toString();
+                            final selectedPrice = selected['fiyat'] as double;
+
                             await SepetService.sepeteEkle(
-                              urunId: ref.id,
+                              urunId: '${ref.id}_$selectedTip',
                               urunAdi: title,
                               dukkanAdi: 'Şefin İmza Mutfağı',
                               kategori: 'Usta Şefler',
                               img: imageUrl,
-                              fiyat: price,
-                              gelAlFiyat: gelAlPrice,
-                              goturFiyat: goturPrice,
-                              teslimatTipi: 'gel_al',
+                              fiyat: selectedPrice,
+                              gelAlFiyat: gelAlFinalPrice,
+                              goturFiyat: goturFinalPrice,
+                              teslimatTipi: selectedTip,
                               saticiId: chefId,
                               dukkanId: chefId,
                             );
@@ -236,8 +363,19 @@ class ChefGallerySalesActions extends StatelessWidget {
                             if (!context.mounted) return;
 
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Sepete eklendi')),
+                              SnackBar(
+                                content: Text(
+                                  selectedTip == 'gotur'
+                                      ? 'Götür fiyatı ile sepete eklendi'
+                                      : 'Gel-Al fiyatı ile sepete eklendi',
+                                ),
+                              ),
                             );
+
+                            await Future<void>.delayed(
+                                const Duration(milliseconds: 650));
+
+                            if (!context.mounted) return;
 
                             Navigator.push(
                               context,
@@ -247,12 +385,6 @@ class ChefGallerySalesActions extends StatelessWidget {
                             );
                           },
                   ),
-                  if (isAdmin)
-                    IconButton(
-                      tooltip: 'Fiyat',
-                      icon: const Icon(Icons.edit, color: Color(0xFFFFB300)),
-                      onPressed: () => _editPrice(context, ref, price),
-                    ),
                 ],
               ),
             );

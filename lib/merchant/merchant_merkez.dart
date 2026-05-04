@@ -839,6 +839,7 @@ class _VitrinMerkeziSayfasiState extends State<VitrinMerkeziSayfasi> {
     );
   }
 
+// ignore: unused_element
   Future<void> _mahalleSonFotoyuSil(int i) async {
     final current = _onSekizUrun[i];
     final imgs = List<String>.from(current['images'] ?? []);

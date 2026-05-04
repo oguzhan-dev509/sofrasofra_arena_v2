@@ -10,7 +10,6 @@ class EvOrdersSayfasi extends StatelessWidget {
   });
 
   static const Color _bg = Color(0xFF0F0F10);
-  static const Color _card = Color(0xFF17181C);
   static const Color _gold = Color(0xFFFFD54F);
 
   @override

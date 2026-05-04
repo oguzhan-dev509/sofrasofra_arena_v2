@@ -62,6 +62,6 @@ class SofrasofraPricingModel {
   }
 
   static double getPaymentFeeRate() {
-    return 0.03; // %3 ödeme işlem ücreti
+    return 0.003;
   }
 }

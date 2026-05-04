@@ -212,11 +212,12 @@ class _ArenaEntryPageState extends State<ArenaEntryPage> {
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(20),
                           child: SizedBox(
-                            height: 440,
+                            height: isMobile ? 360 : 520,
                             width: double.infinity,
                             child: Image.network(
                               imageUrl,
                               fit: BoxFit.cover,
+                              alignment: const Alignment(0, 0.34),
                             ),
                           ),
                         ),
@@ -245,7 +246,6 @@ class _ArenaEntryPageState extends State<ArenaEntryPage> {
                           ),
                         ),
                         SizedBox(height: 12),
-                        const SizedBox(height: 12),
                         Text(
                           'Evde pişen emek, mahallede değer bulur.',
                           style: TextStyle(
@@ -516,9 +516,7 @@ class _ArenaEntryPageState extends State<ArenaEntryPage> {
   }
 }
 
-// =====================
-// BANNER HELPER (EN ALTTA OLACAK)
-// =====================
+// ignore: unused_element
 class _HomeBannerImage extends StatelessWidget {
   final String imageUrl;
 

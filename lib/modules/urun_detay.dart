@@ -7,6 +7,10 @@ import 'package:sofrasofra_arena_v2/modules/widgets/ev_product_media_admin_bar.d
 import 'package:sofrasofra_arena_v2/modules/widgets/ev_product_status_note_card.dart';
 import 'package:sofrasofra_arena_v2/services/sepet_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:sofrasofra_arena_v2/cart/sepet_sayfasi.dart';
+import 'package:sofrasofra_arena_v2/modules/widgets/product_reviews_section.dart';
+import 'package:sofrasofra_arena_v2/modules/widgets/ev_gallery_sales_bridge.dart';
+import 'package:sofrasofra_arena_v2/modules/fullscreen_gallery.dart';
 
 class UrunDetaySayfasi extends StatefulWidget {
   final String urunAdi;
@@ -21,6 +25,8 @@ class UrunDetaySayfasi extends StatefulWidget {
   final String? productId;
   final String? sellerId;
   final bool isAdmin;
+
+  final String kategori;
 
   final num? gelAlFiyat;
   final num? goturFiyat;
@@ -38,6 +44,7 @@ class UrunDetaySayfasi extends StatefulWidget {
     this.productId,
     this.sellerId,
     this.isAdmin = false,
+    this.kategori = 'Ev Lezzetleri',
     this.gelAlFiyat,
     this.goturFiyat,
   });
@@ -1073,6 +1080,10 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
                   _buildMetaCard(),
                   const SizedBox(height: 14),
                   _buildDescriptionCard(),
+                  const SizedBox(height: 18),
+                  ProductReviewsSection(
+                    productId: (widget.productId ?? '').trim(),
+                  ),
                   const SizedBox(height: 14),
                   if (_galleryImageUrls.isNotEmpty) ...[
                     if (_canManageMedia) ...[
@@ -1152,7 +1163,7 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
           ),
           const SizedBox(height: 14),
           SizedBox(
-            height: itemWidth,
+            height: itemWidth + 92,
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
               itemCount: images.length,
@@ -1183,7 +1194,7 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
                       duration: const Duration(milliseconds: 160),
                       curve: Curves.easeOut,
                       width: itemWidth,
-                      height: itemWidth,
+                      height: itemWidth + 92,
                       transform: (isSelected || isHovered)
                           ? (Matrix4.identity()..scale(1.06))
                           : Matrix4.identity(),
@@ -1205,17 +1216,44 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
                             : const [],
                       ),
                       clipBehavior: Clip.antiAlias,
-                      child: Image.network(
-                        imageUrl,
-                        fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => Container(
-                          color: Colors.black12,
-                          alignment: Alignment.center,
-                          child: const Icon(
-                            Icons.image_not_supported_outlined,
-                            color: _textMuted,
+                      child: Column(
+                        children: [
+                          Expanded(
+                            child: GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => FullScreenGallery(
+                                      images: images,
+                                      initialIndex: index,
+                                    ),
+                                  ),
+                                );
+                              },
+                              child: Image.network(
+                                imageUrl,
+                                width: double.infinity,
+                                fit: BoxFit.cover,
+                                errorBuilder: (_, __, ___) => Container(
+                                  color: Colors.black12,
+                                  alignment: Alignment.center,
+                                  child: const Icon(
+                                    Icons.image_not_supported_outlined,
+                                    color: _textMuted,
+                                  ),
+                                ),
+                              ),
+                            ),
                           ),
-                        ),
+                          EvGallerySalesActions(
+                            ownerProductId: (widget.productId ?? '').trim(),
+                            sellerId: (widget.sellerId ?? '').trim(),
+                            dukkanAdi: widget.dukkanAdi,
+                            imageUrl: imageUrl,
+                            isAdmin: _canManageMedia,
+                          ),
+                        ],
                       ),
                     ),
                   ),
@@ -1512,6 +1550,7 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
       ),
       child: SafeArea(
         top: false,
+        minimum: const EdgeInsets.only(bottom: 34),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -1570,9 +1609,19 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
                       urunId: productId,
                       urunAdi: widget.urunAdi,
                       dukkanAdi: widget.dukkanAdi,
-                      kategori: 'Ev Lezzetleri',
+                      kategori: widget.kategori,
                       img: _coverImageUrl,
                       fiyat: _selectedUnitPrice!.toDouble(),
+                      gelAlFiyat: widget.kategori == 'Ev Lezzetleri'
+                          ? _effectiveGelAlPrice?.toDouble()
+                          : null,
+                      goturFiyat: widget.kategori == 'Ev Lezzetleri'
+                          ? (_effectiveGoturPrice ?? _effectiveGelAlPrice)
+                              ?.toDouble()
+                          : null,
+                      teslimatTipi: widget.kategori == 'Ev Lezzetleri'
+                          ? _selectedDeliveryType
+                          : 'gel_al',
                       saticiId: (widget.sellerId ?? '').trim(),
                       dukkanId: (widget.sellerId ?? '').trim(),
                     );
@@ -1589,6 +1638,17 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
                             fontWeight: FontWeight.w900,
                           ),
                         ),
+                      ),
+                    );
+                    await Future<void>.delayed(
+                        const Duration(milliseconds: 650));
+
+                    if (!mounted) return;
+
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const SepetSayfasi(),
                       ),
                     );
                   } catch (e) {
@@ -1609,9 +1669,19 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
                             urunId: productId,
                             urunAdi: widget.urunAdi,
                             dukkanAdi: widget.dukkanAdi,
-                            kategori: 'Ev Lezzetleri',
+                            kategori: widget.kategori,
                             img: _coverImageUrl,
                             fiyat: _selectedUnitPrice!.toDouble(),
+                            gelAlFiyat: widget.kategori == 'Ev Lezzetleri'
+                                ? _effectiveGelAlPrice?.toDouble()
+                                : null,
+                            goturFiyat: widget.kategori == 'Ev Lezzetleri'
+                                ? (_effectiveGoturPrice ?? _effectiveGelAlPrice)
+                                    ?.toDouble()
+                                : null,
+                            teslimatTipi: widget.kategori == 'Ev Lezzetleri'
+                                ? _selectedDeliveryType
+                                : 'gel_al',
                             saticiId: (widget.sellerId ?? '').trim(),
                             dukkanId: (widget.sellerId ?? '').trim(),
                           );
@@ -1628,6 +1698,12 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
                                   fontWeight: FontWeight.w900,
                                 ),
                               ),
+                            ),
+                          );
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const SepetSayfasi(),
                             ),
                           );
                         } catch (err) {

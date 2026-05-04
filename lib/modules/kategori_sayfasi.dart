@@ -16,7 +16,6 @@ class KategoriSayfasi extends StatefulWidget {
 
 class _KategoriSayfasiState extends State<KategoriSayfasi> {
   static const Color _bg = Color(0xFF0F0F10);
-  static const Color _gold = Color(0xFFFFD54F);
 
   final List<String> _cities = const [
     'Adana',
@@ -1006,6 +1005,7 @@ class _MainCategoryCardState extends State<_MainCategoryCard> {
   }
 }
 
+// ignore: unused_element
 class _PromoStrip extends StatelessWidget {
   final bool isMobile;
 

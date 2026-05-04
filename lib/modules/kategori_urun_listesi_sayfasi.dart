@@ -299,6 +299,13 @@ class KategoriUrunListesiSayfasi extends StatelessWidget {
                                 sellerId:
                                     (data['dukkanId'] ?? data['sellerId'] ?? '')
                                         .toString(),
+                                kategori: 'Ev Lezzetleri',
+                                gelAlFiyat: data['gelAlFiyat'] is num
+                                    ? data['gelAlFiyat'] as num
+                                    : null,
+                                goturFiyat: data['goturFiyat'] is num
+                                    ? data['goturFiyat'] as num
+                                    : null,
                                 isAdmin: true,
                               ),
                             ),

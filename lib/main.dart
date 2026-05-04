@@ -42,7 +42,11 @@ class SofrasofraZirve extends StatelessWidget {
         return Stack(
           children: [
             child ?? const SizedBox.shrink(),
-            const GlobalRadioMiniPlayer(),
+            Positioned(
+              left: 0,
+              bottom: MediaQuery.of(context).padding.bottom,
+              child: const GlobalRadioMiniPlayer(),
+            ),
           ],
         );
       },

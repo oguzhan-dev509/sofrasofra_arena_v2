@@ -185,6 +185,7 @@ class _FooterGroup extends StatelessWidget {
   });
 
   static const Color _gold = Color(0xFFFFB300);
+  // ignore: unused_field
   static const Color _muted = Color(0xFFCCCCCC);
 
   @override

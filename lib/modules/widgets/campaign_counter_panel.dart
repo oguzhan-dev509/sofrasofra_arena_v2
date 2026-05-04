@@ -4,9 +4,6 @@ import 'package:flutter/material.dart';
 class CampaignCounterPanel extends StatelessWidget {
   const CampaignCounterPanel({super.key});
 
-  static const Color _gold = Color(0xFFFFB300);
-  static const Color _panel = Color(0xFF151515);
-
   DocumentReference<Map<String, dynamic>> get _ref =>
       FirebaseFirestore.instance.collection('campaignSettings').doc('main');
 

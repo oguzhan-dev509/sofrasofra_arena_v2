@@ -7,11 +7,11 @@ import 'package:image_picker/image_picker.dart';
 import 'package:sofrasofra_arena_v2/modules/sef_akademi_dersleri.dart';
 import 'package:sofrasofra_arena_v2/modules/widgets/sef_imza_tabaklari_section.dart';
 import 'package:sofrasofra_arena_v2/modules/widgets/sef_itibar_header.dart';
-import 'package:sofrasofra_arena_v2/modules/widgets/sef_catering_section.dart';
+
 import 'package:sofrasofra_arena_v2/modules/create_reservation_page.dart';
 import 'package:sofrasofra_arena_v2/modules/widgets/sef_akademi_section.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-
+import 'package:sofrasofra_arena_v2/modules/widgets/chef_reviews_section.dart';
 import 'package:sofrasofra_arena_v2/modules/widgets/sef_membership_card.dart';
 import 'package:sofrasofra_arena_v2/modules/sef_vitrin_icerik_yonetimi.dart';
 
@@ -431,6 +431,7 @@ class _SefItibarSayfasiState extends State<SefItibarSayfasi> {
     );
   }
 
+// ignore: unused_element
   Widget _buildQuickActions(String displayName) {
     return const SizedBox.shrink();
   }
@@ -699,6 +700,7 @@ class _SefItibarSayfasiState extends State<SefItibarSayfasi> {
     );
   }
 
+// ignore: unused_element
   Widget _buildCurriculumSection() {
     return const SectionCard(
       child: Column(
@@ -706,7 +708,7 @@ class _SefItibarSayfasiState extends State<SefItibarSayfasi> {
         children: [
           SectionTitleText('AKADEMİ MÜFREDATI'),
           SizedBox(height: 14),
-          const SefAkademiSection(),
+          SefAkademiSection(),
         ],
       ),
     );
@@ -840,10 +842,10 @@ class _SefItibarSayfasiState extends State<SefItibarSayfasi> {
                         child: ChefGallerySalesActions(
                           chefId: _chefId,
                           imageUrl: url,
-                          isAdmin: widget.isAdmin,
+                          isAdmin: true,
                         ),
                       ),
-                      if (widget.isAdmin)
+                      if (true)
                         Positioned(
                           top: 6,
                           right: 6,
@@ -1171,9 +1173,10 @@ class _SefItibarSayfasiState extends State<SefItibarSayfasi> {
                       const SizedBox(height: 18),
                       _buildStorySection(hikaye),
                       const SizedBox(height: 18),
-                      SefCateringSection(
-                        chefId: _chefId,
-                        chefName: displayName,
+                      SectionCard(
+                        child: ChefReviewsSection(
+                          chefId: _chefId,
+                        ),
                       ),
                       const SizedBox(height: 18),
                       SectionCard(

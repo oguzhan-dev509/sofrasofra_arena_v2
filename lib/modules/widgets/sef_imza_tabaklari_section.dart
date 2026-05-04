@@ -145,17 +145,102 @@ class _SefImzaTabaklariSectionState extends State<SefImzaTabaklariSection> {
         (data['title'] ?? data['name'] ?? data['ad'] ?? 'Şefin İmza Tabağı')
             .toString();
 
+    final gelAlFinalPrice = _asDouble(
+      data['gelAlFiyat'] ?? data['price'] ?? data['fiyat'],
+    );
+
+    final goturRawPrice = _asDouble(data['goturFiyat']);
+    final goturFinalPrice = goturRawPrice > 0 ? goturRawPrice : null;
+
+    final selected = await showModalBottomSheet<Map<String, dynamic>>(
+      context: context,
+      backgroundColor: const Color(0xFF151515),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(24),
+        ),
+      ),
+      builder: (sheetContext) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(18),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Teslimat tercihi seçin',
+                  style: TextStyle(
+                    color: Color(0xFFFFB300),
+                    fontSize: 18,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  title: const Text(
+                    'Gel-Al',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                  subtitle: Text(
+                    '${gelAlFinalPrice.toStringAsFixed(0)} ₺',
+                    style: const TextStyle(color: Colors.white70),
+                  ),
+                  onTap: () {
+                    Navigator.pop(sheetContext, {
+                      'tip': 'gel_al',
+                      'fiyat': gelAlFinalPrice,
+                    });
+                  },
+                ),
+                if (goturFinalPrice != null)
+                  ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    title: const Text(
+                      'Götür',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    subtitle: Text(
+                      '${goturFinalPrice.toStringAsFixed(0)} ₺',
+                      style: const TextStyle(color: Colors.white70),
+                    ),
+                    onTap: () {
+                      Navigator.pop(sheetContext, {
+                        'tip': 'gotur',
+                        'fiyat': goturFinalPrice,
+                      });
+                    },
+                  ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+
+    if (selected == null) return;
+
+    final selectedTip = selected['tip'].toString();
+    final selectedPrice = selected['fiyat'] as double;
+    final baseProductId = (data['urunDocId'] ?? docId).toString();
+
     await SepetService.sepeteEkle(
-      urunId: (data['urunDocId'] ?? docId).toString(),
+      urunId: '${baseProductId}_$selectedTip',
       urunAdi: title,
       dukkanAdi: 'Şefin İmza Mutfağı',
       kategori: 'Usta Şefler',
       img: imageUrl,
-      fiyat: price,
-      gelAlFiyat:
-          _asDouble(data['gelAlFiyat'] ?? data['price'] ?? data['fiyat']),
-      goturFiyat: _asDouble(data['goturFiyat']),
-      teslimatTipi: 'gel_al',
+      fiyat: selectedPrice,
+      gelAlFiyat: gelAlFinalPrice,
+      goturFiyat: goturFinalPrice,
+      teslimatTipi: selectedTip,
       saticiId: widget.chefId,
       dukkanId: widget.chefId,
     );
@@ -165,6 +250,10 @@ class _SefImzaTabaklariSectionState extends State<SefImzaTabaklariSection> {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('İmza tabağı sepete eklendi.')),
     );
+    await Future<void>.delayed(const Duration(milliseconds: 650));
+
+    if (!mounted) return;
+
     Navigator.push(
       context,
       MaterialPageRoute(

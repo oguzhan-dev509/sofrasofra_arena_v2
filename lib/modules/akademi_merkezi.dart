@@ -10,7 +10,7 @@ class AkademiMerkeziSayfasi extends StatefulWidget {
 
 class _AkademiMerkeziSayfasiState extends State<AkademiMerkeziSayfasi> {
   static const Color _bg = Colors.black;
-  static const Color _card = Color(0xFF121212);
+
   static const Color _gold = Color(0xFFFFB300);
   static const Color _goldSoft = Color(0xFFFFD54F);
 

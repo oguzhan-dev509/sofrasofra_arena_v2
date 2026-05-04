@@ -15,7 +15,7 @@ class _RadyoMerkeziSayfasiState extends State<RadyoMerkeziSayfasi> {
   String _selectedCategory = 'tum';
 
   static const Color _bg = Color(0xFF090909);
-  static const Color _card = Color(0xFF151515);
+
   static const Color _gold = Color(0xFFFFB300);
 
   static const List<_RadioCategory> _categories = [

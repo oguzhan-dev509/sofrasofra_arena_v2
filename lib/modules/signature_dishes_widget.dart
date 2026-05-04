@@ -9,8 +9,6 @@ class SignatureDishesWidget extends StatelessWidget {
 
   const SignatureDishesWidget({super.key, required this.chefId});
 
-  static const _gold = Color(0xFFFFD54F);
-
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(

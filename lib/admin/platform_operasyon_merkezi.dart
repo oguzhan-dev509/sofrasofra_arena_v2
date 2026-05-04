@@ -9,8 +9,6 @@ class PlatformOperasyonMerkezi extends StatelessWidget {
   const PlatformOperasyonMerkezi({super.key});
 
   static const Color _bg = Color(0xFF090909);
-  static const Color _card = Color(0xFF151515);
-  static const Color _gold = Color(0xFFFFB300);
 
   @override
   Widget build(BuildContext context) {
@@ -255,10 +253,13 @@ class _AlarmBanner extends StatelessWidget {
   }
 }
 
+// ignore: unused_element, unused_element_parameter
 _AlarmResult? _evaluateAlarm({
   required String title,
   required int count,
   required dynamic lastTime,
+  // ignore: unused_element_parameter
+  // ignore: unused_element_parameter
   List<QueryDocumentSnapshot<Map<String, dynamic>>>? docs,
 }) {
   DateTime? lastDate;

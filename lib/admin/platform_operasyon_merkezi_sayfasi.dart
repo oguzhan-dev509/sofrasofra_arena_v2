@@ -5,9 +5,7 @@ class PlatformOperasyonMerkeziSayfasi extends StatelessWidget {
   const PlatformOperasyonMerkeziSayfasi({super.key});
 
   static const Color _bg = Color(0xFF090909);
-  static const Color _card = Color(0xFF111111);
   static const Color _gold = Color(0xFFFFB300);
-  static const Color _border = Color(0x44FFB300);
 
   DateTime _startOfToday() {
     final now = DateTime.now();

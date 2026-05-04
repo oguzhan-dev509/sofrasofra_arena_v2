@@ -13,29 +13,29 @@ class GlobalRadioMiniPlayer extends StatelessWidget {
   Widget build(BuildContext context) {
     final radio = SofrasofraRadioService.instance;
 
-    return ValueListenableBuilder(
+    return ValueListenableBuilder<List<RadioProgram>>(
       valueListenable: radio.programs,
       builder: (context, programs, _) {
-        if (programs.isEmpty) return const SizedBox.shrink();
-
         return StreamBuilder<int?>(
           stream: radio.player.currentIndexStream,
           builder: (context, indexSnap) {
-            final index = indexSnap.data ?? 0;
+            final rawIndex = indexSnap.data ?? 0;
 
-            if (index >= programs.length) {
-              return const SizedBox.shrink();
-            }
+            final hasPrograms = programs.isNotEmpty;
+            final safeIndex =
+                hasPrograms ? rawIndex.clamp(0, programs.length - 1) : 0;
 
-            final program = programs[index];
+            final title = hasPrograms
+                ? programs[safeIndex].title
+                : 'Sofrasofra Radyo hazırlanıyor...';
 
             return StreamBuilder<PlayerState>(
               stream: radio.player.playerStateStream,
               builder: (context, stateSnap) {
                 final playing = radio.player.playing;
 
-                return Align(
-                  alignment: Alignment.bottomLeft,
+                return Material(
+                  color: Colors.transparent,
                   child: SizedBox(
                     width: 280,
                     child: GestureDetector(
@@ -79,32 +79,39 @@ class GlobalRadioMiniPlayer extends StatelessWidget {
                               child: Icon(
                                 playing
                                     ? Icons.graphic_eq_rounded
-                                    : Icons.play_arrow_rounded,
+                                    : Icons.radio_rounded,
                                 color: playing ? Colors.black : _gold,
-                                size: 20,
+                                size: 19,
                               ),
                             ),
                             const SizedBox(width: 10),
                             Expanded(
                               child: Text(
-                                program.title,
+                                title,
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w800,
+                                style: TextStyle(
+                                  color: hasPrograms
+                                      ? Colors.white
+                                      : Colors.white.withValues(alpha: 0.72),
+                                  fontSize: hasPrograms ? 15 : 13,
+                                  fontWeight: hasPrograms
+                                      ? FontWeight.w800
+                                      : FontWeight.w700,
                                 ),
                               ),
                             ),
                             IconButton(
-                              onPressed: () => radio.togglePlay(),
+                              onPressed:
+                                  hasPrograms ? () => radio.togglePlay() : null,
                               icon: Icon(
                                 playing
                                     ? Icons.pause_rounded
                                     : Icons.play_arrow_rounded,
                               ),
-                              color: _gold,
+                              color: hasPrograms
+                                  ? _gold
+                                  : Colors.white.withValues(alpha: 0.30),
                               iconSize: 22,
                               padding: EdgeInsets.zero,
                               constraints: const BoxConstraints(

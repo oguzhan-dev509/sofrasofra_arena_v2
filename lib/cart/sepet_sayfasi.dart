@@ -16,7 +16,6 @@ class SepetSayfasi extends StatefulWidget {
 }
 
 class _SepetSayfasiState extends State<SepetSayfasi> {
-  User? get _user => FirebaseAuth.instance.currentUser;
   String get _cartId {
     final user = FirebaseAuth.instance.currentUser;
 
@@ -24,7 +23,6 @@ class _SepetSayfasiState extends State<SepetSayfasi> {
       return user.uid;
     }
 
-    // 👇 guest kullanıcı
     return 'guest_cart';
   }
 
@@ -34,7 +32,6 @@ class _SepetSayfasiState extends State<SepetSayfasi> {
   static const Color _panel = Color(0xFF111111);
   static const Color _card = Color(0xFF151515);
   static const Color _gold = Color(0xFFFFC107);
-  static const Color _goldDark = Color(0xFFFFB300);
   static const Color _textPrimary = Colors.white;
   static const Color _textMuted = Color(0xFFB8B8B8);
   static const Color _border = Color(0x33FFC107);
@@ -43,15 +40,9 @@ class _SepetSayfasiState extends State<SepetSayfasi> {
   static const Color _dangerBorder = Color(0x55FF6B6B);
 
   Stream<QuerySnapshot<Map<String, dynamic>>> _sepetStream() {
-    final user = _user;
-
-    if (user == null || user.uid.isEmpty) {
-      return const Stream.empty();
-    }
-
     return FirebaseFirestore.instance
         .collection('sepetler')
-        .doc(user.uid)
+        .doc(_cartId)
         .collection('items')
         .snapshots();
   }
@@ -65,8 +56,12 @@ class _SepetSayfasiState extends State<SepetSayfasi> {
       final currentId =
           (data['urunId'] ?? data['productId'] ?? data['id'] ?? doc.id)
               .toString();
-      if (currentId == urunId) return doc;
+
+      if (currentId == urunId || doc.id == urunId) {
+        return doc;
+      }
     }
+
     return null;
   }
 
@@ -128,18 +123,6 @@ class _SepetSayfasiState extends State<SepetSayfasi> {
         .delete();
   }
 
-  Future<void> _sepetiTemizle(
-    List<QueryDocumentSnapshot<Map<String, dynamic>>> docs,
-  ) async {
-    final batch = FirebaseFirestore.instance.batch();
-
-    for (final doc in docs) {
-      batch.delete(doc.reference);
-    }
-
-    await batch.commit();
-  }
-
   Future<void> _siparisiTamamla(
     List<QueryDocumentSnapshot<Map<String, dynamic>>> docs,
   ) async {
@@ -150,16 +133,28 @@ class _SepetSayfasiState extends State<SepetSayfasi> {
     });
 
     try {
-      // 🔥 FINANCE HESAPLAMA (GERÇEK SİPARİŞ)
-      final araToplam = _araToplamHesapla(docs);
-      final teslimatUcreti = _teslimatUcretiHesapla(araToplam);
+      final totals = _buildCartTotals(docs);
 
       final finance = SofrasofraFinanceCalculator.calculate(
-        productTotal: araToplam,
-        deliveryFee: teslimatUcreti,
+        productTotal: totals.araToplam,
+        deliveryFee: totals.teslimatUcreti,
         userType: UserType.evLezzetleri,
         plan: PlanType.free,
+        deliveryIncludedInPrice: totals.deliveryIncludedInPrice,
+        feeIncludedInPrice: totals.feeIncludedInPrice,
       );
+
+      debugPrint('=== FINANCE DEBUG / ORDER ===');
+      debugPrint('Ara Toplam: ${totals.araToplam}');
+      debugPrint('Teslimat Ücreti: ${totals.teslimatUcreti}');
+      debugPrint('Delivery Included: ${totals.deliveryIncludedInPrice}');
+      debugPrint('Fee Included: ${totals.feeIncludedInPrice}');
+      debugPrint('Ödeme İşlem Ücreti: ${finance.paymentProcessingFee}');
+      debugPrint('Müşteri Toplam: ${finance.customerTotalPayment}');
+      debugPrint('Üretici Net: ${finance.producerNetAmount}');
+      debugPrint('Kurye Net: ${finance.courierNetAmount}');
+      debugPrint('Platform: ${finance.platformTotalRevenue}');
+      debugPrint('=============================');
 
       final orderId = await SepetService.siparisiTamamla(
         musteriAd: 'Mehmet',
@@ -174,6 +169,7 @@ class _SepetSayfasiState extends State<SepetSayfasi> {
       );
 
       if (!mounted) return;
+
       final callable = FirebaseFunctions.instanceFor(
         region: 'europe-west1',
       ).httpsCallable('initializeEvOrderPayment');
@@ -181,6 +177,7 @@ class _SepetSayfasiState extends State<SepetSayfasi> {
       final paymentResult = await callable.call({
         'orderId': orderId,
       });
+
       final data = Map<String, dynamic>.from(paymentResult.data as Map);
       final checkoutUrl = (data['checkoutUrl'] ?? '').toString();
 
@@ -192,7 +189,11 @@ class _SepetSayfasiState extends State<SepetSayfasi> {
         Uri.parse(checkoutUrl),
         webOnlyWindowName: '_self',
       );
+
       debugPrint('EV PAYMENT TEST RESULT: ${paymentResult.data}');
+
+      if (!mounted) return;
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           backgroundColor: Colors.orange,
@@ -205,9 +206,23 @@ class _SepetSayfasiState extends State<SepetSayfasi> {
           ),
         ),
       );
+    } catch (e) {
+      debugPrint('❌ SİPARİŞ TAMAMLAMA HATASI: $e');
 
-// ÖNEMLİ:
-// Ödeme tamamlanmadan takip sayfasına göndermiyoruz.
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: Colors.redAccent,
+          content: Text(
+            'Sipariş oluşturulamadı: $e',
+            style: const TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ),
+      );
     } finally {
       if (mounted) {
         setState(() {
@@ -217,6 +232,41 @@ class _SepetSayfasiState extends State<SepetSayfasi> {
     }
   }
 
+  _CartTotals _buildCartTotals(
+    List<QueryDocumentSnapshot<Map<String, dynamic>>> docs,
+  ) {
+    final araToplam = _araToplamHesapla(docs);
+    final toplamUrunAdedi = _toplamUrunAdedi(docs);
+
+    final deliveryIncludedInPrice = _allItemsBool(
+      docs,
+      'deliveryIncludedInPrice',
+    );
+
+    final feeIncludedInPrice = _allItemsBool(
+      docs,
+      'feeIncludedInPrice',
+    );
+
+    final gelAlSiparisi = _isGelAlCart(docs);
+
+    final teslimatUcreti = _teslimatUcretiHesapla(
+      araToplam: araToplam,
+      toplamUrunAdedi: toplamUrunAdedi,
+      gelAlSiparisi: gelAlSiparisi,
+      deliveryIncludedInPrice: deliveryIncludedInPrice,
+    );
+
+    return _CartTotals(
+      araToplam: araToplam,
+      teslimatUcreti: teslimatUcreti,
+      toplamUrunAdedi: toplamUrunAdedi,
+      deliveryIncludedInPrice: deliveryIncludedInPrice,
+      feeIncludedInPrice: feeIncludedInPrice,
+      gelAlSiparisi: gelAlSiparisi,
+    );
+  }
+
   double _araToplamHesapla(
     List<QueryDocumentSnapshot<Map<String, dynamic>>> docs,
   ) {
@@ -224,6 +274,7 @@ class _SepetSayfasiState extends State<SepetSayfasi> {
 
     for (final doc in docs) {
       final data = doc.data();
+
       final fiyat = _asDouble(
         data['fiyat'] ??
             data['price'] ??
@@ -231,8 +282,9 @@ class _SepetSayfasiState extends State<SepetSayfasi> {
             data['unitPrice'] ??
             0,
       );
-      final adet = _asInt(
-        data['adet'] ?? data['quantity'] ?? data['qty'] ?? 0,
+
+      final adet = _safeAdet(
+        data['adet'] ?? data['quantity'] ?? data['qty'] ?? 1,
       );
 
       toplam += fiyat * adet;
@@ -241,39 +293,136 @@ class _SepetSayfasiState extends State<SepetSayfasi> {
     return toplam;
   }
 
-  double _teslimatUcretiHesapla(double araToplam) {
-    if (araToplam <= 0) return 0;
-    return 25;
+  double _teslimatUcretiHesapla({
+    required double araToplam,
+    required int toplamUrunAdedi,
+    required bool gelAlSiparisi,
+    required bool deliveryIncludedInPrice,
+  }) {
+    if (araToplam <= 0 || toplamUrunAdedi <= 0) return 0;
+
+    // Şimdilik Sofrasofra Ev Galeri / ürün fiyatları nihai fiyat kabul ediliyor.
+    // Bu yüzden Gel-Al veya Götür fark etmeksizin sepette ayrıca kurye ücreti bindirmiyoruz.
+    return 0;
   }
 
   int _toplamUrunAdedi(
     List<QueryDocumentSnapshot<Map<String, dynamic>>> docs,
   ) {
     int toplam = 0;
+
     for (final doc in docs) {
       final data = doc.data();
-      toplam += _asInt(data['adet'] ?? data['quantity'] ?? data['qty'] ?? 0);
+      toplam += _safeAdet(
+        data['adet'] ?? data['quantity'] ?? data['qty'] ?? 1,
+      );
     }
+
     return toplam;
+  }
+
+  bool _allItemsBool(
+    List<QueryDocumentSnapshot<Map<String, dynamic>>> docs,
+    String field,
+  ) {
+    if (docs.isEmpty) return false;
+
+    for (final doc in docs) {
+      final data = doc.data();
+      if (!_asBool(data[field])) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  bool _isGelAlCart(
+    List<QueryDocumentSnapshot<Map<String, dynamic>>> docs,
+  ) {
+    if (docs.isEmpty) return false;
+
+    for (final doc in docs) {
+      final data = doc.data();
+
+      final teslimatTipi = _readString(
+        data,
+        ['teslimatTipi', 'deliveryType', 'deliveryMode', 'siparisTipi'],
+      ).toLowerCase().trim();
+
+      if (teslimatTipi.isEmpty) {
+        return false;
+      }
+
+      final normalized = teslimatTipi
+          .replaceAll('-', '_')
+          .replaceAll(' ', '_')
+          .replaceAll('ı', 'i');
+
+      if (normalized != 'gel_al' && normalized != 'gelal') {
+        return false;
+      }
+    }
+
+    return true;
   }
 
   double _asDouble(dynamic value) {
     if (value == null) return 0;
+
     if (value is double) return value;
     if (value is int) return value.toDouble();
     if (value is num) return value.toDouble();
+
     if (value is String) {
-      return double.tryParse(value.replaceAll(',', '.')) ?? 0;
+      return double.tryParse(value.replaceAll(',', '.').trim()) ?? 0;
     }
+
     return 0;
   }
 
   int _asInt(dynamic value) {
     if (value == null) return 0;
+
     if (value is int) return value;
     if (value is num) return value.toInt();
-    if (value is String) return int.tryParse(value) ?? 0;
+
+    if (value is String) {
+      return int.tryParse(value.trim()) ?? 0;
+    }
+
     return 0;
+  }
+
+  int _safeAdet(dynamic value) {
+    final adet = _asInt(value);
+    if (adet <= 0) return 1;
+    return adet;
+  }
+
+  bool _asBool(dynamic value, {bool defaultValue = false}) {
+    if (value == null) return defaultValue;
+
+    if (value is bool) return value;
+
+    if (value is num) {
+      return value != 0;
+    }
+
+    final text = value.toString().toLowerCase().trim();
+
+    if (text == 'true') return true;
+    if (text == '1') return true;
+    if (text == 'yes') return true;
+    if (text == 'evet') return true;
+
+    if (text == 'false') return false;
+    if (text == '0') return false;
+    if (text == 'no') return false;
+    if (text == 'hayir') return false;
+    if (text == 'hayır') return false;
+
+    return defaultValue;
   }
 
   String _readString(
@@ -283,10 +432,12 @@ class _SepetSayfasiState extends State<SepetSayfasi> {
   }) {
     for (final key in keys) {
       final value = data[key];
+
       if (value != null && value.toString().trim().isNotEmpty) {
         return value.toString().trim();
       }
     }
+
     return fallback;
   }
 
@@ -294,6 +445,7 @@ class _SepetSayfasiState extends State<SepetSayfasi> {
     List<QueryDocumentSnapshot<Map<String, dynamic>>> docs,
   ) {
     final sorted = [...docs];
+
     sorted.sort((a, b) {
       final aData = a.data();
       final bData = b.data();
@@ -309,6 +461,7 @@ class _SepetSayfasiState extends State<SepetSayfasi> {
 
       return bTime.compareTo(aTime);
     });
+
     return sorted;
   }
 
@@ -366,6 +519,7 @@ class _SepetSayfasiState extends State<SepetSayfasi> {
               ),
             );
           }
+
           if (!snapshot.hasData) {
             return const Center(
               child: CircularProgressIndicator(
@@ -373,6 +527,7 @@ class _SepetSayfasiState extends State<SepetSayfasi> {
               ),
             );
           }
+
           final docs = _sortDocs(snapshot.data!.docs);
 
           if (docs.isEmpty) {
@@ -426,23 +581,28 @@ class _SepetSayfasiState extends State<SepetSayfasi> {
             );
           }
 
-          final araToplam = _araToplamHesapla(docs);
-          final teslimatUcreti = _teslimatUcretiHesapla(araToplam);
+          final totals = _buildCartTotals(docs);
 
           final finance = SofrasofraFinanceCalculator.calculate(
-            productTotal: araToplam,
-            deliveryFee: teslimatUcreti,
+            productTotal: totals.araToplam,
+            deliveryFee: totals.teslimatUcreti,
             userType: UserType.evLezzetleri,
             plan: PlanType.free,
+            deliveryIncludedInPrice: totals.deliveryIncludedInPrice,
+            feeIncludedInPrice: totals.feeIncludedInPrice,
           );
 
-          debugPrint("=== FINANCE DEBUG ===");
-          debugPrint("Müşteri: ${finance.customerTotalPayment}");
-          debugPrint("Üretici Net: ${finance.producerNetAmount}");
-          debugPrint("Kurye Net: ${finance.courierNetAmount}");
-          debugPrint("Platform: ${finance.platformTotalRevenue}");
-          debugPrint("=====================");
-          final toplamUrun = _toplamUrunAdedi(docs);
+          debugPrint('=== FINANCE DEBUG / SCREEN ===');
+          debugPrint('Ara Toplam: ${totals.araToplam}');
+          debugPrint('Teslimat Ücreti: ${totals.teslimatUcreti}');
+          debugPrint('Delivery Included: ${totals.deliveryIncludedInPrice}');
+          debugPrint('Fee Included: ${totals.feeIncludedInPrice}');
+          debugPrint('Ödeme İşlem Ücreti: ${finance.paymentProcessingFee}');
+          debugPrint('Müşteri Toplam: ${finance.customerTotalPayment}');
+          debugPrint('Üretici Net: ${finance.producerNetAmount}');
+          debugPrint('Kurye Net: ${finance.courierNetAmount}');
+          debugPrint('Platform: ${finance.platformTotalRevenue}');
+          debugPrint('==============================');
 
           return Column(
             children: [
@@ -468,7 +628,7 @@ class _SepetSayfasiState extends State<SepetSayfasi> {
                           border: Border.all(color: _border),
                         ),
                         child: Text(
-                          '$toplamUrun ürün',
+                          '${totals.toplamUrunAdedi} ürün',
                           style: const TextStyle(
                             color: _gold,
                             fontWeight: FontWeight.w800,
@@ -537,7 +697,7 @@ class _SepetSayfasiState extends State<SepetSayfasi> {
                           0,
                     );
 
-                    final adet = _asInt(
+                    final adet = _safeAdet(
                       item['adet'] ?? item['quantity'] ?? item['qty'] ?? 1,
                     );
 
@@ -677,6 +837,7 @@ class _SepetSayfasiState extends State<SepetSayfasi> {
                                             ),
                                           ),
                                           child: const Row(
+                                            mainAxisSize: MainAxisSize.min,
                                             children: [
                                               Icon(
                                                 Icons.delete_outline,
@@ -722,6 +883,7 @@ class _SepetSayfasiState extends State<SepetSayfasi> {
                 ),
                 child: SafeArea(
                   top: false,
+                  minimum: const EdgeInsets.only(bottom: 34),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -733,13 +895,13 @@ class _SepetSayfasiState extends State<SepetSayfasi> {
                           children: [
                             _ozetSatiri(
                               'Ara Toplam',
-                              _price(araToplam),
+                              _price(totals.araToplam),
                               valueColor: _textPrimary,
                             ),
                             const SizedBox(height: 10),
                             _ozetSatiri(
                               'Teslimat Ücreti',
-                              _price(teslimatUcreti),
+                              _price(finance.deliveryFee),
                               valueColor: _textMuted,
                             ),
                             const Padding(
@@ -757,8 +919,7 @@ class _SepetSayfasiState extends State<SepetSayfasi> {
                             const SizedBox(height: 10),
                             _ozetSatiri(
                               'Genel Toplam',
-                              _price(finance.customerTotalPayment +
-                                  finance.paymentProcessingFee),
+                              _price(finance.customerTotalPayment),
                               isStrong: true,
                               valueColor: _gold,
                             ),
@@ -801,6 +962,7 @@ class _SepetSayfasiState extends State<SepetSayfasi> {
                                 ),
                         ),
                       ),
+                      const SizedBox(height: 10),
                     ],
                   ),
                 ),
@@ -947,4 +1109,22 @@ class _SepetSayfasiState extends State<SepetSayfasi> {
       ],
     );
   }
+}
+
+class _CartTotals {
+  final double araToplam;
+  final double teslimatUcreti;
+  final int toplamUrunAdedi;
+  final bool deliveryIncludedInPrice;
+  final bool feeIncludedInPrice;
+  final bool gelAlSiparisi;
+
+  const _CartTotals({
+    required this.araToplam,
+    required this.teslimatUcreti,
+    required this.toplamUrunAdedi,
+    required this.deliveryIncludedInPrice,
+    required this.feeIncludedInPrice,
+    required this.gelAlSiparisi,
+  });
 }

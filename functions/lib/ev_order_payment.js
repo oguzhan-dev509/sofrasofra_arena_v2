@@ -167,7 +167,10 @@ exports.initializeEvOrderPayment = (0, https_1.onCall)({
                     name: (data.saticiAdi ?? data.dukkanAdi ?? "Ev Lezzetleri Siparişi")
                         .toString()
                         .trim(),
-                    category1: "EvLezzetleri",
+                    category1: (data.iyzicoCategory ??
+                        (((data.sellerType ?? "").toString().trim() === "chef_signature")
+                            ? "ChefSignature"
+                            : "EvLezzetleri")).toString().trim(),
                     itemType: "PHYSICAL",
                     price: paidPrice,
                 },
@@ -177,6 +180,17 @@ exports.initializeEvOrderPayment = (0, https_1.onCall)({
         const requestBody = JSON.stringify(payload);
         const randomKey = crypto.randomBytes(8).toString("hex");
         const authorization = generateIyziAuthorization(apiKey, secretKey, uriPath, requestBody, randomKey);
+        const sellerType = (data.sellerType ?? "ev_lezzetleri")
+            .toString()
+            .trim();
+        const iyzicoCategory = (data.iyzicoCategory ??
+            (sellerType === "chef_signature" ? "ChefSignature" : "EvLezzetleri"))
+            .toString()
+            .trim();
+        const paymentChannel = (data.paymentChannel ??
+            (sellerType === "chef_signature" ? "chef_signature_order" : "ev_order"))
+            .toString()
+            .trim();
         const iyzicoResponse = await axios_1.default.post(`${getIyziBaseUrl()}${uriPath}`, payload, {
             headers: {
                 "Content-Type": "application/json",
@@ -195,6 +209,9 @@ exports.initializeEvOrderPayment = (0, https_1.onCall)({
         await ref.update({
             paymentStatus: "awaiting_payment",
             paymentProvider: "iyzico",
+            sellerType,
+            paymentChannel,
+            iyzicoCategory,
             paymentConversationId: conversationId,
             iyzicoToken: token,
             iyzicoStatus,

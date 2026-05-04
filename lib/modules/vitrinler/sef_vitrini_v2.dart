@@ -9,7 +9,6 @@ class SefVitriniV2 extends StatelessWidget {
 
   static const Color _bg = Color(0xFF0B0B0B);
   static const Color _gold = Color(0xFFFFB300);
-  static const Color _card = Color(0xFF151515);
 
   Query<Map<String, dynamic>> _query() {
     return FirebaseFirestore.instance

@@ -22,7 +22,7 @@ class _EvLezzetleriVitriniCleanState extends State<EvLezzetleriVitriniClean> {
   static const Color _gold = Color(0xFFFFB300);
 
   String _selectedCategory = 'Tümü';
-
+// ignore: unused_field
   final List<String> _categories = const [
     'Tümü',
     'Ev Yemekleri',

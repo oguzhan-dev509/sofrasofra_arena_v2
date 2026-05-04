@@ -351,11 +351,11 @@ class _EvLezzetleriVitriniState extends State<EvLezzetleriVitrini> {
       if (ilce.isNotEmpty) ilce,
       if (sehir.isNotEmpty) sehir,
     ].join(' / ');
-    debugPrint('=== TAP PRODUCT START ===');
-    debugPrint('TAP DOC ID: ${doc.id}');
-    debugPrint('TAP AD: $ad');
-    debugPrint('TAP IMG: $img');
-    debugPrint('TAP IMAGES COUNT: ${urunGorseller.length}');
+    // debugPrint('=== TAP PRODUCT START ===');
+    //debugPrint('TAP DOC ID: ${doc.id}');
+    // debugPrint('TAP AD: $ad');
+    // debugPrint('TAP IMG: $img');
+    // debugPrint('TAP IMAGES COUNT: ${urunGorseller.length}');
     debugPrint('TAP IMAGES: $urunGorseller');
     debugPrint('=== TAP PRODUCT END ===');
     Navigator.push(
@@ -377,6 +377,11 @@ class _EvLezzetleriVitriniState extends State<EvLezzetleriVitrini> {
                   data['uid'] ??
                   '')
               .toString(),
+          kategori: 'Ev Lezzetleri',
+          gelAlFiyat:
+              data['gelAlFiyat'] is num ? data['gelAlFiyat'] as num : null,
+          goturFiyat:
+              data['goturFiyat'] is num ? data['goturFiyat'] as num : null,
           isAdmin: true,
         ),
       ),
@@ -654,11 +659,11 @@ class _EvLezzetleriVitriniState extends State<EvLezzetleriVitrini> {
                           data['image'],
                     );
 
-              debugPrint('### DOC ID: ${doc.id}');
-              debugPrint('### RAW IMAGES TYPE: ${rawImages.runtimeType}');
-              debugPrint('### RAW IMAGES: $rawImages');
-              debugPrint('### CARD GALERI LENGTH: ${urunGorseller.length}');
-              debugPrint('### CARD IMG: $img');
+              // debugPrint('### DOC ID: ${doc.id}');
+              // debugPrint('### RAW IMAGES TYPE: ${rawImages.runtimeType}');
+              // debugPrint('### RAW IMAGES: $rawImages');
+              // debugPrint('### CARD GALERI LENGTH: ${urunGorseller.length}');
+              //  debugPrint('### CARD IMG: $img');
               final dynamic fiyatRaw = data['fiyat'] ?? data['gelAlFiyat'];
               final double fiyat = _readPrice(fiyatRaw);
               final String fiyatText = fiyat <= 0
@@ -932,7 +937,7 @@ class _EvLezzetleriVitriniState extends State<EvLezzetleriVitrini> {
                           (context, index) {
                             final doc = docs[index];
                             final data = doc.data();
-                            debugPrint('DOC RAW: ${doc.data()}');
+                            // debugPrint('DOC RAW: ${doc.data()}');
                             final String ad = _safeText(
                               data['ad'] ?? data['urunAdi'] ?? data['yemekAdi'],
                             );
@@ -1460,8 +1465,6 @@ class _KuryeOlBanner extends StatelessWidget {
   const _KuryeOlBanner({required this.isMobile});
 
   static const Color _gold = Color(0xFFFFB300);
-  static const Color _gold2 = Color(0xFFFF9800);
-  static const Color _dark = Color(0xFF121212);
 
   @override
   Widget build(BuildContext context) {

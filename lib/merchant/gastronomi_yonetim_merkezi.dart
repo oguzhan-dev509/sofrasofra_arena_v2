@@ -27,6 +27,7 @@ import 'package:sofrasofra_arena_v2/admin/mahalle_mutfagi_admin_sayfasi.dart';
 import 'package:sofrasofra_arena_v2/admin/home_banner_admin_sayfasi.dart';
 import 'package:sofrasofra_arena_v2/admin/finans_operasyon_merkezi_sayfasi.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:sofrasofra_arena_v2/admin/usta_sef_yonetimi_sayfasi.dart';
 
 class GastronomiYonetimMerkezi extends StatelessWidget {
   final String? chefId;
@@ -41,6 +42,7 @@ class GastronomiYonetimMerkezi extends StatelessWidget {
     this.sellerId,
     this.sellerName,
   });
+  // ignore: unused_element
   bool get _isAdmin {
     const adminIds = {
       'fW2t8hLgBqSJt8fP4sFP7gwIEep2',
@@ -53,12 +55,7 @@ class GastronomiYonetimMerkezi extends StatelessWidget {
   }
 
   static const Color _bg = Color(0xFF090909);
-  static const Color _panel = Color(0xFF111111);
-  static const Color _panel2 = Color(0xFF171717);
   static const Color _gold = Color(0xFFFFB300);
-  static const Color _softText = Color(0xFFBDBDBD);
-  static const Color _border = Color(0x22FFFFFF);
-
   bool _hasChefContext() => (chefId ?? '').trim().isNotEmpty;
 
   String get _currentChefId => (chefId ?? '').trim();
@@ -273,6 +270,19 @@ class GastronomiYonetimMerkezi extends StatelessWidget {
             'Şef kayıtları, genel yönetim, içerik düzenleme ve temel operasyon akışları.',
         icon: Icons.dashboard_customize_rounded,
         onTap: () => _openChefAdmin(context),
+      ),
+      _DashboardItem(
+        title: 'Usta Şef Yönetimi',
+        subtitle: 'Demo şefleri pasifleştir, aktif/pasif durumlarını yönet.',
+        icon: Icons.manage_accounts_rounded,
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => const UstaSefYonetimiSayfasi(),
+            ),
+          );
+        },
       ),
       _DashboardItem(
         title: 'Şef Profili',

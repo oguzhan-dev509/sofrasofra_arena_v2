@@ -11,8 +11,7 @@ class AkademiKategoriVitrini extends StatefulWidget {
 
 class _AkademiKategoriVitriniState extends State<AkademiKategoriVitrini> {
   static const Color _bg = Color(0xFF111111);
-  static const Color _panel = Color(0xFF1A1A1A);
-  static const Color _panel2 = Color(0xFF202020);
+
   static const Color _gold = Color(0xFFFFB300);
 
   String _selectedCategory = 'Tümü';

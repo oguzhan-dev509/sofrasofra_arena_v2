@@ -18,13 +18,15 @@ class UreticiYonetimMerkeziSayfasi extends StatelessWidget {
 
   static const Color _bg = Color(0xFF090909);
   static const Color _panel = Color(0xFF151515);
-  static const Color _panelSoft = Color(0xFF1C1C1C);
+
   static const Color _gold = Color(0xFFFFD54F);
   static const Color _muted = Color(0xFFB9B2A6);
-
+// ignore: unused_field
   static const String _chefId = 'RhkyTCD5TgWJFdEzP50mvCOrz5a2';
   static const String _chefName = 'Feride Lokman';
+  // ignore: unused_field
   static const String _demoOrderId = 'demo-order-id';
+  // ignore: unused_field
   static const String _sellerId = 'RhkyTCD5TgWJFdEzP50mvCOrz5a2';
   @override
   Widget build(BuildContext context) {
@@ -512,9 +514,10 @@ class _PanelShell extends StatelessWidget {
   });
 
   static const Color _bg = Color(0xFF090909);
-  static const Color _panel = Color(0xFF161616);
+
   static const Color _gold = Color(0xFFFFD54F);
   static const Color _muted = Color(0xFFB9B2A6);
+  // ignore: unused_field
   static const String _chefId = 'RhkyTCD5TgWJFdEzP50mvCOrz5a2';
   static const String _chefName = 'Feride Lokman';
   static const String _sellerId = 'RhkyTCD5TgWJFdEzP50mvCOrz5a2';

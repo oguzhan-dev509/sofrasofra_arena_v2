@@ -122,15 +122,15 @@ class _ConsultingRequestsPageState extends State<ConsultingRequestsPage> {
       final budgetText = _budgetController.text.trim();
       final budget = int.tryParse(budgetText) ?? 0;
 
-      debugPrint('📦 DATA PREPARED:');
-      debugPrint('name     = ${_nameController.text}');
-      debugPrint('phone    = ${_phoneController.text}');
-      debugPrint('city     = ${_cityController.text}');
-      debugPrint('district = ${_districtController.text}');
-      debugPrint('target   = ${_targetDateController.text}');
-      debugPrint('budget   = $budgetText → $budget');
-      debugPrint('details  = ${_detailsController.text}');
-      debugPrint('type     = $_selectedType');
+      // debugPrint('📦 DATA PREPARED:');
+      // debugPrint('name     = ${_nameController.text}');
+      //debugPrint('phone    = ${_phoneController.text}');
+      // debugPrint('city     = ${_cityController.text}');
+      // debugPrint('district = ${_districtController.text}');
+      //debugPrint('target   = ${_targetDateController.text}');
+      // debugPrint('budget   = $budgetText → $budget');
+      // debugPrint('details  = ${_detailsController.text}');
+      // debugPrint('type     = $_selectedType');
 
       await FirebaseFirestore.instance.collection('consulting_requests').add({
         'chefId': widget.chefId,
@@ -934,8 +934,6 @@ class _ConsultingPill extends StatelessWidget {
   const _ConsultingPill({
     required this.label,
   });
-
-  static const Color gold = Color(0xFFFFB300);
 
   @override
   Widget build(BuildContext context) {

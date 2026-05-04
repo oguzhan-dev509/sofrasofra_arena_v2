@@ -12,9 +12,21 @@ class SofrasofraFinanceCalculator {
     double? producerCommissionRateOverride,
     double? courierCommissionRateOverride,
     double? paymentFeeRateOverride,
+
+    // Nihai fiyat senaryoları:
+    // Ev Galeri / Şef Galeri gibi fiyat zaten teslimat veya işlem bedelini içeriyorsa
+    // müşteriye tekrar ücret bindirilmez.
+    bool deliveryIncludedInPrice = false,
+    bool feeIncludedInPrice = false,
+
+    // true: ödeme işlem ücreti müşteri toplamına eklenir.
+    // false: işlem ücreti platform/üretici finansında kalır, müşteriye ayrıca yansımaz.
+    bool chargePaymentFeeToCustomer = true,
   }) {
-    final safeProductTotal = _nonNegative(productTotal);
-    final safeDeliveryFee = _nonNegative(deliveryFee);
+    final safeProductTotal = _roundMoney(_nonNegative(productTotal));
+    final rawDeliveryFee = _roundMoney(_nonNegative(deliveryFee));
+
+    final effectiveDeliveryFee = deliveryIncludedInPrice ? 0.0 : rawDeliveryFee;
 
     final producerRate = producerCommissionRateOverride ??
         SofrasofraPricingModel.getProducerCommission(
@@ -28,18 +40,21 @@ class SofrasofraFinanceCalculator {
     final paymentRate =
         paymentFeeRateOverride ?? SofrasofraPricingModel.getPaymentFeeRate();
 
-    final customerTotalPayment = safeProductTotal + safeDeliveryFee;
+    final paymentBase = _roundMoney(safeProductTotal + effectiveDeliveryFee);
 
-    final paymentProcessingFee = _roundMoney(
-      customerTotalPayment * paymentRate,
-    );
+    final paymentProcessingFee =
+        feeIncludedInPrice ? 0.0 : _roundMoney(paymentBase * paymentRate);
 
     final producerCommissionAmount = _roundMoney(
       safeProductTotal * producerRate,
     );
 
     final courierCommissionAmount = _roundMoney(
-      safeDeliveryFee * courierRate,
+      effectiveDeliveryFee * courierRate,
+    );
+
+    final customerTotalPayment = _roundMoney(
+      paymentBase + (chargePaymentFeeToCustomer ? paymentProcessingFee : 0.0),
     );
 
     final producerNetAmount = _roundMoney(
@@ -47,19 +62,19 @@ class SofrasofraFinanceCalculator {
     );
 
     final courierNetAmount = _roundMoney(
-      safeDeliveryFee - courierCommissionAmount,
+      effectiveDeliveryFee - courierCommissionAmount,
     );
 
     final platformProducerRevenue = producerCommissionAmount;
     final platformCourierRevenue = courierCommissionAmount;
 
     final platformTotalRevenue = _roundMoney(
-      platformProducerRevenue + platformCourierRevenue,
+      platformProducerRevenue + platformCourierRevenue + paymentProcessingFee,
     );
 
     return SofrasofraOrderFinance(
-      productTotal: _roundMoney(safeProductTotal),
-      deliveryFee: _roundMoney(safeDeliveryFee),
+      productTotal: safeProductTotal,
+      deliveryFee: effectiveDeliveryFee,
       paymentProcessingFee: paymentProcessingFee,
       producerCommissionRate: producerRate,
       producerCommissionAmount: producerCommissionAmount,
@@ -70,7 +85,7 @@ class SofrasofraFinanceCalculator {
       platformProducerRevenue: platformProducerRevenue,
       platformCourierRevenue: platformCourierRevenue,
       platformTotalRevenue: platformTotalRevenue,
-      customerTotalPayment: _roundMoney(customerTotalPayment),
+      customerTotalPayment: customerTotalPayment,
     );
   }
 

@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
+import 'package:sofrasofra_arena_v2/services/otomatik_kurye_atama_servisi.dart';
 
 class SepetService {
   static final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -27,6 +28,8 @@ class SepetService {
     double? gelAlFiyat,
     double? goturFiyat,
     String teslimatTipi = 'gel_al',
+    bool deliveryIncludedInPrice = false,
+    bool feeIncludedInPrice = false,
     String? saticiId,
     String? dukkanId,
   }) async {
@@ -43,9 +46,32 @@ class SepetService {
 
     final sellerData = sellerSnap.data() ?? {};
 
-    final String sellerType =
-        (sellerData['sellerType'] ?? 'ev_lezzetleri').toString();
+    final String rawSellerType =
+        (sellerData['sellerType'] ?? '').toString().trim();
 
+    final String kategoriKey = kategori.toLowerCase().trim();
+    final String dukkanKey = dukkanAdi.toLowerCase().trim();
+
+    final bool looksLikeChefSignature = kategoriKey.contains('şef') ||
+        kategoriKey.contains('sef') ||
+        kategoriKey.contains('usta') ||
+        kategoriKey.contains('imza') ||
+        dukkanKey.contains('şef') ||
+        dukkanKey.contains('sef') ||
+        dukkanKey.contains('imza');
+
+    final String sellerType = rawSellerType.isNotEmpty
+        ? rawSellerType
+        : (looksLikeChefSignature ? 'chef_signature' : 'ev_lezzetleri');
+
+    final String paymentChannel =
+        sellerType == 'chef_signature' ? 'chef_signature_order' : 'ev_order';
+
+    final String iyzicoCategory =
+        sellerType == 'chef_signature' ? 'ChefSignature' : 'EvLezzetleri';
+
+    final String orderSource =
+        sellerType == 'chef_signature' ? 'chef_signature_dish' : 'ev_product';
     final List<String> teslimatModlari = _asStringList(
       sellerData['teslimatModlari'],
     );
@@ -75,7 +101,14 @@ class SepetService {
         deliveryMode = 'gel_al';
       }
     }
-
+// Kullanıcının seçtiği teslimat tipi sepetin gerçek teslimat modunu belirler.
+    if (teslimatTipi == 'gel_al') {
+      deliveryMode = 'gel_al';
+    } else if (teslimatTipi == 'gotur') {
+      deliveryMode = platformKuryeAktif
+          ? 'platform_kurye'
+          : (saticiKuryeAktif ? 'satici_kuryesi' : 'platform_kurye');
+    }
     final sepetSnap = await sepetRef.get();
     final sepetData = sepetSnap.data();
 
@@ -102,6 +135,9 @@ class SepetService {
         'dukkanAd': dukkanAdi,
         'saticiId': finalSaticiId,
         'sellerType': sellerType,
+        'paymentChannel': paymentChannel,
+        'iyzicoCategory': iyzicoCategory,
+        'orderSource': orderSource,
         'teslimatModlari': teslimatModlari,
         'deliveryMode': deliveryMode,
         'siparisTipi': deliveryMode == 'gel_al' ? 'gel_al' : 'teslimat',
@@ -115,8 +151,6 @@ class SepetService {
 
     if (mevcutQuery.docs.isNotEmpty) {
       final doc = mevcutQuery.docs.first;
-      final data = doc.data();
-      final mevcutAdet = _asInt(data['adet']);
 
       batch.update(doc.reference, {
         'urunAdi': urunAdi,
@@ -133,7 +167,9 @@ class SepetService {
         'gelAlFiyat': gelAlFiyat ?? fiyat,
         'goturFiyat': goturFiyat ?? fiyat,
         'teslimatTipi': teslimatTipi,
-        'adet': mevcutAdet + 1,
+        'deliveryIncludedInPrice': deliveryIncludedInPrice,
+        'feeIncludedInPrice': feeIncludedInPrice,
+        'adet': 1,
         'saticiId': finalSaticiId,
         'addedAt': FieldValue.serverTimestamp(),
       });
@@ -156,6 +192,8 @@ class SepetService {
         'gelAlFiyat': gelAlFiyat ?? fiyat,
         'goturFiyat': goturFiyat ?? fiyat,
         'teslimatTipi': teslimatTipi,
+        'deliveryIncludedInPrice': deliveryIncludedInPrice,
+        'feeIncludedInPrice': feeIncludedInPrice,
         'adet': 1,
         'saticiId': finalSaticiId,
         'addedAt': FieldValue.serverTimestamp(),
@@ -179,12 +217,16 @@ class SepetService {
     Map<String, dynamic>? finance,
   }) async {
     final sepetRef = _firestore.collection('sepetler').doc(_cartId);
-    final sepetSnap = await sepetRef.get();
+    var sepetSnap = await sepetRef.get();
 
     if (!sepetSnap.exists) {
       throw Exception('Sepet bulunamadı.');
     }
 
+// Sipariş oluşturmadan önce sepet toplamlarını son kez merkezi olarak güncelle.
+    await _sepetToplamlariniGuncelle();
+
+    sepetSnap = await sepetRef.get();
     final sepetData = sepetSnap.data() ?? {};
     final itemsSnap = await sepetRef.collection('items').get();
 
@@ -196,7 +238,21 @@ class SepetService {
     final String dukkanAdi = (sepetData['dukkanAd'] ?? '').toString().trim();
     final String sellerType =
         (sepetData['sellerType'] ?? 'ev_lezzetleri').toString();
+    final String paymentChannel = (sepetData['paymentChannel'] ??
+            (sellerType == 'chef_signature'
+                ? 'chef_signature_order'
+                : 'ev_order'))
+        .toString();
 
+    final String iyzicoCategory = (sepetData['iyzicoCategory'] ??
+            (sellerType == 'chef_signature' ? 'ChefSignature' : 'EvLezzetleri'))
+        .toString();
+
+    final String orderSource = (sepetData['orderSource'] ??
+            (sellerType == 'chef_signature'
+                ? 'chef_signature_dish'
+                : 'ev_product'))
+        .toString();
     final List<String> teslimatModlari = _asStringList(
       sepetData['teslimatModlari'],
     );
@@ -251,6 +307,9 @@ class SepetService {
       'dukkanId': saticiId,
       'dukkanAdi': dukkanAdi,
       'sellerType': sellerType,
+      'paymentChannel': paymentChannel,
+      'iyzicoCategory': iyzicoCategory,
+      'orderSource': orderSource,
       'teslimatModlari': teslimatModlari,
       'deliveryMode': deliveryMode,
       'siparisTipi': siparisTipi,
@@ -335,6 +394,10 @@ class SepetService {
       'userId': _cartId,
       'saticiId': saticiId,
       'saticiAdi': dukkanAdi,
+      'sellerType': sellerType,
+      'paymentChannel': paymentChannel,
+      'iyzicoCategory': iyzicoCategory,
+      'orderSource': orderSource,
       'status': initialStatus,
       'durum': initialStatus,
       'deliveryMode': deliveryMode,
@@ -399,6 +462,9 @@ class SepetService {
         'deliveryMode': null,
         'siparisTipi': null,
         'sellerType': null,
+        'paymentChannel': null,
+        'iyzicoCategory': null,
+        'orderSource': null,
         'teslimatModlari': <String>[],
         'platformKuryeAktif': null,
         'saticiKuryeAktif': null,
@@ -413,19 +479,43 @@ class SepetService {
 
     await batch.commit();
 
-    await orderRef.set({
-      'courierAssignmentTriggered': true,
-      'courierAssignmentCheckedAt': FieldValue.serverTimestamp(),
-      'updatedAt': FieldValue.serverTimestamp(),
-    }, SetOptions(merge: true));
+    // 🔥 PLATFORM KURYE SİPARİŞLERİNDE OTOMATİK KURYE ATA
+    if (deliveryMode == 'platform_kurye' && platformKuryeAktif) {
+      await orderRef.set({
+        'courierAssignmentTriggered': true,
+        'courierAssignmentCheckedAt': FieldValue.serverTimestamp(),
+        'courierAssignmentResult': 'started',
+        'updatedAt': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
 
-// 🔥 KURYEYİ ANINDA ATA
-    try {
-      // await OtomatikKuryeAtamaServisi.sipariseKuryeAta(
-      //  orderId: orderRef.id,
-      // );
-    } catch (e) {
-      debugPrint('Kurye atama hatası: $e');
+      try {
+        final assigned = await OtomatikKuryeAtamaServisi.sipariseKuryeAta(
+          orderId: orderRef.id,
+        );
+
+        await orderRef.set({
+          'courierAssignmentResult':
+              assigned ? 'assigned_or_offer_sent' : 'not_assigned',
+          'courierAssignmentCheckedAt': FieldValue.serverTimestamp(),
+          'updatedAt': FieldValue.serverTimestamp(),
+        }, SetOptions(merge: true));
+      } catch (e) {
+        await orderRef.set({
+          'courierAssignmentResult': 'error',
+          'courierAssignmentError': e.toString(),
+          'courierAssignmentCheckedAt': FieldValue.serverTimestamp(),
+          'updatedAt': FieldValue.serverTimestamp(),
+        }, SetOptions(merge: true));
+
+        debugPrint('Kurye atama hatası: $e');
+      }
+    } else {
+      await orderRef.set({
+        'courierAssignmentTriggered': false,
+        'courierAssignmentResult': 'not_required_for_$deliveryMode',
+        'courierAssignmentCheckedAt': FieldValue.serverTimestamp(),
+        'updatedAt': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
     }
 
     return orderRef.id;
@@ -441,24 +531,60 @@ class SepetService {
     double araToplam = 0;
     int urunSayisi = 0;
 
+    bool tumTeslimatlarFiyataDahil = itemsSnap.docs.isNotEmpty;
+    bool tumIslemUcretleriFiyataDahil = itemsSnap.docs.isNotEmpty;
+
     for (final doc in itemsSnap.docs) {
       final data = doc.data();
+
       final fiyat = _asDouble(
         data['fiyat'] ?? data['birimFiyat'] ?? data['unitPrice'] ?? 0,
       );
-      final adet = _asInt(data['adet'] ?? data['quantity'] ?? 1);
 
-      araToplam += fiyat * adet;
-      urunSayisi += 1;
+      final adet = _asInt(data['adet'] ?? data['quantity'] ?? 1);
+      final safeAdet = adet <= 0 ? 1 : adet;
+
+      final deliveryIncluded =
+          _asBool(data['deliveryIncludedInPrice'], defaultValue: false);
+
+      final feeIncluded =
+          _asBool(data['feeIncludedInPrice'], defaultValue: false);
+
+      araToplam += fiyat * safeAdet;
+      urunSayisi += safeAdet;
+
+      if (!deliveryIncluded) {
+        tumTeslimatlarFiyataDahil = false;
+      }
+
+      if (!feeIncluded) {
+        tumIslemUcretleriFiyataDahil = false;
+      }
     }
 
     final String deliveryMode =
         (sepetData['deliveryMode'] ?? 'platform_kurye').toString();
 
-    final double teslimatUcreti = _hesaplaTeslimatUcreti(
-      deliveryMode: deliveryMode,
-      urunSayisi: urunSayisi,
+    final double estimatedDistanceKm = _asDouble(
+      sepetData['estimatedDistanceKm'] ??
+          sepetData['distanceKm'] ??
+          sepetData['mesafeKm'] ??
+          0,
     );
+
+    final bool gelAlSiparisi = deliveryMode == 'gel_al';
+
+    final double teslimatUcreti = urunSayisi == 0
+        ? 0
+        : gelAlSiparisi
+            ? 0
+            : tumTeslimatlarFiyataDahil
+                ? 0
+                : _hesaplaTeslimatUcreti(
+                    deliveryMode: deliveryMode,
+                    urunSayisi: urunSayisi,
+                    estimatedDistanceKm: estimatedDistanceKm,
+                  );
 
     final double genelToplam =
         urunSayisi == 0 ? 0 : (araToplam + teslimatUcreti);
@@ -469,6 +595,8 @@ class SepetService {
       'teslimatUcreti': teslimatUcreti,
       'genelToplam': genelToplam,
       'urunSayisi': urunSayisi,
+      'deliveryIncludedInPrice': tumTeslimatlarFiyataDahil,
+      'feeIncludedInPrice': tumIslemUcretleriFiyataDahil,
       'updatedAt': FieldValue.serverTimestamp(),
     }, SetOptions(merge: true));
   }
@@ -502,14 +630,15 @@ class SepetService {
   static double _hesaplaTeslimatUcreti({
     required String deliveryMode,
     required int urunSayisi,
+    double estimatedDistanceKm = 0,
   }) {
     if (urunSayisi == 0) return 0;
 
-    if (deliveryMode == 'gel_al') {
-      return 0;
-    }
-
-    return 25;
+    // Sofrasofra güncel finans standardı:
+    // Gel-Al ve Götür fiyatları üreticinin nihai fiyatıdır.
+    // Kurye/teslimat bedeli üretici ile kurye arasındaki operasyondur.
+    // Platform sepette müşteriye ayrıca kurye ücreti bindirmez.
+    return 0;
   }
 
   static String _normalizeSellerId(String raw) {

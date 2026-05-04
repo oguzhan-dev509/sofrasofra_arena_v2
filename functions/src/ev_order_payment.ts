@@ -175,7 +175,10 @@ export const initializeEvOrderPayment = onCall(
             name: (data.saticiAdi ?? data.dukkanAdi ?? "Ev Lezzetleri Siparişi")
               .toString()
               .trim(),
-            category1: "EvLezzetleri",
+           category1: ((data.iyzicoCategory ??
+  (((data.sellerType ?? "").toString().trim() === "chef_signature")
+    ? "ChefSignature"
+    : "EvLezzetleri")) as string).toString().trim(),
             itemType: "PHYSICAL",
             price: paidPrice,
           },
@@ -193,7 +196,19 @@ export const initializeEvOrderPayment = onCall(
         requestBody,
         randomKey
       );
+const sellerType = (data.sellerType ?? "ev_lezzetleri")
+  .toString()
+  .trim();
 
+const iyzicoCategory = (data.iyzicoCategory ??
+  (sellerType === "chef_signature" ? "ChefSignature" : "EvLezzetleri"))
+  .toString()
+  .trim();
+
+const paymentChannel = (data.paymentChannel ??
+  (sellerType === "chef_signature" ? "chef_signature_order" : "ev_order"))
+  .toString()
+  .trim();
       const iyzicoResponse = await axios.post(
         `${getIyziBaseUrl()}${uriPath}`,
         payload,
@@ -220,9 +235,12 @@ export const initializeEvOrderPayment = onCall(
       }
 
       await ref.update({
-        paymentStatus: "awaiting_payment",
-        paymentProvider: "iyzico",
-        paymentConversationId: conversationId,
+       paymentStatus: "awaiting_payment",
+paymentProvider: "iyzico",
+sellerType,
+paymentChannel,
+iyzicoCategory,
+paymentConversationId: conversationId,
         iyzicoToken: token,
         iyzicoStatus,
         iyzicoCheckoutUrl: checkoutUrl,
