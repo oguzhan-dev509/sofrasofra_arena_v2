@@ -1164,12 +1164,26 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
   Widget _buildGalleryStripCard() {
     final images = _galleryImageUrls;
 
+    if (images.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
     final screenWidth = MediaQuery.of(context).size.width;
-    const cardPadding = 36.0;
-    const innerPadding = 36.0;
-    const spacing = 14.0;
-    final itemWidth =
-        (screenWidth - cardPadding - innerPadding - (spacing * 2)) / 3;
+    final isMobile = screenWidth < 600;
+
+    final itemWidth = isMobile
+        ? (screenWidth * 0.38).clamp(118.0, 152.0).toDouble()
+        : ((screenWidth - 36.0 - 36.0 - 28.0) / 3)
+            .clamp(140.0, 220.0)
+            .toDouble();
+
+    final safeSelectedIndex = _selectedGalleryIndex < 0
+        ? 0
+        : (_selectedGalleryIndex >= images.length
+            ? images.length - 1
+            : _selectedGalleryIndex);
+
+    final selectedGalleryImage = images[safeSelectedIndex];
 
     return Container(
       padding: const EdgeInsets.all(18),
@@ -1187,104 +1201,179 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
             ),
           ),
           const SizedBox(height: 14),
+
+          // Mobil güvenli: küçük kartlarda sadece görsel gösterilir.
           SizedBox(
-            height: itemWidth + 92,
+            height: itemWidth + 10,
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
               itemCount: images.length,
               separatorBuilder: (_, __) => const SizedBox(width: 14),
               itemBuilder: (context, index) {
                 final imageUrl = images[index];
-                final isSelected = index == _selectedGalleryIndex;
-                final isHovered = index == _hoveredIndex;
+                final isSelected = index == safeSelectedIndex;
 
-                return MouseRegion(
-                  onEnter: (_) {
+                return GestureDetector(
+                  onTap: () {
                     setState(() {
-                      _hoveredIndex = index;
+                      _selectedGalleryIndex = index;
                     });
                   },
-                  onExit: (_) {
-                    setState(() {
-                      _hoveredIndex = -1;
-                    });
-                  },
-                  child: GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        _selectedGalleryIndex = index;
-                      });
-                    },
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 160),
-                      curve: Curves.easeOut,
-                      width: itemWidth,
-                      height: itemWidth + 92,
-                      transform: (isSelected || isHovered)
-                          ? (Matrix4.identity()..scale(1.06))
-                          : Matrix4.identity(),
+                  child: SizedBox(
+                    width: itemWidth,
+                    height: itemWidth,
+                    child: DecoratedBox(
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(22),
                         border: Border.all(
                           color: isSelected ? _gold : _border,
                           width: isSelected ? 3 : 1.2,
                         ),
-                        color: _chipBg,
+                        color: const Color(0xFF111111),
                         boxShadow: isSelected
                             ? [
                                 BoxShadow(
-                                  color: _gold.withOpacity(0.35),
-                                  blurRadius: 14,
-                                  spreadRadius: 1,
+                                  color: _gold.withValues(alpha: 0.28),
+                                  blurRadius: 18,
+                                  offset: const Offset(0, 8),
                                 ),
                               ]
                             : const [],
                       ),
-                      clipBehavior: Clip.antiAlias,
-                      child: Column(
-                        children: [
-                          Expanded(
-                            child: GestureDetector(
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (_) => FullScreenGallery(
-                                      images: images,
-                                      initialIndex: index,
-                                    ),
-                                  ),
-                                );
-                              },
-                              child: Image.network(
+                      child: Padding(
+                        padding: const EdgeInsets.all(3),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(18),
+                          child: Stack(
+                            fit: StackFit.expand,
+                            children: [
+                              Image.network(
                                 imageUrl,
-                                width: double.infinity,
                                 fit: BoxFit.cover,
+                                gaplessPlayback: true,
+                                filterQuality: FilterQuality.medium,
+                                loadingBuilder:
+                                    (context, child, loadingProgress) {
+                                  if (loadingProgress == null) return child;
+
+                                  return Container(
+                                    color: const Color(0xFF111111),
+                                    alignment: Alignment.center,
+                                    child: const SizedBox(
+                                      width: 18,
+                                      height: 18,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        color: _gold,
+                                      ),
+                                    ),
+                                  );
+                                },
                                 errorBuilder: (_, __, ___) => Container(
-                                  color: Colors.black12,
+                                  color: const Color(0xFF151515),
                                   alignment: Alignment.center,
                                   child: const Icon(
                                     Icons.image_not_supported_outlined,
                                     color: _textMuted,
+                                    size: 22,
                                   ),
                                 ),
                               ),
-                            ),
+                              if (isSelected)
+                                Positioned(
+                                  right: 8,
+                                  top: 8,
+                                  child: Container(
+                                    padding: const EdgeInsets.all(6),
+                                    decoration: BoxDecoration(
+                                      color:
+                                          Colors.black.withValues(alpha: 0.65),
+                                      shape: BoxShape.circle,
+                                      border: Border.all(
+                                        color: _gold.withValues(alpha: 0.75),
+                                      ),
+                                    ),
+                                    child: const Icon(
+                                      Icons.check_rounded,
+                                      color: _gold,
+                                      size: 18,
+                                    ),
+                                  ),
+                                ),
+                              Positioned(
+                                left: 8,
+                                bottom: 8,
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                    vertical: 5,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: Colors.black.withValues(alpha: 0.65),
+                                    borderRadius: BorderRadius.circular(999),
+                                  ),
+                                  child: Text(
+                                    '${index + 1}/${images.length}',
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w800,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              Positioned(
+                                right: 8,
+                                bottom: 8,
+                                child: InkWell(
+                                  borderRadius: BorderRadius.circular(999),
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (_) => FullScreenGallery(
+                                          images: images,
+                                          initialIndex: index,
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                  child: Container(
+                                    padding: const EdgeInsets.all(7),
+                                    decoration: BoxDecoration(
+                                      color:
+                                          Colors.black.withValues(alpha: 0.65),
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: const Icon(
+                                      Icons.visibility_rounded,
+                                      color: Colors.white,
+                                      size: 17,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
-                          EvGallerySalesActions(
-                            ownerProductId: (widget.productId ?? '').trim(),
-                            sellerId: (widget.sellerId ?? '').trim(),
-                            dukkanAdi: widget.dukkanAdi,
-                            imageUrl: imageUrl,
-                            isAdmin: _canManageMedia,
-                          ),
-                        ],
+                        ),
                       ),
                     ),
                   ),
                 );
               },
             ),
+          ),
+
+          const SizedBox(height: 16),
+
+          // Satış/fiyat/sepet paneli artık küçük kartın içinde değil,
+          // seçili görselin altında tam genişlikte durur.
+          EvGallerySalesActions(
+            ownerProductId: (widget.productId ?? '').trim(),
+            sellerId: (widget.sellerId ?? '').trim(),
+            dukkanAdi: widget.dukkanAdi,
+            imageUrl: selectedGalleryImage,
+            isAdmin: _canManageMedia,
           ),
         ],
       ),

@@ -45,6 +45,7 @@ class _SefItibarSayfasiState extends State<SefItibarSayfasi> {
 
   final ImagePicker _picker = ImagePicker();
   bool _busy = false;
+  int _selectedChefGalleryIndex = 0;
   String _membershipType = 'free';
   int _maxGalleryPhoto = 6;
   int _maxVideoLink = 0;
@@ -735,6 +736,10 @@ class _SefItibarSayfasiState extends State<SefItibarSayfasi> {
   }
 
   Widget _buildGallerySection(List<String> gallery) {
+    final safeSelectedIndex = gallery.isEmpty
+        ? 0
+        : _selectedChefGalleryIndex.clamp(0, gallery.length - 1).toInt();
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -763,22 +768,29 @@ class _SefItibarSayfasiState extends State<SefItibarSayfasi> {
                   decoration: BoxDecoration(
                     color: gold,
                     borderRadius: BorderRadius.circular(999),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.25),
+                        blurRadius: 12,
+                        offset: const Offset(0, 6),
+                      ),
+                    ],
                   ),
                   child: const Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(
-                        Icons.add_photo_alternate,
+                        Icons.add_photo_alternate_outlined,
                         color: Colors.black,
-                        size: 18,
+                        size: 17,
                       ),
-                      SizedBox(width: 8),
+                      SizedBox(width: 6),
                       Text(
                         'Fotoğraf Ekle',
                         style: TextStyle(
                           color: Colors.black,
                           fontSize: 12,
-                          fontWeight: FontWeight.w800,
+                          fontWeight: FontWeight.w900,
                         ),
                       ),
                     ],
@@ -808,68 +820,110 @@ class _SefItibarSayfasiState extends State<SefItibarSayfasi> {
             ),
           )
         else
-          GridView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: gallery.length,
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 3,
-              crossAxisSpacing: 12,
-              mainAxisSpacing: 12,
-              childAspectRatio: 1.05,
-            ),
-            itemBuilder: (context, index) {
-              final url = gallery[index].trim();
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              GridView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: gallery.length,
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 3,
+                  crossAxisSpacing: 12,
+                  mainAxisSpacing: 12,
+                  childAspectRatio: 1.05,
+                ),
+                itemBuilder: (context, index) {
+                  final url = gallery[index].trim();
+                  final isSelected = index == safeSelectedIndex;
 
-              return GestureDetector(
-                onTap: () => _openImage(url),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(18),
-                  child: Stack(
-                    fit: StackFit.expand,
-                    children: [
-                      NetworkImageWidget(url: url),
-                      Container(
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.white10),
-                          borderRadius: BorderRadius.circular(18),
-                        ),
-                      ),
-                      Positioned(
-                        left: 0,
-                        right: 0,
-                        bottom: 0,
-                        child: ChefGallerySalesActions(
-                          chefId: _chefId,
-                          imageUrl: url,
-                          isAdmin: widget.isAdmin,
-                        ),
-                      ),
-                      if (true)
-                        Positioned(
-                          top: 6,
-                          right: 6,
-                          child: GestureDetector(
-                            onTap: () => _removeGalleryImage(url),
-                            child: Container(
-                              padding: const EdgeInsets.all(5),
-                              decoration: BoxDecoration(
-                                color: Colors.black.withAlpha(170),
-                                shape: BoxShape.circle,
-                              ),
-                              child: const Icon(
-                                Icons.close,
-                                color: Colors.redAccent,
-                                size: 16,
+                  return GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        _selectedChefGalleryIndex = index;
+                      });
+                      _openImage(url);
+                    },
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(18),
+                      child: Stack(
+                        fit: StackFit.expand,
+                        children: [
+                          Positioned.fill(
+                            child: Image.network(
+                              url,
+                              fit: BoxFit.cover,
+                              gaplessPlayback: true,
+                              filterQuality: FilterQuality.medium,
+                              loadingBuilder: (context, child, progress) {
+                                if (progress == null) return child;
+
+                                return Container(
+                                  color: const Color(0xFF111111),
+                                  alignment: Alignment.center,
+                                  child: const SizedBox(
+                                    width: 18,
+                                    height: 18,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      color: gold,
+                                    ),
+                                  ),
+                                );
+                              },
+                              errorBuilder: (_, __, ___) => Container(
+                                color: const Color(0xFF151515),
+                                alignment: Alignment.center,
+                                child: const Icon(
+                                  Icons.image_not_supported_outlined,
+                                  color: Colors.white38,
+                                  size: 22,
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                    ],
-                  ),
-                ),
-              );
-            },
+                          Container(
+                            decoration: BoxDecoration(
+                              border: Border.all(
+                                color: isSelected ? gold : Colors.white10,
+                                width: isSelected ? 2.5 : 1,
+                              ),
+                              borderRadius: BorderRadius.circular(18),
+                            ),
+                          ),
+                          if (widget.isAdmin)
+                            Positioned(
+                              top: 6,
+                              right: 6,
+                              child: GestureDetector(
+                                onTap: () => _removeGalleryImage(url),
+                                child: Container(
+                                  padding: const EdgeInsets.all(5),
+                                  decoration: BoxDecoration(
+                                    color: Colors.black.withAlpha(170),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(
+                                    Icons.close,
+                                    color: Colors.redAccent,
+                                    size: 16,
+                                  ),
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
+              const SizedBox(height: 14),
+              ChefGallerySalesActions(
+                chefId: _chefId,
+                imageUrl: gallery[safeSelectedIndex].trim(),
+                isAdmin: widget.isAdmin,
+              ),
+            ],
           ),
       ],
     );
