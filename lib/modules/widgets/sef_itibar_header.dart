@@ -113,12 +113,12 @@ class HeroHeader extends StatelessWidget {
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
               colors: [
-                Color(0x08000000),
-                Color(0x22000000),
-                Color(0x66000000),
-                Color(0xCC050505),
+                Color(0x00000000),
+                Color(0x12000000),
+                Color(0x30000000),
+                Color(0x5C050505),
               ],
-              stops: [0.0, 0.35, 0.72, 1.0],
+              stops: [0.0, 0.38, 0.76, 1.0],
             ),
           ),
         ),
@@ -290,9 +290,9 @@ class HeroHeader extends StatelessWidget {
           child: Container(
             padding: const EdgeInsets.fromLTRB(18, 16, 18, 16),
             decoration: BoxDecoration(
-              color: Colors.black.withAlpha(75),
+              color: Colors.black.withAlpha(30),
               borderRadius: BorderRadius.circular(22),
-              border: Border.all(color: Colors.white10),
+              border: Border.all(color: Colors.white24),
             ),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,

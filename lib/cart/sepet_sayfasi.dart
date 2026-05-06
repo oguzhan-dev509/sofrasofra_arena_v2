@@ -531,6 +531,38 @@ class _SepetSayfasiState extends State<SepetSayfasi> {
           final docs = _sortDocs(snapshot.data!.docs);
 
           if (docs.isEmpty) {
+            if (_siparisOlusturuluyor) {
+              return const Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    CircularProgressIndicator(
+                      color: _gold,
+                    ),
+                    SizedBox(height: 16),
+                    Text(
+                      'Ödeme sayfası hazırlanıyor...',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: _textPrimary,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
+                    SizedBox(height: 8),
+                    Text(
+                      'Lütfen bekleyin, güvenli ödeme ekranına yönlendiriliyorsunuz.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: _textMuted,
+                        fontSize: 14,
+                        height: 1.45,
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }
             return Center(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 24),

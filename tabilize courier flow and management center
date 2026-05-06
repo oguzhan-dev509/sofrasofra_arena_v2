@@ -1,0 +1,20 @@
+ lib/cart/sepet_sayfasi.dart                        |  32 [32m++[m
+ lib/main.dart                                      |  11 [32m+[m[31m-[m
+ lib/merchant/gastronomi_yonetim_merkezi.dart       |  26 [32m+[m[31m-[m
+ lib/merchant/uretici_yonetim_merkezi_sayfasi.dart  |   8 [32m+[m[31m-[m
+ lib/merchant/urun_ekleme_sayfasi_v2.dart           |  70 [32m++++[m[31m-[m
+ lib/modules/arena_entry_page.dart                  | 104 [32m+++++[m[31m--[m
+ lib/modules/kategori_urun_listesi_sayfasi.dart     |   2 [32m+[m[31m-[m
+ lib/modules/sef_itibar_sayfasi.dart                |   7 [32m+[m[31m-[m
+ lib/modules/urun_detay.dart                        | 325 [32m+++++++++++[m[31m----------[m
+ lib/modules/vitrinler/ev_lezzetleri_vitrini.dart   |  22 [32m+[m[31m-[m
+ .../vitrinler/ev_lezzetleri_vitrini_clean.dart     |   2 [32m+[m[31m-[m
+ .../widgets/sef_imza_tabagi_premium_card.dart      |   9 [31m-[m
+ .../widgets/sef_imza_tabaklari_section.dart        |  74 [32m++[m[31m---[m
+ lib/modules/widgets/sef_itibar_header.dart         |  14 [32m+[m[31m-[m
+ lib/modules/widgets/sef_membership_card.dart       |  60 [32m++[m[31m--[m
+ lib/orders/musteri_canli_kurye_takip_haritasi.dart |   2 [32m+[m[31m-[m
+ lib/orders/musteri_siparis_takip_sayfasi.dart      | 133 [32m+++++++[m[31m--[m
+ lib/services/kurye_konum_servisi.dart              |  16 [32m+[m[31m-[m
+ lib/services/otomatik_kurye_atama_servisi.dart     |   4 [32m+[m[31m-[m
+ 19 files changed, 607 insertions(+), 314 deletions(-)

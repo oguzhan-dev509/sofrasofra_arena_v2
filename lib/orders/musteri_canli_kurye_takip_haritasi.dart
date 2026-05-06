@@ -427,7 +427,7 @@ class MusteriCanliKuryeTakipHaritasi extends StatelessWidget {
                                       LatLng(siparisLat, siparisLng),
                                     ],
                                     strokeWidth: 10,
-                                    color: Colors.black.withOpacity(0.6),
+                                    color: Colors.black.withValues(alpha: 0.6),
                                   ),
 
                                   // ÜST KATMAN (altın çizgi)

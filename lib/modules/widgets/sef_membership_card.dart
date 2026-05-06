@@ -43,11 +43,11 @@ class SefMembershipCard extends StatelessWidget {
   String _upgradeSubtitle() {
     switch (membershipType.toLowerCase()) {
       case 'pro':
-        return '40 galeri fotoğrafı + 3 video linki + vitrin önceliği';
+        return '32 galeri fotoğrafı + 3 tanıtım video linki + eğitim videoları ücretsiz + vitrin önceliği';
       case 'premium':
         return 'En yüksek görünürlük paketi aktif';
       default:
-        return '15 galeri fotoğrafı + 1 video linki + daha güçlü görünürlük';
+        return '12 galeri fotoğrafı + 1 tanıtım video linki + eğitim videoları ücretsiz + daha güçlü görünürlük';
     }
   }
 
@@ -215,27 +215,47 @@ void showChefPlanSheet(BuildContext context, String membershipType) {
                   'Şef Paketleri',
                   style: TextStyle(
                     color: gold,
-                    fontSize: 16,
+                    fontSize: 19,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 const SizedBox(height: 16),
                 _plan(
-                    'Ücretsiz',
-                    ['6 galeri fotoğrafı', '0 video', 'Temel görünürlük'],
-                    membershipType == 'free'),
+                  'Ücretsiz',
+                  [
+                    'Aylık: 0 TL',
+                    'Komisyon: %12',
+                    '6 galeri fotoğrafı',
+                    '0 tanıtım videosu',
+                    'Eğitim videoları ücretsiz',
+                    'Temel görünürlük',
+                  ],
+                  membershipType == 'free',
+                ),
                 _plan(
-                    'Pro',
-                    [
-                      '15 galeri fotoğrafı',
-                      '1 video linki',
-                      'Daha güçlü görünürlük'
-                    ],
-                    membershipType == 'pro'),
+                  'Pro',
+                  [
+                    'Aylık: 249 TL',
+                    'Komisyon: %6',
+                    '12 galeri fotoğrafı',
+                    '1 tanıtım video linki',
+                    'Eğitim videoları ücretsiz',
+                    'Daha güçlü görünürlük',
+                  ],
+                  membershipType == 'pro',
+                ),
                 _plan(
-                    'Premium',
-                    ['40 galeri fotoğrafı', '3 video linki', 'Vitrin önceliği'],
-                    membershipType == 'premium'),
+                  'Premium',
+                  [
+                    'Aylık: 499 TL',
+                    'Komisyon: %3',
+                    '32 galeri fotoğrafı',
+                    '3 tanıtım video linki',
+                    'Eğitim videoları ücretsiz',
+                    'Vitrin önceliği',
+                  ],
+                  membershipType == 'premium',
+                ),
                 const SizedBox(height: 20),
                 ElevatedButton(
                   onPressed: () {
@@ -264,8 +284,12 @@ void showChefPlanSheet(BuildContext context, String membershipType) {
 
 Widget _plan(String title, List<String> items, bool active) {
   return Container(
-    margin: const EdgeInsets.only(bottom: 12),
-    padding: const EdgeInsets.all(12),
+    width: double.infinity,
+    constraints: const BoxConstraints(
+      minHeight: 178,
+    ),
+    margin: const EdgeInsets.only(bottom: 16),
+    padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
     decoration: BoxDecoration(
       color: const Color(0xFF181818),
       borderRadius: BorderRadius.circular(12),

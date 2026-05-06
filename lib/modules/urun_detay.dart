@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:sofrasofra_arena_v2/modules/widgets/ev_product_gallery.dart';
 import 'package:sofrasofra_arena_v2/modules/widgets/ev_gallery_manager.dart';
-import 'package:sofrasofra_arena_v2/modules/widgets/ev_product_media_admin_bar.dart';
+
 import 'package:sofrasofra_arena_v2/modules/widgets/ev_product_status_note_card.dart';
 import 'package:sofrasofra_arena_v2/services/sepet_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -11,6 +11,8 @@ import 'package:sofrasofra_arena_v2/cart/sepet_sayfasi.dart';
 import 'package:sofrasofra_arena_v2/modules/widgets/product_reviews_section.dart';
 import 'package:sofrasofra_arena_v2/modules/widgets/ev_gallery_sales_bridge.dart';
 import 'package:sofrasofra_arena_v2/modules/fullscreen_gallery.dart';
+import 'package:sofrasofra_arena_v2/modules/widgets/urun_detay_media_admin_panel.dart';
+import 'package:sofrasofra_arena_v2/services/platform_admin_service.dart';
 
 class UrunDetaySayfasi extends StatefulWidget {
   final String urunAdi;
@@ -55,10 +57,13 @@ class UrunDetaySayfasi extends StatefulWidget {
 
 bool _liveBugunHazirlandi = false;
 bool _liveSinirliAdet = false;
+
 String _liveKalanAdet = '';
 String _liveChefNote = '';
 
 class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
+  bool _isPlatformAdmin = false;
+
   int adet = 1;
   int _selectedGalleryIndex = 0;
   bool _mediaBusy = false;
@@ -497,7 +502,17 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
   }
 
   bool get _canManageMedia {
-    return widget.isAdmin && (widget.productId ?? '').trim().isNotEmpty;
+    final uid = (FirebaseAuth.instance.currentUser?.uid ?? '').trim();
+    final sellerId = (widget.sellerId ?? '').trim();
+    final productId = (widget.productId ?? '').trim();
+
+    if (uid.isEmpty || productId.isEmpty) {
+      return false;
+    }
+
+    final isOwner = sellerId.isNotEmpty && uid == sellerId;
+
+    return isOwner || _isPlatformAdmin;
   }
 
   List<String> get _effectiveImages {
@@ -526,6 +541,8 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
   @override
   void initState() {
     super.initState();
+
+    _loadPlatformAdminRole();
 
     _liveImages = EvGalleryManager.normalizeImages(
       images: widget.urunGorseller,
@@ -668,6 +685,16 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
         setState(() => _mediaBusy = false);
       }
     }
+  }
+
+  Future<void> _loadPlatformAdminRole() async {
+    final isAdmin = await PlatformAdminService.isCurrentUserPlatformAdmin();
+
+    if (!mounted) return;
+
+    setState(() {
+      _isPlatformAdmin = isAdmin;
+    });
   }
 
   Future<void> _addPhotoToGallery() async {
@@ -1086,8 +1113,8 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
                   ),
                   const SizedBox(height: 14),
                   if (_galleryImageUrls.isNotEmpty) ...[
-                    if (_canManageMedia) ...[
-                      EvProductMediaAdminBar(
+                    if (_canManageMedia)
+                      UrunDetayMediaAdminPanel(
                         busy: _mediaBusy,
                         onAddCoverPhoto: _replaceCoverPhoto,
                         onDeleteCoverPhoto: _deleteCoverPhoto,
@@ -1095,8 +1122,6 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
                         onDeleteCurrentGalleryPhoto: _deleteCurrentPhoto,
                         onSetCurrentAsCover: _setCurrentAsCover,
                       ),
-                      const SizedBox(height: 10),
-                    ],
                     _buildGalleryStripCard(),
                     const SizedBox(height: 14),
                   ],
@@ -1548,123 +1573,67 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
           ),
         ],
       ),
-      child: SafeArea(
-        top: false,
-        minimum: const EdgeInsets.only(bottom: 34),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    '$adet adet seçildi • $_selectedDeliveryLabel',
-                    style: const TextStyle(
-                      color: _textMuted,
-                      fontSize: 13,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ),
-                Text(
-                  _priceText(_selectedTotalPrice),
-                  style: const TextStyle(
-                    color: _gold,
-                    fontSize: 18,
-                    fontWeight: FontWeight.w900,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 10),
-            SizedBox(
-              width: double.infinity,
-              height: 58,
-              child: ElevatedButton(
-                onPressed: () async {
-                  if (_selectedUnitPrice == null) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Bu ürün için fiyat tanımlı değil.'),
-                        backgroundColor: Colors.redAccent,
-                      ),
-                    );
-                    return;
-                  }
-
-                  final productId = (widget.productId ?? '').trim();
-
-                  if (productId.isEmpty) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Ürün ID bulunamadı. Sepete eklenemedi.'),
-                        backgroundColor: Colors.redAccent,
-                      ),
-                    );
-                    return;
-                  }
-
-                  try {
-                    await SepetService.sepeteEkle(
-                      urunId: productId,
-                      urunAdi: widget.urunAdi,
-                      dukkanAdi: widget.dukkanAdi,
-                      kategori: widget.kategori,
-                      img: _coverImageUrl,
-                      fiyat: _selectedUnitPrice!.toDouble(),
-                      gelAlFiyat: widget.kategori == 'Ev Lezzetleri'
-                          ? _effectiveGelAlPrice?.toDouble()
-                          : null,
-                      goturFiyat: widget.kategori == 'Ev Lezzetleri'
-                          ? (_effectiveGoturPrice ?? _effectiveGelAlPrice)
-                              ?.toDouble()
-                          : null,
-                      teslimatTipi: widget.kategori == 'Ev Lezzetleri'
-                          ? _selectedDeliveryType
-                          : 'gel_al',
-                      saticiId: (widget.sellerId ?? '').trim(),
-                      dukkanId: (widget.sellerId ?? '').trim(),
-                    );
-
-                    if (!mounted) return;
-
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        backgroundColor: _gold,
-                        content: Text(
-                          '${widget.urunAdi} • $_selectedDeliveryLabel • ${_priceText(_selectedTotalPrice)} sepete eklendi!',
+      child: _canManageMedia
+          ? const SizedBox.shrink()
+          : SafeArea(
+              top: false,
+              minimum: const EdgeInsets.only(bottom: 34),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          '$adet adet seçildi • $_selectedDeliveryLabel',
                           style: const TextStyle(
-                            color: Colors.black,
-                            fontWeight: FontWeight.w900,
+                            color: _textMuted,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w700,
                           ),
                         ),
                       ),
-                    );
-                    await Future<void>.delayed(
-                        const Duration(milliseconds: 650));
-
-                    if (!mounted) return;
-
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const SepetSayfasi(),
+                      Text(
+                        _priceText(_selectedTotalPrice),
+                        style: const TextStyle(
+                          color: _gold,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w900,
+                        ),
                       ),
-                    );
-                  } catch (e) {
-                    if (!mounted) return;
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 58,
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        if (_selectedUnitPrice == null) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content:
+                                  Text('Bu ürün için fiyat tanımlı değil.'),
+                              backgroundColor: Colors.redAccent,
+                            ),
+                          );
+                          return;
+                        }
 
-                    final errorText = e.toString();
+                        final productId = (widget.productId ?? '').trim();
 
-                    if (errorText.contains('tek satıcıdan')) {
-                      final shouldClear = await _showSingleSellerDialog();
+                        if (productId.isEmpty) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text(
+                                  'Ürün ID bulunamadı. Sepete eklenemedi.'),
+                              backgroundColor: Colors.redAccent,
+                            ),
+                          );
+                          return;
+                        }
 
-                      if (!mounted) return;
-
-                      if (shouldClear) {
                         try {
-                          await _clearCurrentUserCart();
-
                           await SepetService.sepeteEkle(
                             urunId: productId,
                             urunAdi: widget.urunAdi,
@@ -1692,7 +1661,7 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
                             SnackBar(
                               backgroundColor: _gold,
                               content: Text(
-                                'Sepet temizlendi ve ${widget.urunAdi} sepete eklendi!',
+                                '${widget.urunAdi} • $_selectedDeliveryLabel • ${_priceText(_selectedTotalPrice)} sepete eklendi!',
                                 style: const TextStyle(
                                   color: Colors.black,
                                   fontWeight: FontWeight.w900,
@@ -1700,56 +1669,118 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
                               ),
                             ),
                           );
+                          await Future<void>.delayed(
+                              const Duration(milliseconds: 650));
+
+                          if (!mounted) return;
+
                           Navigator.push(
                             context,
                             MaterialPageRoute(
                               builder: (_) => const SepetSayfasi(),
                             ),
                           );
-                        } catch (err) {
+                        } catch (e) {
                           if (!mounted) return;
+
+                          final errorText = e.toString();
+
+                          if (errorText.contains('tek satıcıdan')) {
+                            final shouldClear = await _showSingleSellerDialog();
+
+                            if (!mounted) return;
+
+                            if (shouldClear) {
+                              try {
+                                await _clearCurrentUserCart();
+
+                                await SepetService.sepeteEkle(
+                                  urunId: productId,
+                                  urunAdi: widget.urunAdi,
+                                  dukkanAdi: widget.dukkanAdi,
+                                  kategori: widget.kategori,
+                                  img: _coverImageUrl,
+                                  fiyat: _selectedUnitPrice!.toDouble(),
+                                  gelAlFiyat: widget.kategori == 'Ev Lezzetleri'
+                                      ? _effectiveGelAlPrice?.toDouble()
+                                      : null,
+                                  goturFiyat: widget.kategori == 'Ev Lezzetleri'
+                                      ? (_effectiveGoturPrice ??
+                                              _effectiveGelAlPrice)
+                                          ?.toDouble()
+                                      : null,
+                                  teslimatTipi:
+                                      widget.kategori == 'Ev Lezzetleri'
+                                          ? _selectedDeliveryType
+                                          : 'gel_al',
+                                  saticiId: (widget.sellerId ?? '').trim(),
+                                  dukkanId: (widget.sellerId ?? '').trim(),
+                                );
+
+                                if (!mounted) return;
+
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    backgroundColor: _gold,
+                                    content: Text(
+                                      'Sepet temizlendi ve ${widget.urunAdi} sepete eklendi!',
+                                      style: const TextStyle(
+                                        color: Colors.black,
+                                        fontWeight: FontWeight.w900,
+                                      ),
+                                    ),
+                                  ),
+                                );
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => const SepetSayfasi(),
+                                  ),
+                                );
+                              } catch (err) {
+                                if (!mounted) return;
+
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text('Sepet temizlenemedi: $err'),
+                                    backgroundColor: Colors.redAccent,
+                                  ),
+                                );
+                              }
+                            }
+
+                            return;
+                          }
 
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
-                              content: Text('Sepet temizlenemedi: $err'),
+                              content: Text('Sepete eklenemedi: $e'),
                               backgroundColor: Colors.redAccent,
                             ),
                           );
                         }
-                      }
-
-                      return;
-                    }
-
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('Sepete eklenemedi: $e'),
-                        backgroundColor: Colors.redAccent,
+                      },
+                      style: ElevatedButton.styleFrom(
+                        elevation: 0,
+                        backgroundColor: _gold,
+                        foregroundColor: Colors.black,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(18),
+                        ),
                       ),
-                    );
-                  }
-                },
-                style: ElevatedButton.styleFrom(
-                  elevation: 0,
-                  backgroundColor: _gold,
-                  foregroundColor: Colors.black,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(18),
+                      child: const Text(
+                        'SEPETE EKLE',
+                        style: TextStyle(
+                          fontSize: 17,
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: 1.1,
+                        ),
+                      ),
+                    ),
                   ),
-                ),
-                child: const Text(
-                  'SEPETE EKLE',
-                  style: TextStyle(
-                    fontSize: 17,
-                    fontWeight: FontWeight.w900,
-                    letterSpacing: 1.1,
-                  ),
-                ),
+                ],
               ),
             ),
-          ],
-        ),
-      ),
     );
   }
 

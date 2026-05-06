@@ -8,12 +8,13 @@ import 'package:sofrasofra_arena_v2/cart/sepet_sayfasi.dart';
 
 class SefImzaTabaklariSection extends StatefulWidget {
   final String chefId;
+  final bool canManage;
 
   const SefImzaTabaklariSection({
     super.key,
     required this.chefId,
+    this.canManage = false,
   });
-
   @override
   State<SefImzaTabaklariSection> createState() =>
       _SefImzaTabaklariSectionState();
@@ -390,37 +391,38 @@ class _SefImzaTabaklariSectionState extends State<SefImzaTabaklariSection> {
                 fontWeight: FontWeight.bold,
               ),
             ),
-            InkWell(
-              onTap: _addDish,
-              borderRadius: BorderRadius.circular(999),
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 14,
-                  vertical: 10,
-                ),
-                decoration: BoxDecoration(
-                  color: gold,
-                  borderRadius: BorderRadius.circular(999),
-                ),
-                child: const Row(
-                  children: [
-                    Icon(
-                      Icons.add_a_photo_rounded,
-                      size: 16,
-                      color: Colors.black,
-                    ),
-                    SizedBox(width: 6),
-                    Text(
-                      'Ekle',
-                      style: TextStyle(
+            if (widget.canManage)
+              InkWell(
+                onTap: _addDish,
+                borderRadius: BorderRadius.circular(999),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 10,
+                  ),
+                  decoration: BoxDecoration(
+                    color: gold,
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                  child: const Row(
+                    children: [
+                      Icon(
+                        Icons.add_a_photo_rounded,
+                        size: 16,
                         color: Colors.black,
-                        fontWeight: FontWeight.bold,
                       ),
-                    ),
-                  ],
+                      SizedBox(width: 6),
+                      Text(
+                        'Ekle',
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
           ],
         ),
         const SizedBox(height: 12),
@@ -471,13 +473,15 @@ class _SefImzaTabaklariSectionState extends State<SefImzaTabaklariSection> {
                   gelAlFiyat:
                       data['gelAlFiyat'] ?? data['price'] ?? data['fiyat'],
                   goturFiyat: data['goturFiyat'],
-                  onEdit: () => _editDishInfo(
-                    doc.id,
-                    data['price'] ?? data['fiyat'],
-                    description,
-                    data,
-                  ),
-                  onDelete: () => _deleteDish(doc.id),
+                  onEdit: widget.canManage
+                      ? () => _editDishInfo(
+                            doc.id,
+                            data['price'] ?? data['fiyat'],
+                            description,
+                            data,
+                          )
+                      : null,
+                  onDelete: widget.canManage ? () => _deleteDish(doc.id) : null,
                   onAddToCart: () => _addSignatureDishToCart(doc.id, data),
                 );
               },

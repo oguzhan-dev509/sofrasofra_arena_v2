@@ -39,7 +39,9 @@ class KuryeKonumServisi {
   }) async {
     final hazir = await izinleriHazirla();
     if (!hazir) {
-      await testBaslat(courierId: courierId);
+      if (kDebugMode) {
+        await testBaslat(courierId: courierId);
+      }
       return;
     }
 
@@ -63,7 +65,9 @@ class KuryeKonumServisi {
       );
     } catch (e) {
       debugPrint('tekSeferGonder hatası: $e');
-      await testBaslat(courierId: courierId);
+      if (kDebugMode) {
+        await testBaslat(courierId: courierId);
+      }
     }
   }
 
@@ -74,7 +78,9 @@ class KuryeKonumServisi {
 
     final hazir = await izinleriHazirla();
     if (!hazir) {
-      await testBaslat(courierId: courierId);
+      if (kDebugMode) {
+        await testBaslat(courierId: courierId);
+      }
       return;
     }
 
@@ -107,7 +113,9 @@ class KuryeKonumServisi {
       },
       onError: (e) async {
         debugPrint('Konum stream hatası: $e');
-        await testBaslat(courierId: courierId);
+        if (kDebugMode) {
+          await testBaslat(courierId: courierId);
+        }
       },
     );
   }

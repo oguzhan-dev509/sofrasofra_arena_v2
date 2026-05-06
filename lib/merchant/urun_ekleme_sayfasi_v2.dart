@@ -138,7 +138,7 @@ class _UrunEklemeSayfasiV2State extends State<UrunEklemeSayfasiV2> {
         .child(user.uid)
         .child(fileName);
 
-    debugPrint('📤 UPLOAD PATH: ${ref.fullPath}');
+    //debugPrint('📤 UPLOAD PATH: ${ref.fullPath}');
 
     final snap = await ref.putData(
       bytes,
@@ -146,7 +146,7 @@ class _UrunEklemeSayfasiV2State extends State<UrunEklemeSayfasiV2> {
     );
 
     final url = await snap.ref.getDownloadURL();
-    debugPrint('✅ UPLOAD OK: $url');
+    // debugPrint('✅ UPLOAD OK: $url');
 
     return url;
   }
@@ -319,12 +319,12 @@ class _UrunEklemeSayfasiV2State extends State<UrunEklemeSayfasiV2> {
         'updatedAt': FieldValue.serverTimestamp(),
       };
 
-      debugPrint('🧠 URUN PAYLOAD: $payload');
+      //debugPrint('🧠 URUN PAYLOAD: $payload');
 
       final docRef =
           await FirebaseFirestore.instance.collection('urunler').add(payload);
 
-      debugPrint('✅ URUN YAZILDI: ${docRef.id}');
+      // debugPrint('✅ URUN YAZILDI: ${docRef.id}');
 
       if (!mounted) return;
 
@@ -426,6 +426,8 @@ class _UrunEklemeSayfasiV2State extends State<UrunEklemeSayfasiV2> {
                     _planCard(
                       title: 'Ücretsiz',
                       features: const [
+                        'Aylık: 0 TL',
+                        'Komisyon: %10',
                         '3 fotoğraf',
                         '0 video linki',
                         'Temel görünürlük',
@@ -436,6 +438,8 @@ class _UrunEklemeSayfasiV2State extends State<UrunEklemeSayfasiV2> {
                     _planCard(
                       title: 'Pro',
                       features: const [
+                        'Aylık: 149 TL',
+                        'Komisyon: %5',
                         '8 fotoğraf',
                         '1 video linki',
                         'Daha güçlü görünürlük',
@@ -446,9 +450,11 @@ class _UrunEklemeSayfasiV2State extends State<UrunEklemeSayfasiV2> {
                     _planCard(
                       title: 'Premium',
                       features: const [
+                        'Aylık: 299 TL',
+                        'Komisyon: %2',
                         '24 fotoğraf',
                         '3 video linki',
-                        'En güçlü vitrin etkisi',
+                        'Mahalle vitrin önceliği',
                       ],
                       highlighted: _membershipType.toLowerCase() == 'premium',
                     ),
@@ -662,7 +668,59 @@ class _UrunEklemeSayfasiV2State extends State<UrunEklemeSayfasiV2> {
                     'Video hakkı: $_maxVideo',
                     style: const TextStyle(color: Colors.white54),
                   ),
-                  const SizedBox(height: 6),
+                  const SizedBox(height: 10),
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.black,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: gold.withValues(alpha: 0.22),
+                      ),
+                    ),
+                    child: const Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Ev Lezzetleri Paketleri',
+                          style: TextStyle(
+                            color: gold,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w900,
+                          ),
+                        ),
+                        SizedBox(height: 8),
+                        Text(
+                          'Ücretsiz: Aylık 0 TL • Komisyon %10 • 3 fotoğraf',
+                          style: TextStyle(
+                            color: Colors.white70,
+                            fontSize: 12.5,
+                            height: 1.35,
+                          ),
+                        ),
+                        SizedBox(height: 4),
+                        Text(
+                          'Pro: Aylık 149 TL • Komisyon %5 • 8 fotoğraf • 1 video',
+                          style: TextStyle(
+                            color: Colors.white70,
+                            fontSize: 12.5,
+                            height: 1.35,
+                          ),
+                        ),
+                        SizedBox(height: 4),
+                        Text(
+                          'Premium: Aylık 299 TL • Komisyon %2 • 24 fotoğraf • 3 video',
+                          style: TextStyle(
+                            color: Colors.white70,
+                            fontSize: 12.5,
+                            height: 1.35,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 10),
                   Text(
                     'Seçilen: $toplamFoto / $_maxPhoto',
                     style: const TextStyle(

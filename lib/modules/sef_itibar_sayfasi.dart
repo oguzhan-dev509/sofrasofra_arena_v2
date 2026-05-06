@@ -842,7 +842,7 @@ class _SefItibarSayfasiState extends State<SefItibarSayfasi> {
                         child: ChefGallerySalesActions(
                           chefId: _chefId,
                           imageUrl: url,
-                          isAdmin: true,
+                          isAdmin: widget.isAdmin,
                         ),
                       ),
                       if (true)
@@ -1210,7 +1210,10 @@ class _SizedImzaSectionPlaceholder extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SizedBox(height: 2),
-        SefImzaTabaklariSection(chefId: chefId),
+        SefImzaTabaklariSection(
+          chefId: chefId,
+          canManage: state?.widget.isAdmin ?? false,
+        ),
       ],
     );
   }

@@ -289,7 +289,10 @@ class _MusteriSiparisTakipSayfasiState
     final status = _normalizeStatus(
       data['status'] ?? data['durum'] ?? data['assignmentStatus'],
     );
-
+    final bool hasCourier = courierId.isNotEmpty;
+    final bool canOpenLiveMap =
+        hasCourier && (status == 'assigned' || status == 'on_the_way');
+    final bool isDeliveryDone = status == 'delivered' || status == 'completed';
     final siparisNo = _safeString(data['siparisNo'], fallback: siparisDoc.id);
 
     final toplamTutar = _asDouble(
@@ -408,27 +411,79 @@ class _MusteriSiparisTakipSayfasiState
                   ],
                   if (courierId.isNotEmpty) ...[
                     const SizedBox(height: 14),
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => MusteriCanliKuryeTakipHaritasi(
-                                orderId: siparisDoc.id,
+                    if (canOpenLiveMap) ...[
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton.icon(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => MusteriCanliKuryeTakipHaritasi(
+                                  orderId: siparisDoc.id,
+                                ),
                               ),
+                            );
+                          },
+                          icon: const Icon(Icons.map_outlined),
+                          label: Text(
+                            status == 'assigned'
+                                ? 'Kuryeyi Haritada Gör'
+                                : 'Canlı Kuryeyi Takip Et',
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFFFFB300),
+                            foregroundColor: Colors.black,
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(14),
                             ),
-                          );
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFFFFB300),
-                          foregroundColor: Colors.black,
-                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          ),
                         ),
-                        child: const Text('Kuryeyi Haritada Gör'),
                       ),
-                    ),
+                    ] else if (hasCourier && isDeliveryDone) ...[
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF102418),
+                          borderRadius: BorderRadius.circular(14),
+                          border: Border.all(
+                            color: Colors.greenAccent.withValues(alpha: 0.35),
+                          ),
+                        ),
+                        child: const Text(
+                          'Teslimat tamamlandı.',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: Colors.white70,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                    ] else ...[
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF111111),
+                          borderRadius: BorderRadius.circular(14),
+                          border: Border.all(
+                            color: Color(0x33FFB300),
+                          ),
+                        ),
+                        child: const Text(
+                          'Kurye atanınca canlı harita takibi burada açılacak.',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: Colors.white70,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                    ],
                   ],
                 ],
               ),
@@ -984,17 +1039,32 @@ class OrderTimeline extends StatelessWidget {
   int _activeStep(String status) {
     switch (status) {
       case 'pending':
+      case 'created':
+      case 'awaiting_payment':
         return 0;
+
+      case 'paid':
+      case 'payment_success':
       case 'accepted':
         return 1;
+
       case 'preparing':
+      case 'pending_vendor_approval':
         return 2;
+
       case 'ready':
         return 3;
-      case 'on_the_way':
+
+      case 'assigned':
         return 4;
-      case 'delivered':
+
+      case 'on_the_way':
         return 5;
+
+      case 'delivered':
+      case 'completed':
+        return 6;
+
       default:
         return 0;
     }
@@ -1003,17 +1073,37 @@ class OrderTimeline extends StatelessWidget {
   String _timelineTitle(String status) {
     switch (status) {
       case 'pending':
+      case 'created':
         return 'Siparişiniz alındı';
+
+      case 'awaiting_payment':
+        return 'Ödeme bekleniyor';
+
+      case 'paid':
+      case 'payment_success':
       case 'accepted':
         return 'Siparişiniz onaylandı';
+
+      case 'pending_vendor_approval':
       case 'preparing':
         return 'Siparişiniz hazırlanıyor';
+
       case 'ready':
         return 'Siparişiniz hazır';
+
+      case 'assigned':
+        return 'Kurye atandı';
+
       case 'on_the_way':
-        return 'Siparişiniz yolda';
+        return 'Kurye yola çıktı';
+
       case 'delivered':
+      case 'completed':
         return 'Sipariş teslim edildi';
+
+      case 'cancelled':
+        return 'Sipariş iptal edildi';
+
       default:
         return 'Sipariş durumu';
     }
@@ -1055,6 +1145,7 @@ class OrderTimeline extends StatelessWidget {
       'Onay',
       'Hazırlık',
       'Hazır',
+      'Kurye',
       'Yolda',
       'Teslim',
     ];

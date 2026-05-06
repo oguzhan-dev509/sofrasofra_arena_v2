@@ -306,7 +306,7 @@ class KategoriUrunListesiSayfasi extends StatelessWidget {
                                 goturFiyat: data['goturFiyat'] is num
                                     ? data['goturFiyat'] as num
                                     : null,
-                                isAdmin: true,
+                                isAdmin: false,
                               ),
                             ),
                           );

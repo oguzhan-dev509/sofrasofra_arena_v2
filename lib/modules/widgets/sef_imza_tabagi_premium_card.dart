@@ -108,15 +108,6 @@ class SefImzaTabagiPremiumCard extends StatelessWidget {
                       fontWeight: FontWeight.w800,
                     ),
                   ),
-                  const SizedBox(height: 6),
-                  const Text(
-                    'TEST: ÇİFT FİYAT KARTI AKTİF',
-                    style: TextStyle(
-                      color: Colors.redAccent,
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
                   if (hasDescription) ...[
                     const SizedBox(height: 8),
                     Text(

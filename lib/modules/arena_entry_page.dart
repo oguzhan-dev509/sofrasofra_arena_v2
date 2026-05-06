@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:sofrasofra_arena_v2/modules/kategori_sayfasi.dart';
 
-import 'package:sofrasofra_arena_v2/onboarding/onayli_panel_yonlendirici.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:sofrasofra_arena_v2/modules/widgets/campaign_counter_panel.dart';
-
+import 'package:sofrasofra_arena_v2/modules/auth/satici_admin_giris_sayfasi.dart';
 import 'package:sofrasofra_arena_v2/modules/widgets/kurumsal_footer_links.dart';
+import 'package:sofrasofra_arena_v2/onboarding/onayli_panel_yonlendirici.dart';
 
 class ArenaEntryPage extends StatefulWidget {
   const ArenaEntryPage({super.key});
@@ -357,21 +357,43 @@ class _ArenaEntryPageState extends State<ArenaEntryPage> {
                                 style: TextStyle(color: _muted),
                               ),
                               const SizedBox(height: 16),
-                              ElevatedButton(
-                                onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (_) =>
-                                          const OnayliPanelYonlendirici(),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  ElevatedButton(
+                                    onPressed: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (_) =>
+                                              const OnayliPanelYonlendirici(),
+                                        ),
+                                      );
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: _gold,
+                                      foregroundColor: Colors.black,
                                     ),
-                                  );
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: _gold,
-                                  foregroundColor: Colors.black,
-                                ),
-                                child: const Text('Giriş'),
+                                    child: const Text('Üretici Girişi'),
+                                  ),
+                                  const SizedBox(height: 10),
+                                  OutlinedButton(
+                                    onPressed: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (_) =>
+                                              const SaticiAdminGirisSayfasi(),
+                                        ),
+                                      );
+                                    },
+                                    style: OutlinedButton.styleFrom(
+                                      foregroundColor: _gold,
+                                      side: const BorderSide(color: _gold),
+                                    ),
+                                    child: const Text('Yetkili Giriş'),
+                                  ),
+                                ],
                               ),
                             ],
                           )
@@ -397,21 +419,43 @@ class _ArenaEntryPageState extends State<ArenaEntryPage> {
                                   ],
                                 ),
                               ),
-                              ElevatedButton(
-                                onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (_) =>
-                                          const OnayliPanelYonlendirici(),
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  ElevatedButton(
+                                    onPressed: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (_) =>
+                                              const OnayliPanelYonlendirici(),
+                                        ),
+                                      );
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: _gold,
+                                      foregroundColor: Colors.black,
                                     ),
-                                  );
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: _gold,
-                                  foregroundColor: Colors.black,
-                                ),
-                                child: const Text('Giriş'),
+                                    child: const Text('Üretici Girişi'),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  OutlinedButton(
+                                    onPressed: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (_) =>
+                                              const SaticiAdminGirisSayfasi(),
+                                        ),
+                                      );
+                                    },
+                                    style: OutlinedButton.styleFrom(
+                                      foregroundColor: _gold,
+                                      side: const BorderSide(color: _gold),
+                                    ),
+                                    child: const Text('Yetkili Giriş'),
+                                  ),
+                                ],
                               ),
                             ],
                           ),

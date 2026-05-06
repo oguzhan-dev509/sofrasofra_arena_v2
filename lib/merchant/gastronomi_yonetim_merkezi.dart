@@ -28,6 +28,7 @@ import 'package:sofrasofra_arena_v2/admin/home_banner_admin_sayfasi.dart';
 import 'package:sofrasofra_arena_v2/admin/finans_operasyon_merkezi_sayfasi.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:sofrasofra_arena_v2/admin/usta_sef_yonetimi_sayfasi.dart';
+import 'package:sofrasofra_arena_v2/admin/radyo_admin_sayfasi.dart';
 
 class GastronomiYonetimMerkezi extends StatelessWidget {
   final String? chefId;
@@ -384,12 +385,17 @@ class GastronomiYonetimMerkezi extends StatelessWidget {
         subtitle: 'Gelen danışmanlık taleplerini görüntüle ve yönet.',
         icon: Icons.support_agent_rounded,
         onTap: () {
+          if (!_hasChefContext()) {
+            _showNeedChef(context, 'Danışmanlık Talepleri');
+            return;
+          }
+
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (_) => const ConsultingRequestsAdminPage(
-                chefId: 'gmRQ6eKx6WZ0fqDDFytHEgi88RH3',
-                chefName: 'Ahmet Usta',
+              builder: (_) => ConsultingRequestsAdminPage(
+                chefId: _currentChefId,
+                chefName: _heroName,
               ),
             ),
           );
@@ -447,6 +453,20 @@ class GastronomiYonetimMerkezi extends StatelessWidget {
             context,
             MaterialPageRoute(
               builder: (_) => const HomeBannerAdminSayfasi(),
+            ),
+          );
+        },
+      ),
+      _DashboardItem(
+        title: 'Radyo Yayın Yönetimi',
+        subtitle:
+            'Sofrasofra Radyo yayınlarını, kategori akışını ve aktif programları yönet.',
+        icon: Icons.radio_rounded,
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => const RadyoAdminSayfasi(),
             ),
           );
         },

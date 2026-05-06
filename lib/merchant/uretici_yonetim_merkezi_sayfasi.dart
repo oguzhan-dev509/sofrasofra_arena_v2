@@ -10,7 +10,7 @@ import 'package:sofrasofra_arena_v2/merchant/urun_ekleme_sayfasi_v2.dart';
 import 'satici_siparis_paneli.dart';
 import 'sef_yonetim_paneli.dart';
 import 'teslimat_ayarlar_sayfasi.dart';
-
+import 'package:sofrasofra_arena_v2/modules/widgets/ev_membership_card.dart';
 import 'package:sofrasofra_arena_v2/courier/kurye_mobil_paneli.dart';
 
 class UreticiYonetimMerkeziSayfasi extends StatelessWidget {
@@ -157,6 +157,8 @@ class UreticiYonetimMerkeziSayfasi extends StatelessWidget {
                 ],
               ),
             ),
+            const SizedBox(height: 18),
+            const EvMembershipCard(),
             const SizedBox(height: 24),
             GridView.count(
               crossAxisCount: crossAxisCount,
@@ -556,6 +558,10 @@ class _PanelShell extends StatelessWidget {
               fontSize: 15,
             ),
           ),
+          if (title == 'ÜRETİCİ PANELLERİ') ...[
+            const SizedBox(height: 18),
+            const EvMembershipCard(),
+          ],
           const SizedBox(height: 24),
           ...cards.map(
             (item) => _MiniPanelCard(

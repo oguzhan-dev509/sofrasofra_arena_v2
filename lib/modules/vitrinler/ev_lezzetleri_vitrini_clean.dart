@@ -244,7 +244,7 @@ class _EvLezzetleriVitriniCleanState extends State<EvLezzetleriVitriniClean> {
           youtubeUrl: (data['youtubeUrl'] ?? data['videoUrl'] ?? '').toString(),
           productId: doc.id,
           sellerId: (data['dukkanId'] ?? data['sellerId'] ?? '').toString(),
-          isAdmin: true,
+          isAdmin: false,
         ),
       ),
     );

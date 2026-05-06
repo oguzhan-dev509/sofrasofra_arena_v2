@@ -431,7 +431,7 @@ class OtomatikKuryeAtamaServisi {
             'assignedCourierId': courierId,
             'assignedCourierName': courierName,
             'assignmentStatus': 'assigned',
-            'status': 'on_the_way',
+            'status': 'assigned',
             'assignmentAt': FieldValue.serverTimestamp(),
             'assignmentUpdatedAt': FieldValue.serverTimestamp(),
             'courierAssignmentType': assignmentType,
@@ -634,7 +634,7 @@ class OtomatikKuryeAtamaServisi {
           {
             'courierOfferStatus': 'accepted',
             'courierRespondedAt': FieldValue.serverTimestamp(),
-            'status': 'on_the_way',
+            'status': 'assigned',
             'assignmentStatus': 'assigned',
             'retryStatus': 'idle',
             'retryScheduledAt': null,

@@ -382,7 +382,7 @@ class _EvLezzetleriVitriniState extends State<EvLezzetleriVitrini> {
               data['gelAlFiyat'] is num ? data['gelAlFiyat'] as num : null,
           goturFiyat:
               data['goturFiyat'] is num ? data['goturFiyat'] as num : null,
-          isAdmin: true,
+          isAdmin: false,
         ),
       ),
     );
@@ -507,26 +507,6 @@ class _EvLezzetleriVitriniState extends State<EvLezzetleriVitrini> {
                     ).copyWith(
                       overlayColor: MaterialStateProperty.all(
                         Colors.black.withOpacity(0.1),
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 10),
-                SizedBox(
-                  width: double.infinity,
-                  child: OutlinedButton.icon(
-                    onPressed: () async {
-                      Navigator.pop(sheetContext);
-                      await _createDirectOrder(context, doc);
-                    },
-                    icon: const Icon(Icons.flash_on_rounded),
-                    label: const Text('Hemen Sipariş'),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: _gold,
-                      side: const BorderSide(color: Color(0x66FFB300)),
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14),
                       ),
                     ),
                   ),
