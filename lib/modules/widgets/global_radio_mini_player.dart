@@ -87,7 +87,7 @@ class _MobileRadioButton extends StatelessWidget {
       color: Colors.transparent,
       child: Padding(
         padding: EdgeInsets.only(
-          left: 10,
+          right: 10,
           bottom: MediaQuery.of(context).padding.bottom + 10,
         ),
         child: InkWell(

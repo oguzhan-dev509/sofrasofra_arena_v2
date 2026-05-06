@@ -652,7 +652,7 @@ class _UrunEklemeSayfasiV2State extends State<UrunEklemeSayfasiV2> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Paket: ${_planTitle()}',
+                    'Paketin: ${_planTitle()} · Pro/Premium ile görünürlüğünü artır',
                     style: const TextStyle(
                       color: gold,
                       fontWeight: FontWeight.bold,
@@ -669,55 +669,59 @@ class _UrunEklemeSayfasiV2State extends State<UrunEklemeSayfasiV2> {
                     style: const TextStyle(color: Colors.white54),
                   ),
                   const SizedBox(height: 10),
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: Colors.black,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: gold.withValues(alpha: 0.22),
+                  InkWell(
+                    borderRadius: BorderRadius.circular(12),
+                    onTap: _showPlanSheet,
+                    child: Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.black,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: gold.withValues(alpha: 0.22),
+                        ),
                       ),
-                    ),
-                    child: const Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Ev Lezzetleri Paketleri',
-                          style: TextStyle(
-                            color: gold,
-                            fontSize: 13,
-                            fontWeight: FontWeight.w900,
+                      child: const Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'PAKETİNİ BÜYÜT, DAHA FAZLA GÖRÜNÜR OL',
+                            style: TextStyle(
+                              color: gold,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w900,
+                            ),
                           ),
-                        ),
-                        SizedBox(height: 8),
-                        Text(
-                          'Ücretsiz: Aylık 0 TL • Komisyon %10 • 3 fotoğraf',
-                          style: TextStyle(
-                            color: Colors.white70,
-                            fontSize: 12.5,
-                            height: 1.35,
+                          SizedBox(height: 8),
+                          Text(
+                            'Ücretsiz: Aylık 0 TL • Komisyon %10 • 3 fotoğraf',
+                            style: TextStyle(
+                              color: Colors.white70,
+                              fontSize: 12.5,
+                              height: 1.35,
+                            ),
                           ),
-                        ),
-                        SizedBox(height: 4),
-                        Text(
-                          'Pro: Aylık 149 TL • Komisyon %5 • 8 fotoğraf • 1 video',
-                          style: TextStyle(
-                            color: Colors.white70,
-                            fontSize: 12.5,
-                            height: 1.35,
+                          SizedBox(height: 4),
+                          Text(
+                            'Pro: Aylık 149 TL • Komisyon %5 • 8 fotoğraf • 1 video',
+                            style: TextStyle(
+                              color: Colors.white70,
+                              fontSize: 12.5,
+                              height: 1.35,
+                            ),
                           ),
-                        ),
-                        SizedBox(height: 4),
-                        Text(
-                          'Premium: Aylık 299 TL • Komisyon %2 • 24 fotoğraf • 3 video',
-                          style: TextStyle(
-                            color: Colors.white70,
-                            fontSize: 12.5,
-                            height: 1.35,
+                          SizedBox(height: 4),
+                          Text(
+                            'Premium: Aylık 299 TL • Komisyon %2 • 24 fotoğraf • 3 video',
+                            style: TextStyle(
+                              color: Colors.white70,
+                              fontSize: 12.5,
+                              height: 1.35,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                   const SizedBox(height: 10),
@@ -728,6 +732,47 @@ class _UrunEklemeSayfasiV2State extends State<UrunEklemeSayfasiV2> {
                       fontWeight: FontWeight.w600,
                     ),
                   ),
+                  const SizedBox(height: 8),
+                  InkWell(
+                    borderRadius: BorderRadius.circular(12),
+                    onTap: _showPlanSheet,
+                    child: Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 10),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF181818),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: gold.withValues(alpha: 0.24)),
+                      ),
+                      child: const Row(
+                        children: [
+                          Icon(
+                            Icons.workspace_premium_rounded,
+                            color: gold,
+                            size: 18,
+                          ),
+                          SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              'Pro ve Premium avantajlarını görmek için dokun',
+                              style: TextStyle(
+                                color: Colors.white70,
+                                fontSize: 12.5,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ),
+                          Icon(
+                            Icons.keyboard_arrow_up_rounded,
+                            color: gold,
+                            size: 20,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
                   _upgradeCta(),
                 ],
               ),

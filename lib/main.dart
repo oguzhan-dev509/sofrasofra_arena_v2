@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 
 import 'firebase_options.dart';
-
 import 'package:sofrasofra_arena_v2/modules/arena_entry_page.dart';
 import 'package:sofrasofra_arena_v2/modules/widgets/global_radio_mini_player.dart';
 import 'package:sofrasofra_arena_v2/services/sofrasofra_radio_service.dart';
@@ -43,10 +42,10 @@ class SofrasofraZirve extends StatelessWidget {
         return Stack(
           children: [
             child ?? const SizedBox.shrink(),
-            Positioned(
-              left: 0,
-              bottom: MediaQuery.of(context).padding.bottom,
-              child: const GlobalRadioMiniPlayer(),
+            const Positioned(
+              right: 0,
+              bottom: 0,
+              child: GlobalRadioMiniPlayer(),
             ),
           ],
         );

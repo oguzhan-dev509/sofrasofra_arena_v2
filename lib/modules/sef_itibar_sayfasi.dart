@@ -1209,13 +1209,16 @@ class _SefItibarSayfasiState extends State<SefItibarSayfasi> {
                         muhur: muhur,
                       ),
                       const SizedBox(height: 18),
-                      SefMembershipCard(
-                        membershipType: _membershipType,
-                        isLoading: _membershipLoading,
-                        galleryLimit: _maxGalleryPhoto,
-                        videoLimit: _maxVideoLink,
-                        onTapUpgrade: () {},
-                      ),
+                      if (widget.isAdmin) ...[
+                        SefMembershipCard(
+                          membershipType: _membershipType,
+                          isLoading: _membershipLoading,
+                          galleryLimit: _maxGalleryPhoto,
+                          videoLimit: _maxVideoLink,
+                          onTapUpgrade: () {},
+                        ),
+                        const SizedBox(height: 18),
+                      ],
                       const SizedBox(height: 18),
                       _buildQuickActionsContent(displayName),
                       const SizedBox(height: 18),

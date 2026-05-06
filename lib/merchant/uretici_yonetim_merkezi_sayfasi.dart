@@ -558,10 +558,6 @@ class _PanelShell extends StatelessWidget {
               fontSize: 15,
             ),
           ),
-          if (title == 'ÜRETİCİ PANELLERİ') ...[
-            const SizedBox(height: 18),
-            const EvMembershipCard(),
-          ],
           const SizedBox(height: 24),
           ...cards.map(
             (item) => _MiniPanelCard(
