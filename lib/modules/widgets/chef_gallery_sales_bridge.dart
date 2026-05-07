@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:sofrasofra_arena_v2/services/sepet_service.dart';
-import 'package:sofrasofra_arena_v2/modules/urun_detay.dart';
+
 import 'package:sofrasofra_arena_v2/cart/sepet_sayfasi.dart';
 
 class ChefGallerySalesBridge {
@@ -151,112 +151,30 @@ class ChefGallerySalesActions extends StatelessWidget {
                       borderRadius: BorderRadius.circular(999),
                       onTap: () => _editPrice(context, ref, price),
                       child: Container(
-                        width: 30,
-                        height: 30,
-                        margin: const EdgeInsets.only(right: 6),
+                        width: 24,
+                        height: 24,
+                        margin: const EdgeInsets.only(right: 4),
+                        alignment: Alignment.center,
                         decoration: BoxDecoration(
-                          color: const Color(0xFFFFB300),
+                          color:
+                              const Color(0xFFFFB300).withValues(alpha: 0.94),
                           shape: BoxShape.circle,
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.35),
-                              blurRadius: 8,
-                              offset: const Offset(0, 3),
-                            ),
-                          ],
+                          border: Border.all(
+                            color: Colors.black.withValues(alpha: 0.18),
+                          ),
                         ),
                         child: const Icon(
                           Icons.edit_rounded,
                           color: Colors.black,
-                          size: 17,
+                          size: 13,
                         ),
                       ),
                     ),
                   ],
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        if (galleryDescription.isNotEmpty) ...[
-                          Text(
-                            galleryDescription,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              color: Colors.white.withValues(alpha: 0.78),
-                              fontSize: 12,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                        ],
-                        Wrap(
-                          spacing: 6,
-                          runSpacing: 4,
-                          children: [
-                            _galleryPriceChip(
-                              label: 'Gel-Al',
-                              price: gelAlPrice > 0
-                                  ? '${gelAlPrice.toStringAsFixed(0)} ₺'
-                                  : '—',
-                            ),
-                            _galleryPriceChip(
-                              label: 'Götür',
-                              price: goturPrice > 0
-                                  ? '${goturPrice.toStringAsFixed(0)} ₺'
-                                  : '—',
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                  IconButton(
-                    tooltip: 'İncele',
-                    iconSize: 18,
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(
-                      minWidth: 30,
-                      minHeight: 30,
-                    ),
-                    icon: const Icon(Icons.visibility, color: Colors.white),
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => UrunDetaySayfasi(
-                            urunAdi: title,
-                            urunFiyat: price.toStringAsFixed(0),
-                            urunGorsel: imageUrl,
-                            aciklama: galleryDescription,
-                            dukkanAdi: 'Şefin İmza Mutfağı',
-                            konum: '',
-                            youtubeUrl: '',
-                            urunGorseller: [imageUrl],
-                            productId: ref.id,
-                            sellerId: chefId,
-                            kategori: 'Usta Şefler',
-                            gelAlFiyat: gelAlPrice,
-                            goturFiyat: goturPrice,
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                  IconButton(
-                    tooltip: 'Sepete ekle',
-                    iconSize: 18,
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(
-                      minWidth: 30,
-                      minHeight: 30,
-                    ),
-                    icon: const Icon(
-                      Icons.add_shopping_cart,
-                      color: Colors.white,
-                    ),
-                    onPressed: price <= 0
+                  const Spacer(),
+                  GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTap: price <= 0
                         ? null
                         : () async {
                             final gelAlFinalPrice =
@@ -373,7 +291,8 @@ class ChefGallerySalesActions extends StatelessWidget {
                             );
 
                             await Future<void>.delayed(
-                                const Duration(milliseconds: 650));
+                              const Duration(milliseconds: 650),
+                            );
 
                             if (!context.mounted) return;
 
@@ -384,6 +303,17 @@ class ChefGallerySalesActions extends StatelessWidget {
                               ),
                             );
                           },
+                    child: SizedBox(
+                      width: 34,
+                      height: 34,
+                      child: Center(
+                        child: Icon(
+                          Icons.add_shopping_cart,
+                          color: price <= 0 ? Colors.white38 : Colors.white,
+                          size: 19,
+                        ),
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -486,6 +416,95 @@ class ChefGallerySalesActions extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class ChefGalleryPriceOverlay extends StatelessWidget {
+  final String chefId;
+  final String imageUrl;
+
+  const ChefGalleryPriceOverlay({
+    super.key,
+    required this.chefId,
+    required this.imageUrl,
+  });
+
+  double _asDouble(dynamic value) {
+    if (value == null) return 0;
+    if (value is double) return value;
+    if (value is int) return value.toDouble();
+    if (value is num) return value.toDouble();
+    return double.tryParse(value.toString().replaceAll(',', '.')) ?? 0;
+  }
+
+  Widget _priceChip({
+    required String label,
+    required double value,
+  }) {
+    final text = value > 0 ? '${value.toStringAsFixed(0)} ₺' : '—';
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 4),
+      decoration: BoxDecoration(
+        color: Colors.black.withValues(alpha: 0.62),
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(
+          color: const Color(0xFFFFB300).withValues(alpha: 0.42),
+        ),
+      ),
+      child: Text(
+        '$label $text',
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 9.5,
+          fontWeight: FontWeight.w800,
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<DocumentReference<Map<String, dynamic>>>(
+      future: ChefGallerySalesBridge.ensureGalleryProduct(
+        chefId: chefId,
+        imageUrl: imageUrl,
+      ),
+      builder: (context, refSnap) {
+        if (!refSnap.hasData) {
+          return const SizedBox.shrink();
+        }
+
+        final ref = refSnap.data!;
+
+        return StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
+          stream: ref.snapshots(),
+          builder: (context, snap) {
+            final data = snap.data?.data() ?? {};
+
+            final gelAlPrice = _asDouble(
+              data['gelAlFiyat'] ?? data['price'] ?? data['fiyat'],
+            );
+            final goturPrice = _asDouble(data['goturFiyat']);
+
+            return Align(
+              alignment: Alignment.bottomLeft,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(7, 0, 7, 7),
+                child: Wrap(
+                  spacing: 6,
+                  runSpacing: 4,
+                  children: [
+                    _priceChip(label: 'Gel-Al', value: gelAlPrice),
+                    _priceChip(label: 'Götür', value: goturPrice),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
     );
   }
 }
