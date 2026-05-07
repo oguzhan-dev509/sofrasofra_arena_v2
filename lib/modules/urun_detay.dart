@@ -1425,6 +1425,80 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
                                   ),
                                 ),
                               ),
+                              if (_canManageMedia)
+                                Positioned(
+                                  left: 8,
+                                  top: 8,
+                                  child: InkWell(
+                                    borderRadius: BorderRadius.circular(999),
+                                    onTap: () async {
+                                      setState(() {
+                                        _selectedGalleryIndex = index;
+                                      });
+
+                                      final ownerProductId =
+                                          (widget.productId ?? '').trim();
+                                      final sellerId =
+                                          (widget.sellerId ?? '').trim();
+
+                                      if (ownerProductId.isEmpty ||
+                                          sellerId.isEmpty ||
+                                          imageUrl.trim().isEmpty) {
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(
+                                          const SnackBar(
+                                            content: Text(
+                                                'Galeri ürünü için eksik bilgi var.'),
+                                            backgroundColor: Colors.redAccent,
+                                          ),
+                                        );
+                                        return;
+                                      }
+
+                                      final ref = await EvGallerySalesBridge
+                                          .ensureGalleryProduct(
+                                        ownerProductId: ownerProductId,
+                                        sellerId: sellerId,
+                                        dukkanAdi: widget.dukkanAdi,
+                                        imageUrl: imageUrl,
+                                      );
+
+                                      if (!mounted) return;
+
+                                      await EvGallerySalesBridge
+                                          .editGalleryProductInfo(
+                                        context: context,
+                                        ref: ref,
+                                        current: 0,
+                                      );
+                                    },
+                                    child: Container(
+                                      width: 31,
+                                      height: 31,
+                                      decoration: BoxDecoration(
+                                        color: _gold.withValues(alpha: 0.96),
+                                        shape: BoxShape.circle,
+                                        border: Border.all(
+                                          color: Colors.black
+                                              .withValues(alpha: 0.22),
+                                        ),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: Colors.black
+                                                .withValues(alpha: 0.35),
+                                            blurRadius: 8,
+                                            offset: const Offset(0, 3),
+                                          ),
+                                        ],
+                                      ),
+                                      child: const Icon(
+                                        Icons.edit_rounded,
+                                        color: Colors.black,
+                                        size: 17,
+                                      ),
+                                    ),
+                                  ),
+                                ),
                               if (isSelected)
                                 Positioned(
                                   right: 8,
