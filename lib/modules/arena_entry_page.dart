@@ -6,6 +6,9 @@ import 'package:sofrasofra_arena_v2/modules/widgets/campaign_counter_panel.dart'
 import 'package:sofrasofra_arena_v2/modules/auth/satici_admin_giris_sayfasi.dart';
 import 'package:sofrasofra_arena_v2/modules/widgets/kurumsal_footer_links.dart';
 import 'package:sofrasofra_arena_v2/onboarding/onayli_panel_yonlendirici.dart';
+import 'dart:convert';
+
+import 'package:flutter/services.dart';
 
 class ArenaEntryPage extends StatefulWidget {
   const ArenaEntryPage({super.key});
@@ -21,7 +24,7 @@ class _ArenaEntryPageState extends State<ArenaEntryPage> {
   static const Color _muted = Color(0xFFB6ADA0);
   static const Color _panel = Color(0xFF151515);
 
-  final Map<String, List<String>> _cityDistricts = const {
+  Map<String, List<String>> _cityDistricts = const {
     'İstanbul': [
       'Adalar',
       'Arnavutköy',
@@ -149,6 +152,63 @@ class _ArenaEntryPageState extends State<ArenaEntryPage> {
   };
   String? _selectedCity;
   String? _selectedDistrict;
+  @override
+  void initState() {
+    super.initState();
+    _loadCityDistricts();
+  }
+
+  Future<void> _loadCityDistricts() async {
+    try {
+      final raw = await rootBundle.loadString('assets/ilceler.json');
+      final decoded = jsonDecode(raw) as Map<String, dynamic>;
+
+      final parsed = decoded.map(
+        (key, value) {
+          final cityName = _formatCityName(key.toString());
+          final districts = (value as List)
+              .map((e) => _formatDistrictName(e.toString()))
+              .toList();
+
+          return MapEntry(cityName, districts);
+        },
+      );
+
+      if (!mounted) return;
+
+      setState(() {
+        _cityDistricts = Map<String, List<String>>.from(parsed);
+
+        if (_selectedCity != null &&
+            !_cityDistricts.containsKey(_selectedCity)) {
+          _selectedCity = null;
+          _selectedDistrict = null;
+        }
+      });
+    } catch (e) {
+      debugPrint('Ana giriş il/ilçe listesi yüklenemedi: $e');
+    }
+  }
+
+  String _formatCityName(String raw) {
+    final text = raw.trim();
+
+    if (text == 'K.K.T.C.') return 'Kıbrıs';
+
+    return text.toLowerCase().split(' ').map((part) {
+      if (part.isEmpty) return part;
+      return part[0].toUpperCase() + part.substring(1);
+    }).join(' ');
+  }
+
+  String _formatDistrictName(String raw) {
+    final text = raw.trim();
+
+    return text.toLowerCase().split(' ').map((part) {
+      if (part.isEmpty) return part;
+      return part[0].toUpperCase() + part.substring(1);
+    }).join(' ');
+  }
 
   List<String> get _cities {
     final list = _cityDistricts.keys.toList()..sort();
@@ -483,6 +543,7 @@ class _ArenaEntryPageState extends State<ArenaEntryPage> {
       child: DropdownButtonFormField<String>(
         value: _selectedCity,
         isExpanded: true,
+        menuMaxHeight: 320,
         dropdownColor: const Color(0xFF1C1C1C),
         decoration: const InputDecoration(
           border: InputBorder.none,
@@ -529,6 +590,7 @@ class _ArenaEntryPageState extends State<ArenaEntryPage> {
       child: DropdownButtonFormField<String>(
         value: _selectedDistrict,
         isExpanded: true,
+        menuMaxHeight: 320,
         dropdownColor: const Color(0xFF1C1C1C),
         decoration: const InputDecoration(
           border: InputBorder.none,

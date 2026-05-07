@@ -898,6 +898,149 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
     );
   }
 
+  Widget _sellerPackagePrompt() {
+    return InkWell(
+      borderRadius: BorderRadius.circular(18),
+      onTap: () {
+        showModalBottomSheet(
+          context: context,
+          isScrollControlled: true,
+          backgroundColor: const Color(0xFF111111),
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          builder: (_) {
+            return Padding(
+              padding: const EdgeInsets.fromLTRB(20, 20, 20, 28),
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(18),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF141414),
+                  borderRadius: BorderRadius.circular(18),
+                  border: Border.all(
+                    color: _gold.withValues(alpha: 0.42),
+                    width: 1.2,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.22),
+                      blurRadius: 18,
+                      offset: const Offset(0, 8),
+                    ),
+                  ],
+                ),
+                child: const Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Ev Lezzetleri Paketleri',
+                      style: TextStyle(
+                        color: _gold,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
+                    SizedBox(height: 16),
+                    Text(
+                      'Ücretsiz\n• Aylık: 0 TL\n• Komisyon: %10\n• 3 fotoğraf\n• Temel görünürlük',
+                      style: TextStyle(
+                        color: Colors.white70,
+                        height: 1.45,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    SizedBox(height: 16),
+                    Text(
+                      'Pro\n• Aylık: 149 TL\n• Komisyon: %5\n• 8 fotoğraf\n• 1 video linki\n• Daha güçlü görünürlük',
+                      style: TextStyle(
+                        color: Colors.white70,
+                        height: 1.45,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    SizedBox(height: 16),
+                    Text(
+                      'Premium\n• Aylık: 299 TL\n• Komisyon: %2\n• 24 fotoğraf\n• 3 video linki\n• Mahalle vitrin önceliği',
+                      style: TextStyle(
+                        color: Colors.white70,
+                        height: 1.45,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+      child: Container(
+        width: double.infinity,
+        margin: const EdgeInsets.only(bottom: 14),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+        decoration: BoxDecoration(
+          color: const Color(0xFF111111),
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(
+            color: _gold.withValues(alpha: 0.34),
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.20),
+              blurRadius: 18,
+              offset: const Offset(0, 8),
+            ),
+          ],
+        ),
+        child: const Row(
+          children: [
+            Icon(
+              Icons.trending_up_rounded,
+              color: _gold,
+              size: 22,
+            ),
+            SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'PRO’ya yükselt',
+                    style: TextStyle(
+                      color: _gold,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                  SizedBox(height: 4),
+                  Text(
+                    '8 fotoğraf + 1 video linki + daha güçlü görünürlük',
+                    style: TextStyle(
+                      color: Colors.white70,
+                      fontSize: 12.5,
+                      fontWeight: FontWeight.w700,
+                      height: 1.3,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Icon(
+              Icons.keyboard_arrow_up_rounded,
+              color: _gold,
+              size: 22,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Future<bool> _showSingleSellerDialog() async {
     final result = await showDialog<bool>(
       context: context,
@@ -1060,6 +1203,8 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   if (_canManageMedia) ...[
+                    _sellerPackagePrompt(),
+                    const SizedBox(height: 10),
                     SizedBox(
                       width: double.infinity,
                       child: OutlinedButton.icon(
@@ -1113,7 +1258,7 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
                   ),
                   const SizedBox(height: 14),
                   if (_galleryImageUrls.isNotEmpty) ...[
-                    if (_canManageMedia)
+                    if (_canManageMedia) ...[
                       UrunDetayMediaAdminPanel(
                         busy: _mediaBusy,
                         onAddCoverPhoto: _replaceCoverPhoto,
@@ -1122,6 +1267,7 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
                         onDeleteCurrentGalleryPhoto: _deleteCurrentPhoto,
                         onSetCurrentAsCover: _setCurrentAsCover,
                       ),
+                    ],
                     _buildGalleryStripCard(),
                     const SizedBox(height: 14),
                   ],

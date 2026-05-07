@@ -25,26 +25,6 @@ class UrunDetayMediaAdminPanel extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Container(
-          width: double.infinity,
-          margin: const EdgeInsets.only(bottom: 10),
-          padding: const EdgeInsets.all(10),
-          decoration: BoxDecoration(
-            color: const Color(0xFF12351F),
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              color: _gold.withValues(alpha: 0.35),
-            ),
-          ),
-          child: const Text(
-            'DEBUG: ÜRETİCİ / ADMIN MODU - yönetim araçları açık',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 12.5,
-              fontWeight: FontWeight.w800,
-            ),
-          ),
-        ),
         EvProductMediaAdminBar(
           busy: busy,
           onAddCoverPhoto: onAddCoverPhoto,
