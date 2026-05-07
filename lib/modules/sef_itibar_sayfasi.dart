@@ -831,97 +831,111 @@ class _SefItibarSayfasiState extends State<SefItibarSayfasi> {
                   crossAxisCount: 3,
                   crossAxisSpacing: 12,
                   mainAxisSpacing: 12,
-                  childAspectRatio: 1.05,
+                  childAspectRatio: 0.62,
                 ),
                 itemBuilder: (context, index) {
                   final url = gallery[index].trim();
                   final isSelected = index == safeSelectedIndex;
 
-                  return GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        _selectedChefGalleryIndex = index;
-                      });
-                      _openImage(url);
-                    },
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(18),
-                      child: Stack(
-                        fit: StackFit.expand,
-                        children: [
-                          Positioned.fill(
-                            child: Image.network(
-                              url,
-                              fit: BoxFit.cover,
-                              gaplessPlayback: true,
-                              filterQuality: FilterQuality.medium,
-                              loadingBuilder: (context, child, progress) {
-                                if (progress == null) return child;
+                  return Column(
+                    children: [
+                      Expanded(
+                        child: GestureDetector(
+                          behavior: HitTestBehavior.opaque,
+                          onTap: () {
+                            setState(() {
+                              _selectedChefGalleryIndex = index;
+                            });
+                            _openImage(url);
+                          },
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(18),
+                            child: Stack(
+                              fit: StackFit.expand,
+                              children: [
+                                Positioned.fill(
+                                  child: Image.network(
+                                    url,
+                                    fit: BoxFit.cover,
+                                    gaplessPlayback: true,
+                                    filterQuality: FilterQuality.medium,
+                                    loadingBuilder: (context, child, progress) {
+                                      if (progress == null) return child;
 
-                                return Container(
-                                  color: const Color(0xFF111111),
-                                  alignment: Alignment.center,
-                                  child: const SizedBox(
-                                    width: 18,
-                                    height: 18,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                      color: gold,
+                                      return Container(
+                                        color: const Color(0xFF111111),
+                                        alignment: Alignment.center,
+                                        child: const SizedBox(
+                                          width: 18,
+                                          height: 18,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                            color: gold,
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                    errorBuilder: (_, __, ___) => Container(
+                                      color: const Color(0xFF151515),
+                                      alignment: Alignment.center,
+                                      child: const Icon(
+                                        Icons.image_not_supported_outlined,
+                                        color: Colors.white38,
+                                        size: 22,
+                                      ),
                                     ),
                                   ),
-                                );
-                              },
-                              errorBuilder: (_, __, ___) => Container(
-                                color: const Color(0xFF151515),
-                                alignment: Alignment.center,
-                                child: const Icon(
-                                  Icons.image_not_supported_outlined,
-                                  color: Colors.white38,
-                                  size: 22,
                                 ),
-                              ),
-                            ),
-                          ),
-                          Container(
-                            decoration: BoxDecoration(
-                              border: Border.all(
-                                color: isSelected ? gold : Colors.white10,
-                                width: isSelected ? 2.5 : 1,
-                              ),
-                              borderRadius: BorderRadius.circular(18),
-                            ),
-                          ),
-                          if (widget.isAdmin)
-                            Positioned(
-                              top: 6,
-                              right: 6,
-                              child: GestureDetector(
-                                onTap: () => _removeGalleryImage(url),
-                                child: Container(
-                                  padding: const EdgeInsets.all(5),
+                                Container(
                                   decoration: BoxDecoration(
-                                    color: Colors.black.withAlpha(170),
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: const Icon(
-                                    Icons.close,
-                                    color: Colors.redAccent,
-                                    size: 16,
+                                    border: Border.all(
+                                      color: isSelected ? gold : Colors.white10,
+                                      width: isSelected ? 2.5 : 1,
+                                    ),
+                                    borderRadius: BorderRadius.circular(18),
                                   ),
                                 ),
-                              ),
+                                if (widget.isAdmin)
+                                  Positioned(
+                                    top: 6,
+                                    right: 6,
+                                    child: GestureDetector(
+                                      behavior: HitTestBehavior.opaque,
+                                      onTap: () => _removeGalleryImage(url),
+                                      child: Container(
+                                        width: 34,
+                                        height: 34,
+                                        alignment: Alignment.center,
+                                        decoration: BoxDecoration(
+                                          color: Colors.black.withAlpha(170),
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: const Icon(
+                                          Icons.close,
+                                          color: Colors.redAccent,
+                                          size: 16,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                              ],
                             ),
-                        ],
+                          ),
+                        ),
                       ),
-                    ),
+                      const SizedBox(height: 6),
+                      SizedBox(
+                        height: 58,
+                        width: double.infinity,
+                        child: ChefGallerySalesActions(
+                          chefId: _chefId,
+                          imageUrl: url,
+                          isAdmin: widget.isAdmin,
+                        ),
+                      ),
+                    ],
                   );
                 },
-              ),
-              const SizedBox(height: 14),
-              ChefGallerySalesActions(
-                chefId: _chefId,
-                imageUrl: gallery[safeSelectedIndex].trim(),
-                isAdmin: widget.isAdmin,
               ),
             ],
           ),
