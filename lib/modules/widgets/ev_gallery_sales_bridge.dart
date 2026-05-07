@@ -361,7 +361,10 @@ class EvGallerySalesActions extends StatelessWidget {
                       minWidth: 30,
                       minHeight: 30,
                     ),
-                    icon: const Icon(Icons.visibility, color: Colors.white),
+                    icon: const Icon(
+                      Icons.visibility,
+                      color: Colors.white,
+                    ),
                     onPressed: () {
                       Navigator.push(
                         context,
@@ -415,6 +418,7 @@ class EvGallerySalesActions extends StatelessWidget {
 
                               if (selectedPrice <= 0) {
                                 if (!context.mounted) return;
+
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
                                     content: Text(
@@ -476,6 +480,7 @@ class EvGallerySalesActions extends StatelessWidget {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
                                   content: Text('Sepete eklenemedi: $e'),
+                                  backgroundColor: Colors.redAccent,
                                 ),
                               );
                             }
@@ -498,122 +503,150 @@ class EvGallerySalesActions extends StatelessWidget {
     final snap = await ref.get();
     final data = snap.data() ?? {};
 
-    final nameController = TextEditingController(
-      text: (data['ad'] ?? data['urunAdi'] ?? 'Ev Galeri Ürünü').toString(),
-    );
+    if (!context.mounted) return;
 
-    final gelAlController = TextEditingController(
-      text: (data['gelAlFiyat'] ?? data['price'] ?? data['fiyat'] ?? current)
-          .toString(),
-    );
+    String name =
+        (data['ad'] ?? data['urunAdi'] ?? 'Ev Galeri Ürünü').toString();
 
-    final goturController = TextEditingController(
-      text: (data['goturFiyat'] ?? '').toString(),
-    );
+    String gelAlText =
+        (data['gelAlFiyat'] ?? data['price'] ?? data['fiyat'] ?? current)
+            .toString();
 
-    final aciklamaController = TextEditingController(
-      text: (data['aciklama'] ?? data['description'] ?? '').toString(),
-    );
+    String goturText = (data['goturFiyat'] ?? '').toString();
 
-    try {
-      await showDialog(
-        context: context,
-        builder: (_) => AlertDialog(
+    String desc = (data['aciklama'] ?? data['description'] ?? '').toString();
+
+    final result = await showDialog<Map<String, dynamic>>(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) {
+        return AlertDialog(
           title: const Text('Galeri Ürün Bilgileri'),
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                TextField(
-                  controller: nameController,
+                TextFormField(
+                  initialValue: name,
                   decoration: const InputDecoration(
                     labelText: 'Ürün adı',
                     hintText: 'Örn: Mercimek çorbası',
                   ),
+                  onChanged: (value) {
+                    name = value;
+                  },
                 ),
                 const SizedBox(height: 12),
-                TextField(
-                  controller: gelAlController,
-                  keyboardType: TextInputType.number,
+                TextFormField(
+                  initialValue: gelAlText,
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                  ),
                   decoration: const InputDecoration(
                     labelText: 'Gel-Al Fiyatı (₺)',
                     hintText: 'Örn: 120',
                   ),
+                  onChanged: (value) {
+                    gelAlText = value;
+                  },
                 ),
                 const SizedBox(height: 12),
-                TextField(
-                  controller: goturController,
-                  keyboardType: TextInputType.number,
+                TextFormField(
+                  initialValue: goturText,
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                  ),
                   decoration: const InputDecoration(
                     labelText: 'Götür Fiyatı (₺)',
                     hintText: 'Örn: 150',
                   ),
+                  onChanged: (value) {
+                    goturText = value;
+                  },
                 ),
                 const SizedBox(height: 12),
-                TextField(
-                  controller: aciklamaController,
+                TextFormField(
+                  initialValue: desc,
                   maxLines: 3,
                   decoration: const InputDecoration(
                     labelText: 'Tarif / Açıklama',
                     hintText: 'Ürün açıklaması',
                   ),
+                  onChanged: (value) {
+                    desc = value;
+                  },
                 ),
               ],
             ),
           ),
           actions: [
             TextButton(
-              onPressed: () => Navigator.pop(context),
+              onPressed: () {
+                Navigator.of(dialogContext).pop(null);
+              },
               child: const Text('İptal'),
             ),
             TextButton(
-              onPressed: () async {
-                final name = nameController.text.trim().isEmpty
-                    ? 'Ev Galeri Ürünü'
-                    : nameController.text.trim();
+              onPressed: () {
+                final cleanName =
+                    name.trim().isEmpty ? 'Ev Galeri Ürünü' : name.trim();
 
                 final gelAl = double.tryParse(
-                      gelAlController.text.trim().replaceAll(',', '.'),
+                      gelAlText.trim().replaceAll(',', '.'),
                     ) ??
                     0;
 
                 final gotur = double.tryParse(
-                      goturController.text.trim().replaceAll(',', '.'),
+                      goturText.trim().replaceAll(',', '.'),
                     ) ??
                     0;
 
-                final desc = aciklamaController.text.trim();
-
-                await ref.set({
-                  'ad': name,
-                  'urunAdi': name,
+                Navigator.of(dialogContext).pop({
+                  'ad': cleanName,
+                  'urunAdi': cleanName,
                   'price': gelAl,
                   'fiyat': gelAl,
                   'gelAlFiyat': gelAl,
                   'goturFiyat': gotur,
-                  'aciklama': desc,
-                  'description': desc,
-
-                  // Ev Galeri fiyatları nihai müşteri fiyatıdır.
+                  'aciklama': desc.trim(),
+                  'description': desc.trim(),
                   'deliveryIncludedInPrice': true,
                   'feeIncludedInPrice': true,
-
                   'updatedAt': FieldValue.serverTimestamp(),
-                }, SetOptions(merge: true));
-
-                if (!context.mounted) return;
-                Navigator.pop(context);
+                });
               },
               child: const Text('Kaydet'),
             ),
           ],
+        );
+      },
+    );
+
+    if (result == null) return;
+    if (!context.mounted) return;
+
+    try {
+      await ref.set(
+        result,
+        SetOptions(merge: true),
+      );
+
+      if (!context.mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Galeri ürün bilgileri kaydedildi.'),
         ),
       );
-    } finally {
-      nameController.dispose();
-      gelAlController.dispose();
-      goturController.dispose();
-      aciklamaController.dispose();
+    } catch (e) {
+      if (!context.mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Kaydedilemedi: $e'),
+          backgroundColor: Colors.redAccent,
+        ),
+      );
     }
   }
 }
