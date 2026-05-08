@@ -705,19 +705,22 @@ class GastronomiYonetimMerkezi extends StatelessWidget {
   }
 
   String _buildMetaText() {
-    final chef = _currentChefId;
-    final seller = _currentSellerId;
+    final hasChef = _currentChefId.isNotEmpty;
+    final hasSeller = _currentSellerId.isNotEmpty;
 
-    if (chef.isEmpty && seller.isEmpty) {
-      return 'Henüz bağlam seçilmedi';
+    if (hasChef && hasSeller) {
+      return 'Şef ve satıcı bağlantısı aktif';
     }
 
-    final parts = <String>[
-      if (chef.isNotEmpty) 'chefId: $chef',
-      if (seller.isNotEmpty) 'sellerId: $seller',
-    ];
+    if (hasChef) {
+      return 'Şef bağlantısı aktif';
+    }
 
-    return parts.join('  •  ');
+    if (hasSeller) {
+      return 'Satıcı bağlantısı aktif';
+    }
+
+    return 'Bağlantı bekleniyor';
   }
 }
 

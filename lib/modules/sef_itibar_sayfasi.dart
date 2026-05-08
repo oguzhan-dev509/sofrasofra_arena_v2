@@ -16,6 +16,7 @@ import 'package:sofrasofra_arena_v2/modules/widgets/sef_membership_card.dart';
 import 'package:sofrasofra_arena_v2/modules/sef_vitrin_icerik_yonetimi.dart';
 
 import 'package:sofrasofra_arena_v2/modules/widgets/chef_gallery_sales_bridge.dart';
+import 'package:sofrasofra_arena_v2/modules/widgets/chef_gallery_price_strip.dart';
 
 class SefItibarSayfasi extends StatefulWidget {
   final String dukkanId;
@@ -1500,3 +1501,4 @@ class NetworkImageWidget extends StatelessWidget {
     );
   }
 }
+

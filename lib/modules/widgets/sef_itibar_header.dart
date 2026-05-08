@@ -27,10 +27,9 @@ class AdminCircleButton extends StatelessWidget {
       child: Container(
         width: 44,
         height: 44,
-        decoration: BoxDecoration(
-          color: Colors.black.withAlpha(180),
+        decoration: const BoxDecoration(
+          color: Colors.transparent,
           shape: BoxShape.circle,
-          border: Border.all(color: Colors.white12),
         ),
         child: Icon(icon, color: color, size: 19),
       ),
@@ -209,20 +208,8 @@ class HeroHeader extends StatelessWidget {
           Positioned(
             top: 20,
             right: 20,
-            child: Container(
+            child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-              decoration: BoxDecoration(
-                color: Colors.black.withAlpha(160),
-                borderRadius: BorderRadius.circular(18),
-                border: Border.all(color: Colors.white12),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withAlpha(90),
-                    blurRadius: 20,
-                    offset: const Offset(0, 10),
-                  ),
-                ],
-              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [

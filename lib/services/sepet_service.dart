@@ -204,6 +204,45 @@ class SepetService {
     await _sepetToplamlariniGuncelle();
   }
 
+  static Future<void> sepetiBosalt() async {
+    final sepetRef = _firestore.collection('sepetler').doc(_cartId);
+    final itemsSnap = await sepetRef.collection('items').get();
+
+    final batch = _firestore.batch();
+
+    for (final itemDoc in itemsSnap.docs) {
+      batch.delete(itemDoc.reference);
+    }
+
+    batch.set(
+      sepetRef,
+      {
+        'userId': _cartId,
+        'araToplam': 0,
+        'teslimatUcreti': 0,
+        'genelToplam': 0,
+        'urunSayisi': 0,
+        'deliveryMode': null,
+        'siparisTipi': null,
+        'sellerType': null,
+        'paymentChannel': null,
+        'iyzicoCategory': null,
+        'orderSource': null,
+        'teslimatModlari': <String>[],
+        'platformKuryeAktif': null,
+        'saticiKuryeAktif': null,
+        'gelAlAktif': null,
+        'saticiId': null,
+        'dukkanId': null,
+        'dukkanAd': null,
+        'updatedAt': FieldValue.serverTimestamp(),
+      },
+      SetOptions(merge: true),
+    );
+
+    await batch.commit();
+  }
+
   static Future<String> siparisiTamamla({
     String musteriAd = 'Demo Müşteri',
     String musteriTelefon = '0555 000 00 00',
