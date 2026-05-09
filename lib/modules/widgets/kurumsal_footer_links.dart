@@ -6,6 +6,7 @@ import 'package:sofrasofra_arena_v2/modules/radyo/radyo_merkezi_sayfasi.dart';
 import 'package:sofrasofra_arena_v2/onboarding/kurye_basvuru_sayfasi.dart';
 import 'package:sofrasofra_arena_v2/onboarding/ev_lezzetleri_basvuru_sayfasi.dart';
 import 'package:sofrasofra_arena_v2/onboarding/profesyonel_isletme_basvuru_sayfasi.dart';
+import 'package:sofrasofra_arena_v2/modules/kurumsal/sofrasofra_hukuki_index_sayfasi.dart';
 
 class KurumsalFooterLinks extends StatelessWidget {
   const KurumsalFooterLinks({super.key});
@@ -142,12 +143,43 @@ class KurumsalFooterLinks extends StatelessWidget {
           _FooterGroup(
             title: 'Hukuki',
             items: const [
+              'Tüm Hukuki Metinler',
               'KVKK Aydınlatma Metni',
               'Gizlilik Politikası',
-              'Kullanıcı Sözleşmesi',
+              'Kullanım Koşulları',
+              'Mesafeli Satış Sözleşmesi',
               'İptal ve İade Politikası',
             ],
-            onTap: () => _showSoon(context),
+            onTap: () => _openPage(
+              context,
+              const SofrasofraHukukiIndexSayfasi(),
+            ),
+            itemActions: {
+              'Tüm Hukuki Metinler': () => _openPage(
+                    context,
+                    const SofrasofraHukukiIndexSayfasi(),
+                  ),
+              'KVKK Aydınlatma Metni': () => _openPage(
+                    context,
+                    const SofrasofraHukukiIndexSayfasi(),
+                  ),
+              'Gizlilik Politikası': () => _openPage(
+                    context,
+                    const SofrasofraHukukiIndexSayfasi(),
+                  ),
+              'Kullanım Koşulları': () => _openPage(
+                    context,
+                    const SofrasofraHukukiIndexSayfasi(),
+                  ),
+              'Mesafeli Satış Sözleşmesi': () => _openPage(
+                    context,
+                    const SofrasofraHukukiIndexSayfasi(),
+                  ),
+              'İptal ve İade Politikası': () => _openPage(
+                    context,
+                    const SofrasofraHukukiIndexSayfasi(),
+                  ),
+            },
           ),
           const SizedBox(height: 16),
           const _ContactInfoBlock(),
@@ -243,7 +275,6 @@ class _ContactInfoBlock extends StatelessWidget {
   const _ContactInfoBlock();
 
   static const Color _gold = Color(0xFFFFB300);
-  static const Color _muted = Color(0xFFCCCCCC);
 
   @override
   Widget build(BuildContext context) {
@@ -261,7 +292,7 @@ class _ContactInfoBlock extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'İLETİŞİM',
+            'İLETİŞİM VE KURUMSAL BİLGİLER',
             style: TextStyle(
               color: _gold,
               fontSize: 11.5,
@@ -271,8 +302,24 @@ class _ContactInfoBlock extends StatelessWidget {
           ),
           SizedBox(height: 10),
           _ContactLine(
-            label: 'Şirket',
-            value: 'Sofrasofra',
+            label: 'Şirket Unvanı',
+            value: 'UYBAT TEKNOLOJİ YAZILIM VE TİCARET LİMİTED ŞİRKETİ',
+          ),
+          SizedBox(height: 7),
+          _ContactLine(
+            label: 'Ticaret Sicil No',
+            value: '1096741',
+          ),
+          SizedBox(height: 7),
+          _ContactLine(
+            label: 'MERSİS No',
+            value: '0898132285200001',
+          ),
+          SizedBox(height: 7),
+          _ContactLine(
+            label: 'Adres',
+            value:
+                'Abdurrahman Nafiz Gürman Mahallesi, Kınalıtepe Sokak, Simitaş 8 Blok, No: 1, İç Kapı No: 311, Güngören / İstanbul',
           ),
           SizedBox(height: 7),
           _ContactLine(
@@ -281,13 +328,18 @@ class _ContactInfoBlock extends StatelessWidget {
           ),
           SizedBox(height: 7),
           _ContactLine(
-            label: 'WhatsApp',
-            value: 'Yayın öncesi destek hattı eklenecek',
+            label: 'WhatsApp Hattı',
+            value: '+90 533 322 13 24',
           ),
           SizedBox(height: 7),
           _ContactLine(
-            label: 'Adres',
-            value: 'İstanbul / Türkiye',
+            label: 'Destek Hattı',
+            value: 'Yayın öncesi ayrıca duyurulacaktır.',
+          ),
+          SizedBox(height: 7),
+          _ContactLine(
+            label: 'Web',
+            value: 'www.sofrasofra.com',
           ),
         ],
       ),
