@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:sofrasofra_arena_v2/modules/consulting_requests_page.dart';
 import 'package:sofrasofra_arena_v2/modules/sef_akademi_ders_detay_sayfasi.dart';
 import 'package:sofrasofra_arena_v2/modules/chef_brand_career_page.dart';
+import 'package:sofrasofra_arena_v2/modules/sef_akademi_ders_ekle_sayfasi.dart';
 
 class SefAkademiDersleri extends StatefulWidget {
   final String chefId;
@@ -103,6 +104,37 @@ class _SefAkademiDersleriState extends State<SefAkademiDersleri> {
             letterSpacing: 1.1,
           ),
         ),
+        actions: [
+          IconButton(
+            tooltip: 'Akademi Videosu Ekle',
+            icon: const Icon(
+              Icons.video_call_rounded,
+              color: gold,
+            ),
+            onPressed: () async {
+              final created = await Navigator.push<bool>(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => SefAkademiDersEkleSayfasi(
+                    chefId: widget.chefId,
+                    chefName: widget.chefName,
+                  ),
+                ),
+              );
+
+              if (!context.mounted) return;
+
+              if (created == true) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Akademi dersi eklendi.'),
+                    backgroundColor: Colors.black,
+                  ),
+                );
+              }
+            },
+          ),
+        ],
       ),
       body: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
         stream: FirebaseFirestore.instance
