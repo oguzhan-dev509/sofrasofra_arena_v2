@@ -884,10 +884,12 @@ class _ChefBrandCareerPageState extends State<ChefBrandCareerPage> {
                           subtitle: workshopText,
                         ),
                         const SizedBox(height: 20),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: _CTAButton(
+                        LayoutBuilder(
+                          builder: (context, constraints) {
+                            final isNarrow = constraints.maxWidth < 430;
+
+                            final buttons = [
+                              _CTAButton(
                                 title: 'Danışmanlık',
                                 icon: Icons.person_outline_rounded,
                                 onTap: () {
@@ -902,10 +904,7 @@ class _ChefBrandCareerPageState extends State<ChefBrandCareerPage> {
                                   );
                                 },
                               ),
-                            ),
-                            const SizedBox(width: 10),
-                            Expanded(
-                              child: _CTAButton(
+                              _CTAButton(
                                 title: 'Private Dining',
                                 icon: Icons.sell_rounded,
                                 onTap: () {
@@ -920,10 +919,7 @@ class _ChefBrandCareerPageState extends State<ChefBrandCareerPage> {
                                   );
                                 },
                               ),
-                            ),
-                            const SizedBox(width: 10),
-                            Expanded(
-                              child: _CTAButton(
+                              _CTAButton(
                                 title: 'Workshop',
                                 icon: Icons.people_alt_rounded,
                                 onTap: () {
@@ -938,8 +934,31 @@ class _ChefBrandCareerPageState extends State<ChefBrandCareerPage> {
                                   );
                                 },
                               ),
-                            ),
-                          ],
+                            ];
+
+                            if (isNarrow) {
+                              return Column(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  buttons[0],
+                                  const SizedBox(height: 10),
+                                  buttons[1],
+                                  const SizedBox(height: 10),
+                                  buttons[2],
+                                ],
+                              );
+                            }
+
+                            return Row(
+                              children: [
+                                Expanded(child: buttons[0]),
+                                const SizedBox(width: 10),
+                                Expanded(child: buttons[1]),
+                                const SizedBox(width: 10),
+                                Expanded(child: buttons[2]),
+                              ],
+                            );
+                          },
                         ),
                       ],
                     ),
@@ -1325,11 +1344,12 @@ class _CTAButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return InkWell(
       onTap: onTap,
+      borderRadius: BorderRadius.circular(14),
       child: Container(
-        height: 52,
-        alignment: Alignment.center,
+        height: 48,
+        padding: const EdgeInsets.symmetric(horizontal: 10),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(14),
           gradient: const LinearGradient(
@@ -1342,13 +1362,21 @@ class _CTAButton extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, color: Colors.black, size: 18),
-            const SizedBox(width: 8),
-            Text(
-              title,
-              style: const TextStyle(
-                color: Colors.black,
-                fontWeight: FontWeight.bold,
+            Icon(icon, color: Colors.black, size: 17),
+            const SizedBox(width: 6),
+            Flexible(
+              child: Text(
+                title,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                softWrap: false,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  color: Colors.black,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w900,
+                  height: 1,
+                ),
               ),
             ),
           ],
