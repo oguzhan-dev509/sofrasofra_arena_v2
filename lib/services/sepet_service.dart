@@ -518,36 +518,16 @@ class SepetService {
 
     await batch.commit();
 
-    // 🔥 PLATFORM KURYE SİPARİŞLERİNDE OTOMATİK KURYE ATA
-    if (deliveryMode == 'platform_kurye' && platformKuryeAktif) {
+    // Platform kurye siparişlerinde kurye ataması artık sipariş oluşur oluşmaz
+// değil, üretici/satıcı "Hazır" dediğinde SellerOrderService üzerinden başlar.
+    if (false && deliveryMode == 'platform_kurye' && platformKuryeAktif) {
       await orderRef.set({
-        'courierAssignmentTriggered': true,
+        'courierAssignmentTriggered': false,
+        'courierAssignmentResult': 'waiting_vendor_ready',
         'courierAssignmentCheckedAt': FieldValue.serverTimestamp(),
-        'courierAssignmentResult': 'started',
+        'assignmentStatus': 'waiting_vendor_ready',
         'updatedAt': FieldValue.serverTimestamp(),
       }, SetOptions(merge: true));
-
-      try {
-        final assigned = await OtomatikKuryeAtamaServisi.sipariseKuryeAta(
-          orderId: orderRef.id,
-        );
-
-        await orderRef.set({
-          'courierAssignmentResult':
-              assigned ? 'assigned_or_offer_sent' : 'not_assigned',
-          'courierAssignmentCheckedAt': FieldValue.serverTimestamp(),
-          'updatedAt': FieldValue.serverTimestamp(),
-        }, SetOptions(merge: true));
-      } catch (e) {
-        await orderRef.set({
-          'courierAssignmentResult': 'error',
-          'courierAssignmentError': e.toString(),
-          'courierAssignmentCheckedAt': FieldValue.serverTimestamp(),
-          'updatedAt': FieldValue.serverTimestamp(),
-        }, SetOptions(merge: true));
-
-        debugPrint('Kurye atama hatası: $e');
-      }
     } else {
       await orderRef.set({
         'courierAssignmentTriggered': false,
@@ -643,13 +623,13 @@ class SepetService {
   static String _assignmentStatusForDeliveryMode(String deliveryMode) {
     switch (deliveryMode) {
       case 'platform_kurye':
-        return 'waiting_courier';
+        return 'waiting_vendor_ready';
       case 'satici_kuryesi':
         return 'seller_assignment_required';
       case 'gel_al':
         return 'not_required';
       default:
-        return 'waiting_courier';
+        return 'waiting_vendor_ready';
     }
   }
 
@@ -660,7 +640,7 @@ class SepetService {
       case 'satici_kuryesi':
         return 'pending';
       case 'platform_kurye':
-        return 'ready';
+        return 'pending';
       default:
         return 'pending';
     }
@@ -730,3 +710,4 @@ class SepetService {
     return 0;
   }
 }
+

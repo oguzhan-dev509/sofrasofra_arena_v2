@@ -328,13 +328,28 @@ class _ContactInfoBlock extends StatelessWidget {
           ),
           SizedBox(height: 7),
           _ContactLine(
-            label: 'WhatsApp Hattı',
-            value: '+90 533 322 13 24',
+            label: 'Ev Lezzetleri Destek',
+            value: 'evlezzetleri@sofrasofra.com',
           ),
           SizedBox(height: 7),
           _ContactLine(
-            label: 'Destek Hattı',
-            value: 'Yayın öncesi ayrıca duyurulacaktır.',
+            label: 'Usta Şefler Destek',
+            value: 'ustasefler@sofrasofra.com',
+          ),
+          SizedBox(height: 7),
+          _ContactLine(
+            label: 'Restoranlar Destek',
+            value: 'restoranlar@sofrasofra.com',
+          ),
+          SizedBox(height: 7),
+          _ContactLine(
+            label: 'Kurye Destek',
+            value: 'kurye@sofrasofra.com',
+          ),
+          SizedBox(height: 7),
+          _ContactLine(
+            label: 'WhatsApp Hattı',
+            value: '+90 533 322 13 24',
           ),
           SizedBox(height: 7),
           _ContactLine(
