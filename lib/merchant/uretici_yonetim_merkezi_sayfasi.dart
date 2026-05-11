@@ -164,7 +164,7 @@ class UreticiYonetimMerkeziSayfasi extends StatelessWidget {
               crossAxisCount: crossAxisCount,
               mainAxisSpacing: 18,
               crossAxisSpacing: 18,
-              childAspectRatio: width >= 820 ? 1.22 : 1.08,
+              childAspectRatio: width >= 820 ? 1.22 : 0.98,
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               children: [
