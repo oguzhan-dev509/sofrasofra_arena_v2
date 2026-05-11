@@ -91,7 +91,7 @@ class _UrunEklemeSayfasiState extends State<UrunEklemeSayfasi> {
           await FirebaseFirestore.instance.collection('sellers').doc(uid).get();
 
       final data = doc.data() ?? {};
-      final plan = MembershipPlanService.fromSellerData(data);
+      final plan = MembershipPlanService.free;
 
       if (!mounted) return;
 
