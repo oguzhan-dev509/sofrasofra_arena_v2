@@ -642,13 +642,13 @@ class ChefGallerySalesActions extends StatelessWidget {
                             goturPrice: goturPrice,
                           ),
                           child: const SizedBox(
-                            width: 34,
-                            height: 27,
+                            width: 44,
+                            height: 34,
                             child: Center(
                               child: Icon(
                                 Icons.add_shopping_cart,
                                 color: Colors.white,
-                                size: 18,
+                                size: 20,
                               ),
                             ),
                           ),
