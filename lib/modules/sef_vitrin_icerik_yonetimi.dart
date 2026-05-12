@@ -493,18 +493,27 @@ class _SefVitrinIcerikYonetimiSayfasiState
                             Positioned(
                               top: 6,
                               right: 6,
-                              child: GestureDetector(
-                                onTap: () => _removeGalleryImage(url),
-                                child: Container(
-                                  padding: const EdgeInsets.all(5),
-                                  decoration: BoxDecoration(
-                                    color: Colors.black.withAlpha(170),
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: const Icon(
-                                    Icons.close,
-                                    color: Colors.redAccent,
-                                    size: 16,
+                              child: Material(
+                                color: Colors.black.withAlpha(170),
+                                shape: const CircleBorder(),
+                                child: InkWell(
+                                  customBorder: const CircleBorder(),
+                                  onTap: () {
+                                    debugPrint(
+                                      '### SEF VITRIN GALLERY DELETE TAP url=$url',
+                                    );
+                                    _removeGalleryImage(url);
+                                  },
+                                  child: const SizedBox(
+                                    width: 36,
+                                    height: 36,
+                                    child: Center(
+                                      child: Icon(
+                                        Icons.close,
+                                        color: Colors.redAccent,
+                                        size: 20,
+                                      ),
+                                    ),
                                   ),
                                 ),
                               ),
@@ -530,7 +539,9 @@ class _SefVitrinIcerikYonetimiSayfasiState
                       height: 18,
                       child: CircularProgressIndicator(
                         strokeWidth: 2,
-                        valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          Colors.black,
+                        ),
                       ),
                     )
                   : const Text(
