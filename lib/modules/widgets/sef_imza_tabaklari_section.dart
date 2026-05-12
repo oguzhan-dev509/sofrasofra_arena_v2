@@ -5,6 +5,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:sofrasofra_arena_v2/modules/widgets/sef_imza_tabagi_premium_card.dart';
 import 'package:sofrasofra_arena_v2/services/sepet_service.dart';
 import 'package:sofrasofra_arena_v2/cart/sepet_sayfasi.dart';
+import 'package:flutter/foundation.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class SefImzaTabaklariSection extends StatefulWidget {
   final String chefId;
@@ -25,6 +27,10 @@ class _SefImzaTabaklariSectionState extends State<SefImzaTabaklariSection> {
 
   Future<void> _addDish() async {
     try {
+      debugPrint('### IMZA TABAGI ADD START');
+      debugPrint('### AUTH UID=${FirebaseAuth.instance.currentUser?.uid}');
+      debugPrint('### CHEF ID=${widget.chefId}');
+      debugPrint('### CAN MANAGE=${widget.canManage}');
       final picked = await ImagePicker().pickImage(
         source: ImageSource.gallery,
         imageQuality: 85,
@@ -47,6 +53,7 @@ class _SefImzaTabaklariSectionState extends State<SefImzaTabaklariSection> {
       );
 
       final url = await ref.getDownloadURL();
+      final currentUid = FirebaseAuth.instance.currentUser?.uid ?? '';
 
       final urunRef =
           await FirebaseFirestore.instance.collection('urunler').add({
@@ -64,19 +71,26 @@ class _SefImzaTabaklariSectionState extends State<SefImzaTabaklariSection> {
         'goturFiyat': 0,
         'kategori': 'Usta Şefler',
         'tip': 'Usta Şefler',
+        'sourceType': 'chef_signature',
+        'sellerType': 'chef_signature',
+        'urunTipi': 'chef_signature_dish',
+        'isChefSignatureDish': true,
         'dukkanAdi': 'Şefin İmza Mutfağı',
         'dukkan': 'Şefin İmza Mutfağı',
         'dukkanId': widget.chefId,
         'sellerId': widget.chefId,
         'chefId': widget.chefId,
+        'createdBy': currentUid,
         'isActive': true,
         'aktifMi': true,
         'onayDurumu': 'onaylandi',
         'createdAt': FieldValue.serverTimestamp(),
         'updatedAt': FieldValue.serverTimestamp(),
       });
-
-      await FirebaseFirestore.instance.collection('chef_signature_dishes').add({
+      debugPrint('### IMZA TABAGI URUNLER ADD OK id=${urunRef.id}');
+      final dishRef = await FirebaseFirestore.instance
+          .collection('chef_signature_dishes')
+          .add({
         'chefId': widget.chefId,
         'urunDocId': urunRef.id,
         'imageUrl': url,
@@ -86,15 +100,20 @@ class _SefImzaTabaklariSectionState extends State<SefImzaTabaklariSection> {
         'gelAlFiyat': 0,
         'goturFiyat': 0,
         'isActive': true,
+        'createdBy': currentUid,
+        'sourceType': 'chef_signature',
         'createdAt': FieldValue.serverTimestamp(),
         'updatedAt': FieldValue.serverTimestamp(),
       });
-
+      debugPrint('### IMZA TABAGI SIGNATURE ADD OK id=${dishRef.id}');
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('İmza tabağı eklendi')),
       );
-    } catch (e) {
+    } catch (e, st) {
+      debugPrint('### IMZA TABAGI ADD ERROR: $e');
+      debugPrint('### IMZA TABAGI ADD STACK: $st');
+
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Hata: $e')),

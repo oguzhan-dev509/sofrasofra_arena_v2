@@ -139,5 +139,17 @@ service cloud.firestore {
         allow read, write: if signedIn();
       }
     }
+
+    match /chef_signature_dishes/{dishId} {
+      allow read: if true;
+      allow create, update, delete: if signedIn();
+    }
+
+    // Tanımlanmamış koleksiyonlar için vitrin/liste okumasını açık tutar.
+    // Yazma kapalıdır. Premium/Pro koruması yukarıdaki özel bloklarda devam eder.
+    match /{document=**} {
+      allow read: if true;
+      allow write: if false;
+    }
   }
 }
