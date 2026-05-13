@@ -35,8 +35,11 @@ class SepetService {
   }) async {
     final sepetRef = _firestore.collection('sepetler').doc(_cartId);
     final itemsRef = sepetRef.collection('items');
+
     debugPrint(
-        'SEPET DEBUG cartId=$_cartId urunId=$urunId saticiId=$saticiId dukkanId=$dukkanId');
+      'SEPET DEBUG cartId=$_cartId urunId=$urunId saticiId=$saticiId dukkanId=$dukkanId',
+    );
+
     final String finalSaticiId = _normalizeSellerId(
       saticiId ?? dukkanId ?? dukkanAdi,
     );
@@ -72,6 +75,7 @@ class SepetService {
 
     final String orderSource =
         sellerType == 'chef_signature' ? 'chef_signature_dish' : 'ev_product';
+
     final List<String> teslimatModlari = _asStringList(
       sellerData['teslimatModlari'],
     );
@@ -101,7 +105,8 @@ class SepetService {
         deliveryMode = 'gel_al';
       }
     }
-// Kullanıcının seçtiği teslimat tipi sepetin gerçek teslimat modunu belirler.
+
+    // Kullanıcının seçtiği teslimat tipi sepetin gerçek teslimat modunu belirler.
     if (teslimatTipi == 'gel_al') {
       deliveryMode = 'gel_al';
     } else if (teslimatTipi == 'gotur') {
@@ -109,13 +114,21 @@ class SepetService {
           ? 'platform_kurye'
           : (saticiKuryeAktif ? 'satici_kuryesi' : 'platform_kurye');
     }
+
     final sepetSnap = await sepetRef.get();
     final sepetData = sepetSnap.data();
 
     final mevcutSepetSaticiId =
         (sepetData?['saticiId'] ?? '').toString().trim();
 
-    if (mevcutSepetSaticiId.isNotEmpty &&
+    // Eski saticiId kilidine tek başına güvenme.
+    // Sepet sayfası boşsa ama ana sepet dokümanında eski saticiId kaldıysa,
+    // yeni ürün eklenebilmelidir.
+    final aktifItemKontrolSnap = await itemsRef.limit(1).get();
+    final sepetteGercekUrunVar = aktifItemKontrolSnap.docs.isNotEmpty;
+
+    if (sepetteGercekUrunVar &&
+        mevcutSepetSaticiId.isNotEmpty &&
         mevcutSepetSaticiId != finalSaticiId) {
       throw Exception(
         'Aynı anda yalnızca tek satıcıdan sipariş verebilirsiniz.',
@@ -149,55 +162,34 @@ class SepetService {
       SetOptions(merge: true),
     );
 
+    final effectivePrice =
+        teslimatTipi == 'gotur' ? (goturFiyat ?? fiyat) : (gelAlFiyat ?? fiyat);
+
+    final itemData = {
+      'urunId': urunId,
+      'urunAdi': urunAdi,
+      'dukkanAdi': dukkanAdi,
+      'dukkan': dukkanAdi,
+      'kategori': kategori,
+      'img': img,
+      'fiyat': effectivePrice,
+      'birimFiyat': effectivePrice,
+      'gelAlFiyat': gelAlFiyat ?? fiyat,
+      'goturFiyat': goturFiyat ?? fiyat,
+      'teslimatTipi': teslimatTipi,
+      'deliveryIncludedInPrice': deliveryIncludedInPrice,
+      'feeIncludedInPrice': feeIncludedInPrice,
+      'adet': 1,
+      'saticiId': finalSaticiId,
+      'addedAt': FieldValue.serverTimestamp(),
+    };
+
     if (mevcutQuery.docs.isNotEmpty) {
       final doc = mevcutQuery.docs.first;
-
-      batch.update(doc.reference, {
-        'urunAdi': urunAdi,
-        'dukkanAdi': dukkanAdi,
-        'dukkan': dukkanAdi,
-        'kategori': kategori,
-        'img': img,
-        'fiyat': teslimatTipi == 'gotur'
-            ? (goturFiyat ?? fiyat)
-            : (gelAlFiyat ?? fiyat),
-        'birimFiyat': teslimatTipi == 'gotur'
-            ? (goturFiyat ?? fiyat)
-            : (gelAlFiyat ?? fiyat),
-        'gelAlFiyat': gelAlFiyat ?? fiyat,
-        'goturFiyat': goturFiyat ?? fiyat,
-        'teslimatTipi': teslimatTipi,
-        'deliveryIncludedInPrice': deliveryIncludedInPrice,
-        'feeIncludedInPrice': feeIncludedInPrice,
-        'adet': 1,
-        'saticiId': finalSaticiId,
-        'addedAt': FieldValue.serverTimestamp(),
-      });
+      batch.update(doc.reference, itemData);
     } else {
       final yeniDoc = itemsRef.doc(urunId);
-
-      batch.set(yeniDoc, {
-        'urunId': urunId,
-        'urunAdi': urunAdi,
-        'dukkanAdi': dukkanAdi,
-        'dukkan': dukkanAdi,
-        'kategori': kategori,
-        'img': img,
-        'fiyat': teslimatTipi == 'gotur'
-            ? (goturFiyat ?? fiyat)
-            : (gelAlFiyat ?? fiyat),
-        'birimFiyat': teslimatTipi == 'gotur'
-            ? (goturFiyat ?? fiyat)
-            : (gelAlFiyat ?? fiyat),
-        'gelAlFiyat': gelAlFiyat ?? fiyat,
-        'goturFiyat': goturFiyat ?? fiyat,
-        'teslimatTipi': teslimatTipi,
-        'deliveryIncludedInPrice': deliveryIncludedInPrice,
-        'feeIncludedInPrice': feeIncludedInPrice,
-        'adet': 1,
-        'saticiId': finalSaticiId,
-        'addedAt': FieldValue.serverTimestamp(),
-      });
+      batch.set(yeniDoc, itemData);
     }
 
     await batch.commit();
@@ -710,4 +702,3 @@ class SepetService {
     return 0;
   }
 }
-

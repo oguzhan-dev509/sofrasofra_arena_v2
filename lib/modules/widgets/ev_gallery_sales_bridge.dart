@@ -64,7 +64,10 @@ class EvGallerySalesBridge {
         'tip': 'Ev Lezzetleri',
         'source': 'ev_gallery',
         'orderSource': 'ev_gallery',
+        'isGalleryProduct': true,
+        'hiddenFromCatalog': true,
         'ownerProductId': ownerProductId,
+        'parentProductId': ownerProductId,
         'sellerType': 'ev_lezzetleri',
         'paymentChannel': 'ev_order',
         'iyzicoCategory': 'EvLezzetleri',
@@ -225,7 +228,14 @@ class EvGallerySalesBridge {
     if (!context.mounted) return;
 
     try {
-      await ref.set(result, SetOptions(merge: true));
+      await ref.set({
+        ...result,
+        'source': 'ev_gallery',
+        'orderSource': 'ev_gallery',
+        'isGalleryProduct': true,
+        'hiddenFromCatalog': true,
+        'updatedAt': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
 
       if (!context.mounted) return;
 
@@ -245,7 +255,6 @@ class EvGallerySalesBridge {
       );
     }
   }
-
 }
 
 class EvGallerySalesActions extends StatelessWidget {
@@ -454,30 +463,6 @@ class EvGallerySalesActions extends StatelessWidget {
               ),
               child: Row(
                 children: [
-                  if (isAdmin) ...[
-                    InkWell(
-                      borderRadius: BorderRadius.circular(999),
-                      onTap: () => EvGallerySalesBridge.editGalleryProductInfo(
-                        context: context,
-                        ref: ref,
-                        current: price,
-                      ),
-                      child: Container(
-                        width: 30,
-                        height: 30,
-                        margin: const EdgeInsets.only(right: 6),
-                        decoration: const BoxDecoration(
-                          color: gold,
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(
-                          Icons.edit_rounded,
-                          color: Colors.black,
-                          size: 17,
-                        ),
-                      ),
-                    ),
-                  ],
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -620,13 +605,12 @@ class EvGallerySalesActions extends StatelessWidget {
                               );
 
                               await Future<void>.delayed(
-                                const Duration(milliseconds: 450),
+                                const Duration(milliseconds: 250),
                               );
 
                               if (!context.mounted) return;
 
-                              Navigator.push(
-                                context,
+                              Navigator.of(context, rootNavigator: true).push(
                                 MaterialPageRoute(
                                   builder: (_) => const SepetSayfasi(),
                                 ),
@@ -634,10 +618,49 @@ class EvGallerySalesActions extends StatelessWidget {
                             } catch (e) {
                               if (!context.mounted) return;
 
-                              ScaffoldMessenger.of(context).showSnackBar(
+                              final message = e.toString();
+                              final isSingleSellerConflict =
+                                  message.contains('tek satıcı') ||
+                                      message.contains('yalnızca tek satıcı') ||
+                                      message.contains('Aynı anda');
+
+                              final messenger = ScaffoldMessenger.of(context);
+                              messenger.clearSnackBars();
+
+                              if (isSingleSellerConflict) {
+                                messenger.showSnackBar(
+                                  const SnackBar(
+                                    duration: Duration(seconds: 2),
+                                    backgroundColor: Colors.redAccent,
+                                    content: Text(
+                                      'Sepette başka bir satıcıdan ürün var. Sepetim açılıyor.',
+                                    ),
+                                  ),
+                                );
+
+                                await Future<void>.delayed(
+                                  const Duration(milliseconds: 700),
+                                );
+
+                                if (!context.mounted) return;
+
+                                Navigator.of(
+                                  context,
+                                  rootNavigator: true,
+                                ).push(
+                                  MaterialPageRoute(
+                                    builder: (_) => const SepetSayfasi(),
+                                  ),
+                                );
+
+                                return;
+                              }
+
+                              messenger.showSnackBar(
                                 SnackBar(
-                                  content: Text('Sepete eklenemedi: $e'),
+                                  duration: const Duration(seconds: 4),
                                   backgroundColor: Colors.redAccent,
+                                  content: Text('Sepete eklenemedi: $e'),
                                 ),
                               );
                             }
@@ -650,160 +673,5 @@ class EvGallerySalesActions extends StatelessWidget {
         );
       },
     );
-  }
-
-  Future<void> _editPrice(
-    BuildContext context,
-    DocumentReference<Map<String, dynamic>> ref,
-    double current,
-  ) async {
-    final snap = await ref.get();
-    final data = snap.data() ?? {};
-
-    if (!context.mounted) return;
-
-    String name =
-        (data['ad'] ?? data['urunAdi'] ?? 'Ev Galeri Ürünü').toString();
-
-    String gelAlText =
-        (data['gelAlFiyat'] ?? data['price'] ?? data['fiyat'] ?? current)
-            .toString();
-
-    String goturText = (data['goturFiyat'] ?? '').toString();
-
-    String desc = (data['aciklama'] ?? data['description'] ?? '').toString();
-
-    final result = await showDialog<Map<String, dynamic>>(
-      context: context,
-      barrierDismissible: false,
-      builder: (dialogContext) {
-        return AlertDialog(
-          title: const Text('Galeri Ürün Bilgileri'),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextFormField(
-                  initialValue: name,
-                  decoration: const InputDecoration(
-                    labelText: 'Ürün adı',
-                    hintText: 'Örn: Mercimek çorbası',
-                  ),
-                  onChanged: (value) {
-                    name = value;
-                  },
-                ),
-                const SizedBox(height: 12),
-                TextFormField(
-                  initialValue: gelAlText,
-                  keyboardType: const TextInputType.numberWithOptions(
-                    decimal: true,
-                  ),
-                  decoration: const InputDecoration(
-                    labelText: 'Gel-Al Fiyatı (₺)',
-                    hintText: 'Örn: 120',
-                  ),
-                  onChanged: (value) {
-                    gelAlText = value;
-                  },
-                ),
-                const SizedBox(height: 12),
-                TextFormField(
-                  initialValue: goturText,
-                  keyboardType: const TextInputType.numberWithOptions(
-                    decimal: true,
-                  ),
-                  decoration: const InputDecoration(
-                    labelText: 'Götür Fiyatı (₺)',
-                    hintText: 'Örn: 150',
-                  ),
-                  onChanged: (value) {
-                    goturText = value;
-                  },
-                ),
-                const SizedBox(height: 12),
-                TextFormField(
-                  initialValue: desc,
-                  maxLines: 3,
-                  decoration: const InputDecoration(
-                    labelText: 'Tarif / Açıklama',
-                    hintText: 'Ürün açıklaması',
-                  ),
-                  onChanged: (value) {
-                    desc = value;
-                  },
-                ),
-              ],
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(dialogContext).pop(null);
-              },
-              child: const Text('İptal'),
-            ),
-            TextButton(
-              onPressed: () {
-                final cleanName =
-                    name.trim().isEmpty ? 'Ev Galeri Ürünü' : name.trim();
-
-                final gelAl = double.tryParse(
-                      gelAlText.trim().replaceAll(',', '.'),
-                    ) ??
-                    0;
-
-                final gotur = double.tryParse(
-                      goturText.trim().replaceAll(',', '.'),
-                    ) ??
-                    0;
-
-                Navigator.of(dialogContext).pop({
-                  'ad': cleanName,
-                  'urunAdi': cleanName,
-                  'price': gelAl,
-                  'fiyat': gelAl,
-                  'gelAlFiyat': gelAl,
-                  'goturFiyat': gotur,
-                  'aciklama': desc.trim(),
-                  'description': desc.trim(),
-                  'deliveryIncludedInPrice': true,
-                  'feeIncludedInPrice': true,
-                  'updatedAt': FieldValue.serverTimestamp(),
-                });
-              },
-              child: const Text('Kaydet'),
-            ),
-          ],
-        );
-      },
-    );
-
-    if (result == null) return;
-    if (!context.mounted) return;
-
-    try {
-      await ref.set(
-        result,
-        SetOptions(merge: true),
-      );
-
-      if (!context.mounted) return;
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Galeri ürün bilgileri kaydedildi.'),
-        ),
-      );
-    } catch (e) {
-      if (!context.mounted) return;
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Kaydedilemedi: $e'),
-          backgroundColor: Colors.redAccent,
-        ),
-      );
-    }
   }
 }

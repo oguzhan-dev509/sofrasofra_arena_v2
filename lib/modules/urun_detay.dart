@@ -1240,8 +1240,10 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
                     ),
                     const SizedBox(height: 14),
                   ],
-                  _buildPriceAndChipsCard(),
-                  const SizedBox(height: 14),
+                  if (_galleryImageUrls.isEmpty) ...[
+                    _buildPriceAndChipsCard(),
+                    const SizedBox(height: 14),
+                  ],
                   EvProductStatusNoteCard(
                     bugunHazirlandi: _liveBugunHazirlandi,
                     sinirliAdet: _liveSinirliAdet,
@@ -1308,7 +1310,7 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
   }
 
   Widget _buildGalleryStripCard() {
-    final images = _galleryImageUrls;
+    final images = _galleryImageUrls.take(3).toList();
 
     if (images.isEmpty) {
       return const SizedBox.shrink();
@@ -1317,20 +1319,14 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
     final screenWidth = MediaQuery.of(context).size.width;
     final isMobile = screenWidth < 600;
 
-    final itemWidth = isMobile
-        ? (screenWidth * 0.38).clamp(118.0, 152.0).toDouble()
-        : ((screenWidth - 36.0 - 36.0 - 28.0) / 3)
-            .clamp(140.0, 220.0)
-            .toDouble();
-
+    final itemHeight = isMobile ? 138.0 : 190.0;
     final safeSelectedIndex = _selectedGalleryIndex < 0
         ? 0
         : (_selectedGalleryIndex >= images.length
             ? images.length - 1
             : _selectedGalleryIndex);
 
-    final selectedGalleryImage = images[safeSelectedIndex];
-
+    final canEditGallerySales = _canManageMedia || _isPlatformAdmin;
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: _cardDecoration(),
@@ -1348,252 +1344,278 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
           ),
           const SizedBox(height: 14),
 
-          // Mobil güvenli: küçük kartlarda sadece görsel gösterilir.
-          SizedBox(
-            height: itemWidth + 10,
-            child: ListView.separated(
-              scrollDirection: Axis.horizontal,
-              itemCount: images.length,
-              separatorBuilder: (_, __) => const SizedBox(width: 14),
-              itemBuilder: (context, index) {
-                final imageUrl = images[index];
-                final isSelected = index == safeSelectedIndex;
+          // Mobil güvenli: eski premium 3'lü galeri düzeni.
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final gap = isMobile ? 10.0 : 14.0;
+              final imageHeight = isMobile ? 150.0 : 215.0;
 
-                return GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      _selectedGalleryIndex = index;
-                    });
-                  },
-                  child: SizedBox(
-                    width: itemWidth,
-                    height: itemWidth,
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(22),
-                        border: Border.all(
-                          color: isSelected ? _gold : _border,
-                          width: isSelected ? 3 : 1.2,
+              final itemWidth = isMobile
+                  ? (constraints.maxWidth * 0.78).clamp(245.0, 300.0).toDouble()
+                  : ((constraints.maxWidth - (gap * 2)) / 3)
+                      .clamp(118.0, 360.0)
+                      .toDouble();
+
+              final galleryHeight = imageHeight + (isMobile ? 210.0 : 125.0);
+
+              return SizedBox(
+                height: galleryHeight,
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  clipBehavior: Clip.none,
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: List.generate(images.length, (index) {
+                      final imageUrl = images[index];
+                      final isSelected = index == safeSelectedIndex;
+
+                      return Padding(
+                        padding: EdgeInsets.only(
+                          right: index == images.length - 1 ? 0 : gap,
                         ),
-                        color: const Color(0xFF111111),
-                        boxShadow: isSelected
-                            ? [
-                                BoxShadow(
-                                  color: _gold.withValues(alpha: 0.28),
-                                  blurRadius: 18,
-                                  offset: const Offset(0, 8),
-                                ),
-                              ]
-                            : const [],
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(3),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(18),
-                          child: Stack(
-                            fit: StackFit.expand,
+                        child: SizedBox(
+                          width: itemWidth,
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
                             children: [
-                              Image.network(
-                                imageUrl,
-                                fit: BoxFit.cover,
-                                gaplessPlayback: true,
-                                filterQuality: FilterQuality.medium,
-                                loadingBuilder:
-                                    (context, child, loadingProgress) {
-                                  if (loadingProgress == null) return child;
-
-                                  return Container(
-                                    color: const Color(0xFF111111),
-                                    alignment: Alignment.center,
-                                    child: const SizedBox(
-                                      width: 18,
-                                      height: 18,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2,
-                                        color: _gold,
-                                      ),
-                                    ),
-                                  );
+                              GestureDetector(
+                                onTap: () {
+                                  setState(() {
+                                    _selectedGalleryIndex = index;
+                                  });
                                 },
-                                errorBuilder: (_, __, ___) => Container(
-                                  color: const Color(0xFF151515),
-                                  alignment: Alignment.center,
-                                  child: const Icon(
-                                    Icons.image_not_supported_outlined,
-                                    color: _textMuted,
-                                    size: 22,
-                                  ),
-                                ),
-                              ),
-                              if (_canManageMedia)
-                                Positioned(
-                                  left: 8,
-                                  top: 8,
-                                  child: InkWell(
-                                    borderRadius: BorderRadius.circular(999),
-                                    onTap: () async {
-                                      setState(() {
-                                        _selectedGalleryIndex = index;
-                                      });
-
-                                      final ownerProductId =
-                                          (widget.productId ?? '').trim();
-                                      final sellerId =
-                                          (widget.sellerId ?? '').trim();
-
-                                      if (ownerProductId.isEmpty ||
-                                          sellerId.isEmpty ||
-                                          imageUrl.trim().isEmpty) {
-                                        ScaffoldMessenger.of(context)
-                                            .showSnackBar(
-                                          const SnackBar(
-                                            content: Text(
-                                                'Galeri ürünü için eksik bilgi var.'),
-                                            backgroundColor: Colors.redAccent,
-                                          ),
-                                        );
-                                        return;
-                                      }
-
-                                      final ref = await EvGallerySalesBridge
-                                          .ensureGalleryProduct(
-                                        ownerProductId: ownerProductId,
-                                        sellerId: sellerId,
-                                        dukkanAdi: widget.dukkanAdi,
-                                        imageUrl: imageUrl,
-                                      );
-
-                                      if (!mounted) return;
-
-                                      await EvGallerySalesBridge
-                                          .editGalleryProductInfo(
-                                        context: context,
-                                        ref: ref,
-                                        current: 0,
-                                      );
-                                    },
-                                    child: Container(
-                                      width: 31,
-                                      height: 31,
-                                      decoration: BoxDecoration(
-                                        color: _gold.withValues(alpha: 0.96),
-                                        shape: BoxShape.circle,
-                                        border: Border.all(
-                                          color: Colors.black
-                                              .withValues(alpha: 0.22),
-                                        ),
-                                        boxShadow: [
-                                          BoxShadow(
-                                            color: Colors.black
-                                                .withValues(alpha: 0.35),
-                                            blurRadius: 8,
-                                            offset: const Offset(0, 3),
-                                          ),
-                                        ],
-                                      ),
-                                      child: const Icon(
-                                        Icons.edit_rounded,
-                                        color: Colors.black,
-                                        size: 17,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              if (isSelected)
-                                Positioned(
-                                  right: 8,
-                                  top: 8,
-                                  child: Container(
-                                    padding: const EdgeInsets.all(6),
+                                child: SizedBox(
+                                  width: itemWidth,
+                                  height: imageHeight,
+                                  child: DecoratedBox(
                                     decoration: BoxDecoration(
-                                      color:
-                                          Colors.black.withValues(alpha: 0.65),
-                                      shape: BoxShape.circle,
+                                      borderRadius: BorderRadius.circular(22),
                                       border: Border.all(
-                                        color: _gold.withValues(alpha: 0.75),
+                                        color: isSelected ? _gold : _border,
+                                        width: isSelected ? 3 : 1.2,
                                       ),
+                                      color: const Color(0xFF111111),
+                                      boxShadow: isSelected
+                                          ? [
+                                              BoxShadow(
+                                                color: _gold.withValues(
+                                                    alpha: 0.28),
+                                                blurRadius: 18,
+                                                offset: const Offset(0, 8),
+                                              ),
+                                            ]
+                                          : const [],
                                     ),
-                                    child: const Icon(
-                                      Icons.check_rounded,
-                                      color: _gold,
-                                      size: 18,
-                                    ),
-                                  ),
-                                ),
-                              Positioned(
-                                left: 8,
-                                bottom: 8,
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 8,
-                                    vertical: 5,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: Colors.black.withValues(alpha: 0.65),
-                                    borderRadius: BorderRadius.circular(999),
-                                  ),
-                                  child: Text(
-                                    '${index + 1}/${images.length}',
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 11,
-                                      fontWeight: FontWeight.w800,
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(3),
+                                      child: ClipRRect(
+                                        borderRadius: BorderRadius.circular(18),
+                                        child: Stack(
+                                          fit: StackFit.expand,
+                                          children: [
+                                            Image.network(
+                                              imageUrl,
+                                              fit: BoxFit.cover,
+                                              gaplessPlayback: true,
+                                              filterQuality:
+                                                  FilterQuality.medium,
+                                              loadingBuilder: (context, child,
+                                                  loadingProgress) {
+                                                if (loadingProgress == null)
+                                                  return child;
+
+                                                return Container(
+                                                  color:
+                                                      const Color(0xFF111111),
+                                                  alignment: Alignment.center,
+                                                  child: const SizedBox(
+                                                    width: 18,
+                                                    height: 18,
+                                                    child:
+                                                        CircularProgressIndicator(
+                                                      strokeWidth: 2,
+                                                      color: _gold,
+                                                    ),
+                                                  ),
+                                                );
+                                              },
+                                              errorBuilder: (_, __, ___) =>
+                                                  Container(
+                                                color: const Color(0xFF151515),
+                                                alignment: Alignment.center,
+                                                child: const Icon(
+                                                  Icons
+                                                      .image_not_supported_outlined,
+                                                  color: _textMuted,
+                                                  size: 22,
+                                                ),
+                                              ),
+                                            ),
+                                            if (_canManageMedia)
+                                              Positioned(
+                                                left: 8,
+                                                top: 8,
+                                                child: InkWell(
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          999),
+                                                  onTap: () async {
+                                                    setState(() {
+                                                      _selectedGalleryIndex =
+                                                          index;
+                                                    });
+
+                                                    final ownerProductId =
+                                                        (widget.productId ?? '')
+                                                            .trim();
+                                                    final sellerId =
+                                                        (widget.sellerId ?? '')
+                                                            .trim();
+
+                                                    if (ownerProductId
+                                                            .isEmpty ||
+                                                        sellerId.isEmpty ||
+                                                        imageUrl
+                                                            .trim()
+                                                            .isEmpty) {
+                                                      ScaffoldMessenger.of(
+                                                              context)
+                                                          .showSnackBar(
+                                                        const SnackBar(
+                                                          content: Text(
+                                                              'Galeri ürünü için eksik bilgi var.'),
+                                                          backgroundColor:
+                                                              Colors.redAccent,
+                                                        ),
+                                                      );
+                                                      return;
+                                                    }
+
+                                                    final ref =
+                                                        await EvGallerySalesBridge
+                                                            .ensureGalleryProduct(
+                                                      ownerProductId:
+                                                          ownerProductId,
+                                                      sellerId: sellerId,
+                                                      dukkanAdi:
+                                                          widget.dukkanAdi,
+                                                      imageUrl: imageUrl,
+                                                    );
+
+                                                    if (!mounted) return;
+
+                                                    await EvGallerySalesBridge
+                                                        .editGalleryProductInfo(
+                                                      context: context,
+                                                      ref: ref,
+                                                      current: 0,
+                                                    );
+                                                  },
+                                                  child: Container(
+                                                    width: 34,
+                                                    height: 34,
+                                                    decoration: BoxDecoration(
+                                                      color: _gold.withValues(
+                                                          alpha: 0.96),
+                                                      shape: BoxShape.circle,
+                                                      border: Border.all(
+                                                        color: Colors.black
+                                                            .withValues(
+                                                                alpha: 0.22),
+                                                      ),
+                                                      boxShadow: [
+                                                        BoxShadow(
+                                                          color: Colors.black
+                                                              .withValues(
+                                                                  alpha: 0.35),
+                                                          blurRadius: 8,
+                                                          offset: const Offset(
+                                                              0, 3),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                    child: const Icon(
+                                                      Icons.edit_rounded,
+                                                      color: Colors.black,
+                                                      size: 18,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            if (isSelected)
+                                              Positioned(
+                                                right: 8,
+                                                top: 8,
+                                                child: Container(
+                                                  padding:
+                                                      const EdgeInsets.all(6),
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.black
+                                                        .withValues(
+                                                            alpha: 0.65),
+                                                    shape: BoxShape.circle,
+                                                    border: Border.all(
+                                                      color: _gold.withValues(
+                                                          alpha: 0.75),
+                                                    ),
+                                                  ),
+                                                  child: const Icon(
+                                                    Icons.check_rounded,
+                                                    color: _gold,
+                                                    size: 18,
+                                                  ),
+                                                ),
+                                              ),
+                                            Positioned(
+                                              left: 8,
+                                              bottom: 8,
+                                              child: Container(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                  horizontal: 8,
+                                                  vertical: 5,
+                                                ),
+                                                decoration: BoxDecoration(
+                                                  color: Colors.black
+                                                      .withValues(alpha: 0.65),
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          999),
+                                                ),
+                                                child: Text(
+                                                  '${index + 1}/${images.length}',
+                                                  style: const TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: 11,
+                                                    fontWeight: FontWeight.w800,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
                                     ),
                                   ),
                                 ),
                               ),
-                              Positioned(
-                                right: 8,
-                                bottom: 8,
-                                child: InkWell(
-                                  borderRadius: BorderRadius.circular(999),
-                                  onTap: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (_) => FullScreenGallery(
-                                          images: images,
-                                          initialIndex: index,
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                  child: Container(
-                                    padding: const EdgeInsets.all(7),
-                                    decoration: BoxDecoration(
-                                      color:
-                                          Colors.black.withValues(alpha: 0.65),
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: const Icon(
-                                      Icons.visibility_rounded,
-                                      color: Colors.white,
-                                      size: 17,
-                                    ),
-                                  ),
-                                ),
+                              const SizedBox(height: 8),
+                              EvGallerySalesActions(
+                                ownerProductId: (widget.productId ?? '').trim(),
+                                sellerId: (widget.sellerId ?? '').trim(),
+                                dukkanAdi: widget.dukkanAdi,
+                                imageUrl: imageUrl,
+                                isAdmin: false,
                               ),
                             ],
                           ),
                         ),
-                      ),
-                    ),
+                      );
+                    }),
                   ),
-                );
-              },
-            ),
-          ),
-
-          const SizedBox(height: 16),
-
-          // Satış/fiyat/sepet paneli artık küçük kartın içinde değil,
-          // seçili görselin altında tam genişlikte durur.
-          EvGallerySalesActions(
-            ownerProductId: (widget.productId ?? '').trim(),
-            sellerId: (widget.sellerId ?? '').trim(),
-            dukkanAdi: widget.dukkanAdi,
-            imageUrl: selectedGalleryImage,
-            isAdmin: _canManageMedia,
+                ),
+              );
+            },
           ),
         ],
       ),
