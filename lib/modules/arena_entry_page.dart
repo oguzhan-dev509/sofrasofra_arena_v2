@@ -564,9 +564,13 @@ class _ArenaEntryPageState extends State<ArenaEntryPage> {
             )
             .toList(),
         onChanged: (value) {
+          if (value == null) return;
+
+          final districts = _cityDistricts[value] ?? const <String>[];
+
           setState(() {
             _selectedCity = value;
-            _selectedDistrict = null;
+            _selectedDistrict = districts.isNotEmpty ? districts.first : null;
           });
         },
       ),
@@ -588,7 +592,8 @@ class _ArenaEntryPageState extends State<ArenaEntryPage> {
         ),
       ),
       child: DropdownButtonFormField<String>(
-        value: _selectedDistrict,
+        value:
+            _districts.contains(_selectedDistrict) ? _selectedDistrict : null,
         isExpanded: true,
         menuMaxHeight: 320,
         dropdownColor: const Color(0xFF1C1C1C),
