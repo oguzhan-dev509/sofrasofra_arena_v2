@@ -11,6 +11,7 @@ import 'package:sofrasofra_arena_v2/services/sepet_service.dart';
 
 import 'package:sofrasofra_arena_v2/modules/widgets/sepet_badge.dart';
 import 'package:sofrasofra_arena_v2/onboarding/uretici_basvuru_secim_sayfasi.dart';
+import 'package:sofrasofra_arena_v2/modules/widgets/mahalle_mutfaklari_single_vitrin_section.dart';
 
 class EvLezzetleriVitrini extends StatefulWidget {
   final String city;
@@ -196,6 +197,20 @@ class _EvLezzetleriVitriniState extends State<EvLezzetleriVitrini> {
       return 'Baharat & Soslar';
     }
     return 'Ev Yemekleri';
+  }
+
+  bool _isEvGalleryCatalogDoc(Map<String, dynamic> data) {
+    final source = (data['source'] ?? '').toString().trim();
+    final orderSource = (data['orderSource'] ?? '').toString().trim();
+    final isGalleryProduct = data['isGalleryProduct'] == true;
+    final hiddenFromCatalog = data['hiddenFromCatalog'] == true;
+    final ad = (data['ad'] ?? data['urunAdi'] ?? '').toString().trim();
+
+    return source == 'ev_gallery' ||
+        orderSource == 'ev_gallery' ||
+        isGalleryProduct ||
+        hiddenFromCatalog ||
+        ad == 'Ev Galeri Ürünü';
   }
 
   bool _matchesSelectedCategory(Map<String, dynamic> data) {
@@ -755,16 +770,20 @@ class _EvLezzetleriVitriniState extends State<EvLezzetleriVitrini> {
 
           final validDocs = allDocs.where((doc) {
             final data = doc.data();
+
+            if (_isEvGalleryCatalogDoc(data)) {
+              return false;
+            }
+
             return _isValidProduct(data) && _matchesLocation(data);
           }).toList();
-
-          final docs = validDocs
-              .where((doc) => _matchesSelectedCategory(doc.data()))
-              .toList();
 
           final categoryDocs = validDocs
               .where((doc) => _matchesSelectedCategory(doc.data()))
               .toList();
+
+          final sellerDocs = _uniqueSellerDocs(categoryDocs);
+          final sellerValidDocs = _uniqueSellerDocs(validDocs);
           if (validDocs.isEmpty) {
             return _CenterInfo(
               icon: Icons.storefront_outlined,
@@ -774,13 +793,13 @@ class _EvLezzetleriVitriniState extends State<EvLezzetleriVitrini> {
             );
           }
 
-          final featuredKitchens = _extractFeaturedKitchens(validDocs);
-          final mahalleDocs = _mahalleDocs(categoryDocs);
-          final bugunDocs = _bugunDocs(categoryDocs);
-          final trendDocs = _trendDocs(categoryDocs);
-          final yeniDocs = _yeniDocs(categoryDocs);
-          final dominantDistrict = _dominantDistrict(validDocs);
-
+          final featuredKitchens = _extractFeaturedKitchens(sellerValidDocs);
+          final mahalleDocs = _mahalleDocs(sellerDocs);
+          final bugunDocs = _bugunDocs(sellerDocs);
+          final trendDocs = _trendDocs(sellerDocs);
+          final yeniDocs = _yeniDocs(sellerDocs);
+          final dominantDistrict = _dominantDistrict(sellerValidDocs);
+          final isCategoryFiltered = _selectedCategory != 'Tümü';
           return LayoutBuilder(
             builder: (context, constraints) {
               final width = constraints.maxWidth;
@@ -797,7 +816,7 @@ class _EvLezzetleriVitriniState extends State<EvLezzetleriVitrini> {
                 slivers: [
                   SliverToBoxAdapter(
                     child: Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 8, 16, 10),
+                      padding: const EdgeInsets.fromLTRB(16, 8, 16, 28),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -827,161 +846,19 @@ class _EvLezzetleriVitriniState extends State<EvLezzetleriVitrini> {
                           const SizedBox(height: 22),
                           _AgentIdeaCard(isMobile: isMobile),
                           const SizedBox(height: 22),
-                          _SectionTitle(
-                            title: 'Öne Çıkan Mutfaklar',
-                            subtitle:
-                                'Mahalleden gerçek üreticiler, sıcak mutfaklar',
+                          MahalleMutfaklariSingleVitrinSection(
+                            docs: categoryDocs,
+                            selectedCategory: _selectedCategory,
+                            isMobile: isMobile,
+                            crossAxisCount: crossAxisCount,
+                            onOpenDetail: (doc) => _openDetail(context, doc),
+                            onAddToCart: (doc) =>
+                                _showOrderActionSheet(context, doc),
                           ),
-                          const SizedBox(height: 14),
-                          SizedBox(
-                            height: 245,
-                            child: ListView.separated(
-                              scrollDirection: Axis.horizontal,
-                              itemCount: featuredKitchens.length,
-                              separatorBuilder: (_, __) =>
-                                  const SizedBox(width: 14),
-                              itemBuilder: (context, index) {
-                                final item = featuredKitchens[index];
-                                return EvKitchenCard(
-                                  name: item.name,
-                                  district: item.district,
-                                  category: item.category,
-                                  imageUrl: item.imageUrl,
-                                  badgeType: item.badgeType,
-                                );
-                              },
-                            ),
-                          ),
-                          const SizedBox(height: 26),
-                          _buildHorizontalSection(
-                            context: context,
-                            title: dominantDistrict.isEmpty
-                                ? 'Mahallenin Lezzetleri'
-                                : 'Mahallenin Lezzetleri • $dominantDistrict',
-                            subtitle:
-                                'Yakın çevreden güçlü score alan ev lezzetleri',
-                            docs: mahalleDocs,
-                          ),
-                          const SizedBox(height: 24),
-                          _buildHorizontalSection(
-                            context: context,
-                            title: 'Bugün Evde Ne Pişiyor',
-                            subtitle:
-                                'Bugün hazırlanan veya yeni eklenen sıcak lezzetler',
-                            docs: bugunDocs,
-                          ),
-                          const SizedBox(height: 24),
-                          _buildHorizontalSection(
-                            context: context,
-                            title: 'Trend Yemekler',
-                            subtitle: 'Score değeri yüksek, ilgi gören ürünler',
-                            docs: trendDocs,
-                          ),
-                          const SizedBox(height: 24),
-                          _buildHorizontalSection(
-                            context: context,
-                            title: 'Yeni Mutfaklar',
-                            subtitle: 'Yeni katılan mutfaklardan taze ürünler',
-                            docs: yeniDocs,
-                          ),
-                          const SizedBox(height: 26),
-                          _SectionTitle(
-                            title: _selectedCategory == 'Tümü'
-                                ? 'Tüm Ev Lezzetleri'
-                                : _selectedCategory,
-                            subtitle:
-                                'Grid görünümde tüm aktif ürünleri keşfet',
-                          ),
-                          const SizedBox(height: 14),
                         ],
                       ),
                     ),
                   ),
-                  if (docs.isEmpty)
-                    const SliverToBoxAdapter(
-                      child: Padding(
-                        padding: EdgeInsets.fromLTRB(24, 24, 24, 80),
-                        child: _CenterInfo(
-                          icon: Icons.search_off_rounded,
-                          title: 'Bu kategoride ürün bulunamadı',
-                          message:
-                              'Başka bir kategori seçebilir veya tüm ürünlere dönebilirsiniz.',
-                        ),
-                      ),
-                    )
-                  else
-                    SliverPadding(
-                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 28),
-                      sliver: SliverGrid(
-                        delegate: SliverChildBuilderDelegate(
-                          (context, index) {
-                            final doc = docs[index];
-                            final data = doc.data();
-                            // debugPrint('DOC RAW: ${doc.data()}');
-                            final String ad = _safeText(
-                              data['ad'] ?? data['urunAdi'] ?? data['yemekAdi'],
-                            );
-
-                            final String dukkan = _safeText(
-                              data['dukkan'] ??
-                                  data['dukkanAdi'] ??
-                                  data['satici'],
-                            );
-
-                            final String sehir = _safeText(data['sehir']);
-                            final String ilce = _safeText(data['ilce']);
-
-                            final String aciklama = _safeText(
-                              data['aciklama'] ?? data['tarif'],
-                            );
-
-                            final dynamic fiyatRaw =
-                                data['fiyat'] ?? data['gelAlFiyat'];
-                            final double fiyat = _readPrice(fiyatRaw);
-                            final String fiyatText = fiyat <= 0
-                                ? ''
-                                : '${fiyat.toStringAsFixed(0)} ₺';
-
-                            final String img = _safeText(
-                              data['img'] ?? data['imgUrl'] ?? data['resim'],
-                            );
-
-                            final String konum = [
-                              if (ilce.isNotEmpty) ilce,
-                              if (sehir.isNotEmpty) sehir,
-                            ].join(' / ');
-
-                            final category = _mapCategory(data);
-
-                            return EvPremiumProductCard(
-                              title: ad,
-                              kitchen: dukkan,
-                              subtitle: aciklama.isNotEmpty
-                                  ? aciklama
-                                  : 'Ev yapımı, günlük hazırlanmış, sıcak ve güven veren bir mahalle lezzeti.',
-                              category: category,
-                              locationText: konum,
-                              priceText: fiyatText,
-                              imageUrl: img,
-                              badgeType:
-                                  _safeText(data['sellerBadgeType']).isEmpty
-                                      ? 'none'
-                                      : _safeText(data['sellerBadgeType']),
-                              onTap: () => _openDetail(context, doc),
-                              onAddToCart: () =>
-                                  _showOrderActionSheet(context, doc),
-                            );
-                          },
-                          childCount: docs.length,
-                        ),
-                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: crossAxisCount,
-                          mainAxisSpacing: 18,
-                          crossAxisSpacing: 18,
-                          childAspectRatio: isMobile ? 0.78 : 0.76,
-                        ),
-                      ),
-                    ),
                 ],
               );
             },
@@ -989,6 +866,65 @@ class _EvLezzetleriVitriniState extends State<EvLezzetleriVitrini> {
         },
       ),
     );
+  }
+
+  List<QueryDocumentSnapshot<Map<String, dynamic>>> _uniqueSellerDocs(
+    List<QueryDocumentSnapshot<Map<String, dynamic>>> docs,
+  ) {
+    final Map<String, QueryDocumentSnapshot<Map<String, dynamic>>> unique = {};
+
+    for (final doc in docs) {
+      final data = doc.data();
+
+      final source = (data['source'] ?? '').toString().trim();
+      final orderSource = (data['orderSource'] ?? '').toString().trim();
+      final isGalleryProduct = data['isGalleryProduct'] == true;
+      final hiddenFromCatalog = data['hiddenFromCatalog'] == true;
+
+      if (source == 'ev_gallery' ||
+          orderSource == 'ev_gallery' ||
+          isGalleryProduct ||
+          hiddenFromCatalog) {
+        continue;
+      }
+
+      final kitchenName = _normalizeText(
+        data['dukkan'] ??
+            data['dukkanAdi'] ??
+            data['mutfakAdi'] ??
+            data['satici'] ??
+            '',
+      );
+
+      final district = _normalizeText(
+        data['ilce'] ?? data['ilçe'] ?? '',
+      );
+
+      final city = _normalizeText(
+        data['sehir'] ?? data['şehir'] ?? '',
+      );
+
+      final ownerKey = _normalizeText(
+        data['sellerId'] ??
+            data['saticiId'] ??
+            data['dukkanId'] ??
+            data['ownerId'] ??
+            data['userId'] ??
+            '',
+      );
+
+      final sellerKey = kitchenName.isNotEmpty
+          ? '$kitchenName|$district|$city'
+          : ownerKey.isNotEmpty
+              ? ownerKey
+              : doc.id;
+
+      if (sellerKey.trim().isEmpty) continue;
+
+      unique.putIfAbsent(sellerKey, () => doc);
+    }
+
+    return unique.values.toList();
   }
 
   List<_KitchenPreview> _extractFeaturedKitchens(
