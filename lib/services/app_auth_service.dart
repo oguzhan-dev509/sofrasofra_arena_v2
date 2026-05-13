@@ -39,6 +39,15 @@ class AppAuthService {
     required String email,
     required String password,
   }) async {
+    final cleanEmail = email.trim().toLowerCase();
+
+    if (!allowedAdminEmails.contains(cleanEmail)) {
+      throw FirebaseAuthException(
+        code: 'unauthorized-email',
+        message: 'Bu e-posta yetkili giriş için tanımlı değil.',
+      );
+    }
+
     final existingUser = _auth.currentUser;
 
     if (existingUser != null && existingUser.isAnonymous) {
@@ -46,9 +55,20 @@ class AppAuthService {
     }
 
     final cred = await _auth.signInWithEmailAndPassword(
-      email: email.trim(),
+      email: cleanEmail,
       password: password,
     );
+
+    final signedEmail = (cred.user?.email ?? '').trim().toLowerCase();
+
+    if (!allowedAdminEmails.contains(signedEmail)) {
+      await _auth.signOut();
+
+      throw FirebaseAuthException(
+        code: 'unauthorized-email',
+        message: 'Bu e-posta yetkili giriş için tanımlı değil.',
+      );
+    }
 
     debugPrint(
       'AUTH FIXED LOGIN uid=${cred.user?.uid} email=${cred.user?.email} anonymous=${cred.user?.isAnonymous}',
@@ -57,6 +77,9 @@ class AppAuthService {
     return cred;
   }
 
+  static const Set<String> allowedAdminEmails = {
+    'meminhazret@gmail.com',
+  };
   static Future<void> signOut() async {
     await _auth.signOut();
     debugPrint('AUTH SIGN OUT');
