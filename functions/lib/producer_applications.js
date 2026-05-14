@@ -117,6 +117,11 @@ exports.submitProfessionalApplication = (0, https_1.onCall)({
     }
     const data = request.data;
     const isletmeTipi = cleanString(data.isletmeTipi) || "usta_sef";
+    const professionalStatus = cleanString(data.professionalStatus) || "individual_chef";
+    const requiresTaxCertificate = typeof data.requiresTaxCertificate === "boolean"
+        ? data.requiresTaxCertificate
+        : professionalStatus === "business_owner" ||
+            professionalStatus === "corporate_catering";
     const isletmeAdi = cleanString(data.isletmeAdi);
     const yetkiliKisi = cleanString(data.yetkiliKisi);
     const telefon = cleanString(data.telefon);
@@ -138,6 +143,8 @@ exports.submitProfessionalApplication = (0, https_1.onCall)({
         aiReviewStatus: "not_started",
         riskLevel: "unknown",
         isletmeTipi,
+        professionalStatus,
+        requiresTaxCertificate,
         isletmeAdi,
         yetkiliKisi,
         telefon,
@@ -145,6 +152,7 @@ exports.submitProfessionalApplication = (0, https_1.onCall)({
         sehir,
         ilce,
         vergiNotu: cleanString(data.vergiNotu),
+        tcknVkn: cleanString(data.tcknVkn),
         iban: cleanString(data.iban).replace(/\s/g, "").toUpperCase(),
         aciklama: cleanString(data.aciklama),
         source: "profesyonel_isletme_basvuru_formu",

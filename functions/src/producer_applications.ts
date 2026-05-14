@@ -126,6 +126,8 @@ export const submitEvLezzetleriApplication = onCall(
 
 type ProfessionalApplicationPayload = {
   isletmeTipi?: string;
+  professionalStatus?: string;
+  requiresTaxCertificate?: boolean;
   isletmeAdi?: string;
   yetkiliKisi?: string;
   telefon?: string;
@@ -133,6 +135,7 @@ type ProfessionalApplicationPayload = {
   sehir?: string;
   ilce?: string;
   vergiNotu?: string;
+  tcknVkn?: string;
   iban?: string;
   aciklama?: string;
 };
@@ -154,6 +157,14 @@ export const submitProfessionalApplication = onCall(
     const data = request.data as ProfessionalApplicationPayload;
 
     const isletmeTipi = cleanString(data.isletmeTipi) || "usta_sef";
+    const professionalStatus =
+  cleanString(data.professionalStatus) || "individual_chef";
+
+const requiresTaxCertificate =
+  typeof data.requiresTaxCertificate === "boolean"
+    ? data.requiresTaxCertificate
+    : professionalStatus === "business_owner" ||
+      professionalStatus === "corporate_catering";
     const isletmeAdi = cleanString(data.isletmeAdi);
     const yetkiliKisi = cleanString(data.yetkiliKisi);
     const telefon = cleanString(data.telefon);
@@ -183,15 +194,18 @@ export const submitProfessionalApplication = onCall(
         aiReviewStatus: "not_started",
         riskLevel: "unknown",
 
-        isletmeTipi,
-        isletmeAdi,
-        yetkiliKisi,
-        telefon,
-        email,
-        sehir,
-        ilce,
+       isletmeTipi,
+professionalStatus,
+requiresTaxCertificate,
+isletmeAdi,
+yetkiliKisi,
+telefon,
+email,
+sehir,
+ilce,
 
         vergiNotu: cleanString(data.vergiNotu),
+        tcknVkn: cleanString(data.tcknVkn),
         iban: cleanString(data.iban).replace(/\s/g, "").toUpperCase(),
         aciklama: cleanString(data.aciklama),
 
