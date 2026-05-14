@@ -82,7 +82,41 @@ export const submitEvLezzetleriApplication = onCall(
       },
       { merge: true }
     );
+    const campaignRef = admin
+      .firestore()
+      .collection("campaignSettings")
+      .doc("main");
 
+    await admin.firestore().runTransaction(async (transaction) => {
+      const campaignSnap = await transaction.get(campaignRef);
+
+      if (!campaignSnap.exists) {
+        transaction.set(
+          campaignRef,
+          {
+            evKalan: 99,
+            updatedAt: now,
+          },
+          { merge: true }
+        );
+        return;
+      }
+
+      const campaignData = campaignSnap.data() || {};
+      const currentEvKalan =
+        typeof campaignData.evKalan === "number" ? campaignData.evKalan : 0;
+
+      const nextEvKalan = Math.max(currentEvKalan - 1, 0);
+
+      transaction.set(
+        campaignRef,
+        {
+          evKalan: nextEvKalan,
+          updatedAt: now,
+        },
+        { merge: true }
+      );
+    });
     return {
       success: true,
       applicationPath: `producer_applications/${uid}`,
