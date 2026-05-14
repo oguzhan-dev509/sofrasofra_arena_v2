@@ -123,3 +123,124 @@ export const submitEvLezzetleriApplication = onCall(
     };
   }
 );
+
+type ProfessionalApplicationPayload = {
+  isletmeTipi?: string;
+  isletmeAdi?: string;
+  yetkiliKisi?: string;
+  telefon?: string;
+  email?: string;
+  sehir?: string;
+  ilce?: string;
+  vergiNotu?: string;
+  iban?: string;
+  aciklama?: string;
+};
+
+export const submitProfessionalApplication = onCall(
+  {
+    region: "europe-west1",
+  },
+  async (request) => {
+    const uid = request.auth?.uid;
+
+    if (!uid) {
+      throw new HttpsError(
+        "unauthenticated",
+        "Başvuru göndermek için oturum gerekli."
+      );
+    }
+
+    const data = request.data as ProfessionalApplicationPayload;
+
+    const isletmeTipi = cleanString(data.isletmeTipi) || "usta_sef";
+    const isletmeAdi = cleanString(data.isletmeAdi);
+    const yetkiliKisi = cleanString(data.yetkiliKisi);
+    const telefon = cleanString(data.telefon);
+    const email = cleanString(data.email);
+    const sehir = cleanString(data.sehir);
+    const ilce = cleanString(data.ilce);
+
+    if (!isletmeAdi || !yetkiliKisi || !telefon || !sehir || !ilce) {
+      throw new HttpsError(
+        "invalid-argument",
+        "Zorunlu başvuru alanları eksik."
+      );
+    }
+
+    const now = admin.firestore.FieldValue.serverTimestamp();
+
+    const applicationRef = admin
+      .firestore()
+      .collection("producer_applications")
+      .doc(uid);
+
+    await applicationRef.set(
+      {
+        userId: uid,
+        type: "profesyonel_isletme",
+        status: "submitted",
+        aiReviewStatus: "not_started",
+        riskLevel: "unknown",
+
+        isletmeTipi,
+        isletmeAdi,
+        yetkiliKisi,
+        telefon,
+        email,
+        sehir,
+        ilce,
+
+        vergiNotu: cleanString(data.vergiNotu),
+        iban: cleanString(data.iban).replace(/\s/g, "").toUpperCase(),
+        aciklama: cleanString(data.aciklama),
+
+        source: "profesyonel_isletme_basvuru_formu",
+        updatedAt: now,
+        createdAt: now,
+      },
+      { merge: true }
+    );
+
+    const campaignRef = admin
+      .firestore()
+      .collection("campaignSettings")
+      .doc("main");
+
+    await admin.firestore().runTransaction(async (transaction) => {
+      const campaignSnap = await transaction.get(campaignRef);
+
+      if (!campaignSnap.exists) {
+        transaction.set(
+          campaignRef,
+          {
+            sefKalan: 99,
+            updatedAt: now,
+          },
+          { merge: true }
+        );
+        return;
+      }
+
+      const campaignData = campaignSnap.data() || {};
+      const currentSefKalan =
+        typeof campaignData.sefKalan === "number" ? campaignData.sefKalan : 0;
+
+      const nextSefKalan = Math.max(currentSefKalan - 1, 0);
+
+      transaction.set(
+        campaignRef,
+        {
+          sefKalan: nextSefKalan,
+          updatedAt: now,
+        },
+        { merge: true }
+      );
+    });
+
+    return {
+      success: true,
+      applicationPath: `producer_applications/${uid}`,
+    };
+  }
+);

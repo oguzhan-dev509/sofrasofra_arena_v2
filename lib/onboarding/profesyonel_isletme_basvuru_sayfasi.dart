@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:sofrasofra_arena_v2/services/campaign_service.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 
 class ProfesyonelIsletmeBasvuruSayfasi extends StatefulWidget {
   const ProfesyonelIsletmeBasvuruSayfasi({super.key});
@@ -63,12 +64,15 @@ class _ProfesyonelIsletmeBasvuruSayfasiState
     setState(() => _saving = true);
 
     try {
-      await FirebaseFirestore.instance.collection('producer_applications').add({
-        'userId': user.uid,
-        'type': 'profesyonel_isletme',
-        'status': 'submitted',
-        'aiReviewStatus': 'not_started',
-        'riskLevel': 'unknown',
+      debugPrint('PRO BASVURU FUNCTION CALL BASLIYOR');
+      debugPrint('PRO BASVURU USERID=${user.uid}');
+      debugPrint('PRO BASVURU TYPE=$_isletmeTipi');
+
+      final callable = FirebaseFunctions.instanceFor(
+        region: 'europe-west1',
+      ).httpsCallable('submitProfessionalApplication');
+
+      final result = await callable.call({
         'isletmeTipi': _isletmeTipi,
         'isletmeAdi': _isletmeAdiCtrl.text.trim(),
         'yetkiliKisi': _yetkiliKisiCtrl.text.trim(),
@@ -77,13 +81,11 @@ class _ProfesyonelIsletmeBasvuruSayfasiState
         'sehir': _sehirCtrl.text.trim().toUpperCase(),
         'ilce': _ilceCtrl.text.trim().toUpperCase(),
         'vergiNotu': _vergiNotuCtrl.text.trim(),
-        'iban': _ibanCtrl.text.trim(),
+        'iban': _ibanCtrl.text.trim().replaceAll(' ', '').toUpperCase(),
         'aciklama': _aciklamaCtrl.text.trim(),
-        'createdAt': FieldValue.serverTimestamp(),
-        'updatedAt': FieldValue.serverTimestamp(),
       });
 
-      await CampaignService.decreaseQuota('sef');
+      debugPrint('PRO BASVURU FUNCTION RESULT=${result.data}');
 
       if (!mounted) return;
       _showSnack('Usta Şef / Restoran başvurunuz alındı.');
@@ -91,6 +93,7 @@ class _ProfesyonelIsletmeBasvuruSayfasiState
     } catch (e) {
       if (!mounted) return;
       _showSnack('Başvuru kaydedilemedi: $e', isError: true);
+      debugPrint('PRO BASVURU FUNCTION HATA=$e');
     } finally {
       if (mounted) {
         setState(() => _saving = false);

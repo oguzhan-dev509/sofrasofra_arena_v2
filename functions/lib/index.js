@@ -36,7 +36,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.evIyzicoCallback = exports.initializeEvOrderPayment = exports.initializeChefTablePayment = exports.notifyCustomerWhenCourierAssigned = exports.notifySellerOnNewOrder = exports.iyzicoCallback = exports.submitEvLezzetleriApplication = void 0;
+exports.evIyzicoCallback = exports.initializeEvOrderPayment = exports.initializeChefTablePayment = exports.notifyCustomerWhenCourierAssigned = exports.notifySellerOnNewOrder = exports.iyzicoCallback = exports.submitProfessionalApplication = exports.submitEvLezzetleriApplication = void 0;
 const firestore_1 = require("firebase-functions/v2/firestore");
 const app_1 = require("firebase-admin/app");
 const firestore_2 = require("firebase-admin/firestore");
@@ -47,6 +47,8 @@ const https_1 = require("firebase-functions/v2/https");
 const logger = __importStar(require("firebase-functions/logger"));
 var producer_applications_1 = require("./producer_applications");
 Object.defineProperty(exports, "submitEvLezzetleriApplication", { enumerable: true, get: function () { return producer_applications_1.submitEvLezzetleriApplication; } });
+var producer_applications_2 = require("./producer_applications");
+Object.defineProperty(exports, "submitProfessionalApplication", { enumerable: true, get: function () { return producer_applications_2.submitProfessionalApplication; } });
 const config_1 = require("./config");
 (0, app_1.initializeApp)();
 const db = (0, firestore_2.getFirestore)();
