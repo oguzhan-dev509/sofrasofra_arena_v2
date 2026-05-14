@@ -489,13 +489,7 @@ class _UrunEklemeSayfasiState extends State<UrunEklemeSayfasi> {
         "onayDurumu": "onaylandi",
         "fiyat": fiyat,
         "isActive": true,
-        "sellerMembershipType": _membershipType,
-        "sellerBadgeType": _badgeType,
-        "featuredScope": _featuredScope,
-        "isFeatured": false,
-        "featureRank": 0,
         "photoCount": allImageUrls.length,
-        "listingScore": _priorityScore,
         "kayitTarihi": FieldValue.serverTimestamp(),
         "createdAt": FieldValue.serverTimestamp(),
       });
