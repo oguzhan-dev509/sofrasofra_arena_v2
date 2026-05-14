@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:sofrasofra_arena_v2/services/campaign_service.dart';
 import 'package:cloud_functions/cloud_functions.dart';
+import 'package:sofrasofra_arena_v2/modules/common/basvuru_alindi_sayfasi.dart';
 
 class ProfesyonelIsletmeBasvuruSayfasi extends StatefulWidget {
   const ProfesyonelIsletmeBasvuruSayfasi({super.key});
@@ -88,8 +89,18 @@ class _ProfesyonelIsletmeBasvuruSayfasiState
       debugPrint('PRO BASVURU FUNCTION RESULT=${result.data}');
 
       if (!mounted) return;
-      _showSnack('Usta Şef / Restoran başvurunuz alındı.');
-      Navigator.pop(context);
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (_) => const BasvuruAlindiSayfasi(
+            title: 'Başvurunuz Başarıyla Alındı',
+            message:
+                'Usta Şef / Restoran başvurunuz ön incelemeye alınmıştır.\n'
+                'Ekibimiz bilgilerinizi değerlendirdikten sonra yönetim paneli erişiminizi açacaktır.',
+          ),
+        ),
+      );
     } catch (e) {
       if (!mounted) return;
       _showSnack('Başvuru kaydedilemedi: $e', isError: true);
