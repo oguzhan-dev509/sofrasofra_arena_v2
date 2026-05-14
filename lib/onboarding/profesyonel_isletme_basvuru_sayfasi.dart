@@ -29,11 +29,18 @@ class _ProfesyonelIsletmeBasvuruSayfasiState
   final _sehirCtrl = TextEditingController();
   final _ilceCtrl = TextEditingController();
   final _vergiNotuCtrl = TextEditingController();
+  final _tcknVknCtrl = TextEditingController();
   final _ibanCtrl = TextEditingController();
   final _aciklamaCtrl = TextEditingController();
 
   String _isletmeTipi = 'usta_sef';
+  String _professionalStatus = 'individual_chef';
   bool _saving = false;
+
+  bool get _requiresTaxCertificate {
+    return _professionalStatus == 'business_owner' ||
+        _professionalStatus == 'corporate_catering';
+  }
 
   @override
   void dispose() {
@@ -44,6 +51,7 @@ class _ProfesyonelIsletmeBasvuruSayfasiState
     _sehirCtrl.dispose();
     _ilceCtrl.dispose();
     _vergiNotuCtrl.dispose();
+    _tcknVknCtrl.dispose();
     _ibanCtrl.dispose();
     _aciklamaCtrl.dispose();
     super.dispose();
@@ -75,6 +83,8 @@ class _ProfesyonelIsletmeBasvuruSayfasiState
 
       final result = await callable.call({
         'isletmeTipi': _isletmeTipi,
+        'professionalStatus': _professionalStatus,
+        'requiresTaxCertificate': _requiresTaxCertificate,
         'isletmeAdi': _isletmeAdiCtrl.text.trim(),
         'yetkiliKisi': _yetkiliKisiCtrl.text.trim(),
         'telefon': _telefonCtrl.text.trim(),
@@ -82,6 +92,7 @@ class _ProfesyonelIsletmeBasvuruSayfasiState
         'sehir': _sehirCtrl.text.trim().toUpperCase(),
         'ilce': _ilceCtrl.text.trim().toUpperCase(),
         'vergiNotu': _vergiNotuCtrl.text.trim(),
+        'tcknVkn': _tcknVknCtrl.text.trim(),
         'iban': _ibanCtrl.text.trim().replaceAll(' ', '').toUpperCase(),
         'aciklama': _aciklamaCtrl.text.trim(),
       });
@@ -182,6 +193,8 @@ class _ProfesyonelIsletmeBasvuruSayfasiState
                   _section(
                     children: [
                       _typeSelector(),
+                      const SizedBox(height: 18),
+                      _professionalStatusSelector(),
                       const SizedBox(height: 14),
                       _field(
                         controller: _isletmeAdiCtrl,
@@ -235,6 +248,14 @@ class _ProfesyonelIsletmeBasvuruSayfasiState
                         hint: 'TR...',
                         icon: Icons.account_balance_rounded,
                         validator: _required,
+                      ),
+                      const SizedBox(height: 14),
+                      _field(
+                        controller: _tcknVknCtrl,
+                        label: 'T.C. Kimlik / Vergi No',
+                        hint:
+                            'Bireysel şefler T.C. kimlik numarası, işletmeler vergi numarası girebilir.',
+                        icon: Icons.badge_rounded,
                       ),
                       _field(
                         controller: _aciklamaCtrl,
@@ -309,6 +330,137 @@ class _ProfesyonelIsletmeBasvuruSayfasiState
           ],
         ),
       ],
+    );
+  }
+
+  Widget _professionalStatusSelector() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Çalışma / Fatura Durumu',
+          style: TextStyle(
+            color: Colors.white70,
+            fontWeight: FontWeight.w800,
+          ),
+        ),
+        const SizedBox(height: 8),
+        const Text(
+          'Şefler için vergi levhası her zaman zorunlu değildir. Durumunuzu seçin; ekibimiz başvurunuzu buna göre değerlendirir.',
+          style: TextStyle(
+            color: Colors.white54,
+            fontSize: 12.5,
+            height: 1.45,
+          ),
+        ),
+        const SizedBox(height: 12),
+        Wrap(
+          spacing: 10,
+          runSpacing: 10,
+          children: [
+            _professionalStatusChip(
+              'individual_chef',
+              'Bireysel / Çalışan Şef',
+              Icons.person_rounded,
+            ),
+            _professionalStatusChip(
+              'freelance_chef',
+              'Serbest Profesyonel Şef',
+              Icons.restaurant_menu_rounded,
+            ),
+            _professionalStatusChip(
+              'business_owner',
+              'İşletme Sahibi',
+              Icons.storefront_rounded,
+            ),
+            _professionalStatusChip(
+              'corporate_catering',
+              'Catering / Kurumsal',
+              Icons.business_center_rounded,
+            ),
+          ],
+        ),
+        const SizedBox(height: 10),
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: _requiresTaxCertificate
+                ? const Color(0xFF171308)
+                : const Color(0xFF101612),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: _requiresTaxCertificate
+                  ? _gold.withValues(alpha: 0.45)
+                  : Colors.greenAccent.withValues(alpha: 0.28),
+            ),
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(
+                _requiresTaxCertificate
+                    ? Icons.business_center_rounded
+                    : Icons.verified_user_rounded,
+                color: _requiresTaxCertificate ? _gold : Colors.greenAccent,
+                size: 22,
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  _requiresTaxCertificate
+                      ? 'Bu başvuru türünde işletme / vergi bilgileri incelemede öncelikli değerlendirilir.'
+                      : 'Bu başvuru türünde vergi levhası zorunlu tutulmaz. Kimlik, IBAN ve çalışma durumu ayrıca değerlendirilir.',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 14.5,
+                    fontWeight: FontWeight.w800,
+                    height: 1.45,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _professionalStatusChip(
+    String value,
+    String label,
+    IconData icon,
+  ) {
+    final selected = _professionalStatus == value;
+
+    return ChoiceChip(
+      selected: selected,
+      label: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            icon,
+            size: 16,
+            color: selected ? Colors.black : _gold,
+          ),
+          const SizedBox(width: 6),
+          Text(label),
+        ],
+      ),
+      onSelected: (_) {
+        setState(() {
+          _professionalStatus = value;
+        });
+      },
+      selectedColor: _gold,
+      backgroundColor: _card,
+      labelStyle: TextStyle(
+        color: selected ? Colors.black : Colors.white70,
+        fontWeight: FontWeight.w800,
+      ),
+      side: BorderSide(
+        color: selected ? _gold : _border,
+      ),
     );
   }
 
