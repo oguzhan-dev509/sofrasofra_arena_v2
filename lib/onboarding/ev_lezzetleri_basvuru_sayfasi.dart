@@ -3,6 +3,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:sofrasofra_arena_v2/services/campaign_service.dart';
 import 'package:sofrasofra_arena_v2/modules/common/basvuru_alindi_sayfasi.dart';
+import 'package:sofrasofra_arena_v2/modules/widgets/billing_info_form_section.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 
 class EvLezzetleriBasvuruSayfasi extends StatefulWidget {
   const EvLezzetleriBasvuruSayfasi({super.key});
@@ -29,11 +32,22 @@ class _EvLezzetleriBasvuruSayfasiState
   final _mutfakAdiCtrl = TextEditingController();
   final _uzmanlikCtrl = TextEditingController();
   final _belgeNotuCtrl = TextEditingController();
+  String _faturaTipi = 'bireysel';
 
+  final _faturaUnvaniCtrl = TextEditingController();
+  final _tcknVknCtrl = TextEditingController();
+  final _vergiDairesiCtrl = TextEditingController();
+  final _faturaAdresiCtrl = TextEditingController();
+  final _faturaEmailCtrl = TextEditingController();
   bool _saving = false;
 
   @override
   void dispose() {
+    _faturaUnvaniCtrl.dispose();
+    _tcknVknCtrl.dispose();
+    _vergiDairesiCtrl.dispose();
+    _faturaAdresiCtrl.dispose();
+    _faturaEmailCtrl.dispose();
     _adSoyadCtrl.dispose();
     _telefonCtrl.dispose();
     _ibanCtrl.dispose();
@@ -47,12 +61,17 @@ class _EvLezzetleriBasvuruSayfasiState
 
   Future<void> _submit() async {
     if (_saving) return;
-
+    debugPrint('EV BASVURU SUBMIT BASILDI');
     final valid = _formKey.currentState?.validate() ?? false;
-    if (!valid) return;
+    debugPrint('EV BASVURU VALID=$valid');
 
+    if (!valid) {
+      _showSnack('Lütfen zorunlu alanları kontrol edin.', isError: true);
+      return;
+    }
     final user = FirebaseAuth.instance.currentUser;
-
+    debugPrint('EV BASVURU AUTH UID=${user?.uid}');
+    debugPrint('EV BASVURU AUTH ANON=${user?.isAnonymous}');
     if (user == null) {
       _showSnack('Başvuru için önce giriş yapmalısınız.', isError: true);
       return;
@@ -61,34 +80,40 @@ class _EvLezzetleriBasvuruSayfasiState
     setState(() => _saving = true);
 
     try {
-      await FirebaseFirestore.instance.collection('producer_applications').add({
-        'userId': user.uid,
-        'type': 'ev_lezzetleri',
-        'status': 'submitted',
-        'aiReviewStatus': 'not_started',
-        'riskLevel': 'unknown',
+      debugPrint('EV BASVURU FUNCTION CALL BASLIYOR');
+      debugPrint(
+        'EV BASVURU FIREBASE PROJECT=${Firebase.app().options.projectId}',
+      );
+      debugPrint('EV BASVURU USERID=${user.uid}');
+      debugPrint('EV BASVURU AUTH ANON=${user.isAnonymous}');
+
+      final callable = FirebaseFunctions.instanceFor(
+        region: 'europe-west1',
+      ).httpsCallable('submitEvLezzetleriApplication');
+
+      final result = await callable.call({
         'adSoyad': _adSoyadCtrl.text.trim(),
         'telefon': _telefonCtrl.text.trim(),
         'iban': _ibanCtrl.text.trim().replaceAll(' ', '').toUpperCase(),
         'sehir': _sehirCtrl.text.trim().toUpperCase(),
         'ilce': _ilceCtrl.text.trim().toUpperCase(),
         'mutfakAdi': _mutfakAdiCtrl.text.trim(),
+        'urunBilgisi': _uzmanlikCtrl.text.trim(),
         'uzmanlik': _uzmanlikCtrl.text.trim(),
         'belgeNotu': _belgeNotuCtrl.text.trim(),
-        'createdAt': FieldValue.serverTimestamp(),
-        'updatedAt': FieldValue.serverTimestamp(),
+        'billingInfo': BillingInfoFormSection.buildBillingMap(
+          faturaTipi: _faturaTipi,
+          faturaUnvaniController: _faturaUnvaniCtrl,
+          tcknVknController: _tcknVknCtrl,
+          vergiDairesiController: _vergiDairesiCtrl,
+          faturaAdresiController: _faturaAdresiCtrl,
+          faturaEmailController: _faturaEmailCtrl,
+          ibanController: _ibanCtrl,
+        ),
       });
 
-      await CampaignService.decreaseQuota('ev');
+      debugPrint('EV BASVURU FUNCTION RESULT=${result.data}');
 
-      if (!mounted) return;
-
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (_) => const BasvuruAlindiSayfasi(),
-        ),
-      );
       if (!mounted) return;
 
       Navigator.pushReplacement(
@@ -100,6 +125,7 @@ class _EvLezzetleriBasvuruSayfasiState
     } catch (e) {
       if (!mounted) return;
       _showSnack('Başvuru kaydedilemedi: $e', isError: true);
+      debugPrint('EV BASVURU FUNCTION HATA=$e');
     } finally {
       if (mounted) {
         setState(() => _saving = false);
@@ -246,6 +272,23 @@ class _EvLezzetleriBasvuruSayfasiState
                     ],
                   ),
                   const SizedBox(height: 20),
+                  const SizedBox(height: 24),
+                  BillingInfoFormSection(
+                    faturaTipi: _faturaTipi,
+                    onFaturaTipiChanged: (value) {
+                      if (value == null) return;
+
+                      setState(() {
+                        _faturaTipi = value;
+                      });
+                    },
+                    faturaUnvaniController: _faturaUnvaniCtrl,
+                    tcknVknController: _tcknVknCtrl,
+                    vergiDairesiController: _vergiDairesiCtrl,
+                    faturaAdresiController: _faturaAdresiCtrl,
+                    faturaEmailController: _faturaEmailCtrl,
+                    ibanController: _ibanCtrl,
+                  ),
                   SizedBox(
                     height: 54,
                     child: ElevatedButton.icon(

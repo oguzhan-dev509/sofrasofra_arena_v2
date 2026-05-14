@@ -6,7 +6,7 @@ import axios from "axios";
 import * as crypto from "crypto";
 import { onCall, onRequest, HttpsError } from "firebase-functions/v2/https";
 import * as logger from "firebase-functions/logger";
-
+export { submitEvLezzetleriApplication } from "./producer_applications";
 import {
   IYZI_API_KEY,
   IYZI_SECRET_KEY,

@@ -36,7 +36,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.evIyzicoCallback = exports.initializeEvOrderPayment = exports.initializeChefTablePayment = exports.notifyCustomerWhenCourierAssigned = exports.notifySellerOnNewOrder = exports.iyzicoCallback = void 0;
+exports.evIyzicoCallback = exports.initializeEvOrderPayment = exports.initializeChefTablePayment = exports.notifyCustomerWhenCourierAssigned = exports.notifySellerOnNewOrder = exports.iyzicoCallback = exports.submitEvLezzetleriApplication = void 0;
 const firestore_1 = require("firebase-functions/v2/firestore");
 const app_1 = require("firebase-admin/app");
 const firestore_2 = require("firebase-admin/firestore");
@@ -45,62 +45,87 @@ const axios_1 = __importDefault(require("axios"));
 const crypto = __importStar(require("crypto"));
 const https_1 = require("firebase-functions/v2/https");
 const logger = __importStar(require("firebase-functions/logger"));
+var producer_applications_1 = require("./producer_applications");
+Object.defineProperty(exports, "submitEvLezzetleriApplication", { enumerable: true, get: function () { return producer_applications_1.submitEvLezzetleriApplication; } });
 const config_1 = require("./config");
 (0, app_1.initializeApp)();
 const db = (0, firestore_2.getFirestore)();
 exports.iyzicoCallback = (0, https_1.onRequest)({ region: "europe-west1", secrets: [config_1.IYZI_API_KEY, config_1.IYZI_SECRET_KEY] }, async (req, res) => {
     try {
-        const body = req.body ?? {};
-        logger.info("🔥 YENI VERIFY CALLBACK CALISTI", { body });
-        const token = (body.token ?? "").toString().trim();
-        const callbackConversationId = (body.conversationId ??
-            body.conversation_id ??
+        const rawBody = req.body ?? {};
+        const rawQuery = req.query ?? {};
+        logger.info("🔥 CHEF TABLE IYZICO CALLBACK START", {
+            method: req.method,
+            body: rawBody,
+            query: rawQuery,
+        });
+        const token = (rawBody.token ?? rawQuery.token ?? "")
+            .toString()
+            .trim();
+        const callbackConversationId = (rawBody.conversationId ??
+            rawBody.conversation_id ??
+            rawQuery.conversationId ??
+            rawQuery.conversation_id ??
             "")
             .toString()
             .trim();
         if (!token) {
-            logger.error("[CALLBACK] token yok", { body });
-            res.status(400).send("Token yok");
+            logger.error("[CHEF_TABLE_CALLBACK] token yok", {
+                body: rawBody,
+                query: rawQuery,
+            });
+            res.redirect(302, "https://sofrasofra.com/chef-table-failed?reason=missing-token");
             return;
         }
         const apiKey = config_1.IYZI_API_KEY.value();
         const secretKey = config_1.IYZI_SECRET_KEY.value();
-        logger.info("[CALLBACK] token parsed", {
+        if (!apiKey || !secretKey) {
+            logger.error("[CHEF_TABLE_CALLBACK] iyzico secret bilgileri eksik");
+            res.status(500).send("Iyzico secret bilgileri eksik");
+            return;
+        }
+        logger.info("[CHEF_TABLE_CALLBACK] token parsed", {
             token,
             callbackConversationId,
         });
-        let reservationRef = null;
-        let reservationData = null;
         const tokenSnap = await db
             .collection("chef_table_reservations")
             .where("iyzicoToken", "==", token)
             .limit(1)
             .get();
-        const firstTokenDoc = tokenSnap.docs[0];
-        if (firstTokenDoc) {
-            reservationRef = firstTokenDoc.ref;
-            reservationData = firstTokenDoc.data();
-        }
-        if (!reservationRef || !reservationData) {
-            logger.error("[CALLBACK] token ile rezervasyon bulunamadı", { token });
-            res.status(404).send("Rezervasyon bulunamadı");
+        const reservationDoc = tokenSnap.docs[0];
+        if (!reservationDoc) {
+            logger.error("[CHEF_TABLE_CALLBACK] token ile rezervasyon bulunamadı", {
+                token,
+                callbackConversationId,
+            });
+            res.redirect(302, "https://sofrasofra.com/chef-table-failed?reason=reservation-not-found");
             return;
         }
+        const reservationRef = reservationDoc.ref;
+        const reservationData = reservationDoc.data();
+        const reservationId = reservationRef.id;
+        const storedConversationId = (reservationData.paymentConversationId ?? "")
+            .toString()
+            .trim();
         const detailPayload = {
             locale: "tr",
-            conversationId: callbackConversationId ||
-                (reservationData.paymentConversationId ?? "").toString(),
             token,
         };
+        const finalConversationId = callbackConversationId || storedConversationId;
+        if (finalConversationId) {
+            detailPayload.conversationId = finalConversationId;
+        }
         const uriPath = "/payment/iyzipos/checkoutform/auth/ecom/detail";
         const requestBody = JSON.stringify(detailPayload);
         const randomKey = crypto.randomBytes(8).toString("hex");
         const authorization = generateIyziAuthorization(apiKey, secretKey, uriPath, requestBody, randomKey);
-        logger.info("[CALLBACK] verify request", {
+        logger.info("[CHEF_TABLE_CALLBACK] retrieve request", {
             baseUrl: (0, config_1.getIyziBaseUrl)(),
             uriPath,
             token,
-            conversationId: detailPayload.conversationId,
+            reservationId,
+            conversationId: detailPayload.conversationId ?? "",
         });
         const verifyResponse = await axios_1.default.post(`${(0, config_1.getIyziBaseUrl)()}${uriPath}`, detailPayload, {
             headers: {
@@ -111,28 +136,51 @@ exports.iyzicoCallback = (0, https_1.onRequest)({ region: "europe-west1", secret
             timeout: 30000,
         });
         const verifyData = verifyResponse.data ?? {};
-        logger.info("[CALLBACK] verify response", verifyData);
-        const status = (verifyData.status ?? "").toString().trim().toLowerCase();
-        const paymentStatus = (verifyData.paymentStatus ?? "")
+        logger.info("[CHEF_TABLE_CALLBACK] retrieve response", {
+            reservationId,
+            verifyData,
+        });
+        const iyzicoStatus = (verifyData.status ?? "")
+            .toString()
+            .trim()
+            .toLowerCase();
+        const iyzicoPaymentStatus = (verifyData.paymentStatus ?? "")
             .toString()
             .trim()
             .toUpperCase();
-        logger.info("🔥 FINAL VERIFY CHECK", {
-            status,
-            paymentStatus,
-            raw: verifyData,
-        });
-        const isPaid = status === "success" &&
-            (paymentStatus === "SUCCESS" ||
-                paymentStatus === "SUCCESSFUL" ||
-                verifyData?.paymentStatus === undefined);
-        if (isPaid) {
+        const fraudStatusRaw = verifyData.fraudStatus;
+        const fraudStatus = typeof fraudStatusRaw === "number"
+            ? fraudStatusRaw
+            : Number(fraudStatusRaw);
+        const isPaymentSuccess = iyzicoStatus === "success" &&
+            iyzicoPaymentStatus === "SUCCESS" &&
+            (!Number.isFinite(fraudStatus) || fraudStatus === 1);
+        const isFraudReview = iyzicoStatus === "success" &&
+            iyzicoPaymentStatus === "SUCCESS" &&
+            Number.isFinite(fraudStatus) &&
+            fraudStatus === 0;
+        if (isPaymentSuccess) {
             await reservationRef.update({
                 status: "completed",
                 paymentStatus: "paid",
                 reservationFlowStatus: "completed",
-                iyzicoStatus: "success",
-                iyzicoCallbackRawBody: body,
+                paymentProvider: "iyzico",
+                paymentChannel: "chef_table",
+                iyzicoCategory: "ChefTable",
+                iyzicoStatus,
+                iyzicoPaymentStatus,
+                iyzicoFraudStatus: Number.isFinite(fraudStatus) ? fraudStatus : null,
+                iyzicoPaymentId: verifyData.paymentId ?? null,
+                iyzicoBasketId: verifyData.basketId ?? null,
+                iyzicoPaidPrice: verifyData.paidPrice ?? null,
+                iyzicoPrice: verifyData.price ?? null,
+                iyzicoCallbackToken: token,
+                iyzicoCallbackConversationId: callbackConversationId,
+                iyzicoCallbackRawBody: rawBody,
+                iyzicoCallbackRawQuery: rawQuery,
+                iyzicoCallbackReceivedAt: firestore_2.FieldValue.serverTimestamp(),
+                iyzicoRetrieveStatus: iyzicoStatus,
+                iyzicoRetrieveRawResponse: verifyData,
                 iyzicoVerifyRawResponse: verifyData,
                 iyzicoVerifiedAt: firestore_2.FieldValue.serverTimestamp(),
                 paidAt: firestore_2.FieldValue.serverTimestamp(),
@@ -140,24 +188,84 @@ exports.iyzicoCallback = (0, https_1.onRequest)({ region: "europe-west1", secret
                 paymentUpdatedAt: firestore_2.FieldValue.serverTimestamp(),
                 updatedAt: firestore_2.FieldValue.serverTimestamp(),
             });
-            res
-                .status(200)
-                .send("<html><body><h2>Ödeme doğrulandı</h2><p>Rezervasyonunuz kesinleşti.</p></body></html>");
+            logger.info("✅ CHEF TABLE PAYMENT SUCCESS", {
+                reservationId,
+                token,
+                iyzicoPaymentStatus,
+                fraudStatus,
+            });
+            res.redirect(302, `https://sofrasofra.com/chef-table-success?reservationId=${encodeURIComponent(reservationId)}`);
+            return;
+        }
+        if (isFraudReview) {
+            await reservationRef.update({
+                status: "payment_review",
+                paymentStatus: "payment_review",
+                reservationFlowStatus: "payment_review",
+                paymentProvider: "iyzico",
+                paymentChannel: "chef_table",
+                iyzicoCategory: "ChefTable",
+                iyzicoStatus,
+                iyzicoPaymentStatus,
+                iyzicoFraudStatus: Number.isFinite(fraudStatus) ? fraudStatus : null,
+                iyzicoPaymentId: verifyData.paymentId ?? null,
+                iyzicoBasketId: verifyData.basketId ?? null,
+                iyzicoPaidPrice: verifyData.paidPrice ?? null,
+                iyzicoPrice: verifyData.price ?? null,
+                iyzicoCallbackToken: token,
+                iyzicoCallbackConversationId: callbackConversationId,
+                iyzicoCallbackRawBody: rawBody,
+                iyzicoCallbackRawQuery: rawQuery,
+                iyzicoCallbackReceivedAt: firestore_2.FieldValue.serverTimestamp(),
+                iyzicoRetrieveStatus: iyzicoStatus,
+                iyzicoRetrieveRawResponse: verifyData,
+                iyzicoVerifyRawResponse: verifyData,
+                iyzicoVerifiedAt: firestore_2.FieldValue.serverTimestamp(),
+                paymentUpdatedAt: firestore_2.FieldValue.serverTimestamp(),
+                updatedAt: firestore_2.FieldValue.serverTimestamp(),
+            });
+            logger.warn("⚠️ CHEF TABLE PAYMENT REVIEW", {
+                reservationId,
+                token,
+                iyzicoPaymentStatus,
+                fraudStatus,
+            });
+            res.redirect(302, `https://sofrasofra.com/chef-table-review?reservationId=${encodeURIComponent(reservationId)}`);
             return;
         }
         await reservationRef.update({
             paymentStatus: "failed",
-            reservationFlowStatus: "awaiting_payment",
-            iyzicoStatus: "failed",
-            iyzicoCallbackRawBody: body,
+            reservationFlowStatus: "payment_failed",
+            paymentProvider: "iyzico",
+            paymentChannel: "chef_table",
+            iyzicoCategory: "ChefTable",
+            iyzicoStatus,
+            iyzicoPaymentStatus,
+            iyzicoFraudStatus: Number.isFinite(fraudStatus) ? fraudStatus : null,
+            iyzicoPaymentId: verifyData.paymentId ?? null,
+            iyzicoBasketId: verifyData.basketId ?? null,
+            iyzicoPaidPrice: verifyData.paidPrice ?? null,
+            iyzicoPrice: verifyData.price ?? null,
+            iyzicoCallbackToken: token,
+            iyzicoCallbackConversationId: callbackConversationId,
+            iyzicoCallbackRawBody: rawBody,
+            iyzicoCallbackRawQuery: rawQuery,
+            iyzicoCallbackReceivedAt: firestore_2.FieldValue.serverTimestamp(),
+            iyzicoRetrieveStatus: iyzicoStatus,
+            iyzicoRetrieveRawResponse: verifyData,
             iyzicoVerifyRawResponse: verifyData,
             iyzicoVerifiedAt: firestore_2.FieldValue.serverTimestamp(),
             paymentUpdatedAt: firestore_2.FieldValue.serverTimestamp(),
             updatedAt: firestore_2.FieldValue.serverTimestamp(),
         });
-        res
-            .status(200)
-            .send("<html><body><h2>Ödeme doğrulanamadı</h2><p>İşlem tamamlanmadı veya doğrulama başarısız oldu.</p></body></html>");
+        logger.error("❌ CHEF TABLE PAYMENT FAILED", {
+            reservationId,
+            token,
+            iyzicoStatus,
+            iyzicoPaymentStatus,
+            fraudStatus,
+        });
+        res.redirect(302, `https://sofrasofra.com/chef-table-failed?reservationId=${encodeURIComponent(reservationId)}`);
     }
     catch (error) {
         logger.error("❌ iyzicoCallback ERROR", {
@@ -165,9 +273,7 @@ exports.iyzicoCallback = (0, https_1.onRequest)({ region: "europe-west1", secret
             stack: error?.stack,
             responseData: error?.response?.data,
         });
-        res
-            .status(500)
-            .send("<html><body><h2>Ödeme doğrulanamadı</h2><p>Sistem hatası oluştu.</p></body></html>");
+        res.redirect(302, "https://sofrasofra.com/chef-table-failed?reason=callback-error");
     }
 });
 exports.notifySellerOnNewOrder = (0, firestore_1.onDocumentCreated)("siparisler/{siparisId}", async (event) => {
