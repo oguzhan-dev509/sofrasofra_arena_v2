@@ -190,7 +190,7 @@ class ProducerApplicationsAdminSayfasi extends StatelessWidget {
               itemBuilder: (context, index) {
                 final doc = docs[index];
                 final data = doc.data();
-                debugPrint('DATA: $data');
+
                 final type = data['type']?.toString();
                 final rawStatus = data['status']?.toString();
                 final isletmeTipi = data['isletmeTipi']?.toString();
