@@ -276,6 +276,7 @@ class _ArenaEntryPageState extends State<ArenaEntryPage> {
                             width: double.infinity,
                             child: Image.network(
                               imageUrl,
+                              key: ValueKey(imageUrl),
                               fit: BoxFit.cover,
                               alignment: const Alignment(0, 0.34),
                             ),
