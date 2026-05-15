@@ -101,6 +101,7 @@ class SefVitriniV2 extends StatelessWidget {
                   img: img,
                   puan: puan,
                   gallery: gallery,
+                  isSample: data['isSample'] == true,
                 );
               })
               .whereType<_ChefV2Item>()
@@ -159,7 +160,7 @@ class _ChefV2Item {
   final String img;
   final String puan;
   final List<String> gallery;
-
+  final bool isSample;
   const _ChefV2Item({
     required this.docId,
     required this.dukkanId,
@@ -169,6 +170,7 @@ class _ChefV2Item {
     required this.img,
     required this.puan,
     required this.gallery,
+    required this.isSample,
   });
 }
 
@@ -367,6 +369,7 @@ class _ChefPremiumCardState extends State<_ChefPremiumCard> {
                     _HeroImage(
                       imageUrl: item.img,
                       isFeatured: widget.isFeatured,
+                      isSample: item.isSample,
                       ad: item.ad,
                       puan: item.puan,
                     ),
@@ -464,6 +467,7 @@ class _ChefPremiumCardState extends State<_ChefPremiumCard> {
 class _HeroImage extends StatelessWidget {
   final String imageUrl;
   final bool isFeatured;
+  final bool isSample;
   final String ad;
   final String puan;
 
@@ -472,6 +476,7 @@ class _HeroImage extends StatelessWidget {
     required this.isFeatured,
     required this.ad,
     required this.puan,
+    required this.isSample,
   });
 
   static const Color _gold = Color(0xFFFFB300);
@@ -534,6 +539,37 @@ class _HeroImage extends StatelessWidget {
                       ),
                     ),
                   ],
+                ),
+              ),
+            ),
+          if (isSample)
+            Positioned(
+              right: 14,
+              top: 14,
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 6,
+                ),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFFB300),
+                  borderRadius: BorderRadius.circular(999),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.28),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: const Text(
+                  'ÖRNEK ŞEF',
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 10.5,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 0.6,
+                  ),
                 ),
               ),
             ),
