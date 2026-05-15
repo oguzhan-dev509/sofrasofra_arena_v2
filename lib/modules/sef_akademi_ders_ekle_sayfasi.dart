@@ -82,10 +82,42 @@ class _SefAkademiDersEkleSayfasiState extends State<SefAkademiDersEkleSayfasi> {
   }
 
   Future<void> _saveLesson() async {
-    if (_saving) return;
+    debugPrint('AKADEMI DERS SAVE BASILDI | saving=$_saving');
+
+    if (_saving) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Kayıt işlemi devam ediyor, lütfen bekleyin.'),
+          backgroundColor: Colors.black,
+        ),
+      );
+      return;
+    }
 
     final form = _formKey.currentState;
-    if (form == null || !form.validate()) return;
+
+    if (form == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content:
+              Text('Form hazırlanamadı. Sayfayı yenileyip tekrar deneyin.'),
+          backgroundColor: Colors.redAccent,
+        ),
+      );
+      return;
+    }
+
+    if (!form.validate()) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Lütfen ders başlığı, açıklama ve geçerli YouTube linki alanlarını kontrol edin.',
+          ),
+          backgroundColor: Colors.redAccent,
+        ),
+      );
+      return;
+    }
 
     final title = _titleController.text.trim();
     final description = _descriptionController.text.trim();
@@ -112,7 +144,9 @@ class _SefAkademiDersEkleSayfasiState extends State<SefAkademiDersEkleSayfasi> {
       final db = FirebaseFirestore.instance;
       final now = FieldValue.serverTimestamp();
       final category = _selectedCategory;
-
+      debugPrint(
+        'AKADEMI DERS FIRESTORE YAZILIYOR | chefId=${widget.chefId} | kategori=${category.slug}',
+      );
       final lessonRef = await db.collection('dersler').add({
         'chefId': widget.chefId,
         'chefName': widget.chefName,
@@ -155,7 +189,7 @@ class _SefAkademiDersEkleSayfasiState extends State<SefAkademiDersEkleSayfasi> {
           backgroundColor: Colors.black,
         ),
       );
-
+      debugPrint('AKADEMI DERS KAYIT BASARILI | lessonId=${lessonRef.id}');
       Navigator.pop(context, true);
     } catch (e) {
       if (!mounted) return;

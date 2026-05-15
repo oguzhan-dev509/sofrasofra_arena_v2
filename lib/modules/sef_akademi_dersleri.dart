@@ -4,6 +4,7 @@ import 'package:sofrasofra_arena_v2/modules/consulting_requests_page.dart';
 import 'package:sofrasofra_arena_v2/modules/sef_akademi_ders_detay_sayfasi.dart';
 import 'package:sofrasofra_arena_v2/modules/chef_brand_career_page.dart';
 import 'package:sofrasofra_arena_v2/modules/sef_akademi_ders_ekle_sayfasi.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class SefAkademiDersleri extends StatefulWidget {
   final String chefId;
@@ -23,6 +24,40 @@ class _SefAkademiDersleriState extends State<SefAkademiDersleri> {
   static const Color gold = Color(0xFFFFB300);
   static const Color bg = Color(0xFF050505);
   static const Color card = Color(0xFF121212);
+  bool _isPlatformAdmin = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkPlatformAdmin();
+  }
+
+  Future<void> _checkPlatformAdmin() async {
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+
+    if (uid == null || uid.isEmpty) {
+      return;
+    }
+
+    try {
+      final doc = await FirebaseFirestore.instance
+          .collection('platform_admins')
+          .doc(uid)
+          .get();
+
+      if (!mounted) return;
+
+      setState(() {
+        _isPlatformAdmin = doc.exists && doc.data()?['active'] == true;
+      });
+    } catch (_) {
+      if (!mounted) return;
+
+      setState(() {
+        _isPlatformAdmin = false;
+      });
+    }
+  }
 
   String _selectedCategory = 'all';
 
@@ -105,35 +140,38 @@ class _SefAkademiDersleriState extends State<SefAkademiDersleri> {
           ),
         ),
         actions: [
-          IconButton(
-            tooltip: 'Akademi Videosu Ekle',
-            icon: const Icon(
-              Icons.video_call_rounded,
-              color: gold,
-            ),
-            onPressed: () async {
-              final created = await Navigator.push<bool>(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => SefAkademiDersEkleSayfasi(
-                    chefId: widget.chefId,
-                    chefName: widget.chefName,
-                  ),
-                ),
-              );
-
-              if (!context.mounted) return;
-
-              if (created == true) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Akademi dersi eklendi.'),
-                    backgroundColor: Colors.black,
+          if (_isPlatformAdmin)
+            IconButton(
+              tooltip: 'Akademi Videosu Ekle',
+              icon: const Icon(
+                Icons.video_call_rounded,
+                color: gold,
+              ),
+              onPressed: () async {
+                final created = await Navigator.push<bool>(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => SefAkademiDersEkleSayfasi(
+                      chefId: widget.chefId,
+                      chefName: widget.chefName,
+                    ),
                   ),
                 );
-              }
-            },
-          ),
+
+                if (!context.mounted) return;
+
+                if (created == true) {
+                  setState(() {});
+
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Ders / video eklendi.'),
+                      backgroundColor: Colors.black,
+                    ),
+                  );
+                }
+              },
+            ),
         ],
       ),
       body: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
