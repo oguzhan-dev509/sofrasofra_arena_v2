@@ -348,6 +348,11 @@ class _ContactInfoBlock extends StatelessWidget {
           ),
           SizedBox(height: 7),
           _ContactLine(
+            label: 'Telefon',
+            value: '+90 536 299 13 24',
+          ),
+          SizedBox(height: 7),
+          _ContactLine(
             label: 'WhatsApp Hattı',
             value: '+90 533 322 13 24',
           ),
