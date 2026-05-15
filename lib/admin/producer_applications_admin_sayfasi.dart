@@ -49,6 +49,47 @@ class ProducerApplicationsAdminSayfasi extends StatelessWidget {
     }
   }
 
+  String _professionalStatusLabel(String? value) {
+    switch (value) {
+      case 'individual_chef':
+        return 'Bireysel / Çalışan Şef';
+      case 'freelance_chef':
+        return 'Serbest Profesyonel Şef';
+      case 'business_owner':
+        return 'İşletme Sahibi';
+      case 'corporate_catering':
+        return 'Catering / Kurumsal';
+      default:
+        return 'Belirtilmemiş';
+    }
+  }
+
+  String _businessTypeLabel(String? value) {
+    switch (value) {
+      case 'usta_sef':
+        return 'Usta Şef';
+      case 'restoran':
+        return 'Restoran';
+      case 'kafe':
+        return 'Kafe';
+      case 'catering':
+        return 'Catering';
+      default:
+        return 'Belirtilmemiş';
+    }
+  }
+
+  String _yesNo(dynamic value) {
+    if (value == true) return 'Evet';
+    if (value == false) return 'Hayır';
+    return 'Belirtilmemiş';
+  }
+
+  String _clean(dynamic value) {
+    final text = value?.toString().trim() ?? '';
+    return text.isEmpty ? '-' : text;
+  }
+
   Future<void> _updateStatus({
     required BuildContext context,
     required String docId,
@@ -152,7 +193,16 @@ class ProducerApplicationsAdminSayfasi extends StatelessWidget {
                 debugPrint('DATA: $data');
                 final type = data['type']?.toString();
                 final rawStatus = data['status']?.toString();
-
+                final isletmeTipi = data['isletmeTipi']?.toString();
+                final professionalStatus =
+                    data['professionalStatus']?.toString();
+                final requiresTaxCertificate = data['requiresTaxCertificate'];
+                final tcknVkn = data['tcknVkn'];
+                final tcKimlikVergiNo = data['tcKimlikVergiNo'];
+                final iban = data['iban'];
+                final vergiNotu = data['vergiNotu'];
+                final aciklama = data['aciklama'];
+                final billingInfo = data['billingInfo'];
                 final status = switch (rawStatus) {
                   'pending' => 'submitted',
                   'new' => 'submitted',
@@ -266,6 +316,31 @@ class ProducerApplicationsAdminSayfasi extends StatelessWidget {
                           'Konum',
                           '$city ${district.isNotEmpty ? '/ $district' : ''}',
                         ),
+                      _info('Başvuru Türü', _typeLabel(type)),
+                      if (type == 'profesyonel_isletme') ...[
+                        _info('İşletme Tipi', _businessTypeLabel(isletmeTipi)),
+                        _info(
+                          'Çalışma / Fatura Durumu',
+                          _professionalStatusLabel(professionalStatus),
+                        ),
+                        _info(
+                          'Vergi Levhası Gerekli mi?',
+                          _yesNo(requiresTaxCertificate),
+                        ),
+                        _info('T.C. Kimlik / Vergi No', _clean(tcknVkn)),
+                        _info('IBAN', _clean(iban)),
+                        _info('Vergi / Belge Notu', _clean(vergiNotu)),
+                        _info('Açıklama', _clean(aciklama)),
+                      ],
+                      if (type == 'ev_lezzetleri') ...[
+                        _info(
+                          'T.C. Kimlik / Vergi No',
+                          _clean(tcKimlikVergiNo),
+                        ),
+                        _info('IBAN', _clean(iban)),
+                        _info('Fatura Bilgileri', _clean(billingInfo)),
+                      ],
+                      const SizedBox(height: 12),
                       if (note.isNotEmpty) _info('Not', note),
                       const SizedBox(height: 16),
                       Row(
