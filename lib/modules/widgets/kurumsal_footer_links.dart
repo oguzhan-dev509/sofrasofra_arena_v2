@@ -23,6 +23,17 @@ class KurumsalFooterLinks extends StatelessWidget {
     );
   }
 
+  void _showCorporateSiteSoon(BuildContext context) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text(
+          'Sofrasofra kurumsal web sitesi yayın hazırlığında. '
+          'Hukuki merkez ve başvuru altyapısı uygulama içinde aktiftir.',
+        ),
+      ),
+    );
+  }
+
   void _openPage(BuildContext context, Widget page) {
     Navigator.of(context).push(
       MaterialPageRoute(builder: (_) => page),
@@ -96,6 +107,7 @@ class KurumsalFooterLinks extends StatelessWidget {
                     context,
                     const RadyoMerkeziSayfasi(),
                   ),
+              'Kurumsal Site': () => _showCorporateSiteSoon(context),
             },
           ),
           const SizedBox(height: 14),
