@@ -1671,11 +1671,159 @@ Ticari Elektronik İleti Onayı
 
 Son güncelleme tarihi: 16.05.2026
 
-İşbu Ticari Elektronik İleti Onay Metni, Sofrasofra tarafından gönderilebilecek kampanya, duyuru, bilgilendirme, tanıtım ve ticari elektronik iletilere ilişkin onay ve bilgilendirme amacıyla hazırlanmıştır.
+1. Amaç ve Kapsam
 
-Kullanıcı, onay vermesi halinde Sofrasofra tarafından e-posta, SMS, telefon, WhatsApp, uygulama bildirimi veya benzeri kanallar üzerinden kendisine ticari elektronik ileti gönderilebileceğini kabul eder.
+İşbu Ticari Elektronik İleti Onayı, UYBAT TEKNOLOJİ YAZILIM VE TİCARET LİMİTED ŞİRKETİ tarafından işletilen Sofrasofra platformu kapsamında kullanıcılara gönderilebilecek ticari elektronik iletilere ilişkin bilgilendirme ve onay esaslarını düzenlemek amacıyla hazırlanmıştır.
 
-Kullanıcı, ticari elektronik ileti onayını mevzuata uygun yöntemlerle geri alabilir.
+Bu metin; Sofrasofra web sitesi, mobil uygulamaları, web uygulaması, başvuru formları, üyelik süreçleri, kampanya alanları, destek kanalları ve bağlantılı dijital hizmetler üzerinden alınabilecek ticari elektronik ileti onayları için geçerlidir.
+
+2. Hizmet Sağlayıcı Bilgileri
+
+Hizmet Sağlayıcı:
+
+Şirket Unvanı: UYBAT TEKNOLOJİ YAZILIM VE TİCARET LİMİTED ŞİRKETİ
+Ticaret Sicil No: 1096741
+MERSİS No: 0898132285200001
+Adres: Abdurrahman Nafiz Gürman Mahallesi, Kınalıtepe Sokak, Simitaş 8 Blok No: 1, İç Kapı No: 311, Güngören / İstanbul
+Web Sitesi: www.sofrasofra.com
+E-posta: info@sofrasofra.com
+Telefon: +90 536 299 13 24
+WhatsApp Hattı: +90 533 322 13 24
+
+3. Ticari Elektronik İleti Nedir?
+
+Ticari elektronik ileti; Sofrasofra tarafından kullanıcılara elektronik iletişim araçlarıyla gönderilebilecek kampanya, duyuru, indirim, tanıtım, pazarlama, promosyon, fırsat, bilgilendirme, anket, memnuniyet ölçümü, platform yeniliği, iş ortaklığı duyurusu veya benzeri ticari içerikli iletileri ifade eder.
+
+Bu iletiler; e-posta, SMS, telefon, WhatsApp, uygulama bildirimi, web bildirimi veya ileride kullanılabilecek diğer elektronik iletişim kanalları üzerinden gönderilebilir.
+
+4. Onay Kapsamı
+
+Kullanıcı, ticari elektronik ileti onayı vermesi halinde Sofrasofra tarafından kendisine aşağıdaki konularda ileti gönderilebileceğini kabul eder:
+
+- Kampanya, indirim ve promosyon duyuruları,
+- Sofrasofra hizmetlerine ilişkin tanıtım ve bilgilendirmeler,
+- Ev Lezzetleri, Usta Şefler, Restoranlar, Kurye Ağı ve diğer platform alanlarına ilişkin duyurular,
+- Yeni özellik, yeni hizmet, yeni kategori ve platform güncellemeleri,
+- Başvuru, iş ortaklığı, kurucu üretici, kurye veya benzeri fırsat duyuruları,
+- Kullanıcı deneyimini geliştirmeye yönelik anket ve memnuniyet çalışmaları,
+- Özel gün, etkinlik, mahalle kampanyası, bölgesel duyuru ve benzeri içerikler,
+- Sofrasofra’nın iş ortaklarıyla bağlantılı kampanya veya bilgilendirmeleri.
+
+5. İletişim Kanalları
+
+Ticari elektronik iletiler aşağıdaki kanallar üzerinden gönderilebilir:
+
+- E-posta,
+- SMS,
+- Telefon araması,
+- WhatsApp veya benzeri mesajlaşma kanalları,
+- Mobil uygulama bildirimi,
+- Web bildirimi,
+- Platform içi bildirim,
+- Mevzuata uygun diğer elektronik iletişim kanalları.
+
+Kullanıcı, onay verdiği iletişim kanalına göre bu kanallar üzerinden ticari elektronik ileti alabileceğini kabul eder.
+
+6. İşlenebilecek Kişisel Veriler
+
+Ticari elektronik ileti süreçlerinde aşağıdaki kişisel veri kategorileri işlenebilir:
+
+Kimlik ve iletişim bilgileri:
+Ad, soyad, telefon numarası, e-posta adresi, şehir, ilçe ve iletişim tercihleri.
+
+Üyelik ve işlem bilgileri:
+Kullanıcı ID bilgisi, hesap türü, başvuru türü, üyelik durumu, sipariş geçmişi, platform kullanım tercihleri ve işlem kayıtları.
+
+Pazarlama ve iletişim tercihleri:
+Ticari ileti onay durumu, iletişim kanalı tercihleri, kampanya tercihleri, bildirim tercihleri, açılma/tıklama bilgileri, ileti gönderim kayıtları ve ret/çıkış kayıtları.
+
+Teknik bilgiler:
+IP adresi, cihaz bilgisi, oturum bilgisi, uygulama bildirim token bilgileri, çerez tercihleri ve teknik gönderim kayıtları.
+
+7. Kişisel Verilerin İşlenme Amaçları
+
+Ticari elektronik ileti süreçlerinde kişisel veriler aşağıdaki amaçlarla işlenebilir:
+
+- Ticari elektronik ileti onayının alınması ve kaydedilmesi,
+- Kampanya, duyuru, tanıtım ve bilgilendirme iletilerinin gönderilmesi,
+- İletişim tercih ve izinlerinin yönetilmesi,
+- Ret/çıkış taleplerinin alınması ve uygulanması,
+- Gönderim, teslim, açılma ve tıklama kayıtlarının takip edilmesi,
+- Pazarlama ve iletişim faaliyetlerinin etkinliğinin ölçülmesi,
+- Kullanıcının ilgi alanlarına daha uygun içerik sunulması,
+- Mevzuata uyum ve ispat yükümlülüklerinin yerine getirilmesi.
+
+8. Hukuki Sebep
+
+Ticari elektronik ileti gönderimi, kullanıcının ilgili mevzuata uygun şekilde verdiği onaya dayanır.
+
+Ticari elektronik ileti onay kayıtları, ret/çıkış kayıtları ve ispat süreçleri; hukuki yükümlülüklerin yerine getirilmesi, bir hakkın tesisi, kullanılması veya korunması ve meşru menfaat hukuki sebeplerine dayanılarak saklanabilir.
+
+Kullanıcının onay vermemesi, Sofrasofra’nın temel hizmetlerinden yararlanmasına kural olarak engel değildir. Ancak onay verilmemesi halinde kampanya, indirim, duyuru, promosyon ve pazarlama içerikli iletiler gönderilmeyebilir.
+
+9. Onayın Geri Alınması
+
+Kullanıcı, ticari elektronik ileti alma onayını her zaman geri alabilir.
+
+Onayın geri alınması; e-posta iletilerindeki çıkış bağlantısı, SMS ret yöntemi, WhatsApp veya destek kanalları, uygulama/hesap ayarları veya Sofrasofra tarafından sunulan diğer yöntemlerle yapılabilir.
+
+Onayın geri alınması, geri alma tarihinden sonraki ticari elektronik ileti gönderimleri için geçerlidir. Ret talebinin teknik sistemlere işlenmesi için makul bir süre gerekebilir.
+
+10. Hizmet ve İşlem Bildirimleri
+
+Ticari elektronik ileti onayının geri alınması, kullanıcının sipariş, ödeme, teslimat, üyelik, güvenlik, başvuru, fatura, destek, yasal bildirim veya zorunlu işlem bildirimlerini almasını engellemeyebilir.
+
+Sofrasofra, ticari elektronik ileti onayı olmasa dahi sözleşmenin ifası, güvenlik, yasal yükümlülük, sipariş takibi, ödeme durumu, teslimat bilgisi, başvuru sonucu veya destek süreci gibi zorunlu ve işlemle doğrudan ilgili bildirimleri gönderebilir.
+
+11. Üçüncü Taraf Hizmet Sağlayıcılar
+
+Ticari elektronik ileti gönderimleri için e-posta, SMS, bildirim, mesajlaşma, CRM, analiz veya benzeri teknik hizmet sağlayıcılarından yararlanılabilir.
+
+Bu hizmet sağlayıcılar, yalnızca hizmetin gerektirdiği ölçüde ve mevzuata uygun şekilde kişisel verileri işleyebilir.
+
+Gerekli hallerde kişisel veriler, teknik altyapısı yurt dışında bulunan veya yurt dışı bağlantılı hizmet sunan sağlayıcılar aracılığıyla işlenebilir. Bu durumda KVKK’nın yurt dışına aktarım hükümleri ve yürürlükteki mevzuat dikkate alınır.
+
+12. Onay Kayıtlarının Saklanması
+
+Ticari elektronik ileti onayı, ret/çıkış kayıtları, gönderim kayıtları ve ilgili işlem kayıtları; mevzuata uyum, ispat yükümlülüğü, talep/şikâyet yönetimi ve hukuki süreçlerin yürütülmesi amacıyla gerekli süre boyunca saklanabilir.
+
+Saklama süresinin sona ermesi veya işleme amacının ortadan kalkması halinde kişisel veriler mevzuata uygun şekilde silinir, yok edilir veya anonim hale getirilir.
+
+13. İlgili Kişi Hakları
+
+Kişisel verisi işlenen kişiler, KVKK’nın 11. maddesi kapsamında aşağıdaki haklara sahiptir:
+
+- Kişisel verilerinin işlenip işlenmediğini öğrenme,
+- İşlenmişse buna ilişkin bilgi talep etme,
+- İşlenme amacını ve amaca uygun kullanılıp kullanılmadığını öğrenme,
+- Yurt içinde veya yurt dışında aktarıldığı üçüncü kişileri bilme,
+- Eksik veya yanlış işlenmişse düzeltilmesini isteme,
+- KVKK ve ilgili mevzuat çerçevesinde silinmesini veya yok edilmesini isteme,
+- Düzeltme, silme veya yok etme işlemlerinin aktarıldığı üçüncü kişilere bildirilmesini isteme,
+- Münhasıran otomatik sistemler vasıtasıyla analiz edilmesi suretiyle aleyhe bir sonucun ortaya çıkmasına itiraz etme,
+- Kanuna aykırı işleme sebebiyle zarara uğranması halinde zararın giderilmesini talep etme.
+
+14. Başvuru ve İletişim
+
+Ticari elektronik ileti onayı, ret/çıkış talepleri ve kişisel verilerin korunmasına ilişkin başvurular info@sofrasofra.com adresine iletilebilir.
+
+UYBAT TEKNOLOJİ YAZILIM VE TİCARET LİMİTED ŞİRKETİ
+E-posta: info@sofrasofra.com
+Telefon: +90 536 299 13 24
+WhatsApp Hattı: +90 533 322 13 24
+Adres: Abdurrahman Nafiz Gürman Mahallesi, Kınalıtepe Sokak, Simitaş 8 Blok No: 1, İç Kapı No: 311, Güngören / İstanbul
+
+15. Onay Beyanı
+
+Kullanıcı, ticari elektronik ileti onayı vermesi halinde; Sofrasofra tarafından kendisine yukarıda belirtilen kanallar üzerinden kampanya, duyuru, tanıtım, indirim, promosyon ve benzeri ticari elektronik iletilerin gönderilmesine onay verdiğini kabul eder.
+
+Kullanıcı, bu onayı dilediği zaman geri alabileceğini bildiğini kabul eder.
+
+16. Metin Değişiklikleri
+
+Sofrasofra, işbu Ticari Elektronik İleti Onayı metnini mevzuat değişiklikleri, hizmet modeli, teknik altyapı, operasyonel ihtiyaçlar veya platform politikaları doğrultusunda güncelleyebilir.
+
+Güncel metin www.sofrasofra.com ve ilgili dijital kanallar üzerinden yayınlandığı anda geçerlilik kazanır.
 ''',
   ),
   SofrasofraHukukiMetin(
