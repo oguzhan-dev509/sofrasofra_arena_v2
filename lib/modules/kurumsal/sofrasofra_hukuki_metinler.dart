@@ -358,9 +358,158 @@ Adres: Abdurrahman Nafiz Gürman Mahallesi, Kınalıtepe Sokak, Simitaş 8 Blok 
     content: '''
 Çerez Politikası
 
-Son güncelleme tarihi: 09.05.2026
+Son güncelleme tarihi: 16.05.2026
 
-İşbu Çerez Politikası, UYBAT TEKNOLOJİ YAZILIM VE TİCARET LİMİTED ŞİRKETİ tarafından işletilen www.sofrasofra.com internet sitesi, mobil uygulamalar ve bağlantılı dijital hizmetlerde kullanılan çerezler ve benzeri teknolojiler hakkında bilgi vermek amacıyla hazırlanmıştır.
+1. Amaç ve Kapsam
+
+İşbu Çerez Politikası, UYBAT TEKNOLOJİ YAZILIM VE TİCARET LİMİTED ŞİRKETİ tarafından işletilen www.sofrasofra.com internet sitesi, mobil uygulamalar, web uygulaması ve bağlantılı dijital hizmetlerde kullanılan çerezler, benzeri teknolojiler ve bu teknolojiler yoluyla işlenebilecek kişisel veriler hakkında bilgilendirme yapmak amacıyla hazırlanmıştır.
+
+Bu Politika; Sofrasofra web sitesini, mobil uygulamasını veya dijital hizmetlerini ziyaret eden, kullanan, üyelik oluşturan, sipariş veren, başvuru yapan veya platform üzerinden işlem gerçekleştiren tüm kullanıcılar için geçerlidir.
+
+2. Veri Sorumlusu
+
+Çerezler ve benzeri teknolojiler aracılığıyla işlenen kişisel veriler bakımından veri sorumlusu:
+
+UYBAT TEKNOLOJİ YAZILIM VE TİCARET LİMİTED ŞİRKETİ
+Ticaret Sicil No: 1096741
+MERSİS No: 0898132285200001
+Adres: Abdurrahman Nafiz Gürman Mahallesi, Kınalıtepe Sokak, Simitaş 8 Blok No: 1, İç Kapı No: 311, Güngören / İstanbul
+Web Sitesi: www.sofrasofra.com
+E-posta: info@sofrasofra.com
+Telefon: +90 536 299 13 24
+WhatsApp Hattı: +90 533 322 13 24
+
+3. Çerez Nedir?
+
+Çerezler; internet sitesini, mobil web sayfasını veya dijital uygulamayı ziyaret ettiğinizde cihazınıza, tarayıcınıza veya uygulama alanınıza kaydedilebilen küçük metin dosyaları veya benzeri teknolojilerdir.
+
+Çerezler; oturumun sürdürülmesi, güvenliğin sağlanması, tercihlerin hatırlanması, performansın ölçülmesi, hata analizlerinin yapılması, kullanıcı deneyiminin iyileştirilmesi ve mevzuata uygun hallerde kampanya/tanıtım faaliyetlerinin yürütülmesi gibi amaçlarla kullanılabilir.
+
+4. Kullanılan Çerez ve Benzeri Teknoloji Türleri
+
+Sofrasofra’da kullanılan çerezler, kullanım amacına, saklama süresine ve sağlayıcısına göre farklı kategorilere ayrılabilir.
+
+4.1. Saklama Süresine Göre Çerezler
+
+Oturum çerezleri:
+Kullanıcının site veya uygulama ziyareti süresince çalışan ve tarayıcı kapatıldığında silinebilen çerezlerdir. Oturumun devamı, güvenli işlem ve sayfa geçişlerinin sağlanması amacıyla kullanılabilir.
+
+Kalıcı çerezler:
+Belirli bir süre boyunca cihazda veya tarayıcıda saklanabilen çerezlerdir. Tercihlerin hatırlanması, tekrar girişlerin kolaylaştırılması, performans ölçümü ve kullanıcı deneyiminin iyileştirilmesi amacıyla kullanılabilir.
+
+4.2. Sağlayıcısına Göre Çerezler
+
+Birinci taraf çerezler:
+Doğrudan Sofrasofra tarafından veya Sofrasofra alan adı üzerinden yerleştirilen çerezlerdir.
+
+Üçüncü taraf çerezler:
+Sofrasofra tarafından kullanılan ödeme, harita, video, analiz, güvenlik, barındırma, bildirim, sosyal medya veya benzeri üçüncü taraf hizmet sağlayıcıları tarafından yerleştirilebilen çerezlerdir.
+
+4.3. Kullanım Amacına Göre Çerezler
+
+Zorunlu çerezler:
+Platformun güvenli ve doğru şekilde çalışması için gerekli olan çerezlerdir. Oturum yönetimi, güvenlik, kimlik doğrulama, sepet işlemleri, sipariş akışı, ödeme yönlendirmesi ve sistem bütünlüğü için kullanılabilir. Bu çerezler olmadan platformun bazı bölümleri çalışmayabilir.
+
+Performans ve analitik çerezleri:
+Platformun nasıl kullanıldığını anlamak, hata ve performans sorunlarını analiz etmek, sayfa görüntülenmeleri, işlem akışları ve genel kullanım istatistiklerini değerlendirmek amacıyla kullanılabilir.
+
+İşlevsel çerezler:
+Kullanıcının tercihlerini hatırlamak, dil, görünüm, lokasyon tercihi, oturum tercihleri veya kullanıcı deneyimini kolaylaştıran diğer tercihleri yönetmek amacıyla kullanılabilir.
+
+Reklam, pazarlama ve hedefleme çerezleri:
+Kullanıcı tercihleri ve platform kullanımı doğrultusunda kampanya, duyuru, tanıtım ve reklam faaliyetlerinin yürütülmesi amacıyla kullanılabilir. Bu tür çerezlerin kullanımı, mevzuatın gerektirdiği hallerde açık rıza alınmasına bağlıdır.
+
+5. Çerezlerin Kullanım Amaçları
+
+Çerezler ve benzeri teknolojiler aşağıdaki amaçlarla kullanılabilir:
+
+- Platformun güvenli şekilde çalışmasını sağlamak,
+- Oturum, üyelik, giriş ve işlem güvenliği süreçlerini yürütmek,
+- Sepet, sipariş, ödeme ve teslimat akışlarının sağlıklı işlemesini sağlamak,
+- Kullanıcı tercihlerini hatırlamak,
+- Site ve uygulama performansını ölçmek,
+- Hata kayıtlarını ve teknik sorunları tespit etmek,
+- Hizmet kalitesini ve kullanıcı deneyimini iyileştirmek,
+- Kötüye kullanım, sahte işlem, yetkisiz erişim ve güvenlik risklerini önlemek,
+- Yasal yükümlülükleri yerine getirmek,
+- Açık rıza bulunması halinde kampanya, tanıtım, reklam ve pazarlama faaliyetlerini yürütmek.
+
+6. Çerezler Yoluyla İşlenebilecek Veriler
+
+Çerezler aracılığıyla aşağıdaki teknik ve işlem verileri işlenebilir:
+
+- IP adresi,
+- Cihaz ve tarayıcı bilgileri,
+- Oturum bilgileri,
+- Sayfa görüntüleme ve kullanım bilgileri,
+- Tıklama ve gezinme bilgileri,
+- Hata ve performans kayıtları,
+- Giriş/çıkış ve işlem zamanları,
+- Dil, görünüm veya tercih bilgileri,
+- Sepet ve işlem akışına ilişkin teknik bilgiler,
+- Güvenlik ve işlem doğrulama kayıtları.
+
+7. Çerezlerin Hukuki Sebepleri
+
+Zorunlu çerezler; platformun çalışması, güvenliğin sağlanması, üyelik, sepet, sipariş, ödeme, teslimat ve işlem akışlarının yürütülmesi için gerekli olduklarından, KVKK’da düzenlenen sözleşmenin kurulması veya ifası, veri sorumlusunun hukuki yükümlülüğünü yerine getirmesi veya meşru menfaat hukuki sebeplerine dayanılarak kullanılabilir.
+
+Performans, analitik, işlevsel, reklam, pazarlama veya hedefleme amaçlı çerezler bakımından, çerezin niteliğine ve kullanım amacına göre açık rıza veya KVKK’da öngörülen diğer hukuki işleme şartları uygulanabilir.
+
+Açık rızaya tabi çerezler bakımından, kullanıcıya gerekli bilgilendirme yapılmadan ve geçerli açık rıza alınmadan bu çerezlerin kullanılmaması esastır.
+
+8. Üçüncü Taraf Hizmetler ve Çerezler
+
+Sofrasofra; ödeme, harita, video, barındırma, veri tabanı, analiz, güvenlik, bildirim, sosyal medya, destek ve benzeri hizmetler için üçüncü taraf hizmet sağlayıcılarından yararlanabilir.
+
+Bu hizmet sağlayıcılar, kendi teknolojileri kapsamında çerez veya benzeri teknolojiler kullanabilir. Üçüncü taraf hizmet sağlayıcıların çerez ve veri işleme faaliyetleri, ilgili sağlayıcının kendi gizlilik ve çerez politikalarına tabi olabilir.
+
+9. Çerez Tercihlerinin Yönetilmesi
+
+Kullanıcılar, tarayıcı ayarları üzerinden çerezleri silebilir, engelleyebilir veya belirli çerezlere izin verebilir. Çerezlerin kapatılması halinde Sofrasofra’nın bazı özellikleri, özellikle oturum, sepet, ödeme, başvuru, sipariş takibi veya güvenlik süreçleri sınırlı çalışabilir ya da hiç çalışmayabilir.
+
+Tarayıcı ayarları genellikle çerezlerin yönetilmesine, geçmiş verilerin silinmesine ve üçüncü taraf çerezlerin engellenmesine imkân sağlar. Kullanıcılar kullandıkları tarayıcının ayarlar menüsünden çerez tercihlerini değiştirebilir.
+
+Sofrasofra, ilerleyen dönemlerde web sitesi veya uygulama içinde ayrıca çerez tercih paneli sunabilir. Böyle bir panel sunulduğunda kullanıcılar tercihlerini bu panel üzerinden de yönetebilir.
+
+10. Saklama Süreleri
+
+Çerezler, kullanım amaçlarının gerektirdiği süre boyunca saklanır. Oturum çerezleri genellikle oturum sonunda silinir. Kalıcı çerezler ise niteliğine göre belirli sürelerle saklanabilir.
+
+Çerezler aracılığıyla işlenen kişisel veriler, işleme amacının ortadan kalkması, saklama süresinin sona ermesi veya ilgili mevzuatın gerektirdiği hallerde silinir, yok edilir veya anonim hale getirilir.
+
+11. Yurt Dışına Aktarım
+
+Sofrasofra tarafından kullanılan bazı teknik hizmet sağlayıcıları, bulut altyapısı, analiz, barındırma, güvenlik, ödeme, bildirim veya benzeri hizmetler kapsamında yurt dışı bağlantılı altyapılar kullanabilir.
+
+Çerezler ve benzeri teknolojiler yoluyla kişisel verilerin yurt dışına aktarılması gereken hallerde, KVKK’nın yurt dışına aktarım hükümleri, Kurul kararları ve yürürlükteki mevzuat hükümleri dikkate alınır. Gerekli hallerde açık rıza alınması, uygun güvencelerin sağlanması veya mevzuatta öngörülen diğer aktarım şartlarının yerine getirilmesi yoluna gidilir.
+
+12. İlgili Kişinin Hakları
+
+Çerezler aracılığıyla kişisel verisi işlenen kişiler, KVKK’nın 11. maddesi kapsamında aşağıdaki haklara sahiptir:
+
+- Kişisel verilerinin işlenip işlenmediğini öğrenme,
+- İşlenmişse buna ilişkin bilgi talep etme,
+- İşlenme amacını ve amaca uygun kullanılıp kullanılmadığını öğrenme,
+- Yurt içinde veya yurt dışında aktarıldığı üçüncü kişileri bilme,
+- Eksik veya yanlış işlenmişse düzeltilmesini isteme,
+- KVKK ve ilgili mevzuat çerçevesinde silinmesini veya yok edilmesini isteme,
+- Düzeltme, silme veya yok etme işlemlerinin aktarıldığı üçüncü kişilere bildirilmesini isteme,
+- Münhasıran otomatik sistemler vasıtasıyla analiz edilmesi suretiyle aleyhe bir sonucun ortaya çıkmasına itiraz etme,
+- Kanuna aykırı işleme sebebiyle zarara uğranması halinde zararın giderilmesini talep etme.
+
+13. Başvuru ve İletişim
+
+Çerez Politikası ve kişisel verilerin korunmasına ilişkin başvurular info@sofrasofra.com adresine iletilebilir.
+
+UYBAT TEKNOLOJİ YAZILIM VE TİCARET LİMİTED ŞİRKETİ
+E-posta: info@sofrasofra.com
+Telefon: +90 536 299 13 24
+WhatsApp Hattı: +90 533 322 13 24
+Adres: Abdurrahman Nafiz Gürman Mahallesi, Kınalıtepe Sokak, Simitaş 8 Blok No: 1, İç Kapı No: 311, Güngören / İstanbul
+
+14. Politika Değişiklikleri
+
+Sofrasofra, bu Çerez Politikası’nı mevzuat değişiklikleri, teknik altyapı güncellemeleri, hizmet modeli, kullanılan üçüncü taraf hizmetler veya operasyonel ihtiyaçlar doğrultusunda güncelleyebilir. Güncel politika www.sofrasofra.com ve ilgili dijital kanallar üzerinden yayınlandığı anda geçerlilik kazanır.
 ''',
   ),
   SofrasofraHukukiMetin(
