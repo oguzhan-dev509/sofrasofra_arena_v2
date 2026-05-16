@@ -1332,15 +1332,177 @@ Adres: Abdurrahman Nafiz Gürman Mahallesi, Kınalıtepe Sokak, Simitaş 8 Blok 
 
 Son güncelleme tarihi: 16.05.2026
 
-İşbu Politika, Sofrasofra platformu üzerinden verilen siparişlerde iptal, iade, geri ödeme ve cayma hakkı süreçlerinin nasıl yürütüleceğini açıklamak amacıyla hazırlanmıştır.
+1. Amaç ve Kapsam
 
-Sipariş iptali ve iade talepleri; ürünün niteliği, hazırlanma aşaması, kişiye özel olup olmaması, gıda ürünü olup olmaması, teslimat durumu, hizmetin ifa edilip edilmediği ve ilgili mevzuat hükümleri dikkate alınarak değerlendirilir.
+İşbu İptal, İade ve Cayma Hakkı Politikası, Sofrasofra platformu üzerinden verilen siparişlerde iptal, iade, geri ödeme, cayma hakkı ve destek süreçlerinin nasıl yürütüleceğini açıklamak amacıyla hazırlanmıştır.
 
-Çabuk bozulabilen veya son kullanma tarihi çabuk geçebilecek gıda ürünleri, kişiye özel hazırlanan ürünler, belirli tarih veya saat için hazırlanan yemek, pasta, catering, davet, rezervasyon ve benzeri hizmetler ile hijyen veya sağlık açısından iadesi uygun olmayan ürünlerde cayma hakkı sınırlı olabilir veya kullanılamayabilir.
+Bu Politika; Ev Lezzetleri ürünleri, Usta Şef imza tabakları, restoran ürünleri, gel-al siparişleri, kurye teslimatlı siparişler, catering, davet, danışmanlık, eğitim, rezervasyon ve Sofrasofra üzerinden sunulabilecek diğer ürün/hizmetleri kapsayabilir.
 
-Satıcı/hizmet sağlayıcıdan kaynaklanan eksik, hatalı, ayıplı veya açıklamaya aykırı ürün/hizmet durumunda alıcı, makul süre içinde Sofrasofra destek kanallarına başvurabilir. İnceleme sonucunda tam iade, kısmi iade, yeniden gönderim, destek çözümü veya başka uygun bir çözüm uygulanabilir.
+İşbu Politika, Mesafeli Satış Sözleşmesi ve Ön Bilgilendirme Formu ile birlikte değerlendirilir.
 
-Geri ödeme süreçleri, ödeme hizmet sağlayıcısı ve banka işlem sürelerine bağlı olarak değişebilir.
+2. Platformun Rolü
+
+Sofrasofra; kullanıcılar, Ev Lezzetleri üreticileri, Usta Şefler, restoranlar, kuryeler ve hizmet sağlayıcıları dijital ortamda bir araya getiren teknoloji tabanlı bir platformdur.
+
+Sofrasofra, sipariş, sepet, ödeme yönlendirme, teslimat organizasyonu, destek, uyuşmazlık inceleme ve operasyon süreçlerinde teknik altyapı ve platform hizmeti sunabilir.
+
+Ürün veya hizmeti fiilen sunan satıcı/hizmet sağlayıcı; ürünün niteliği, içeriği, hijyeni, açıklaması, fiyatı, hazırlanması, teslimata uygunluğu, faturalandırılması ve mevzuata uygunluğundan kendi statüsü ve faaliyeti ölçüsünde sorumludur.
+
+3. Genel İptal İlkeleri
+
+Sipariş iptali talepleri; ürün veya hizmetin niteliği, hazırlanma aşaması, kişiye özel olup olmaması, gıda ürünü olup olmaması, teslimat durumu, kurye ataması, ödeme durumu, hizmetin ifa edilip edilmediği ve ilgili mevzuat hükümleri dikkate alınarak değerlendirilir.
+
+Alıcı, siparişi verdikten sonra mümkün olan en kısa sürede iptal talebini Sofrasofra destek kanallarına veya platformda sunulması halinde ilgili iptal aracına iletmelidir.
+
+Sipariş henüz satıcı/hizmet sağlayıcı tarafından hazırlanmaya başlanmamışsa ve operasyonel olarak iptale uygunsa, iptal talebi kabul edilebilir.
+
+Sipariş hazırlanmaya başlanmış, kişiye özel hale gelmiş, çabuk bozulabilir ürün niteliği kazanmış, kurye teslimatına verilmiş, belirli saat/tarih için organize edilmiş veya hizmet ifasına başlanmışsa iptal talebi reddedilebilir ya da kesinti uygulanabilir.
+
+4. Gıda Ürünlerinde İptal ve İade
+
+Sofrasofra’nın faaliyet alanı gereği ev yapımı yemek, sıcak yemek, yaş pasta, günlük üretim, siparişe özel hazırlanan gıda, restoran ürünü, imza tabağı, catering, davet ve benzeri ürün/hizmetler çabuk bozulabilir veya kişiye özel hazırlanabilir nitelikte olabilir.
+
+Bu tür ürünlerde sipariş hazırlandıktan, üretim başladıktan, ürün kurye teslimatına verildikten veya belirli saat/tarih için organize edildikten sonra iptal ve iade hakkı sınırlı olabilir.
+
+Teslim edilmiş gıda ürünlerinde, ürünün niteliği gereği iade her zaman mümkün olmayabilir. Bu hallerde kalite incelemesi, fotoğraf/video destekli değerlendirme, kısmi iade, tam iade, yeniden gönderim, kupon, bakiye veya destek çözümü gibi alternatifler somut olaya göre değerlendirilebilir.
+
+5. Cayma Hakkı
+
+Alıcı, mesafeli satış mevzuatı kapsamında cayma hakkına sahip olabilir. Ancak cayma hakkı, ürün veya hizmetin niteliğine, teslimat durumuna, ifa aşamasına ve mevzuatta düzenlenen istisnalara göre değerlendirilir.
+
+Cayma hakkının kullanılabileceği hallerde alıcı, cayma hakkını süresi içinde satıcı/hizmet sağlayıcıya veya Sofrasofra destek kanallarına açık bir beyanla bildirebilir.
+
+Cayma bildirimi; e-posta, destek kanalı, yazılı bildirim veya platformda sunulması halinde ilgili cayma/iptal aracı üzerinden yapılabilir.
+
+Cayma hakkının usulüne uygun şekilde kullanılması halinde iade süreci, ödeme hizmet sağlayıcısı kuralları ve ilgili mevzuat hükümleri dikkate alınarak yürütülür.
+
+6. Cayma Hakkının Kullanılamayabileceği Haller
+
+Aşağıdaki ürün ve hizmetlerde, mevzuatın izin verdiği ölçüde cayma hakkı kullanılamayabilir:
+
+- Çabuk bozulabilen veya son kullanma tarihi çabuk geçebilecek gıda ürünleri,
+- Alıcının özel istekleri veya kişisel ihtiyaçları doğrultusunda hazırlanan ürünler,
+- Belirli bir tarih veya dönemde yapılması gereken yiyecek-içecek tedariki, davet, catering, organizasyon, rezervasyon veya benzeri hizmetler,
+- Tesliminden sonra sağlık veya hijyen açısından iadesi uygun olmayan ürünler,
+- Ambalajı açılmış, kullanılmış, tüketilmiş veya niteliği gereği yeniden satışa uygun olmayan ürünler,
+- Hazırlık veya üretim süreci alıcı onayıyla başlamış ve niteliği gereği iadesi mümkün olmayan ürün/hizmetler,
+- Elektronik ortamda anında ifa edilen eğitim, dijital içerik, video, danışmanlık veya benzeri hizmetler,
+- Mevzuatta cayma hakkı istisnası olarak düzenlenen diğer ürün ve hizmetler.
+
+7. Teslimat Öncesi İptal
+
+Sipariş teslimat öncesinde iptal edilmek istenirse, siparişin hazırlanma ve operasyon durumu kontrol edilir.
+
+Sipariş henüz hazırlanmamış veya üretim sürecine alınmamışsa iptal talebi kabul edilebilir.
+
+Sipariş hazırlık aşamasına geçmişse, özel üretim başlamışsa, günlük üretim ayrılmışsa, kurye atanmışsa veya teslimat süreci başlamışsa iptal talebi satıcı/hizmet sağlayıcı ve operasyon durumu dikkate alınarak değerlendirilir.
+
+8. Teslimat Sonrası İade
+
+Teslimat sonrası iade talepleri; ürünün niteliği, teslimat durumu, ürünün kullanılıp kullanılmadığı, hijyen ve sağlık koşulları, ayıp iddiası, eksik teslimat, yanlış ürün veya açıklamaya aykırılık gibi nedenler dikkate alınarak değerlendirilir.
+
+Gıda ürünlerinde ürün teslim edildikten sonra sırf alıcının tercih değişikliği, fikir değiştirmesi veya ürünü beğenmemesi nedeniyle iade her zaman mümkün olmayabilir.
+
+Ancak ürünün bozuk, eksik, hatalı, ayıplı, açıklamaya aykırı, yanlış gönderilmiş veya teslimata uygun olmayan şekilde geldiği iddia edilirse Sofrasofra destek kanalları üzerinden inceleme süreci başlatılabilir.
+
+9. Ayıplı, Eksik veya Hatalı Ürün/Hizmet
+
+Alıcı, ürün veya hizmetin eksik, hatalı, bozuk, ayıplı, açıklamaya aykırı veya teslimata uygun olmayan şekilde geldiğini düşünüyorsa makul süre içinde Sofrasofra destek kanallarına başvurmalıdır.
+
+Başvuruda sipariş numarası, ürün/hizmet adı, açıklama, fotoğraf, video, teslimat zamanı ve talebi destekleyen bilgiler istenebilir.
+
+Sofrasofra; alıcı, satıcı/hizmet sağlayıcı, kurye ve operasyon kayıtlarını inceleyerek makul bir çözüm süreci yürütebilir.
+
+Somut olayın niteliğine göre tam iade, kısmi iade, yeniden gönderim, ürün değişimi, kupon, bakiye, destek çözümü, satıcı uyarısı veya başka uygun bir çözüm uygulanabilir.
+
+10. Geri Ödeme Süreci
+
+Geri ödeme yapılması gereken hallerde iade, mümkün olduğu ölçüde alıcının ödeme yaptığı yöntemle gerçekleştirilir.
+
+Geri ödeme süresi; ödeme hizmet sağlayıcısı, banka, kart kuruluşu, işlem tipi, hafta sonu/resmi tatil günleri ve teknik süreçlere göre değişebilir.
+
+Banka, kart kuruluşu veya ödeme hizmet sağlayıcısından kaynaklanan gecikmeler Sofrasofra’nın doğrudan kontrolü dışında olabilir.
+
+Kısmi iade, tam iade, bakiye, kupon, yeniden gönderim veya destek çözümü gibi yöntemler somut olayın niteliğine göre uygulanabilir.
+
+11. Teslimat Sorunları
+
+Teslimat adresinin yanlış, eksik veya ulaşılamaz olması; alıcının telefonuna ulaşılamaması; alıcının teslimat noktasında bulunmaması; bina, güvenlik, site, kapı, adres veya yol bilgisi nedeniyle teslimatın yapılamaması gibi alıcıdan kaynaklanan hallerde iptal, iade veya geri ödeme sınırlı olabilir.
+
+Kurye, satıcı/hizmet sağlayıcı veya platform operasyonundan kaynaklanan gecikme, yanlış teslimat, teslim edilememe veya teslimat hatası hallerinde durum kayıtlar üzerinden incelenir ve uygun çözüm uygulanır.
+
+Gıda ürünlerinde teslimat gecikmesinin ürün kalitesini etkileyebileceği durumlarda, gecikmenin kaynağı ve ürünün niteliği birlikte değerlendirilir.
+
+12. Gel-Al Siparişleri
+
+Gel-al siparişlerinde alıcı, siparişini belirtilen saat aralığında teslim almakla yükümlüdür.
+
+Alıcının belirtilen saat aralığında ürünü teslim almaması, geç gelmesi veya iletişim kurulamadığı için teslimatın yapılamaması halinde ürünün sıcaklık, tazelik, kalite veya iade durumu etkilenebilir.
+
+Gel-al siparişlerinde ürün hazırlanmışsa, günlük üretim yapılmışsa veya alıcıya özel hazırlanmışsa iptal/iade hakkı sınırlı olabilir.
+
+13. Catering, Davet, Rezervasyon ve Özel Hizmetler
+
+Catering, davet, özel gün, rezervasyon, şef masası, danışmanlık, eğitim, organizasyon veya belirli tarih/saat için planlanan hizmetlerde iptal ve iade koşulları hizmetin niteliğine göre ayrıca belirlenebilir.
+
+Bu tür hizmetlerde hazırlık, personel, malzeme, tedarik, rezervasyon, planlama ve zaman ayrılması gibi nedenlerle belirli bir aşamadan sonra iptal talebi reddedilebilir veya kesinti uygulanabilir.
+
+Alıcı, bu tür hizmetlerde sipariş veya rezervasyon oluşturmadan önce ilgili açıklamaları ve özel koşulları incelemekle yükümlüdür.
+
+14. İade Talebinde Bulunma Yöntemi
+
+İptal, iade veya cayma talepleri aşağıdaki kanallar üzerinden iletilebilir:
+
+- Sofrasofra uygulaması veya web sitesi içinde sunulan destek/iptal/iade alanları,
+- info@sofrasofra.com e-posta adresi,
+- Sofrasofra WhatsApp destek hattı,
+- Platform tarafından ileride sunulabilecek diğer destek kanalları.
+
+Başvuruda sipariş numarası, ad-soyad, iletişim bilgisi, talep konusu, ürün/hizmet bilgisi ve talebi destekleyen açıklama yer almalıdır.
+
+15. İnceleme ve Sonuçlandırma
+
+Sofrasofra, iptal/iade taleplerini sipariş kayıtları, ödeme durumu, teslimat kayıtları, satıcı/hizmet sağlayıcı beyanı, kurye durumu, alıcı beyanı, fotoğraf/video kayıtları ve ilgili operasyon verileri üzerinden inceleyebilir.
+
+Başvurular mümkün olan en kısa sürede değerlendirilir. İnceleme süresi, talebin niteliğine, satıcı/hizmet sağlayıcıdan bilgi alınmasına, ödeme sağlayıcısı süreçlerine ve operasyon kayıtlarının incelenmesine göre değişebilir.
+
+Sofrasofra’nın destek sürecinde çözüm üretmeye çalışması, satıcı/hizmet sağlayıcı veya kurye yerine doğrudan yasal sorumluluk üstlendiği anlamına gelmez.
+
+16. Kötüye Kullanım
+
+Sofrasofra, sahte sipariş, kötü niyetli iade talebi, manipülatif şikâyet, yanıltıcı beyan, sahte görsel/video, sistemin kötüye kullanılması veya haksız kazanç amacı taşıyan işlemleri reddedebilir.
+
+Bu tür durumlarda hesap kısıtlaması, sipariş iptali, destek talebinin reddi, üyeliğin askıya alınması veya yasal yollara başvurma hakkı saklıdır.
+
+17. Kişisel Veriler
+
+İptal, iade, geri ödeme ve cayma hakkı süreçlerinde işlenen kişisel veriler; talebin alınması, kimlik/iletişim doğrulaması, siparişin incelenmesi, ödeme ve geri ödeme işlemlerinin yürütülmesi, destek sürecinin sonuçlandırılması ve yasal yükümlülüklerin yerine getirilmesi amacıyla işlenebilir.
+
+Kişisel verilerin işlenmesine ilişkin ayrıntılı hükümler Gizlilik Politikası, KVKK Aydınlatma Metni, Çerez Politikası ve ilgili diğer hukuki metinlerde düzenlenir.
+
+18. Tüketici Hakları
+
+Tüketici sıfatına sahip alıcıların tüketici mevzuatından kaynaklanan hakları saklıdır.
+
+Tüketici işlemlerinde ilgili mevzuat uyarınca tüketici hakem heyetleri ve tüketici mahkemeleri yetkili olabilir.
+
+İşbu Politika, tüketicinin emredici mevzuattan kaynaklanan haklarını ortadan kaldıracak şekilde yorumlanamaz.
+
+19. Politika Değişiklikleri
+
+Sofrasofra, işbu İptal, İade ve Cayma Hakkı Politikası’nı mevzuat değişiklikleri, hizmet modeli, teknik altyapı, operasyonel ihtiyaçlar, ödeme sağlayıcı kuralları veya platform politikaları doğrultusunda güncelleyebilir.
+
+Güncel Politika www.sofrasofra.com ve ilgili dijital kanallar üzerinden yayınlandığı anda yürürlüğe girer.
+
+20. İletişim
+
+İptal, iade ve cayma hakkı süreçlerine ilişkin soru, talep ve bildirimler için aşağıdaki iletişim kanalları kullanılabilir:
+
+UYBAT TEKNOLOJİ YAZILIM VE TİCARET LİMİTED ŞİRKETİ
+E-posta: info@sofrasofra.com
+Telefon: +90 536 299 13 24
+WhatsApp Hattı: +90 533 322 13 24
+Adres: Abdurrahman Nafiz Gürman Mahallesi, Kınalıtepe Sokak, Simitaş 8 Blok No: 1, İç Kapı No: 311, Güngören / İstanbul
 ''',
   ),
   SofrasofraHukukiMetin(
