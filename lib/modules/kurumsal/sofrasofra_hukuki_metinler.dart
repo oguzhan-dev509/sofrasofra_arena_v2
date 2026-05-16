@@ -940,4 +940,162 @@ WhatsApp Hattı: +90 533 322 13 24
 Adres: Abdurrahman Nafiz Gürman Mahallesi, Kınalıtepe Sokak, Simitaş 8 Blok No: 1, İç Kapı No: 311, Güngören / İstanbul
 ''',
   ),
+  SofrasofraHukukiMetin(
+    title: 'Mesafeli Satış Sözleşmesi',
+    slug: 'mesafeli-satis-sozlesmesi',
+    summary:
+        'Sofrasofra üzerinden verilen siparişlerde mesafeli satış hükümleri.',
+    content: '''
+Mesafeli Satış Sözleşmesi
+
+Son güncelleme tarihi: 16.05.2026
+
+İşbu Mesafeli Satış Sözleşmesi, Sofrasofra platformu üzerinden verilen siparişlerde, alıcı ile satıcı/hizmet sağlayıcı arasında elektronik ortamda kurulan mesafeli satış ilişkisine ilişkin hak ve yükümlülükleri düzenler.
+
+Bu metin; Ev Lezzetleri ürünleri, Usta Şef imza tabakları, restoran ürünleri, catering, danışmanlık, eğitim, rezervasyon, teslimat ve gel-al siparişleri gibi Sofrasofra üzerinden sunulabilecek ürün ve hizmetleri kapsar.
+
+Sofrasofra, teknoloji tabanlı bir platform olarak sipariş, ödeme yönlendirme, sepet, teslimat organizasyonu, destek ve operasyon süreçlerine aracılık edebilir. Ürün veya hizmeti fiilen sunan satıcı/hizmet sağlayıcı; ürünün niteliği, açıklaması, hijyeni, fiyatı, hazırlanması, teslimata uygunluğu, faturalandırılması ve mevzuata uygunluğundan kendi statüsü ölçüsünde sorumludur.
+
+Alıcı, sipariş vermeden önce ürün veya hizmet açıklamasını, fiyatı, teslimat yöntemini, ödeme koşullarını, iptal/iade şartlarını ve varsa cayma hakkı istisnalarını okuyup kabul ettiğini beyan eder.
+
+Gıda ürünleri, çabuk bozulabilen ürünler, son kullanma tarihi kısa olan ürünler, kişiye özel hazırlanan ürünler, belirli tarih veya saat için hazırlanan yemek, pasta, catering, davet, rezervasyon ve benzeri hizmetlerde cayma hakkı mevzuat gereği sınırlı olabilir veya kullanılamayabilir.
+
+Ayrıntılı hükümler, Ön Bilgilendirme Formu ve İptal, İade ve Cayma Hakkı Politikası ile birlikte değerlendirilir.
+''',
+  ),
+  SofrasofraHukukiMetin(
+    title: 'Ön Bilgilendirme Formu',
+    slug: 'on-bilgilendirme-formu',
+    summary:
+        'Sipariş öncesi ürün, fiyat, teslimat ve cayma hakkı bilgilendirmesi.',
+    content: '''
+Ön Bilgilendirme Formu
+
+Son güncelleme tarihi: 16.05.2026
+
+İşbu Ön Bilgilendirme Formu, Sofrasofra platformu üzerinden verilen siparişlerde, alıcının sipariş öncesinde ürün/hizmet, satıcı, fiyat, ödeme, teslimat, iptal, iade ve cayma hakkı konularında bilgilendirilmesi amacıyla hazırlanmıştır.
+
+Alıcı, sipariş vermeden önce ürün veya hizmetin temel niteliklerini, toplam fiyatını, varsa teslimat/kurye bedelini, ödeme koşullarını, teslimat şeklini, satıcı/hizmet sağlayıcı bilgilerini ve cayma hakkı istisnalarını incelemekle yükümlüdür.
+
+Gıda ürünleri, kişiye özel hazırlanan ürünler, belirli tarih veya saat için hazırlanan hizmetler ve mevzuatta cayma hakkı istisnası kapsamında değerlendirilen ürün/hizmetler bakımından cayma hakkı sınırlı olabilir.
+''',
+  ),
+  SofrasofraHukukiMetin(
+    title: 'İptal, İade ve Cayma Hakkı Politikası',
+    slug: 'iptal-iade-cayma-hakki',
+    summary: 'Sipariş iptali, iade, geri ödeme ve cayma hakkı süreçleri.',
+    content: '''
+İptal, İade ve Cayma Hakkı Politikası
+
+Son güncelleme tarihi: 16.05.2026
+
+İşbu Politika, Sofrasofra platformu üzerinden verilen siparişlerde iptal, iade, geri ödeme ve cayma hakkı süreçlerinin nasıl yürütüleceğini açıklamak amacıyla hazırlanmıştır.
+
+Sipariş iptali ve iade talepleri; ürünün niteliği, hazırlanma aşaması, kişiye özel olup olmaması, gıda ürünü olup olmaması, teslimat durumu, hizmetin ifa edilip edilmediği ve ilgili mevzuat hükümleri dikkate alınarak değerlendirilir.
+
+Çabuk bozulabilen veya son kullanma tarihi çabuk geçebilecek gıda ürünleri, kişiye özel hazırlanan ürünler, belirli tarih veya saat için hazırlanan yemek, pasta, catering, davet, rezervasyon ve benzeri hizmetler ile hijyen veya sağlık açısından iadesi uygun olmayan ürünlerde cayma hakkı sınırlı olabilir veya kullanılamayabilir.
+
+Satıcı/hizmet sağlayıcıdan kaynaklanan eksik, hatalı, ayıplı veya açıklamaya aykırı ürün/hizmet durumunda alıcı, makul süre içinde Sofrasofra destek kanallarına başvurabilir. İnceleme sonucunda tam iade, kısmi iade, yeniden gönderim, destek çözümü veya başka uygun bir çözüm uygulanabilir.
+
+Geri ödeme süreçleri, ödeme hizmet sağlayıcısı ve banka işlem sürelerine bağlı olarak değişebilir.
+''',
+  ),
+  SofrasofraHukukiMetin(
+    title: 'Açık Rıza Metni',
+    slug: 'acik-riza-metni',
+    summary: 'Açık rıza gerektiren kişisel veri işleme faaliyetleri.',
+    content: '''
+Açık Rıza Metni
+
+Son güncelleme tarihi: 16.05.2026
+
+İşbu Açık Rıza Metni, Sofrasofra platformu kapsamında, açık rıza gerektiren kişisel veri işleme faaliyetlerine ilişkin olarak hazırlanmıştır.
+
+Kullanıcı, açık rıza vermesi gereken hallerde; ticari elektronik ileti, pazarlama, kampanya, duyuru, açık rızaya tabi çerez kullanımı, yurt dışı aktarım veya mevzuat gereği açık rıza gerektiren diğer veri işleme faaliyetleri hakkında ayrıca bilgilendirilebilir.
+
+Açık rıza, kullanıcının özgür iradesiyle verilir ve mevzuatın izin verdiği ölçüde geri alınabilir.
+''',
+  ),
+  SofrasofraHukukiMetin(
+    title: 'Ticari Elektronik İleti Onayı',
+    slug: 'ticari-elektronik-ileti-onayi',
+    summary: 'Kampanya, duyuru ve ticari elektronik ileti onay metni.',
+    content: '''
+Ticari Elektronik İleti Onayı
+
+Son güncelleme tarihi: 16.05.2026
+
+İşbu Ticari Elektronik İleti Onay Metni, Sofrasofra tarafından gönderilebilecek kampanya, duyuru, bilgilendirme, tanıtım ve ticari elektronik iletilere ilişkin onay ve bilgilendirme amacıyla hazırlanmıştır.
+
+Kullanıcı, onay vermesi halinde Sofrasofra tarafından e-posta, SMS, telefon, WhatsApp, uygulama bildirimi veya benzeri kanallar üzerinden kendisine ticari elektronik ileti gönderilebileceğini kabul eder.
+
+Kullanıcı, ticari elektronik ileti onayını mevzuata uygun yöntemlerle geri alabilir.
+''',
+  ),
+  SofrasofraHukukiMetin(
+    title: 'Üretici / Şef / Restoran Hizmet Sözleşmesi',
+    slug: 'uretici-sef-restoran-hizmet-sozlesmesi',
+    summary:
+        'Ev Lezzetleri üreticileri, Usta Şefler ve Restoranlar için hizmet sözleşmesi.',
+    content: '''
+Üretici / Şef / Restoran Hizmet Sözleşmesi
+
+Son güncelleme tarihi: 16.05.2026
+
+İşbu Hizmet Sözleşmesi, Sofrasofra platformunda ürün, hizmet, eğitim, danışmanlık, imza tabağı, restoran ürünü veya benzeri içerik sunmak isteyen Ev Lezzetleri üreticileri, Usta Şefler ve Restoranlar ile Sofrasofra arasındaki hak ve yükümlülükleri düzenler.
+
+Üretici, şef veya restoran; sunduğu ürün/hizmet bilgilerinin doğruluğundan, fiyatlarından, görsellerinden, hijyeninden, kalite ve mevzuat uygunluğundan, fatura/vergi yükümlülüklerinden ve müşteriyle ilgili ticari süreçlerden kendi statüsü ölçüsünde sorumludur.
+
+Sofrasofra, platform hizmeti, görünürlük, sepet, ödeme yönlendirme, teslimat organizasyonu, destek ve operasyon süreçleri sağlayabilir; bu hizmetler karşılığında komisyon, platform hizmet bedeli veya başka ücretler uygulayabilir.
+''',
+  ),
+  SofrasofraHukukiMetin(
+    title: 'Kurye Hizmet Koşulları',
+    slug: 'kurye-hizmet-kosullari',
+    summary: 'Sofrasofra kurye ağına ilişkin hizmet koşulları.',
+    content: '''
+Kurye Hizmet Koşulları
+
+Son güncelleme tarihi: 16.05.2026
+
+İşbu Kurye Hizmet Koşulları, Sofrasofra platformunda kurye olarak başvuru yapan, görev alan veya teslimat sürecine dahil olan kişilerin hak ve yükümlülüklerini düzenler.
+
+Kurye; teslimat görevlerinde trafik kurallarına, güvenlik kurallarına, dürüstlük ilkesine, müşteri/üretici/şef/restoran haklarına ve platform operasyon kurallarına uygun hareket etmekle yükümlüdür.
+
+Sofrasofra, kurye atama, görev takibi, teslimat durumu, konum takibi, destek, kalite ve güvenlik süreçleri için gerekli teknik ve operasyonel kayıtları tutabilir.
+''',
+  ),
+  SofrasofraHukukiMetin(
+    title: 'Başvuru ve İş Ortaklığı Aydınlatma Metni',
+    slug: 'basvuru-is-ortakligi-aydinlatma-metni',
+    summary:
+        'Başvuru ve iş ortaklığı süreçlerinde kişisel verilerin işlenmesi.',
+    content: '''
+Başvuru ve İş Ortaklığı Aydınlatma Metni
+
+Son güncelleme tarihi: 16.05.2026
+
+İşbu Aydınlatma Metni, Sofrasofra platformuna Ev Lezzetleri üreticisi, Usta Şef, restoran, kurye, Mahalle Mutfak Koçu, iş ortağı veya benzeri sıfatlarla başvuru yapan kişilerin kişisel verilerinin işlenmesine ilişkin olarak hazırlanmıştır.
+
+Başvuru süreçlerinde kimlik, iletişim, çalışma durumu, işletme, vergi/fatura, IBAN, deneyim, faaliyet alanı, başvuru statüsü ve değerlendirme notları gibi bilgiler işlenebilir.
+
+Bu bilgiler başvurunun alınması, incelenmesi, sonuçlandırılması, iç denetim yapılması, operasyonel uygunluğun değerlendirilmesi ve yasal yükümlülüklerin yerine getirilmesi amacıyla kullanılabilir.
+''',
+  ),
+  SofrasofraHukukiMetin(
+    title: 'Fotoğraf, Video ve İçerik Yayın İzni',
+    slug: 'fotograf-video-icerik-yayin-izni',
+    summary: 'Platforma yüklenen fotoğraf, video ve içeriklerin kullanım izni.',
+    content: '''
+Fotoğraf, Video ve İçerik Yayın İzni
+
+Son güncelleme tarihi: 16.05.2026
+
+İşbu Fotoğraf, Video ve İçerik Yayın İzni Metni, Sofrasofra platformuna kullanıcılar, Ev Lezzetleri üreticileri, Usta Şefler, restoranlar, kuryeler, Mahalle Mutfak Koçları veya iş ortakları tarafından yüklenen ya da izinli şekilde paylaşılan görsel, video, metin ve tanıtım içeriklerinin kullanımına ilişkin esasları düzenler.
+
+Kullanıcı, platforma yüklediği fotoğraf, video, ürün açıklaması, galeri, profil, eğitim, tanıtım veya benzeri içeriklerin hukuka uygun olduğunu ve üçüncü kişilerin haklarını ihlal etmediğini kabul eder.
+
+Kullanıcı, bu içeriklerin Sofrasofra platformunda, vitrinlerde, tanıtım alanlarında, sosyal medya veya kurumsal iletişim alanlarında kullanılmasına gerekli ölçüde izin verdiğini kabul eder.
+''',
+  ),
 ];
