@@ -173,13 +173,180 @@ Adres: Abdurrahman Nafiz Gürman Mahallesi, Kınalıtepe Sokak, Simitaş 8 Blok 
     content: '''
 KVKK Aydınlatma Metni
 
-Son güncelleme tarihi: 09.05.2026
+Son güncelleme tarihi: 16.05.2026
 
-İşbu Aydınlatma Metni, 6698 sayılı Kişisel Verilerin Korunması Kanunu kapsamında, kişisel verilerinizin hangi amaçlarla işlendiği, kimlere ve hangi amaçlarla aktarılabileceği, hangi yöntemlerle toplandığı, hukuki sebepleri ve ilgili kişi olarak haklarınız hakkında bilgilendirme yapmak amacıyla hazırlanmıştır.
+1. Amaç ve Kapsam
 
-Veri Sorumlusu:
+İşbu KVKK Aydınlatma Metni, 6698 sayılı Kişisel Verilerin Korunması Kanunu, ilgili ikincil mevzuat ve Kişisel Verileri Koruma Kurulu kararları çerçevesinde, kişisel verilerinizin hangi amaçlarla işlendiği, hangi hukuki sebeplere dayandığı, kimlere ve hangi amaçlarla aktarılabileceği, hangi yöntemlerle toplandığı ve ilgili kişi olarak sahip olduğunuz haklar hakkında bilgilendirme yapmak amacıyla hazırlanmıştır.
+
+Bu Aydınlatma Metni; Sofrasofra platformunu ziyaret eden, üye olan, sipariş veren, başvuru yapan, Ev Lezzetleri üreticisi, Usta Şef, restoran, kurye, müşteri, iş ortağı, destek talebi ileten kişi veya diğer ilgili kişi sıfatıyla Sofrasofra ile temas kuran tüm gerçek kişileri kapsar.
+
+2. Veri Sorumlusu
+
+KVKK kapsamında veri sorumlusu:
+
+UYBAT TEKNOLOJİ YAZILIM VE TİCARET LİMİTED ŞİRKETİ
+Ticaret Sicil No: 1096741
+MERSİS No: 0898132285200001
+Adres: Abdurrahman Nafiz Gürman Mahallesi, Kınalıtepe Sokak, Simitaş 8 Blok No: 1, İç Kapı No: 311, Güngören / İstanbul
+Web Sitesi: www.sofrasofra.com
+E-posta: info@sofrasofra.com
+Telefon: +90 536 299 13 24
+WhatsApp Hattı: +90 533 322 13 24
+
+3. İşlenen Kişisel Veri Kategorileri
+
+Sofrasofra tarafından, hizmetin niteliğine ve ilgili kişinin platformla kurduğu ilişkiye göre aşağıdaki kişisel veri kategorileri işlenebilir:
+
+Kimlik verileri:
+Ad, soyad, T.C. kimlik numarası, vergi kimlik numarası, başvuru sahibinin kimlik ve işletme temsil bilgileri.
+
+İletişim verileri:
+Telefon numarası, e-posta adresi, adres, şehir, ilçe, destek ve iletişim kanallarına ait bilgiler.
+
+Müşteri işlem verileri:
+Sipariş bilgileri, sepet içeriği, ürün veya hizmet tercihi, ödeme durumu, teslimat tercihi, iptal, iade, destek ve şikâyet kayıtları.
+
+Finans ve fatura verileri:
+IBAN, fatura adresi, fatura e-posta adresi, vergi dairesi, hak ediş, komisyon, platform hizmet bedeli, ödeme ve mahsuplaşma bilgileri.
+
+Başvuru ve iş ortaklığı verileri:
+Ev Lezzetleri üretici başvurusu, Usta Şef başvurusu, restoran başvurusu, kurye başvurusu, çalışma durumu, mesleki bilgi, açıklama, değerlendirme notları, başvuru statüsü ve operasyonel inceleme kayıtları.
+
+Profil ve içerik verileri:
+Profil bilgileri, mutfak/işletme adı, ürün açıklamaları, fotoğraf, video, galeri, akademi, imza tabağı, restoran ve tanıtım içerikleri.
+
+Konum ve teslimat verileri:
+Teslimat adresi, şehir/ilçe bilgisi, teslimat sürecinde gerekli operasyonel konum bilgileri ve kurye süreçlerine ilişkin hareket bilgileri.
+
+Teknik ve işlem güvenliği verileri:
+IP adresi, cihaz bilgileri, tarayıcı bilgileri, oturum kayıtları, log kayıtları, hata kayıtları, güvenlik kayıtları, kullanıcı işlem izleri, çerezler ve benzeri teknik veriler.
+
+Destek ve iletişim verileri:
+E-posta, WhatsApp, telefon, destek formu veya diğer iletişim kanalları üzerinden iletilen mesajlar, talepler, çağrı veya görüşme notları ve operasyon kayıtları.
+
+4. Özel Nitelikli Kişisel Veriler
+
+Sofrasofra, kural olarak özel nitelikli kişisel veri talep etmez. Kullanıcıların sağlık bilgisi, biyometrik veri, dini inanç, siyasi görüş, dernek/vakıf/sendika üyeliği, ceza mahkûmiyeti veya güvenlik tedbiri bilgisi gibi özel nitelikli kişisel verileri platforma yüklememesi veya destek kanalları üzerinden paylaşmaması esastır.
+
+Buna rağmen ilgili kişi tarafından özel nitelikli kişisel veri içeren bilgi veya belge paylaşılması halinde, bu bilgiler yalnızca ilgili talebin değerlendirilmesi, hukuki yükümlülüklerin yerine getirilmesi veya mevzuatta öngörülen sınırlı haller kapsamında işlenebilir. Gerekli olmayan özel nitelikli veriler sistemlerden silinebilir veya dikkate alınmayabilir.
+
+5. Kişisel Verilerin İşlenme Amaçları
+
+Kişisel veriler aşağıdaki amaçlarla işlenebilir:
+
+- Üyelik, hesap oluşturma ve kullanıcı yönetimi süreçlerinin yürütülmesi,
+- Sipariş, sepet, ödeme, teslimat, iptal, iade ve müşteri destek süreçlerinin yürütülmesi,
+- Ev Lezzetleri üreticisi, Usta Şef, restoran, kurye ve iş ortaklığı başvurularının alınması, incelenmesi ve sonuçlandırılması,
+- Üretici, şef, restoran ve kurye profillerinin oluşturulması, yönetilmesi ve yayınlanması,
+- Platformda ürün, hizmet, galeri, fotoğraf, video, eğitim, akademi, danışmanlık ve tanıtım içeriklerinin sunulması,
+- Ödeme, hak ediş, komisyon, platform hizmet bedeli, fatura, muhasebe ve finans süreçlerinin yürütülmesi,
+- Teslimat, kurye atama, sipariş takibi ve operasyon süreçlerinin yürütülmesi,
+- Kullanıcı, üretici, şef, restoran, kurye ve müşteri iletişiminin sağlanması,
+- Talep, öneri, şikâyet ve destek süreçlerinin yürütülmesi,
+- Platform güvenliğinin sağlanması, kötüye kullanımın önlenmesi ve işlem güvenliğinin temini,
+- Yasal yükümlülüklerin yerine getirilmesi,
+- Yetkili kamu kurum ve kuruluşlarının taleplerinin karşılanması,
+- Sözleşme süreçlerinin kurulması, ifası ve sona erdirilmesi,
+- Uyuşmazlık, talep, şikâyet, denetim ve hukuki süreçlerin yürütülmesi,
+- İş geliştirme, hizmet kalitesinin artırılması, kullanıcı deneyiminin iyileştirilmesi ve operasyonel raporlama yapılması,
+- Açık rıza bulunması halinde kampanya, duyuru, tanıtım, ticari elektronik ileti ve pazarlama faaliyetlerinin yürütülmesi.
+
+6. Kişisel Verilerin İşlenmesinin Hukuki Sebepleri
+
+Kişisel veriler, KVKK’nın 5. maddesinde düzenlenen aşağıdaki hukuki sebeplere dayanılarak işlenebilir:
+
+Kanunlarda açıkça öngörülmesi:
+Vergi, ticaret, tüketici, elektronik ticaret, muhasebe ve ilgili diğer mevzuat kapsamında tutulması gereken kayıtlar.
+
+Bir sözleşmenin kurulması veya ifasıyla doğrudan doğruya ilgili olması:
+Üyelik, sipariş, teslimat, ödeme, üretici/şef/restoran/kurye başvuru ve hizmet süreçlerinin yürütülmesi.
+
+Veri sorumlusunun hukuki yükümlülüğünü yerine getirmesi:
+Fatura, muhasebe, vergi, resmi kurum talepleri, denetim ve mevzuata uyum süreçleri.
+
+Bir hakkın tesisi, kullanılması veya korunması:
+Uyuşmazlıkların çözümü, talep ve şikâyetlerin incelenmesi, hukuki başvuru ve savunma süreçleri.
+
+İlgili kişinin temel hak ve özgürlüklerine zarar vermemek kaydıyla veri sorumlusunun meşru menfaati:
+Platform güvenliği, hizmet kalitesinin artırılması, operasyonel raporlama, kötüye kullanımın önlenmesi, başvuru değerlendirme ve iç denetim süreçleri.
+
+Açık rıza:
+Ticari elektronik ileti, pazarlama, belirli çerez kullanımları, açık rızaya tabi aktarım veya mevzuat gereği açık rıza gerektiren diğer işleme faaliyetleri.
+
+7. Kişisel Verilerin Toplanma Yöntemleri
+
+Kişisel veriler; internet sitesi, mobil uygulama, üyelik formları, başvuru formları, sipariş ve ödeme ekranları, destek e-postaları, WhatsApp ve telefon iletişim hatları, Firebase/Google altyapıları, ödeme kuruluşları, çerezler, log kayıtları, kullanıcı tarafından yüklenen içerikler ve platform içi işlem kayıtları aracılığıyla otomatik veya kısmen otomatik yollarla elektronik ortamda toplanabilir.
+
+8. Kişisel Verilerin Aktarılması
+
+Kişisel veriler, hizmetin gerektirdiği ölçüde ve KVKK’ya uygun olarak aşağıdaki kişi, kurum ve taraflara aktarılabilir:
+
+- Ödeme hizmet sağlayıcıları,
+- Bulut altyapısı, veri tabanı, barındırma, güvenlik, bildirim, analiz ve teknik hizmet sağlayıcıları,
+- Muhasebe, e-fatura, e-arşiv, finans ve mali müşavirlik hizmet sağlayıcıları,
+- Siparişin ifası için gerekli olduğu ölçüde üretici, şef, restoran, müşteri ve kurye tarafları,
+- Kargo, teslimat, harita, konum ve operasyon hizmet sağlayıcıları,
+- Hukuk danışmanları, denetçiler ve yetkili temsilciler,
+- Yetkili kamu kurum ve kuruluşları,
+- Kanunen yetkili özel hukuk kişileri.
+
+Sofrasofra, kişisel verileri ticari amaçla üçüncü kişilere satmaz.
+
+9. Yurt Dışına Aktarım
+
+Sofrasofra hizmetlerinin yürütülmesinde bulut altyapısı, barındırma, veri tabanı, e-posta, analiz, bildirim, güvenlik ve teknik hizmet sağlayıcıları kullanılabilir. Bu hizmet sağlayıcıların teknik altyapıları yurt dışında bulunabilir veya yurt dışı bağlantılı hizmet sunabilir.
+
+Kişisel verilerin yurt dışına aktarılması gereken hallerde, KVKK’nın yurt dışına aktarım hükümleri, Kurul kararları ve yürürlükteki mevzuat hükümleri dikkate alınır. Gerekli hallerde açık rıza alınması, uygun güvencelerin sağlanması veya mevzuatta öngörülen diğer aktarım şartlarının yerine getirilmesi yoluna gidilir.
+
+10. Saklama Süreleri
+
+Kişisel veriler, işleme amacının gerektirdiği süre boyunca ve ilgili mevzuatta öngörülen süreler dikkate alınarak saklanır.
+
+Saklama süreleri belirlenirken özellikle vergi, muhasebe, ticaret, tüketici, borçlar hukuku, elektronik ticaret, ödeme, fatura, sözleşme, uyuşmazlık ve zamanaşımı süreleri dikkate alınır.
+
+Saklama süresinin sona ermesi veya işleme amacının ortadan kalkması halinde kişisel veriler mevzuata uygun şekilde silinir, yok edilir veya anonim hale getirilir.
+
+11. Veri Güvenliği
+
+Sofrasofra, kişisel verilerin hukuka aykırı olarak işlenmesini ve erişilmesini önlemek, kişisel verilerin güvenli şekilde saklanmasını sağlamak amacıyla makul teknik ve idari tedbirleri alır.
+
+Bu kapsamda erişim yetkilendirmeleri, kullanıcı yetki kontrolleri, güvenlik kuralları, log kayıtları, bulut altyapısı güvenliği, veri tabanı güvenliği, sınırlı erişim, işlem denetimi ve yetki ayrımı gibi tedbirler uygulanır.
+
+Bununla birlikte, internet üzerinden yapılan veri aktarımında mutlak güvenlik garantisi verilemeyeceği kullanıcı tarafından bilinmelidir.
+
+12. İlgili Kişinin Hakları
+
+KVKK’nın 11. maddesi kapsamında ilgili kişiler aşağıdaki haklara sahiptir:
+
+- Kişisel verilerinin işlenip işlenmediğini öğrenme,
+- İşlenmişse buna ilişkin bilgi talep etme,
+- İşlenme amacını ve amaca uygun kullanılıp kullanılmadığını öğrenme,
+- Yurt içinde veya yurt dışında aktarıldığı üçüncü kişileri bilme,
+- Eksik veya yanlış işlenmişse düzeltilmesini isteme,
+- KVKK ve ilgili mevzuat çerçevesinde silinmesini veya yok edilmesini isteme,
+- Düzeltme, silme veya yok etme işlemlerinin aktarıldığı üçüncü kişilere bildirilmesini isteme,
+- Münhasıran otomatik sistemler vasıtasıyla analiz edilmesi suretiyle aleyhe bir sonucun ortaya çıkmasına itiraz etme,
+- Kanuna aykırı işleme sebebiyle zarara uğranması halinde zararın giderilmesini talep etme.
+
+13. Başvuru Yöntemi
+
+KVKK kapsamındaki başvurular info@sofrasofra.com adresine iletilebilir. Başvuruda ad, soyad, iletişim bilgisi, talep konusu ve başvurucunun kimliğini doğrulamaya yarayacak bilgiler yer almalıdır.
+
+Sofrasofra, başvuruları niteliğine göre en kısa sürede ve en geç kanuni süreler içinde sonuçlandırır. Başvurunun ayrıca bir maliyet gerektirmesi halinde, mevzuatta öngörülen ücret talep edilebilir.
+
+14. Aydınlatma Metnindeki Değişiklikler
+
+Sofrasofra, mevzuat değişiklikleri, hizmet modelindeki gelişmeler, teknik altyapı değişiklikleri veya operasyonel ihtiyaçlar doğrultusunda işbu Aydınlatma Metni’ni güncelleyebilir. Güncel metin www.sofrasofra.com ve ilgili dijital kanallar üzerinden yayınlandığı anda geçerlilik kazanır.
+
+15. İletişim
+
+KVKK Aydınlatma Metni ve kişisel verilerin korunmasına ilişkin sorularınız için aşağıdaki iletişim kanalları kullanılabilir:
+
 UYBAT TEKNOLOJİ YAZILIM VE TİCARET LİMİTED ŞİRKETİ
 E-posta: info@sofrasofra.com
+Telefon: +90 536 299 13 24
+WhatsApp Hattı: +90 533 322 13 24
 Adres: Abdurrahman Nafiz Gürman Mahallesi, Kınalıtepe Sokak, Simitaş 8 Blok No: 1, İç Kapı No: 311, Güngören / İstanbul
 ''',
   ),
