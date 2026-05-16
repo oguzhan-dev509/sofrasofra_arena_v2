@@ -188,6 +188,17 @@ class KurumsalFooterLinks extends StatelessWidget {
                     context,
                     const KuryeBasvuruSayfasi(),
                   ),
+              'Mahalle Mutfak Koçu Ol': () => _openInfoPage(
+                    context,
+                    title: 'Mahalle Mutfak Koçu Ol',
+                    description:
+                        'Mahalle Mutfak Koçluğu, Sofrasofra’nın mahalle bazlı büyüme modelinde üreticilere rehberlik edecek yerel destek rolüdür.',
+                    bullets: const [
+                      'Mahallede ev üreticilerinin başvuru ve görünürlük süreçlerine destek olur.',
+                      'Kadın dernekleri, muhtarlıklar ve yerel topluluklarla iş birliği geliştirir.',
+                      'Yayın sonrası koçluk modeli kademeli olarak başvuruya açılacaktır.',
+                    ],
+                  ),
             },
           ),
           const SizedBox(height: 14),
@@ -200,6 +211,52 @@ class KurumsalFooterLinks extends StatelessWidget {
               'Kurye Destek',
             ],
             onTap: () => _showSoon(context),
+            itemActions: {
+              'Sık Sorulan Sorular': () => _openInfoPage(
+                    context,
+                    title: 'Sık Sorulan Sorular',
+                    description:
+                        'Sofrasofra yardım alanı; müşteriler, üreticiler, şefler, restoranlar ve kuryeler için sık sorulan konuları tek merkezde açıklamak üzere hazırlanır.',
+                    bullets: const [
+                      'Başvuru, sipariş, ödeme, teslimat ve destek konuları açıklanır.',
+                      'Yayın sonrası soru-cevap içerikleri kurumsal web sitesiyle genişletilir.',
+                      'Hukuki ve operasyonel konularda kullanıcılar ilgili metinlere yönlendirilir.',
+                    ],
+                  ),
+              'Sipariş ve Teslimat': () => _openInfoPage(
+                    context,
+                    title: 'Sipariş ve Teslimat',
+                    description:
+                        'Sofrasofra sipariş ve teslimat yapısı; müşterinin sipariş durumunu, üretici hazırlık sürecini ve kurye teslimat adımlarını takip edilebilir hale getirmek için tasarlanır.',
+                    bullets: const [
+                      'Sipariş durumları uygulama içinde adım adım gösterilir.',
+                      'Kurye teslimat süreci uygun durumlarda canlı takip mantığıyla desteklenir.',
+                      'Gel-Al ve Götür seçenekleri üretici ve müşteri akışına göre yönetilir.',
+                    ],
+                  ),
+              'Üretici Destek': () => _openInfoPage(
+                    context,
+                    title: 'Üretici Destek',
+                    description:
+                        'Üretici destek alanı, Ev Lezzetleri üreticilerinin başvuru, ürün, galeri, ödeme, fatura ve operasyon süreçlerinde bilgilendirilmesi için hazırlanır.',
+                    bullets: const [
+                      'Ev Lezzetleri üreticileri başvuru formu üzerinden kayıt olabilir.',
+                      'IBAN, fatura bilgileri ve ürün bilgileri admin değerlendirmesinde görünür.',
+                      'Yayın sonrası destek süreçleri e-posta, WhatsApp ve operasyon paneliyle güçlendirilir.',
+                    ],
+                  ),
+              'Kurye Destek': () => _openInfoPage(
+                    context,
+                    title: 'Kurye Destek',
+                    description:
+                        'Kurye destek alanı, Sofrasofra Kurye Ağına katılmak isteyen veya görev alan kuryelerin başvuru ve operasyon süreçlerini açıklamak için hazırlanır.',
+                    bullets: const [
+                      'Kurye başvuruları uygulama içinden alınır.',
+                      'Görev, teslimat ve durum güncelleme süreçleri operasyon paneliyle takip edilir.',
+                      'Yayın sonrası kurye destek akışı e-posta ve WhatsApp hattıyla güçlendirilir.',
+                    ],
+                  ),
+            },
           ),
           const SizedBox(height: 14),
           _FooterGroup(
