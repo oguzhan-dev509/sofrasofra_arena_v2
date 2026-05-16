@@ -1514,11 +1514,152 @@ Açık Rıza Metni
 
 Son güncelleme tarihi: 16.05.2026
 
-İşbu Açık Rıza Metni, Sofrasofra platformu kapsamında, açık rıza gerektiren kişisel veri işleme faaliyetlerine ilişkin olarak hazırlanmıştır.
+1. Amaç ve Kapsam
 
-Kullanıcı, açık rıza vermesi gereken hallerde; ticari elektronik ileti, pazarlama, kampanya, duyuru, açık rızaya tabi çerez kullanımı, yurt dışı aktarım veya mevzuat gereği açık rıza gerektiren diğer veri işleme faaliyetleri hakkında ayrıca bilgilendirilebilir.
+İşbu Açık Rıza Metni, UYBAT TEKNOLOJİ YAZILIM VE TİCARET LİMİTED ŞİRKETİ tarafından işletilen Sofrasofra platformu kapsamında, açık rıza gerektiren kişisel veri işleme faaliyetleri hakkında kullanıcıları bilgilendirmek ve gerekli hallerde açık rızalarını almak amacıyla hazırlanmıştır.
 
-Açık rıza, kullanıcının özgür iradesiyle verilir ve mevzuatın izin verdiği ölçüde geri alınabilir.
+Bu metin; Sofrasofra web sitesi, mobil uygulamaları, web uygulaması, başvuru formları, destek kanalları, kampanya alanları, çerez tercihleri, ticari ileti süreçleri ve bağlantılı dijital hizmetler için geçerlidir.
+
+Açık rıza, kullanıcının belirli bir konuya ilişkin, bilgilendirilmeye dayanan ve özgür iradeyle verdiği onayı ifade eder.
+
+2. Veri Sorumlusu
+
+Veri sorumlusu:
+
+Şirket Unvanı: UYBAT TEKNOLOJİ YAZILIM VE TİCARET LİMİTED ŞİRKETİ
+Ticaret Sicil No: 1096741
+MERSİS No: 0898132285200001
+Adres: Abdurrahman Nafiz Gürman Mahallesi, Kınalıtepe Sokak, Simitaş 8 Blok No: 1, İç Kapı No: 311, Güngören / İstanbul
+Web Sitesi: www.sofrasofra.com
+E-posta: info@sofrasofra.com
+Telefon: +90 536 299 13 24
+WhatsApp Hattı: +90 533 322 13 24
+
+3. Açık Rıza Gerektirebilecek İşleme Faaliyetleri
+
+Sofrasofra tarafından aşağıdaki faaliyetler, ilgili mevzuatın gerektirdiği hallerde açık rızaya tabi olabilir:
+
+- Kampanya, indirim, duyuru, tanıtım ve pazarlama faaliyetleri,
+- Ticari elektronik ileti gönderimi,
+- Açık rızaya tabi reklam, hedefleme veya pazarlama çerezlerinin kullanımı,
+- Kullanıcı deneyiminin kişiselleştirilmesi,
+- Segmentasyon, ilgi alanı analizi veya pazarlama amaçlı sınıflandırma,
+- Açık rızaya tabi yurt dışı veri aktarımı,
+- Açık rıza gerektiren üçüncü taraf entegrasyonları,
+- Mevzuat gereği açık rıza alınması gereken diğer kişisel veri işleme faaliyetleri.
+
+4. İşlenebilecek Kişisel Veri Kategorileri
+
+Açık rıza verilen faaliyetin niteliğine göre aşağıdaki kişisel veri kategorileri işlenebilir:
+
+Kimlik ve iletişim bilgileri:
+Ad, soyad, telefon numarası, e-posta adresi, şehir, ilçe ve iletişim tercihleri.
+
+Üyelik ve işlem bilgileri:
+Kullanıcı ID bilgisi, hesap türü, üyelik durumu, başvuru türü, sipariş geçmişi, platform içi işlem kayıtları ve kullanım tercihleri.
+
+Pazarlama ve iletişim bilgileri:
+Kampanya tercihleri, ticari ileti izinleri, bildirim tercihleri, ilgi alanları, açılma/tıklama bilgileri ve iletişim geçmişi.
+
+Teknik ve çerez verileri:
+IP adresi, cihaz bilgisi, tarayıcı bilgisi, oturum bilgisi, çerez tercihleri, reklam/pazarlama çerezleri, kullanım ve gezinme bilgileri.
+
+İçerik ve görsel bilgiler:
+Kullanıcının platforma yüklediği veya izinli şekilde paylaştığı fotoğraf, video, açıklama, yorum, galeri, profil ve tanıtım içerikleri.
+
+5. Kişisel Verilerin İşlenme Amaçları
+
+Açık rızaya dayalı kişisel veri işleme faaliyetleri aşağıdaki amaçlarla yürütülebilir:
+
+- Kullanıcılara kampanya, indirim, duyuru ve tanıtım iletileri göndermek,
+- Sofrasofra hizmetleri hakkında bilgilendirme yapmak,
+- Kullanıcı deneyimini kişiselleştirmek,
+- Kullanıcının ilgi alanlarına daha uygun içerik, kampanya veya öneri sunmak,
+- Pazarlama ve iletişim faaliyetlerinin etkinliğini ölçmek,
+- Reklam, hedefleme ve analiz faaliyetlerini yürütmek,
+- Açık rızaya tabi çerezleri kullanmak,
+- Açık rızaya tabi yurt dışı aktarım süreçlerini yürütmek,
+- Platformun büyüme, tanıtım ve kurumsal iletişim faaliyetlerini desteklemek.
+
+6. Ticari Elektronik İleti
+
+Kullanıcı, ayrıca onay vermesi halinde Sofrasofra tarafından kendisine e-posta, SMS, telefon, WhatsApp, uygulama bildirimi veya benzeri elektronik iletişim kanalları üzerinden kampanya, duyuru, tanıtım, indirim, bilgilendirme ve ticari elektronik ileti gönderilmesini kabul edebilir.
+
+Ticari elektronik ileti onayı, işbu Açık Rıza Metni’nden ayrı olarak Ticari Elektronik İleti Onayı kapsamında da düzenlenebilir.
+
+Kullanıcı, ticari elektronik ileti alma onayını mevzuata uygun yöntemlerle geri alabilir.
+
+7. Çerezler ve Benzeri Teknolojiler
+
+Sofrasofra web sitesi, web uygulaması ve dijital hizmetlerinde zorunlu çerezlerin yanı sıra açık rızaya tabi olabilecek performans, analitik, reklam, pazarlama veya hedefleme çerezleri kullanılabilir.
+
+Açık rızaya tabi çerezler, kullanıcının bilgilendirilmesi ve geçerli rızasının alınması halinde kullanılabilir.
+
+Kullanıcı, tarayıcı ayarları veya ileride sunulabilecek çerez tercih paneli üzerinden çerez tercihlerini yönetebilir.
+
+Çerezlere ilişkin ayrıntılı açıklamalar Çerez Politikası içinde yer alır.
+
+8. Yurt Dışına Aktarım
+
+Sofrasofra hizmetlerinin yürütülmesinde bulut altyapısı, veri tabanı, e-posta, bildirim, analiz, güvenlik, ödeme, destek veya benzeri teknik hizmet sağlayıcıları kullanılabilir.
+
+Bu hizmet sağlayıcıların teknik altyapıları yurt dışında bulunabilir veya yurt dışı bağlantılı hizmet sunabilir.
+
+Kişisel verilerin yurt dışına aktarılması gereken ve mevzuat kapsamında açık rıza gerektiren hallerde, kullanıcının ayrıca bilgilendirilmesi ve açık rızasının alınması esastır.
+
+9. Fotoğraf, Video ve İçerikler
+
+Kullanıcılar, üreticiler, Usta Şefler, restoranlar, kuryeler, Mahalle Mutfak Koçları veya iş ortakları tarafından platforma fotoğraf, video, ürün açıklaması, galeri, profil, eğitim, yorum veya benzeri içerikler yüklenebilir.
+
+Bu içeriklerin platformda yayınlanması, vitrinlerde gösterilmesi, ürün/hizmet tanıtımında kullanılması veya kurumsal tanıtım alanlarında değerlendirilmesi ayrıca Fotoğraf, Video ve İçerik Yayın İzni metninde düzenlenir.
+
+Açık rıza gerektiren özel tanıtım, reklam veya sosyal medya kullanımlarında kullanıcıdan ayrıca onay alınabilir.
+
+10. Açık Rızanın Geri Alınması
+
+Kullanıcı, açık rızasını her zaman geri alabilir.
+
+Açık rızanın geri alınması, geri alma tarihinden sonraki açık rızaya dayalı veri işleme faaliyetleri için geçerli olur. Açık rızanın geri alınması, rıza geri alınmadan önceki hukuka uygun işleme faaliyetlerini etkilemez.
+
+Açık rızanın geri alınması halinde bazı kampanya, kişiselleştirme, pazarlama, bildirim, çerez veya açık rızaya bağlı dijital hizmetlerden yararlanılamayabilir.
+
+11. Açık Rıza Verilmemesinin Sonuçları
+
+Kullanıcının açık rıza vermemesi, Sofrasofra’nın temel hizmetlerinden yararlanmasına kural olarak engel değildir.
+
+Ancak açık rıza verilmemesi halinde kampanya ve tanıtım iletileri, kişiselleştirilmiş öneriler, açık rızaya tabi çerezler, pazarlama analizleri veya açık rızaya bağlı diğer hizmetler sunulamayabilir.
+
+Zorunlu çerezler, sözleşmenin kurulması veya ifası, hukuki yükümlülük, bir hakkın tesisi/kullanılması/korunması veya meşru menfaat gibi açık rıza dışındaki hukuki sebeplere dayanan işlemler ayrıca yürütülebilir.
+
+12. İlgili Kişi Hakları
+
+Kişisel verisi işlenen kişiler, KVKK’nın 11. maddesi kapsamında aşağıdaki haklara sahiptir:
+
+- Kişisel verilerinin işlenip işlenmediğini öğrenme,
+- İşlenmişse buna ilişkin bilgi talep etme,
+- İşlenme amacını ve amaca uygun kullanılıp kullanılmadığını öğrenme,
+- Yurt içinde veya yurt dışında aktarıldığı üçüncü kişileri bilme,
+- Eksik veya yanlış işlenmişse düzeltilmesini isteme,
+- KVKK ve ilgili mevzuat çerçevesinde silinmesini veya yok edilmesini isteme,
+- Düzeltme, silme veya yok etme işlemlerinin aktarıldığı üçüncü kişilere bildirilmesini isteme,
+- Münhasıran otomatik sistemler vasıtasıyla analiz edilmesi suretiyle aleyhe bir sonucun ortaya çıkmasına itiraz etme,
+- Kanuna aykırı işleme sebebiyle zarara uğranması halinde zararın giderilmesini talep etme.
+
+13. Başvuru ve İletişim
+
+Açık rızaya ilişkin talepler, rızanın geri alınması, kişisel verilerin korunmasına ilişkin başvurular ve diğer bildirimler info@sofrasofra.com adresine iletilebilir.
+
+UYBAT TEKNOLOJİ YAZILIM VE TİCARET LİMİTED ŞİRKETİ
+E-posta: info@sofrasofra.com
+Telefon: +90 536 299 13 24
+WhatsApp Hattı: +90 533 322 13 24
+Adres: Abdurrahman Nafiz Gürman Mahallesi, Kınalıtepe Sokak, Simitaş 8 Blok No: 1, İç Kapı No: 311, Güngören / İstanbul
+
+14. Metin Değişiklikleri
+
+Sofrasofra, işbu Açık Rıza Metni’ni mevzuat değişiklikleri, hizmet modeli, teknik altyapı, operasyonel ihtiyaçlar veya platform politikaları doğrultusunda güncelleyebilir.
+
+Güncel metin www.sofrasofra.com ve ilgili dijital kanallar üzerinden yayınlandığı anda geçerlilik kazanır.
 ''',
   ),
   SofrasofraHukukiMetin(
