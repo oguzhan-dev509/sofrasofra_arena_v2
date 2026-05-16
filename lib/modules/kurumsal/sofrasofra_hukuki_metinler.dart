@@ -2063,11 +2063,198 @@ Kurye Hizmet Koşulları
 
 Son güncelleme tarihi: 16.05.2026
 
-İşbu Kurye Hizmet Koşulları, Sofrasofra platformunda kurye olarak başvuru yapan, görev alan veya teslimat sürecine dahil olan kişilerin hak ve yükümlülüklerini düzenler.
+1. Amaç ve Kapsam
 
-Kurye; teslimat görevlerinde trafik kurallarına, güvenlik kurallarına, dürüstlük ilkesine, müşteri/üretici/şef/restoran haklarına ve platform operasyon kurallarına uygun hareket etmekle yükümlüdür.
+İşbu Kurye Hizmet Koşulları, Sofrasofra platformunda kurye olarak başvuru yapan, görev alan veya teslimat sürecine dahil olan kişilerin hak ve yükümlülüklerini düzenlemek amacıyla hazırlanmıştır.
 
-Sofrasofra, kurye atama, görev takibi, teslimat durumu, konum takibi, destek, kalite ve güvenlik süreçleri için gerekli teknik ve operasyonel kayıtları tutabilir.
+Bu Koşullar; Sofrasofra web sitesi, mobil uygulamaları, web uygulaması, kurye başvuru formları, kurye görev ekranları, teslimat süreçleri, konum takibi, hak ediş, ödeme, destek ve operasyon süreçleri için geçerlidir.
+
+Sofrasofra; Ev Lezzetleri üreticileri, Usta Şefler, restoranlar, müşteriler ve kuryeler arasında sipariş ve teslimat süreçlerinin yönetilmesine yardımcı olan teknoloji tabanlı bir platformdur.
+
+2. Taraflar
+
+Platform İşleticisi:
+
+Şirket Unvanı: UYBAT TEKNOLOJİ YAZILIM VE TİCARET LİMİTED ŞİRKETİ
+Ticaret Sicil No: 1096741
+MERSİS No: 0898132285200001
+Adres: Abdurrahman Nafiz Gürman Mahallesi, Kınalıtepe Sokak, Simitaş 8 Blok No: 1, İç Kapı No: 311, Güngören / İstanbul
+Web Sitesi: www.sofrasofra.com
+E-posta: info@sofrasofra.com
+Telefon: +90 536 299 13 24
+WhatsApp Hattı: +90 533 322 13 24
+
+Kurye:
+Sofrasofra platformuna kurye olarak başvuru yapan, teslimat görevi alan, görev takibi yapan veya teslimat operasyonuna dahil olan gerçek kişiyi ifade eder.
+
+3. Kurye Başvurusu ve Kabul Süreci
+
+Kurye olmak isteyen kişiler Sofrasofra platformu üzerinden başvuru yapabilir.
+
+Başvuru yapılması, başvurunun otomatik olarak kabul edildiği veya başvuru sahibinin teslimat görevi almaya hak kazandığı anlamına gelmez.
+
+Sofrasofra; başvuruları inceleyebilir, ek bilgi veya belge talep edebilir, başvuruyu onaylayabilir, beklemeye alabilir, reddedebilir veya daha sonra yeniden değerlendirebilir.
+
+Başvuru sahibi; kimlik, iletişim, şehir/ilçe, çalışma durumu, araç/ulaşım bilgisi, IBAN, deneyim, uygunluk ve diğer başvuru bilgilerinin doğru, güncel ve eksiksiz olduğunu kabul eder.
+
+4. Kurye Statüsü
+
+Kurye, Sofrasofra platformu üzerinden teslimat görevlerine dahil olabilir. Kurye ile Sofrasofra arasındaki ilişkinin hukuki niteliği; taraflar arasında ayrıca yapılabilecek sözleşmeler, çalışma modeli, mevzuat ve fiili işleyiş dikkate alınarak değerlendirilir.
+
+İşbu Koşullar, tek başına ve her durumda iş sözleşmesi, ortaklık, temsilcilik, acentelik veya sürekli çalışma ilişkisi kurulduğu anlamına gelmez.
+
+Kurye, kendi çalışma biçimi, vergi, sosyal güvenlik, araç, ekipman, izin, ruhsat, sigorta ve ilgili resmi yükümlülüklerinden kendi statüsü ölçüsünde sorumludur.
+
+5. Sofrasofra’nın Rolü
+
+Sofrasofra; sipariş, kurye atama, teslimat yönlendirme, canlı takip, görev durumu, destek, operasyon, ödeme/hak ediş ve kalite süreçlerinde teknik altyapı ve platform hizmeti sunar.
+
+Sofrasofra, teslimat kalitesini, müşteri güvenliğini, üretici/şef/restoran memnuniyetini ve platform düzenini sağlamak için kurye başvurularını ve teslimat performansını inceleyebilir.
+
+Sofrasofra, gerekli gördüğü hallerde teslimat görevini iptal edebilir, kurye hesabını geçici olarak kısıtlayabilir, askıya alabilir veya platformdan çıkarabilir.
+
+6. Kurye Genel Yükümlülükleri
+
+Kurye aşağıdaki yükümlülükleri kabul eder:
+
+- Teslimat görevlerini dürüstlük kuralına, trafik kurallarına, güvenlik kurallarına ve platform talimatlarına uygun şekilde yürütmek,
+- Müşteri, üretici, şef, restoran, platform ekibi ve diğer kişilerle saygılı iletişim kurmak,
+- Teslim aldığı ürünü özenle taşımak,
+- Siparişin zarar görmemesi, dökülmemesi, bozulmaması veya kaybolmaması için makul dikkat ve özeni göstermek,
+- Görev durumlarını platformda doğru şekilde güncellemek,
+- “Yola çıktım”, “Teslim aldım”, “Teslim ettim” ve benzeri görev aşamalarını gerçeğe uygun şekilde kullanmak,
+- Yanlış, yanıltıcı veya sahte teslimat bildirimi yapmamak,
+- Teslimat sırasında müşteri kişisel verilerini veya adres bilgilerini kötüye kullanmamak,
+- Platformu, ödeme sistemini, görev akışını veya destek kanallarını kötüye kullanmamak.
+
+7. Teslim Alma ve Teslim Etme Süreci
+
+Kurye, kendisine atanan veya kabul ettiği teslimat görevinde ilgili üretici, şef, restoran veya teslimat noktasından siparişi teslim alır.
+
+Kurye, teslim aldığı ürünün ambalaj, paket, adet veya görünen dış durumunda açık bir sorun fark ederse bunu mümkün olan en kısa sürede platform destek/operasyon kanallarına bildirmelidir.
+
+Kurye, siparişi belirtilen teslimat adresine, müşteriye veya teslim almaya yetkili kişiye ulaştırmak için gerekli özeni gösterir.
+
+Teslimat tamamlandığında kurye, teslimat durumunu platformda doğru şekilde güncellemekle yükümlüdür.
+
+8. Konum Takibi ve Görev Kayıtları
+
+Teslimat sürecinde, kurye konum bilgisi, görev durumu, teslimat zamanı, rota, teslim alma ve teslim etme bilgileri platform tarafından işlenebilir.
+
+Konum ve görev kayıtları; teslimatın yürütülmesi, müşteri bilgilendirmesi, canlı takip, operasyon güvenliği, uyuşmazlık çözümü, kalite kontrol, hak ediş hesaplama ve destek süreçleri için kullanılabilir.
+
+Kurye, teslimat görevi sırasında konum bilgisinin işlenebileceğini ve ilgili taraflarla teslimatın gerektirdiği ölçüde paylaşılabileceğini kabul eder.
+
+9. Trafik, Güvenlik ve Yasal Sorumluluklar
+
+Kurye, teslimat sırasında trafik kurallarına, yaya ve araç güvenliği kurallarına, genel güvenlik kurallarına ve ilgili mevzuata uygun hareket etmekle yükümlüdür.
+
+Kurye; araç, motosiklet, bisiklet, scooter veya diğer ulaşım araçlarının güvenli kullanımı, bakım durumu, ruhsat, ehliyet, sigorta, kask, koruyucu ekipman ve ilgili yasal yükümlülüklerden kendi statüsü ölçüsünde sorumludur.
+
+Kurye, teslimatı hızlı yapmak adına trafik güvenliğini veya üçüncü kişilerin can ve mal güvenliğini tehlikeye atamaz.
+
+Kurye tarafından trafik kuralı ihlali, kaza, ceza, idari yaptırım, üçüncü kişi zararı veya güvenlik ihlali doğması halinde sorumluluk somut olayın niteliğine göre ilgili kuryeye ait olabilir.
+
+10. Ürün Güvenliği ve Gıda Teslimatı
+
+Kurye, gıda ürünlerini teslim alırken ve taşırken ürünün makul ölçüde korunması, dökülmemesi, ezilmemesi, zarar görmemesi ve teslimata uygun şekilde müşteriye ulaştırılması için gerekli özeni gösterir.
+
+Kurye, ürün paketlerini izinsiz açamaz, ürün içeriğine müdahale edemez, ürünü değiştiremez veya ürün üzerinde tasarrufta bulunamaz.
+
+Gıda güvenliği, sıcaklık, tazelik ve hijyen açısından teslimat süresi ve taşıma koşulları önemlidir. Kurye, teslimat sürecinde gereksiz gecikmeden kaçınmalıdır.
+
+11. Müşteri ve Hizmet Sağlayıcı ile İletişim
+
+Kurye, müşteri, üretici, şef, restoran veya platform ekibiyle yalnızca teslimatın gerektirdiği ölçüde iletişim kurmalıdır.
+
+Kurye; müşteri adresi, telefon numarası, sipariş bilgisi veya diğer kişisel verileri yalnızca ilgili teslimatın gerçekleştirilmesi amacıyla kullanabilir.
+
+Kurye, müşteri veya hizmet sağlayıcı ile kişisel, rahatsız edici, tehditkâr, ayrımcı, uygunsuz veya teslimat amacı dışında iletişim kuramaz.
+
+Kurye, müşteri veya hizmet sağlayıcıdan platform dışı ödeme, bahşiş, ek ücret veya kişisel menfaat talep edemez. Gönüllü bahşiş uygulamaları varsa bunlar platform politikalarına göre yürütülür.
+
+12. Hak Ediş, Ödeme ve Kesintiler
+
+Kurye hak edişleri; görev sayısı, teslimat mesafesi, teslimat türü, bölge, kampanya, görev süresi, iptal/iade durumu, teslimatın tamamlanıp tamamlanmadığı ve platform politikalarına göre hesaplanabilir.
+
+Geçerli ödeme koşulları, hak ediş hesaplama yöntemi, ödeme takvimi, kesintiler ve varsa kampanya koşulları platform ekranlarında, başvuru süreçlerinde veya ayrıca bildirilen koşullarda gösterilebilir.
+
+Sofrasofra; iptal edilen görev, hatalı teslimat, yanlış teslimat bildirimi, sahte işlem, müşteri şikâyeti, ürün kaybı, zarar, teslimatın yapılmaması, uygunsuz davranış veya mevzuata/platform kurallarına aykırılık halinde hak edişi durdurabilir, inceleyebilir, kesinti yapabilir veya mahsuplaşma uygulayabilir.
+
+13. Görev İptali ve Teslim Edilememe
+
+Kurye, kabul ettiği görevi makul sebep olmaksızın iptal etmemeli veya geciktirmemelidir.
+
+Teslimatın yapılamaması halinde kurye, platform destek/operasyon kanallarına derhal bilgi vermelidir.
+
+Müşteriye ulaşılamaması, adresin yanlış olması, teslimat noktasının kapalı olması, güvenlik/erişim sorunu, ürünün teslim alınamaması veya mücbir sebep gibi durumlarda platformun yönlendirmelerine göre hareket edilmelidir.
+
+Kurye, teslim edilemeyen ürünü platformun veya ilgili hizmet sağlayıcının talimatına uygun şekilde iade etmek, bekletmek veya yönlendirilen adrese götürmekle yükümlü olabilir.
+
+14. Yasaklı Davranışlar
+
+Kurye aşağıdaki davranışlarda bulunamaz:
+
+- Sahte teslimat bildirimi yapmak,
+- Teslim almadığı ürünü teslim aldığını veya teslim etmediği ürünü teslim ettiğini bildirmek,
+- Müşteri, üretici, şef, restoran veya platform ekibine karşı hakaret, tehdit, taciz, ayrımcılık veya uygunsuz davranışta bulunmak,
+- Sipariş ürününü izinsiz açmak, kullanmak, tüketmek, değiştirmek veya üçüncü kişiye vermek,
+- Müşteri kişisel verilerini teslimat amacı dışında kullanmak,
+- Platform dışı ödeme, ek ücret veya kişisel menfaat talep etmek,
+- Başkasının hesabıyla görev almak veya kendi hesabını üçüncü kişiye kullandırmak,
+- Platformu, ödeme sistemini, konum sistemini veya görev akışını manipüle etmek,
+- Trafik ve güvenlik kurallarını ihlal ederek teslimat yapmak,
+- Sofrasofra markasını, logosunu veya itibarını yanıltıcı şekilde kullanmak.
+
+15. Denetim, Kalite ve Hesap Askıya Alma
+
+Sofrasofra, kurye performansını; teslimat süresi, müşteri şikâyeti, görev tamamlama oranı, iptal oranı, konum kayıtları, destek kayıtları, kalite notları ve operasyon verileri üzerinden inceleyebilir.
+
+Sofrasofra; güvenlik riski, müşteri şikâyeti, sahte işlem, hatalı teslimat, veri ihlali, trafik/güvenlik riski, uygunsuz davranış, platform kurallarına aykırılık veya tekrarlayan performans sorunu halinde kurye hesabını geçici veya kalıcı olarak askıya alabilir.
+
+Gerekli görülen hallerde Sofrasofra, ek bilgi/belge isteyebilir, kurye başvurusunu yeniden değerlendirebilir veya platformdan çıkarma kararı verebilir.
+
+16. Kişisel Veriler
+
+Kurye başvurusu, görev takibi, teslimat, konum, ödeme, hak ediş, destek ve güvenlik süreçlerinde kurye kişisel verileri işlenebilir.
+
+İşlenebilecek veriler arasında ad, soyad, telefon, e-posta, şehir/ilçe, başvuru bilgileri, IBAN, görev kayıtları, teslimat durumu, konum bilgisi, destek kayıtları ve işlem güvenliği verileri bulunabilir.
+
+Kişisel verilerin işlenmesine ilişkin ayrıntılı hükümler Gizlilik Politikası, KVKK Aydınlatma Metni, Başvuru ve İş Ortaklığı Aydınlatma Metni ve ilgili diğer hukuki metinlerde düzenlenir.
+
+17. Üçüncü Kişi Zararları ve Sorumluluk
+
+Kurye, teslimat sırasında kendi kusurundan kaynaklanan trafik ihlali, kaza, ürün kaybı, ürün zararı, müşteri zararı, üçüncü kişi zararı, kişisel veri ihlali veya platform kurallarına aykırılıklardan sorumlu olabilir.
+
+Sofrasofra’nın, kuryenin fiili veya ihmali nedeniyle bir zarara, idari yaptırıma, müşteri talebine, üçüncü kişi iddiasına, hukuki masrafa veya itibar kaybına uğraması halinde, Sofrasofra’nın ilgili kuryeye rücu hakkı saklıdır.
+
+18. Mücbir Sebep
+
+Doğal afet, yangın, sel, deprem, salgın hastalık, savaş, terör, grev, lokavt, resmi makam kararları, internet ve enerji kesintileri, siber saldırılar, trafik kazası, ağır hava koşulları, yol kapanması, ödeme sistemi arızaları, bulut altyapısı sorunları veya tarafların makul kontrolü dışında gelişen olaylar mücbir sebep sayılır.
+
+Mücbir sebep hallerinde teslimat, görev, ödeme, hak ediş veya operasyon süreçleri olayın etkisi oranında gecikebilir, askıya alınabilir veya değiştirilebilir.
+
+19. Koşulların Değiştirilmesi
+
+Sofrasofra, işbu Kurye Hizmet Koşulları’nı mevzuat değişiklikleri, hizmet modeli, teknik altyapı, operasyonel ihtiyaçlar, güvenlik gereklilikleri veya platform politikaları doğrultusunda güncelleyebilir.
+
+Güncel koşullar www.sofrasofra.com ve ilgili dijital kanallar üzerinden yayınlandığı anda yürürlüğe girer. Kurye hizmetlerinden yararlanmaya devam edilmesi, güncel koşulların kabul edildiği anlamına gelir.
+
+20. Uygulanacak Hukuk ve Yetki
+
+İşbu Kurye Hizmet Koşulları’nın uygulanmasında Türkiye Cumhuriyeti hukuku geçerlidir.
+
+Ticari veya operasyonel nitelikteki uyuşmazlıklarda, mevzuatın emredici hükümleri saklı kalmak kaydıyla İstanbul mahkemeleri ve icra daireleri yetkili kabul edilebilir.
+
+21. İletişim
+
+Kurye Hizmet Koşulları’na ilişkin soru, talep ve bildirimler için aşağıdaki iletişim kanalları kullanılabilir:
+
+UYBAT TEKNOLOJİ YAZILIM VE TİCARET LİMİTED ŞİRKETİ
+E-posta: info@sofrasofra.com
+Telefon: +90 536 299 13 24
+WhatsApp Hattı: +90 533 322 13 24
+Adres: Abdurrahman Nafiz Gürman Mahallesi, Kınalıtepe Sokak, Simitaş 8 Blok No: 1, İç Kapı No: 311, Güngören / İstanbul
 ''',
   ),
   SofrasofraHukukiMetin(
