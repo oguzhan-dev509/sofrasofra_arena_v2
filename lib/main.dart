@@ -29,10 +29,25 @@ class SofrasofraZirve extends StatelessWidget {
   const SofrasofraZirve({super.key});
   Widget _initialHome() {
     final uri = Uri.base;
+    final fullUrl = uri.toString().toLowerCase();
     final path = uri.path.toLowerCase();
-    final orderId = uri.queryParameters['orderId'] ?? '';
+    final fragment = uri.fragment.toLowerCase();
 
-    if (path == '/order-success') {
+    final orderId = uri.queryParameters['orderId'] ??
+        Uri.tryParse(fragment)?.queryParameters['orderId'] ??
+        '';
+
+    debugPrint(
+      'ROUTE DEBUG uri=$uri path=$path fragment=$fragment orderId=$orderId',
+    );
+
+    final isOrderSuccess = path == '/order-success' ||
+        path.endsWith('/order-success') ||
+        fragment.startsWith('/order-success') ||
+        fragment.contains('order-success') ||
+        fullUrl.contains('/order-success');
+
+    if (isOrderSuccess) {
       return OrderSuccessPage(orderId: orderId);
     }
 
