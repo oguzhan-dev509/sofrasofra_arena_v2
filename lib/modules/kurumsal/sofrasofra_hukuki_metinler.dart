@@ -2473,11 +2473,192 @@ Fotoğraf, Video ve İçerik Yayın İzni
 
 Son güncelleme tarihi: 16.05.2026
 
-İşbu Fotoğraf, Video ve İçerik Yayın İzni Metni, Sofrasofra platformuna kullanıcılar, Ev Lezzetleri üreticileri, Usta Şefler, restoranlar, kuryeler, Mahalle Mutfak Koçları veya iş ortakları tarafından yüklenen ya da izinli şekilde paylaşılan görsel, video, metin ve tanıtım içeriklerinin kullanımına ilişkin esasları düzenler.
+1. Amaç ve Kapsam
 
-Kullanıcı, platforma yüklediği fotoğraf, video, ürün açıklaması, galeri, profil, eğitim, tanıtım veya benzeri içeriklerin hukuka uygun olduğunu ve üçüncü kişilerin haklarını ihlal etmediğini kabul eder.
+İşbu Fotoğraf, Video ve İçerik Yayın İzni Metni, Sofrasofra platformuna kullanıcılar, Ev Lezzetleri üreticileri, Usta Şefler, restoranlar, kuryeler, Mahalle Mutfak Koçları, iş ortakları veya diğer ilgili kişiler tarafından yüklenen, gönderilen, paylaşılan veya izinli şekilde kullanılan fotoğraf, video, metin, açıklama, galeri, profil, ürün, eğitim, tanıtım ve benzeri içeriklerin kullanımına ilişkin esasları düzenlemek amacıyla hazırlanmıştır.
 
-Kullanıcı, bu içeriklerin Sofrasofra platformunda, vitrinlerde, tanıtım alanlarında, sosyal medya veya kurumsal iletişim alanlarında kullanılmasına gerekli ölçüde izin verdiğini kabul eder.
+Bu metin; Sofrasofra web sitesi, mobil uygulamaları, web uygulaması, ürün sayfaları, profil sayfaları, galeri alanları, vitrinler, şef akademisi, imza tabağı alanları, restoran alanları, kurumsal web sayfaları, sosyal medya hesapları, reklam/tanıtım çalışmaları ve bağlantılı dijital hizmetler için geçerlidir.
+
+2. Platform İşleticisi
+
+Şirket Unvanı: UYBAT TEKNOLOJİ YAZILIM VE TİCARET LİMİTED ŞİRKETİ
+Ticaret Sicil No: 1096741
+MERSİS No: 0898132285200001
+Adres: Abdurrahman Nafiz Gürman Mahallesi, Kınalıtepe Sokak, Simitaş 8 Blok No: 1, İç Kapı No: 311, Güngören / İstanbul
+Web Sitesi: www.sofrasofra.com
+E-posta: info@sofrasofra.com
+Telefon: +90 536 299 13 24
+WhatsApp Hattı: +90 533 322 13 24
+
+3. İçerik Kapsamı
+
+İşbu metin kapsamında içerik; aşağıdakiler dahil ancak bunlarla sınırlı olmamak üzere her türlü görsel, işitsel, yazılı ve dijital materyali ifade eder:
+
+- Ürün fotoğrafları,
+- Galeri fotoğrafları,
+- Profil ve kapak fotoğrafları,
+- Usta Şef, Ev Lezzetleri üreticisi, restoran veya kurye tanıtım fotoğrafları,
+- İmza tabağı, menü, ürün, yemek, tatlı, pasta, catering veya restoran görselleri,
+- Video, kısa video, eğitim videosu, akademi içeriği ve YouTube bağlantıları,
+- Ürün açıklamaları, menü metinleri, tarif, tanıtım yazısı, yorum, değerlendirme ve açıklamalar,
+- Logo, marka, işletme adı, mutfak adı, şef adı, restoran adı veya benzeri tanıtım unsurları,
+- Başvuru sırasında veya sonrasında paylaşılan destekleyici görsel ve belgeler.
+
+4. İçeriği Paylaşan Kişinin Beyan ve Taahhütleri
+
+İçerik yükleyen veya paylaşan kişi aşağıdaki hususları kabul, beyan ve taahhüt eder:
+
+- Paylaştığı içeriğin hukuka uygun olduğunu,
+- İçeriği paylaşmaya ve Sofrasofra’da yayınlatmaya yetkili olduğunu,
+- İçerikte yer alan fotoğraf, video, metin, logo, marka, müzik, tasarım, tarif, açıklama veya diğer unsurlar üzerinde gerekli haklara, izinlere veya kullanım yetkisine sahip olduğunu,
+- Üçüncü kişilerin telif hakkı, marka hakkı, kişilik hakkı, özel hayatın gizliliği, ticari sır, kişisel veri veya diğer haklarını ihlal etmediğini,
+- Başkasına ait fotoğraf, video, marka, logo, tasarım, ürün görseli veya metni izinsiz kullanmadığını,
+- İçerikte yer alan kişilerin görünür olması halinde gerekli izinlerin alınmış olduğunu,
+- Çocuklara, hassas kişisel verilere veya özel hayat alanına ilişkin içeriklerde ayrıca dikkatli davranılması gerektiğini bildiğini,
+- Yanıltıcı, sahte, müstehcen, ayrımcı, hakaret içeren, tehditkâr, hukuka aykırı veya platform itibarını zedeleyici içerik paylaşmayacağını.
+
+5. Sofrasofra’ya Verilen Kullanım İzni
+
+İçerik yükleyen veya paylaşan kişi, ilgili içeriğin Sofrasofra tarafından aşağıdaki amaçlarla kullanılmasına gerekli ölçüde izin verdiğini kabul eder:
+
+- Platformda yayınlanması,
+- Ürün, hizmet, profil, galeri, vitrin ve kategori sayfalarında gösterilmesi,
+- Ev Lezzetleri, Usta Şefler, Restoranlar, Kurye Ağı ve diğer platform alanlarında görüntülenmesi,
+- Sipariş, sepet, ürün detay, başvuru, yönetim, admin ve destek ekranlarında teknik olarak işlenmesi,
+- Kurumsal web sitesinde Sofrasofra tanıtımı kapsamında gösterilmesi,
+- Sosyal medya, dijital tanıtım, kampanya ve iletişim çalışmalarında kullanılması,
+- Platform kalitesi, güvenlik, denetim, iç inceleme ve destek süreçlerinde değerlendirilmesi,
+- Gerekli teknik formatlara dönüştürülmesi, boyutlandırılması, kırpılması, sıkıştırılması veya optimize edilmesi,
+- Arama, listeleme, vitrin, öne çıkarma ve görünürlük sistemlerinde kullanılması.
+
+Bu izin, içeriğin Sofrasofra hizmetlerinin yürütülmesi, tanıtımı, güvenliği, kalitesi ve geliştirilmesi için gerekli olduğu ölçüde geçerlidir.
+
+6. Tanıtım ve Sosyal Medya Kullanımı
+
+Sofrasofra, platformda yayınlanan ürün, hizmet, üretici, şef, restoran, kurye, mahalle mutfağı, galeri veya başarı hikâyesi içeriklerini, marka ve platform tanıtımı amacıyla kurumsal web sitesinde, sosyal medya hesaplarında, dijital kampanyalarda, e-posta duyurularında, basılı/dijital broşürlerde veya tanıtım materyallerinde kullanabilir.
+
+Kişinin açıkça tanınabilir olduğu özel tanıtım, röportaj, başarı hikâyesi, reklam kampanyası veya kişisel tanıtım niteliğindeki kullanımlarda, ilgili kişiden ayrıca açık rıza veya özel izin alınabilir.
+
+Sofrasofra, açık rıza gerektiren hallerde Açık Rıza Metni ve ilgili aydınlatma metinleri kapsamında ayrıca bilgilendirme yapabilir.
+
+7. Kişisel Veri Niteliğindeki Görseller
+
+Fotoğraf, video, ses kaydı, profil görseli, yüz görüntüsü, konum bilgisi, işletme bilgisi veya kişiyi belirli ya da belirlenebilir kılan içerikler kişisel veri niteliği taşıyabilir.
+
+Bu tür içerikler; platformda yayınlama, ürün/hizmet tanıtımı, profil oluşturma, sipariş, destek, güvenlik, iç denetim, başvuru değerlendirme, kurumsal iletişim ve kullanıcı deneyimi amaçlarıyla işlenebilir.
+
+Kişisel verilerin işlenmesine ilişkin ayrıntılı hükümler Gizlilik Politikası, KVKK Aydınlatma Metni, Açık Rıza Metni, Başvuru ve İş Ortaklığı Aydınlatma Metni ve ilgili diğer hukuki metinlerde düzenlenir.
+
+8. Üçüncü Kişilerin Görselleri ve İzinler
+
+İçerikte üçüncü kişilerin görüntüsü, sesi, adı, unvanı, işletme bilgisi, marka veya kişisel verisi yer alıyorsa, gerekli izinlerin alınmasından içeriği yükleyen kişi sorumludur.
+
+İçerikte çocukların, çalışanların, müşterilerin, davetlilerin, ekip üyelerinin veya üçüncü kişilerin yer alması halinde ayrıca dikkat gösterilmelidir.
+
+Üçüncü kişinin izni olmadan yüzünün, sesinin, özel hayatına ilişkin görüntüsünün veya kişisel verisinin paylaşılması halinde doğabilecek taleplerden, zarar ve sorumluluklardan içeriği paylaşan kişi sorumlu olabilir.
+
+9. Telif, Marka ve Fikri Haklar
+
+İçerik yükleyen kişi; paylaştığı fotoğraf, video, metin, logo, marka, müzik, tasarım, tarif, eğitim, sunum, menü, açıklama veya diğer materyaller üzerinde gerekli haklara sahip olduğunu veya hak sahibinden izin aldığını kabul eder.
+
+Sofrasofra, üçüncü kişilerin telif, marka, fikri mülkiyet, kişilik hakkı veya benzeri haklarının ihlal edildiğine ilişkin makul bir bildirim alırsa ilgili içeriği inceleyebilir, yayından kaldırabilir, erişimi kısıtlayabilir veya içerik sahibinden açıklama/belge talep edebilir.
+
+Üçüncü kişi haklarının ihlalinden doğabilecek hukuki, idari, mali veya cezai sorumluluk içerik sağlayan kişiye ait olabilir.
+
+10. İçeriğin Düzenlenmesi ve Teknik İşlenmesi
+
+Sofrasofra, platformun teknik gereklilikleri, kullanıcı deneyimi, görsel kalite, dosya boyutu, güvenlik, vitrin düzeni veya tasarım bütünlüğü için içerikleri teknik olarak işleyebilir.
+
+Bu kapsamda içerikler yeniden boyutlandırılabilir, sıkıştırılabilir, kırpılabilir, formatı dönüştürülebilir, önizleme görseli üretilebilir, listelerde farklı oranlarda gösterilebilir veya teknik kalite amacıyla optimize edilebilir.
+
+Sofrasofra, içeriğin özünü yanıltıcı şekilde değiştirmemeye özen gösterir. Ancak platform formatı ve tasarım gereklilikleri nedeniyle görselin farklı alanlarda farklı ölçülerde görünmesi mümkündür.
+
+11. İçeriğin Kaldırılması ve Yayından Alınması
+
+Sofrasofra aşağıdaki hallerde içeriği kısmen veya tamamen kaldırabilir, görünürlüğünü azaltabilir, yayından alabilir veya erişimi kısıtlayabilir:
+
+- Hukuka veya platform politikalarına aykırılık,
+- Üçüncü kişi haklarının ihlali iddiası,
+- Telif, marka, kişilik hakkı veya kişisel veri ihlali,
+- Yanıltıcı, sahte veya uygunsuz içerik,
+- Gıda güvenliği, hijyen, tüketici güvenliği veya kamu düzeni riski,
+- Kullanıcı şikâyeti,
+- Platform itibarını zedeleyen içerik,
+- Başvuru reddi, üyelik sonlandırma veya hesap askıya alma,
+- Teknik güvenlik veya sistem bütünlüğü gerekleri.
+
+İçeriğin kaldırılması, geçmişte hukuka uygun şekilde yapılmış kullanımları geriye dönük olarak geçersiz kılmaz.
+
+12. Kullanım İzninin Süresi
+
+İçerik için verilen kullanım izni, içerik platformda kaldığı, ilgili profil/ürün/hizmet aktif olduğu veya Sofrasofra hizmetlerinin yürütülmesi için gerekli olduğu süre boyunca devam edebilir.
+
+Kullanıcı, içeriğin kaldırılmasını talep edebilir. Talep, platformun teknik imkânları, yasal yükümlülükler, ispat kayıtları, devam eden sipariş/uyuşmazlık süreçleri, arşiv kayıtları ve meşru menfaatler dikkate alınarak değerlendirilir.
+
+Yasal saklama yükümlülüğü, uyuşmazlık, denetim, fatura, başvuru veya güvenlik kaydı gerektiren hallerde bazı kayıtlar mevzuata uygun sürelerle saklanabilir.
+
+13. İçeriklerin Yedeklenmesi ve Saklanması
+
+Sofrasofra, platforma yüklenen içerikleri teknik altyapı, güvenlik, yedekleme, hizmet sürekliliği, denetim, başvuru değerlendirme ve destek süreçleri kapsamında saklayabilir.
+
+İçerikler, bulut altyapısı, veri tabanı, dosya depolama, yedekleme, güvenlik ve teknik hizmet sağlayıcıları aracılığıyla işlenebilir.
+
+Saklama süreleri, içeriğin niteliği, kullanım amacı, profil/ürün/hizmet durumu, yasal yükümlülükler, uyuşmazlık ve teknik gereklilikler dikkate alınarak belirlenir.
+
+14. Gelir, Ücret ve Ek Hak Talebi
+
+İçerik yükleyen kişi, ayrıca yazılı bir anlaşma yapılmadıkça, platforma yüklediği içeriklerin Sofrasofra tarafından yukarıda belirtilen amaçlarla kullanılmasından dolayı ayrıca telif ücreti, lisans bedeli, kullanım bedeli, reklam geliri, sponsorluk payı veya benzeri bir ücret talep etmeyeceğini kabul eder.
+
+Bu hüküm, taraflar arasında ayrıca yazılı olarak kararlaştırılan ücretli içerik üretimi, reklam iş birliği, sponsorluk, profesyonel çekim veya özel kampanya anlaşmalarını ortadan kaldırmaz.
+
+15. Sorumluluk ve Tazminat
+
+İçerik paylaşan kişi; paylaştığı içerikten, içeriğin hukuka uygunluğundan, izinlerin alınmasından, üçüncü kişi haklarına aykırılık bulunmamasından ve içeriğin doğruluğundan sorumludur.
+
+İçerik nedeniyle Sofrasofra’nın üçüncü kişi talepleri, idari yaptırım, hukuki masraf, tazminat, marka/telif ihlali, kişisel veri ihlali veya itibar kaybı ile karşılaşması halinde Sofrasofra’nın ilgili kişiye rücu hakkı saklıdır.
+
+16. Özel Nitelikli veya Hassas İçerikler
+
+Kullanıcılar, özel nitelikli kişisel veri içerebilecek sağlık bilgisi, dini inanç, siyasi görüş, sendika/dernek/vakıf üyeliği, ceza mahkûmiyeti veya güvenlik tedbiri bilgisi gibi içerikleri platforma yüklememelidir.
+
+Gıda alerjisi, sağlık hassasiyeti veya özel diyet gibi bilgiler yalnızca gerekli olduğu ölçüde ve dikkatli şekilde paylaşılmalıdır.
+
+Gerekli olmayan hassas veya özel nitelikli içerikler Sofrasofra tarafından silinebilir, görünmez hale getirilebilir veya dikkate alınmayabilir.
+
+17. Üçüncü Taraf Platformlar
+
+Sofrasofra içerikleri sosyal medya platformları, video platformları, ödeme sistemleri, harita servisleri, bulut altyapıları veya diğer üçüncü taraf hizmetlerle bağlantılı olarak kullanılabilir.
+
+Üçüncü taraf platformların kendi kullanım koşulları, gizlilik politikaları ve içerik politikaları geçerli olabilir.
+
+Sofrasofra, üçüncü taraf platformların kendi sistemlerinden, veri işleme uygulamalarından veya içerik kullanım politikalarından sorumlu değildir.
+
+18. İzin Beyanı
+
+Kullanıcı, Sofrasofra platformuna fotoğraf, video, metin, açıklama, galeri, ürün bilgisi, profil bilgisi, eğitim içeriği, tanıtım içeriği veya benzeri içerik yükleyerek:
+
+- İçeriği paylaşmaya yetkili olduğunu,
+- Gerekli izinleri aldığını,
+- Üçüncü kişi haklarını ihlal etmediğini,
+- İçeriğin Sofrasofra platformunda ve işbu metinde belirtilen alanlarda kullanılmasına izin verdiğini,
+- Gerekli hallerde özel tanıtım veya açık rıza süreçleri için ayrıca bilgilendirilebileceğini,
+- İşbu Fotoğraf, Video ve İçerik Yayın İzni Metni’ni okuduğunu ve kabul ettiğini beyan eder.
+
+19. İletişim
+
+Fotoğraf, Video ve İçerik Yayın İzni’ne ilişkin soru, talep, itiraz, kaldırma veya hak ihlali bildirimleri için aşağıdaki iletişim kanalları kullanılabilir:
+
+UYBAT TEKNOLOJİ YAZILIM VE TİCARET LİMİTED ŞİRKETİ
+E-posta: info@sofrasofra.com
+Telefon: +90 536 299 13 24
+WhatsApp Hattı: +90 533 322 13 24
+Adres: Abdurrahman Nafiz Gürman Mahallesi, Kınalıtepe Sokak, Simitaş 8 Blok No: 1, İç Kapı No: 311, Güngören / İstanbul
+
+20. Metin Değişiklikleri
+
+Sofrasofra, işbu Fotoğraf, Video ve İçerik Yayın İzni Metni’ni mevzuat değişiklikleri, hizmet modeli, teknik altyapı, operasyonel ihtiyaçlar, sosyal medya/tanıtım süreçleri veya platform politikaları doğrultusunda güncelleyebilir.
+
+Güncel metin www.sofrasofra.com ve ilgili dijital kanallar üzerinden yayınlandığı anda geçerlilik kazanır.
 ''',
   ),
 ];
