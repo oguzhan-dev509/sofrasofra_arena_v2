@@ -7,6 +7,7 @@ import 'package:sofrasofra_arena_v2/onboarding/kurye_basvuru_sayfasi.dart';
 import 'package:sofrasofra_arena_v2/onboarding/ev_lezzetleri_basvuru_sayfasi.dart';
 import 'package:sofrasofra_arena_v2/onboarding/profesyonel_isletme_basvuru_sayfasi.dart';
 import 'package:sofrasofra_arena_v2/modules/kurumsal/sofrasofra_hukuki_index_sayfasi.dart';
+import 'package:sofrasofra_arena_v2/modules/kurumsal/kurumsal_bilgi_sayfasi.dart';
 
 class KurumsalFooterLinks extends StatelessWidget {
   const KurumsalFooterLinks({super.key});
@@ -37,6 +38,22 @@ class KurumsalFooterLinks extends StatelessWidget {
   void _openPage(BuildContext context, Widget page) {
     Navigator.of(context).push(
       MaterialPageRoute(builder: (_) => page),
+    );
+  }
+
+  void _openInfoPage(
+    BuildContext context, {
+    required String title,
+    required String description,
+    List<String> bullets = const [],
+  }) {
+    _openPage(
+      context,
+      KurumsalBilgiSayfasi(
+        title: title,
+        description: description,
+        bullets: bullets,
+      ),
     );
   }
 
@@ -102,6 +119,39 @@ class KurumsalFooterLinks extends StatelessWidget {
               'Restoranlar': () => _openPage(
                     context,
                     const RestoranlarVitrini(),
+                  ),
+              'Kurye Ağı': () => _openInfoPage(
+                    context,
+                    title: 'Kurye Ağı',
+                    description:
+                        'Sofrasofra Kurye Ağı, mahalle ölçeğinde teslimat süreçlerini daha hızlı, güvenli ve takip edilebilir hale getirmek için tasarlanır.',
+                    bullets: const [
+                      'Kurye başvuruları uygulama içinden alınır.',
+                      'Sipariş teslimat süreçleri canlı operasyon mantığıyla izlenir.',
+                      'Yayın sürecinde kurye kabul ve görev akışları kademeli açılır.',
+                    ],
+                  ),
+              'Mahalle Mutfak Ağı': () => _openInfoPage(
+                    context,
+                    title: 'Mahalle Mutfak Ağı',
+                    description:
+                        'Mahalle Mutfak Ağı, evde üretim yapan kadınların ve yerel üreticilerin kendi mahallelerinde görünür olmasını hedefleyen Sofrasofra modelidir.',
+                    bullets: const [
+                      'Evde pişen emeğin mahallede değer bulması esas alınır.',
+                      'Mahalle bazlı üretici, müşteri ve destek ağı kurulması hedeflenir.',
+                      'Kadın dernekleri, muhtarlıklar ve mahalle koçluğu modeliyle büyütülür.',
+                    ],
+                  ),
+              'Blog ve Rehberler': () => _openInfoPage(
+                    context,
+                    title: 'Blog ve Rehberler',
+                    description:
+                        'Sofrasofra blog ve rehber alanı; ev üreticileri, şefler, restoranlar, kuryeler ve müşteriler için bilgilendirici içerikler yayınlamak üzere hazırlanır.',
+                    bullets: const [
+                      'Gıda güvenliği, başvuru süreçleri ve platform kullanımı anlatılır.',
+                      'Ev Lezzetleri, Usta Şefler ve restoranlar için rehber içerikler hazırlanır.',
+                      'Kurumsal web sitesi yayına alındığında bu alan dış web ile güçlendirilir.',
+                    ],
                   ),
               'Sofrasofra Radyo': () => _openPage(
                     context,
