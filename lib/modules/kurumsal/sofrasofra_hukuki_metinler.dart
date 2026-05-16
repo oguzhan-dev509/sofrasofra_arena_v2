@@ -1836,11 +1836,222 @@ Güncel metin www.sofrasofra.com ve ilgili dijital kanallar üzerinden yayınlan
 
 Son güncelleme tarihi: 16.05.2026
 
-İşbu Hizmet Sözleşmesi, Sofrasofra platformunda ürün, hizmet, eğitim, danışmanlık, imza tabağı, restoran ürünü veya benzeri içerik sunmak isteyen Ev Lezzetleri üreticileri, Usta Şefler ve Restoranlar ile Sofrasofra arasındaki hak ve yükümlülükleri düzenler.
+1. Amaç ve Kapsam
 
-Üretici, şef veya restoran; sunduğu ürün/hizmet bilgilerinin doğruluğundan, fiyatlarından, görsellerinden, hijyeninden, kalite ve mevzuat uygunluğundan, fatura/vergi yükümlülüklerinden ve müşteriyle ilgili ticari süreçlerden kendi statüsü ölçüsünde sorumludur.
+İşbu Üretici / Şef / Restoran Hizmet Sözleşmesi, Sofrasofra platformunda ürün, hizmet, eğitim, danışmanlık, imza tabağı, restoran ürünü, galeri içeriği, catering, davet, rezervasyon veya benzeri içerik ve hizmetler sunmak isteyen Ev Lezzetleri üreticileri, Usta Şefler ve Restoranlar ile Sofrasofra arasındaki hak ve yükümlülükleri düzenlemek amacıyla hazırlanmıştır.
 
-Sofrasofra, platform hizmeti, görünürlük, sepet, ödeme yönlendirme, teslimat organizasyonu, destek ve operasyon süreçleri sağlayabilir; bu hizmetler karşılığında komisyon, platform hizmet bedeli veya başka ücretler uygulayabilir.
+Bu Sözleşme; Sofrasofra web sitesi, mobil uygulamaları, web uygulaması, başvuru formları, üretici/şef/restoran profilleri, galeri alanları, ürün sayfaları, sipariş, ödeme, teslimat, hak ediş, komisyon, destek ve operasyon süreçleri için geçerlidir.
+
+2. Taraflar
+
+Platform İşleticisi / Aracı Hizmet Sağlayıcı:
+
+Şirket Unvanı: UYBAT TEKNOLOJİ YAZILIM VE TİCARET LİMİTED ŞİRKETİ
+Ticaret Sicil No: 1096741
+MERSİS No: 0898132285200001
+Adres: Abdurrahman Nafiz Gürman Mahallesi, Kınalıtepe Sokak, Simitaş 8 Blok No: 1, İç Kapı No: 311, Güngören / İstanbul
+Web Sitesi: www.sofrasofra.com
+E-posta: info@sofrasofra.com
+Telefon: +90 536 299 13 24
+WhatsApp Hattı: +90 533 322 13 24
+
+Hizmet Sağlayıcı / Satıcı:
+Sofrasofra platformuna Ev Lezzetleri üreticisi, Usta Şef, restoran, işletme, mutfak, profesyonel hizmet sağlayıcı veya benzeri sıfatla başvuru yapan, platformda profil açan veya ürün/hizmet sunan gerçek veya tüzel kişidir.
+
+3. Tanımlar
+
+Ev Lezzetleri Üreticisi:
+Ev yapımı yemek, tatlı, hamur işi, yöresel ürün, özel sipariş veya benzeri gıda ürünlerini Sofrasofra platformunda sunmak üzere başvuru yapan veya platformda yer alan kişiyi ifade eder.
+
+Usta Şef:
+Sofrasofra platformunda şef profili, imza tabağı, özel davet, catering, akademi/eğitim, danışmanlık, şef masası veya benzeri hizmetlerle yer alan kişiyi ifade eder.
+
+Restoran:
+Sofrasofra platformunda ürün, menü, hizmet, restoran vitrini, sipariş veya tanıtım sunan restoran, kafe, işletme veya işletme temsilcisini ifade eder.
+
+Hizmet Sağlayıcı:
+Ev Lezzetleri üreticisi, Usta Şef, restoran veya platformda ürün/hizmet sunan ilgili kişilerin tamamını ifade eder.
+
+Platform Hizmeti:
+Sofrasofra tarafından sunulan dijital görünürlük, profil, vitrin, galeri, ürün listeleme, sipariş, sepet, ödeme yönlendirme, teslimat organizasyonu, destek, operasyon, başvuru inceleme, raporlama ve benzeri teknik hizmetleri ifade eder.
+
+4. Sofrasofra’nın Rolü
+
+Sofrasofra, üreticiler, şefler, restoranlar, müşteriler, kuryeler ve iş ortakları arasında dijital görünürlük, tanıtım, sipariş, ödeme yönlendirme, teslimat organizasyonu, destek ve operasyon süreçlerinin yürütülmesine aracılık eden teknoloji tabanlı bir platformdur.
+
+Sofrasofra, uygun gördüğü hallerde platform hizmet bedeli, komisyon, üyelik, reklam, vitrin, öne çıkarma, operasyon, teknik hizmet veya benzeri gelir modelleri uygulayabilir.
+
+Sofrasofra’nın platform üzerindeki rolü, her işlemde ürünün veya hizmetin fiili üreticisi, hazırlayıcısı, sağlayıcısı veya doğrudan satıcısı olduğu anlamına gelmez. Ürün veya hizmeti fiilen sunan hizmet sağlayıcı; kendi faaliyetinden, ürün/hizmet kalitesinden, hijyeninden, açıklamasından, fiyatından, görselinden, faturasından, vergi yükümlülüklerinden ve mevzuata uygunluğundan sorumludur.
+
+Sofrasofra, platform güvenliği, kullanıcı deneyimi, başvuru inceleme, içerik denetimi, sipariş takibi, ödeme yönlendirme, teslimat organizasyonu, destek ve uyuşmazlık süreçleri bakımından makul özeni gösterir.
+
+5. Başvuru, Onay ve Platforma Kabul
+
+Ev Lezzetleri üreticileri, Usta Şefler ve restoranlar Sofrasofra platformu üzerinden başvuru yapabilir.
+
+Başvuru yapılması, başvurunun otomatik olarak kabul edildiği veya hizmet sağlayıcının platformda ürün/hizmet sunmaya hak kazandığı anlamına gelmez.
+
+Sofrasofra; başvuruları inceleyebilir, ek bilgi veya belge talep edebilir, başvuruyu onaylayabilir, beklemeye alabilir, reddedebilir veya daha sonra yeniden değerlendirebilir.
+
+Başvuru sahibi; kimlik, iletişim, işletme, çalışma durumu, mesleki deneyim, vergi/fatura, IBAN, faaliyet alanı, ürün/hizmet, görsel ve diğer başvuru bilgilerinin doğru, güncel ve eksiksiz olduğunu kabul eder.
+
+Sofrasofra; platform güvenliği, kalite standardı, mevzuata uyum, tüketici güvenliği, operasyonel yeterlilik, finansal uygunluk, hijyen, şikâyet geçmişi veya platform politikaları doğrultusunda başvuruları değerlendirebilir.
+
+6. Hizmet Sağlayıcının Genel Yükümlülükleri
+
+Hizmet sağlayıcı aşağıdaki yükümlülükleri kabul eder:
+
+- Platforma sunduğu tüm bilgilerin doğru, güncel, eksiksiz ve hukuka uygun olmasını sağlamak,
+- Ürün, hizmet, fiyat, açıklama, görsel, teslimat seçeneği, hazırlık süresi, stok ve içerik bilgilerini doğru yönetmek,
+- Gıda güvenliği, hijyen, sağlık, tüketici, vergi, fatura, ticaret, elektronik ticaret ve ilgili tüm mevzuata uygun hareket etmek,
+- Üçüncü kişilerin marka, telif, fotoğraf, video, kişilik hakkı, ticari sır veya fikri mülkiyet haklarını ihlal etmemek,
+- Sipariş, rezervasyon, danışmanlık, eğitim, davet, catering veya benzeri hizmet taleplerini dürüstlük kuralına uygun şekilde yerine getirmek,
+- Müşteri şikâyetleri, iptal, iade, gecikme, ayıplı ürün veya eksik hizmet durumlarında Sofrasofra destek ve operasyon süreçleriyle iş birliği yapmak,
+- Platformun itibarını, güvenliğini ve kullanıcı deneyimini zedeleyecek davranışlardan kaçınmak.
+
+7. Ürün, Hizmet ve İçerik Bilgileri
+
+Hizmet sağlayıcı; platformda yayınladığı ürün, hizmet, fiyat, görsel, açıklama, porsiyon, gramaj, içerik, alerjen, hazırlık süresi, teslimat seçeneği, gel-al seçeneği, stok ve diğer bilgilerin doğruluğundan sorumludur.
+
+Yanlış, eksik, yanıltıcı, güncel olmayan veya mevzuata aykırı bilgilerden doğabilecek müşteri şikâyetleri, iptal/iade talepleri, idari yaptırımlar, vergi/fatura sorunları veya üçüncü kişi talepleri hizmet sağlayıcının sorumluluğunda olabilir.
+
+Sofrasofra, platform standartlarına aykırı, yanıltıcı, hukuka aykırı, şikâyete konu, riskli veya eksik gördüğü içerikleri yayından kaldırabilir, görünürlüğünü azaltabilir, düzenleme isteyebilir veya hesabı geçici olarak kısıtlayabilir.
+
+8. Gıda Güvenliği, Hijyen ve Mevzuata Uyum
+
+Hizmet sağlayıcı, sunduğu gıda ürünleri ve hizmetler bakımından gıda güvenliği, hijyen, saklama, hazırlama, sunum, ambalajlama, teslimata uygunluk, alerjen bildirimi, son tüketim tarihi, üretim koşulları ve ilgili mevzuata uygun hareket etmekle yükümlüdür.
+
+Ev Lezzetleri üreticileri, Usta Şefler ve restoranlar kendi faaliyet alanları, çalışma biçimleri, yasal statüleri ve mevzuat yükümlülükleri kapsamında gerekli izin, kayıt, ruhsat, vergi, fatura, hijyen, eğitim veya benzeri sorumluluklardan kendileri sorumludur.
+
+Sofrasofra, gıda güvenliği veya hijyen riski gördüğü hallerde ilgili ürünü, profili veya hizmeti askıya alabilir; ek bilgi/belge talep edebilir; başvuruyu reddedebilir; ilgili hesabı kısıtlayabilir veya platformdan çıkarabilir.
+
+9. Alerjen, İçerik ve Sağlık Hassasiyetleri
+
+Hizmet sağlayıcı; ürünlerinde bulunabilecek alerjenler, içerikler, katkı maddeleri, özel üretim koşulları, saklama şartları, porsiyon bilgileri ve tüketici açısından önemli olabilecek bilgileri doğru şekilde belirtmekle yükümlüdür.
+
+Alıcıların alerji, intolerans, sağlık hassasiyeti, özel diyet, hamilelik, çocuk tüketimi veya benzeri özel durumları olabileceği dikkate alınarak ürün açıklamalarının özenli yapılması gerekir.
+
+Hizmet sağlayıcı tarafından bildirilmeyen, eksik bildirilen veya yanlış bildirilen içerik, alerjen, hijyen, saklama veya üretim bilgilerinden doğabilecek sonuçlar ilgili hizmet sağlayıcının sorumluluğunda olabilir.
+
+10. Fiyat, Stok, Hazırlık ve Teslimat Bilgileri
+
+Hizmet sağlayıcı, platformda yer alan fiyat, stok, hazırlık süresi, teslimat/gel-al seçeneği, minimum sipariş, porsiyon, gramaj ve benzeri bilgileri doğru ve güncel tutmakla yükümlüdür.
+
+Açık fiyat hatası, yanlış veri girişi, stok uygunsuzluğu, hazırlık imkânsızlığı veya teslimat imkânsızlığı halinde Sofrasofra siparişi durdurabilir, iptal edebilir, düzeltme isteyebilir veya alıcıdan yeniden onay alınmasını sağlayabilir.
+
+Hizmet sağlayıcı, siparişleri platformda belirtilen koşullara, kalite standartlarına ve dürüstlük kuralına uygun şekilde hazırlamakla yükümlüdür.
+
+11. Fatura, Vergi ve Resmi Yükümlülükler
+
+Hizmet sağlayıcı, kendi hukuki ve vergisel statüsüne göre fatura, fiş, vergi, gelir, beyan, izin, ruhsat, kayıt, mesleki faaliyet, sosyal güvenlik ve benzeri resmi yükümlülüklerinden sorumludur.
+
+Sofrasofra, hizmet sağlayıcıdan aldığı komisyon, platform hizmet bedeli, üyelik, reklam, vitrin, operasyon veya benzeri hizmetler için hizmet sağlayıcıya fatura düzenleyebilir.
+
+Hizmet sağlayıcı; T.C. kimlik numarası, vergi kimlik numarası, vergi dairesi, fatura adresi, fatura e-posta adresi, IBAN ve benzeri bilgilerin doğru ve güncel olduğunu kabul eder.
+
+Yanlış, eksik veya güncel olmayan fatura/vergi/IBAN bilgilerinden doğabilecek gecikme, ödeme yapılamaması, yanlış ödeme, vergi/fatura uyuşmazlığı veya idari sonuçlardan hizmet sağlayıcı sorumludur.
+
+12. Komisyon, Hak Ediş ve Ödeme Süreçleri
+
+Sofrasofra, hizmet sağlayıcılara yönelik komisyon, platform hizmet bedeli, ödeme işlem ücreti, üyelik, reklam, vitrin, öne çıkarma, teslimat, operasyon veya benzeri ücret modelleri uygulayabilir.
+
+Geçerli oranlar, ödeme koşulları, hak ediş hesaplama yöntemi, mahsuplaşma, ödeme takvimi ve kesintiler platform ekranlarında, başvuru süreçlerinde, sözleşmelerde veya ilgili bilgilendirme alanlarında gösterilebilir.
+
+Hak edişler; sipariş bedeli, komisyon, platform hizmet bedeli, ödeme işlem ücreti, kurye/teslimat mahsuplaşması, iptal/iade, ceza/kesinti, kampanya/kupon etkisi ve diğer finansal kalemler dikkate alınarak hesaplanabilir.
+
+Sofrasofra, şüpheli işlem, sahte sipariş, iptal/iade, müşteri şikâyeti, ödeme ihtilafı, belge eksikliği, vergi/fatura uyuşmazlığı veya mevzuata aykırılık halinde hak ediş ödemesini geçici olarak durdurabilir, inceleyebilir veya mahsuplaşma yapabilir.
+
+13. Sipariş, İptal, İade ve Şikâyet Süreçleri
+
+Hizmet sağlayıcı, kendisine yönlendirilen siparişleri zamanında, eksiksiz, hijyenik, açıklamaya uygun ve platform standartlarına uygun şekilde hazırlamakla yükümlüdür.
+
+Eksik, hatalı, ayıplı, bozuk, gecikmiş, açıklamaya aykırı veya teslimata uygun olmayan ürün/hizmetlerden kaynaklanan iptal, iade, geri ödeme, yeniden gönderim, müşteri memnuniyeti veya destek maliyetleri somut olayın niteliğine göre hizmet sağlayıcıya yansıtılabilir.
+
+Hizmet sağlayıcı, müşteri şikâyetleri ve uyuşmazlıklarında Sofrasofra destek ekibiyle iş birliği yapmayı, gerekli bilgi, fotoğraf, belge, açıklama veya savunmayı makul süre içinde iletmeyi kabul eder.
+
+14. Galeri, Fotoğraf, Video ve İçerik Kullanımı
+
+Hizmet sağlayıcı, platforma yüklediği fotoğraf, video, ürün açıklaması, profil, galeri, eğitim, tanıtım, menü, imza tabağı veya diğer içeriklerin hukuka uygun olduğunu ve üçüncü kişilerin haklarını ihlal etmediğini kabul eder.
+
+Hizmet sağlayıcı, platforma yüklediği içerikler üzerinde gerekli haklara, izinlere veya kullanım yetkisine sahip olduğunu beyan eder.
+
+Hizmet sağlayıcı, bu içeriklerin Sofrasofra platformunda, vitrinlerde, ürün sayfalarında, galeri alanlarında, arama/listeleme alanlarında, kurumsal tanıtım bölümlerinde ve sosyal medya/iletişim çalışmalarında kullanılmasına gerekli ölçüde izin verdiğini kabul eder.
+
+Fotoğraf, video ve içerik kullanımına ilişkin ayrıntılı hükümler ayrıca Fotoğraf, Video ve İçerik Yayın İzni metninde düzenlenebilir.
+
+15. Eğitim, Danışmanlık, Catering ve Özel Hizmetler
+
+Usta Şefler, restoranlar veya uygun görülen hizmet sağlayıcılar platform üzerinden eğitim, akademi videosu, danışmanlık, özel davet, catering, şef masası, rezervasyon veya benzeri hizmetler sunabilir.
+
+Bu hizmetlerde hizmetin kapsamı, tarihi, süresi, fiyatı, iptal/iade koşulları, katılım şartları ve özel hükümleri ayrıca belirtilmelidir.
+
+Belirli tarih veya saat için planlanan hizmetlerde iptal/iade koşulları hizmetin niteliğine göre sınırlı olabilir.
+
+16. Yasaklı Ürün, Hizmet ve Davranışlar
+
+Hizmet sağlayıcı aşağıdaki faaliyetlerde bulunamaz:
+
+- Hukuka, genel ahlaka, kamu düzenine veya platform politikalarına aykırı ürün/hizmet sunmak,
+- Yanıltıcı, sahte, eksik veya gerçeğe aykırı bilgi paylaşmak,
+- Gıda güvenliği, hijyen, sağlık veya tüketici mevzuatına aykırı ürün/hizmet sunmak,
+- Üçüncü kişilerin marka, telif, fotoğraf, video, kişilik hakkı veya ticari sırlarını ihlal etmek,
+- Sahte sipariş, sahte yorum, manipülatif işlem veya haksız kazanç amacıyla işlem yapmak,
+- Platformu, ödeme sistemini, müşteri verilerini veya operasyon süreçlerini kötüye kullanmak,
+- Sofrasofra markasını, logosunu veya itibarını yanıltıcı şekilde kullanmak.
+
+17. Denetim, İç İnceleme ve Askıya Alma
+
+Sofrasofra, platform güvenliği, müşteri memnuniyeti, kalite, gıda güvenliği, hijyen, mevzuata uyum, ödeme güvenliği, şikâyet yönetimi ve operasyon süreçleri bakımından hizmet sağlayıcıları inceleyebilir.
+
+Sofrasofra; riskli, eksik, yanıltıcı, uygunsuz, şikâyete konu veya mevzuata aykırı gördüğü ürün, hizmet, profil, başvuru veya içeriği askıya alabilir, kaldırabilir, görünürlüğünü azaltabilir veya ek bilgi/belge talep edebilir.
+
+Tekrarlayan şikâyetler, ağır ihlal, güvenlik riski, gıda güvenliği riski, sahte işlem, fatura/vergi sorunu veya platform itibarını zedeleyen davranışlar halinde hizmet sağlayıcının hesabı geçici veya kalıcı olarak kapatılabilir.
+
+18. Kişisel Veriler ve Müşteri Bilgileri
+
+Hizmet sağlayıcı, platform üzerinden eriştiği müşteri, sipariş, teslimat, iletişim veya kişisel verileri yalnızca ilgili siparişin veya hizmetin ifası amacıyla kullanabilir.
+
+Hizmet sağlayıcı, müşteri verilerini izinsiz şekilde kaydedemez, üçüncü kişilerle paylaşamaz, pazarlama amacıyla kullanamaz, başka platformlara aktaramaz veya hukuka aykırı şekilde işleyemez.
+
+Kişisel verilerin işlenmesine ilişkin ayrıntılı hükümler Gizlilik Politikası, KVKK Aydınlatma Metni ve ilgili diğer hukuki metinlerde düzenlenir.
+
+19. Sorumluluk ve Tazminat
+
+Hizmet sağlayıcı; kendi fiilleri, ürünleri, hizmetleri, çalışanları, temsilcileri, yardımcı kişileri, yanlış beyanları, mevzuata aykırılıkları, gıda güvenliği ihlalleri, fatura/vergi sorunları, telif/marka ihlalleri, müşteri zararları veya üçüncü kişi taleplerinden doğabilecek zararlardan kendi kusuru ve sorumluluk alanı ölçüsünde sorumludur.
+
+Sofrasofra’nın, hizmet sağlayıcının fiili veya ihmali nedeniyle bir zarara, idari yaptırıma, müşteri talebine, üçüncü kişi iddiasına, hukuki masrafa veya itibar kaybına uğraması halinde, Sofrasofra’nın hizmet sağlayıcıya rücu hakkı saklıdır.
+
+20. Sözleşmenin Süresi ve Sona Ermesi
+
+İşbu Sözleşme, hizmet sağlayıcının platforma başvurması, başvurusunun kabul edilmesi, platformda profil/ürün/hizmet yayınlaması veya Sofrasofra hizmetlerinden yararlanmasıyla yürürlüğe girebilir.
+
+Taraflardan her biri, devam eden sipariş, ödeme, hak ediş, fatura, iptal/iade, şikâyet veya yasal yükümlülükler saklı kalmak kaydıyla ilişkiyi sonlandırabilir.
+
+Sözleşmenin sona ermesi, sona erme tarihinden önce doğmuş ödeme, komisyon, hak ediş, fatura, iade, şikâyet, tazminat, gizlilik, kişisel veri, içerik kullanımı ve uyuşmazlık yükümlülüklerini ortadan kaldırmaz.
+
+21. Mücbir Sebep
+
+Doğal afet, yangın, sel, deprem, salgın hastalık, savaş, terör, grev, lokavt, resmi makam kararları, internet ve enerji kesintileri, siber saldırılar, ödeme sistemi arızaları, bulut altyapısı sorunları, tedarik, teslimat veya üretim aksaklıkları ve tarafların makul kontrolü dışında gelişen olaylar mücbir sebep sayılır.
+
+Mücbir sebep hallerinde tarafların yükümlülükleri olayın etkisi oranında askıya alınabilir veya gecikebilir.
+
+22. Uygulanacak Hukuk ve Yetki
+
+İşbu Sözleşme’nin uygulanmasında Türkiye Cumhuriyeti hukuku geçerlidir.
+
+Tüketici işlemleri bakımından tüketici mevzuatından kaynaklanan haklar saklıdır.
+
+Ticari nitelikteki işlemler, hizmet sağlayıcı ilişkileri, komisyon, hak ediş, fatura, iş ortaklığı ve platform hizmetlerinden kaynaklanan uyuşmazlıklarda, mevzuatın emredici hükümleri saklı kalmak kaydıyla İstanbul mahkemeleri ve icra daireleri yetkili kabul edilebilir.
+
+23. İletişim
+
+İşbu Sözleşme’ye ilişkin soru, talep ve bildirimler için aşağıdaki iletişim kanalları kullanılabilir:
+
+UYBAT TEKNOLOJİ YAZILIM VE TİCARET LİMİTED ŞİRKETİ
+E-posta: info@sofrasofra.com
+Telefon: +90 536 299 13 24
+WhatsApp Hattı: +90 533 322 13 24
+Adres: Abdurrahman Nafiz Gürman Mahallesi, Kınalıtepe Sokak, Simitaş 8 Blok No: 1, İç Kapı No: 311, Güngören / İstanbul
 ''',
   ),
   SofrasofraHukukiMetin(
