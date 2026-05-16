@@ -745,121 +745,199 @@ Adres: Abdurrahman Nafiz Gürman Mahallesi, Kınalıtepe Sokak, Simitaş 8 Blok 
     content: '''
 Üyelik Sözleşmesi
 
-Son güncelleme tarihi: 09.05.2026
+Son güncelleme tarihi: 16.05.2026
 
-İşbu Üyelik Sözleşmesi, bir tarafta UYBAT TEKNOLOJİ YAZILIM VE TİCARET LİMİTED ŞİRKETİ tarafından işletilen Sofrasofra platformu ile diğer tarafta platforma üye olan kullanıcı arasında elektronik ortamda kurulmuştur.
-''',
-  ),
-  SofrasofraHukukiMetin(
-    title: 'Mesafeli Satış Sözleşmesi',
-    slug: 'mesafeli-satis-sozlesmesi',
-    summary:
-        'Sofrasofra üzerinden verilen siparişlerde mesafeli satış hükümleri.',
-    content: '''
-Mesafeli Satış Sözleşmesi
+1. Taraflar
 
-Son güncelleme tarihi: 09.05.2026
+İşbu Üyelik Sözleşmesi, bir tarafta UYBAT TEKNOLOJİ YAZILIM VE TİCARET LİMİTED ŞİRKETİ tarafından işletilen Sofrasofra platformu ile diğer tarafta Sofrasofra platformuna üye olan, platformu kullanan, sipariş veren, başvuru yapan veya dijital hizmetlerden yararlanan kullanıcı arasında elektronik ortamda kurulmuştur.
 
-İşbu Mesafeli Satış Sözleşmesi, Sofrasofra platformu üzerinden verilen siparişlerde, alıcı ile satıcı/hizmet sağlayıcı arasında elektronik ortamda kurulan mesafeli satış ilişkisine ilişkin hak ve yükümlülükleri düzenler.
-''',
-  ),
-  SofrasofraHukukiMetin(
-    title: 'Ön Bilgilendirme Formu',
-    slug: 'on-bilgilendirme-formu',
-    summary:
-        'Sipariş öncesi ürün, fiyat, teslimat ve cayma hakkı bilgilendirmesi.',
-    content: '''
-Ön Bilgilendirme Formu
+Şirket bilgileri:
 
-Son güncelleme tarihi: 09.05.2026
+Şirket Unvanı: UYBAT TEKNOLOJİ YAZILIM VE TİCARET LİMİTED ŞİRKETİ
+Ticaret Sicil No: 1096741
+MERSİS No: 0898132285200001
+Adres: Abdurrahman Nafiz Gürman Mahallesi, Kınalıtepe Sokak, Simitaş 8 Blok No: 1, İç Kapı No: 311, Güngören / İstanbul
+Web Sitesi: www.sofrasofra.com
+E-posta: info@sofrasofra.com
+Telefon: +90 536 299 13 24
+WhatsApp Hattı: +90 533 322 13 24
 
-İşbu Ön Bilgilendirme Formu, Sofrasofra platformu üzerinden verilen siparişlerde, alıcının sipariş öncesinde ürün/hizmet, satıcı, fiyat, ödeme, teslimat, iptal, iade ve cayma hakkı konularında bilgilendirilmesi amacıyla hazırlanmıştır.
-''',
-  ),
-  SofrasofraHukukiMetin(
-    title: 'İptal, İade ve Cayma Hakkı Politikası',
-    slug: 'iptal-iade-cayma-hakki',
-    summary: 'Sipariş iptali, iade, geri ödeme ve cayma hakkı süreçleri.',
-    content: '''
-İptal, İade ve Cayma Hakkı Politikası
+2. Sözleşmenin Konusu
 
-Son güncelleme tarihi: 09.05.2026
+İşbu Sözleşme’nin konusu; kullanıcının Sofrasofra platformuna üye olması, platformu kullanması, sipariş vermesi, başvuru yapması, içerik görüntülemesi, destek kanallarından yararlanması ve Sofrasofra tarafından sunulan dijital hizmetlerden faydalanmasına ilişkin hak ve yükümlülüklerin düzenlenmesidir.
 
-İşbu Politika, Sofrasofra platformu üzerinden verilen siparişlerde iptal, iade, geri ödeme ve cayma hakkı süreçlerinin nasıl yürütüleceğini açıklamak amacıyla hazırlanmıştır.
-''',
-  ),
-  SofrasofraHukukiMetin(
-    title: 'Açık Rıza Metni',
-    slug: 'acik-riza-metni',
-    summary: 'Açık rıza gerektiren kişisel veri işleme faaliyetleri.',
-    content: '''
-Açık Rıza Metni
+Sofrasofra; Ev Lezzetleri üreticilerini, Usta Şefleri, restoranları, kuryeleri, müşterileri ve iş ortaklarını dijital ortamda bir araya getiren teknoloji tabanlı bir gastronomi, yerel üretim, sipariş, başvuru, tanıtım ve operasyon platformudur.
 
-Son güncelleme tarihi: 09.05.2026
+3. Üyeliğin Kurulması
 
-İşbu Açık Rıza Metni, Sofrasofra platformu kapsamında, açık rıza gerektiren kişisel veri işleme faaliyetlerine ilişkin olarak hazırlanmıştır.
-''',
-  ),
-  SofrasofraHukukiMetin(
-    title: 'Ticari Elektronik İleti Onayı',
-    slug: 'ticari-elektronik-ileti-onayi',
-    summary: 'Kampanya, duyuru ve ticari elektronik ileti onay metni.',
-    content: '''
-Ticari Elektronik İleti Onayı
+Kullanıcı, platform üzerinde üyelik oluşturmak, başvuru yapmak, sipariş vermek veya belirli hizmetlerden yararlanmak için gerekli bilgileri paylaşabilir.
 
-Son güncelleme tarihi: 09.05.2026
+Üyelik işlemi, kullanıcının gerekli bilgileri girmesi, ilgili onayları vermesi ve platform tarafından teknik olarak hesabın oluşturulmasıyla tamamlanabilir.
 
-İşbu Ticari Elektronik İleti Onay Metni, Sofrasofra tarafından gönderilebilecek ticari elektronik iletilere ilişkin bilgilendirme ve onay amacıyla hazırlanmıştır.
-''',
-  ),
-  SofrasofraHukukiMetin(
-    title: 'Üretici / Şef / Restoran Hizmet Sözleşmesi',
-    slug: 'uretici-sef-restoran-hizmet-sozlesmesi',
-    summary:
-        'Ev Lezzetleri üreticileri, Usta Şefler ve Restoranlar için hizmet sözleşmesi.',
-    content: '''
-Üretici / Şef / Restoran Hizmet Sözleşmesi
+Sofrasofra, güvenlik, operasyon, başvuru değerlendirme, mevzuata uyum veya kullanıcı doğrulama gerekçeleriyle ek bilgi, belge veya doğrulama talep edebilir.
 
-Son güncelleme tarihi: 09.05.2026
+Üyelik oluşturulması, kullanıcının Sofrasofra’daki tüm üretici, şef, restoran, kurye veya iş ortağı başvurularının otomatik olarak kabul edildiği anlamına gelmez. Bu tür başvurular ayrıca değerlendirmeye tabidir.
 
-İşbu Hizmet Sözleşmesi, Sofrasofra platformunda ürün, hizmet, eğitim, danışmanlık, imza tabağı, restoran ürünü veya benzeri içerik sunmak isteyen Ev Lezzetleri üreticileri, Usta Şefler ve Restoranlar ile Sofrasofra arasındaki hak ve yükümlülükleri düzenler.
-''',
-  ),
-  SofrasofraHukukiMetin(
-    title: 'Kurye Hizmet Koşulları',
-    slug: 'kurye-hizmet-kosullari',
-    summary: 'Sofrasofra kurye ağına ilişkin hizmet koşulları.',
-    content: '''
-Kurye Hizmet Koşulları
+4. Kullanıcı Bilgilerinin Doğruluğu
 
-Son güncelleme tarihi: 09.05.2026
+Kullanıcı, üyelik, sipariş, başvuru, ödeme, teslimat, fatura, destek ve platform içi işlem süreçlerinde verdiği bilgilerin doğru, güncel, eksiksiz ve hukuka uygun olduğunu kabul eder.
 
-İşbu Kurye Hizmet Koşulları, Sofrasofra platformunda kurye olarak başvuru yapan, görev alan veya teslimat sürecine dahil olan kişilerin hak ve yükümlülüklerini düzenler.
-''',
-  ),
-  SofrasofraHukukiMetin(
-    title: 'Başvuru ve İş Ortaklığı Aydınlatma Metni',
-    slug: 'basvuru-is-ortakligi-aydinlatma-metni',
-    summary:
-        'Başvuru ve iş ortaklığı süreçlerinde kişisel verilerin işlenmesi.',
-    content: '''
-Başvuru ve İş Ortaklığı Aydınlatma Metni
+Yanlış, eksik, yanıltıcı, güncel olmayan veya üçüncü kişilere ait bilgilerle işlem yapılması halinde doğabilecek zararlardan ve hukuki sonuçlardan ilgili kullanıcı sorumludur.
 
-Son güncelleme tarihi: 09.05.2026
+Kullanıcı, bilgilerinde değişiklik olması halinde bu bilgileri güncellemekle veya Sofrasofra’ya bildirmekle yükümlüdür.
 
-İşbu Aydınlatma Metni, Sofrasofra platformuna Ev Lezzetleri üreticisi, Usta Şef, restoran, kurye, Mahalle Mutfak Koçu, iş ortağı veya benzeri sıfatlarla başvuru yapan kişilerin kişisel verilerinin işlenmesine ilişkin olarak hazırlanmıştır.
-''',
-  ),
-  SofrasofraHukukiMetin(
-    title: 'Fotoğraf, Video ve İçerik Yayın İzni',
-    slug: 'fotograf-video-icerik-yayin-izni',
-    summary: 'Platforma yüklenen fotoğraf, video ve içeriklerin kullanım izni.',
-    content: '''
-Fotoğraf, Video ve İçerik Yayın İzni
+5. Hesap Güvenliği
 
-Son güncelleme tarihi: 09.05.2026
+Kullanıcı, hesabının güvenliğinden, giriş bilgilerinin korunmasından ve hesabı üzerinden gerçekleştirilen işlemlerden sorumludur.
 
-İşbu Fotoğraf, Video ve İçerik Yayın İzni Metni, Sofrasofra platformuna kullanıcılar, Ev Lezzetleri üreticileri, Usta Şefler, restoranlar, kuryeler, Mahalle Mutfak Koçları veya iş ortakları tarafından yüklenen ya da izinli şekilde paylaşılan görsel, video, metin ve tanıtım içeriklerinin kullanımına ilişkin esasları düzenler.
+Kullanıcı; hesabını, telefonunu, e-posta adresini, doğrulama bilgilerini veya platform erişimini üçüncü kişilere devredemez, kiralayamaz, kullandıramaz veya izinsiz paylaşamaz.
+
+Kullanıcı, hesabının yetkisiz kullanıldığını, güvenlik ihlali olduğunu veya şüpheli bir işlem gerçekleştiğini fark ederse Sofrasofra’ya gecikmeksizin bilgi vermelidir.
+
+Sofrasofra, hesap güvenliği veya platform bütünlüğü açısından gerekli gördüğü hallerde kullanıcı hesabını geçici olarak kısıtlayabilir, askıya alabilir veya ek doğrulama isteyebilir.
+
+6. Kullanıcının Genel Yükümlülükleri
+
+Kullanıcı aşağıdaki yükümlülükleri kabul eder:
+
+- Platformu hukuka, dürüstlük kuralına, genel ahlaka, kamu düzenine ve işbu Sözleşme’ye uygun şekilde kullanmak,
+- Yanıltıcı, sahte, eksik veya başkasına ait bilgilerle işlem yapmamak,
+- Başka kullanıcıların, üreticilerin, şeflerin, restoranların, kuryelerin veya Sofrasofra’nın haklarını ihlal etmemek,
+- Platformun teknik altyapısına, güvenliğine veya işleyişine zarar verecek davranışlarda bulunmamak,
+- Sipariş, başvuru, ödeme, teslimat ve destek süreçlerinde doğru ve güncel bilgi vermek,
+- Platformda paylaştığı yorum, fotoğraf, video, açıklama, başvuru ve diğer içeriklerin hukuka uygun olmasını sağlamak,
+- Üçüncü kişilerin kişisel verilerini, fotoğraflarını, telif hakkına tabi içeriklerini veya ticari bilgilerini izinsiz paylaşmamak,
+- Sahte sipariş, sahte başvuru, sahte yorum, spam, kötüye kullanım veya manipülatif işlem gerçekleştirmemek.
+
+7. Platformun Rolü
+
+Sofrasofra, kullanıcılar, Ev Lezzetleri üreticileri, Usta Şefler, restoranlar, kuryeler ve iş ortakları arasında dijital görünürlük, başvuru, tanıtım, sipariş, ödeme yönlendirme, sepet, teslimat organizasyonu, destek ve operasyon süreçlerinin yürütülmesine aracılık eden teknoloji tabanlı bir platformdur.
+
+Sofrasofra’nın platform üzerindeki rolü, her işlemde ürünün veya hizmetin doğrudan satıcısı olduğu anlamına gelmez. Ürün veya hizmeti fiilen sunan üretici, şef, restoran, kurye veya ilgili hizmet sağlayıcı, kendi faaliyetinden, sunduğu ürün/hizmetin niteliğinden, açıklamasından, kalitesinden, hijyeninden, mevzuata uygunluğundan ve yasal yükümlülüklerinden sorumludur.
+
+Sofrasofra; platform güvenliği, kullanıcı deneyimi, ödeme yönlendirme, sipariş takibi, teslimat organizasyonu, başvuru inceleme, içerik denetimi ve destek süreçleri bakımından makul özeni gösterir.
+
+8. Sipariş, Ödeme ve Teslimat
+
+Kullanıcı, platform üzerinden ürün veya hizmet inceleyebilir, sepete ekleyebilir, sipariş oluşturabilir, ödeme sayfasına yönlendirilebilir veya teslimat/gel-al seçeneklerinden yararlanabilir.
+
+Sipariş içeriği, fiyat, ödeme durumu, teslimat şekli, platform hizmet bedeli, ödeme işlem ücreti, kurye bedeli veya benzeri kalemler platform ekranlarında gösterilebilir.
+
+Ödeme işlemleri, ilgili ödeme hizmet sağlayıcısının güvenli altyapısı üzerinden gerçekleştirilebilir. Sofrasofra, kart numarası ve CVV gibi hassas kart bilgilerini kendi sistemlerinde saklamaz.
+
+Siparişin hazırlanması, ürünün niteliği, ürün açıklamasının doğruluğu, ürünün teslimata uygunluğu ve hizmetin ifası, ürün veya hizmeti sunan üretici, şef, restoran veya hizmet sağlayıcının sorumluluğunda olabilir.
+
+Sofrasofra, ödeme, sepet, sipariş takibi, teslimat yönlendirmesi, kurye organizasyonu, destek ve uyuşmazlık süreçlerinde teknik ve operasyonel destek sağlayabilir.
+
+9. Başvuru ve İş Ortaklığı İşlemleri
+
+Kullanıcı, Ev Lezzetleri üreticisi, Usta Şef, restoran, kurye, Mahalle Mutfak Koçu, iş ortağı veya başka bir sıfatla platform üzerinden başvuru yapabilir.
+
+Başvuru yapılması, başvurunun kabul edildiği veya kullanıcının ilgili sıfatla platformda hizmet sunmaya hak kazandığı anlamına gelmez.
+
+Sofrasofra, başvuruları inceleyebilir, ek bilgi veya belge isteyebilir, başvuruyu onaylayabilir, beklemeye alabilir, reddedebilir veya daha sonra yeniden değerlendirebilir.
+
+Başvuru sahibi; kimlik, iletişim, çalışma durumu, fatura, vergi, IBAN, işletme, faaliyet, deneyim ve diğer başvuru bilgilerinin doğruluğundan sorumludur.
+
+10. Ücretler, Komisyonlar ve Hizmet Bedelleri
+
+Sofrasofra, üyelik, başvuru, görünürlük, vitrin, reklam, öne çıkarma, platform hizmeti, komisyon, ödeme işlem ücreti, teslimat, operasyon, danışmanlık veya benzeri hizmetler için ücretsiz veya ücretli modeller sunabilir.
+
+Geçerli ücretler, komisyon oranları, ödeme koşulları ve hizmet bedelleri platform ekranlarında, başvuru süreçlerinde, sözleşmelerde veya ilgili bilgilendirme alanlarında gösterilebilir.
+
+Sofrasofra, ücret ve komisyon modellerini mevzuata, operasyonel ihtiyaçlara, maliyetlere, kampanyalara veya platform politikalarına göre güncelleyebilir. Değişiklikler yürürlük tarihinden itibaren uygulanır.
+
+11. Kullanıcı İçerikleri
+
+Kullanıcı; platforma yüklediği fotoğraf, video, açıklama, yorum, ürün bilgisi, başvuru bilgisi, galeri, eğitim, tanıtım veya diğer içeriklerin hukuka uygun olduğunu ve üçüncü kişilerin haklarını ihlal etmediğini kabul eder.
+
+Kullanıcı, platforma içerik yüklemekle Sofrasofra’ya söz konusu içeriği platformda yayınlama, görüntüleme, düzenleme, teknik olarak işleme, vitrinlerde gösterme, sosyal medya veya kurumsal tanıtım alanlarında kullanma konusunda gerekli ölçüde kullanım izni verdiğini kabul eder.
+
+Hakaret, tehdit, ayrımcılık, kişisel veri ifşası, yanıltıcı bilgi, haksız rekabet, telif hakkı ihlali, marka ihlali, uygunsuz görsel, spam veya hukuka aykırı içerikler Sofrasofra tarafından kaldırılabilir.
+
+Kullanıcı içeriklerine ilişkin ayrıntılı hükümler ayrıca Fotoğraf, Video ve İçerik Yayın İzni metninde düzenlenebilir.
+
+12. Yasaklı Kullanımlar
+
+Kullanıcı aşağıdaki davranışlarda bulunamaz:
+
+- Platformu hukuka veya işbu Sözleşme’ye aykırı kullanmak,
+- Sahte hesap açmak veya başkasının hesabını izinsiz kullanmak,
+- Sahte sipariş, sahte başvuru, sahte yorum veya manipülatif işlem yapmak,
+- Platform güvenliğini, yazılımını, veri tabanını veya teknik altyapısını bozmak,
+- Virüs, zararlı kod, otomatik bot, kazıma, spam veya yetkisiz veri toplama faaliyeti yürütmek,
+- Üçüncü kişilerin kişisel verilerini hukuka aykırı şekilde paylaşmak,
+- Sofrasofra’nın marka, logo, ticaret unvanı, itibar veya iş modelini yanıltıcı şekilde kullanmak,
+- Gıda güvenliği, hijyen, tüketici, vergi, fatura veya ilgili mevzuata aykırı ürün/hizmet sunmak,
+- Platformu dolandırıcılık, kötüye kullanım, haksız kazanç veya başkalarına zarar verme amacıyla kullanmak.
+
+13. Hesabın Askıya Alınması veya Sonlandırılması
+
+Sofrasofra; hukuka aykırılık, güvenlik riski, yanıltıcı bilgi, sahte işlem, kullanıcı şikâyeti, ödeme sorunu, uygunsuz içerik, hijyen veya kalite riski, platform itibarını zedeleyen davranış, mevzuata aykırılık veya işbu Sözleşme’ye aykırılık halinde ilgili hesabı, başvuruyu, ürünü, profili, içeriği veya hizmeti geçici ya da kalıcı olarak durdurabilir.
+
+Kullanıcı, üyeliğini sonlandırmak veya hesabının kapatılmasını istemek için Sofrasofra ile iletişime geçebilir. Mevzuat gereği saklanması gereken kayıtlar, yasal süreler boyunca saklanmaya devam edebilir.
+
+14. Kişisel Veriler
+
+Kullanıcının kişisel verilerinin işlenmesine ilişkin esaslar Gizlilik Politikası, KVKK Aydınlatma Metni, Çerez Politikası, Açık Rıza Metni ve ilgili diğer hukuki metinlerde düzenlenir.
+
+Kullanıcı, platformu kullanırken kişisel verilerinin ilgili hukuki metinlerde açıklanan şekilde işlenebileceğini kabul eder.
+
+15. Fikri ve Sınai Haklar
+
+Sofrasofra’ya ait marka, logo, tasarım, yazılım, arayüz, metin, görsel düzen, veri tabanı, kod, konsept, iş modeli, sayfa yapısı ve benzeri tüm fikri ve sınai haklar Sofrasofra’ya veya ilgili hak sahiplerine aittir.
+
+Kullanıcı, Sofrasofra’nın yazılı izni olmadan platform içeriklerini kopyalayamaz, çoğaltamaz, değiştiremez, dağıtamaz, satamaz, kiralayamaz, ticari amaçla kullanamaz veya üçüncü kişilere aktaramaz.
+
+16. Hizmetin Kesintiye Uğraması
+
+Sofrasofra, platformun kesintisiz, hatasız veya her zaman erişilebilir olacağını garanti etmez.
+
+Bakım, güncelleme, teknik arıza, internet kesintisi, ödeme sağlayıcı arızası, bulut altyapısı sorunu, siber saldırı, resmi makam kararı, mücbir sebep veya benzeri nedenlerle platform hizmetlerinde geçici kesintiler yaşanabilir.
+
+Sofrasofra, platformun özelliklerini, tasarımını, teknik altyapısını, üyelik modellerini, ücretlendirme, komisyon, görünürlük, vitrin ve operasyon sistemlerini değiştirebilir.
+
+17. Sorumluluk Sınırları
+
+Sofrasofra, kendi kusurundan kaynaklanan ve mevzuat gereği sorumlu tutulabileceği haller saklı kalmak kaydıyla, üretici, şef, restoran, kurye, müşteri veya üçüncü taraf hizmet sağlayıcıların fiil, beyan, ürün, hizmet, gecikme, eksiklik, ayıp, hijyen, kalite, vergi, fatura veya mevzuata aykırılıklarından doğrudan sorumlu değildir.
+
+Sofrasofra, platformda yer alan kullanıcı, üretici, şef, restoran veya kurye içeriklerinin her zaman doğru, eksiksiz, güncel veya mevzuata uygun olduğunu garanti etmez. Bildirilen veya tespit edilen uygunsuzluklar için makul inceleme ve müdahale süreçleri yürütülebilir.
+
+Üçüncü taraf ödeme sağlayıcıları, harita servisleri, video platformları, sosyal medya platformları, bulut altyapısı, internet servisleri veya diğer bağlantılı hizmetlerden kaynaklanan aksaklıklar ilgili hizmet sağlayıcıların sorumluluğunda olabilir.
+
+18. Mücbir Sebep
+
+Doğal afet, yangın, sel, deprem, salgın hastalık, savaş, terör, grev, lokavt, resmi makam kararları, internet ve enerji kesintileri, siber saldırılar, ödeme sistemi arızaları, bulut altyapısı sorunları, tedarik ve teslimat aksaklıkları veya Sofrasofra’nın makul kontrolü dışında gelişen olaylar mücbir sebep sayılır.
+
+Mücbir sebep hallerinde Sofrasofra’nın yükümlülükleri olayın etkisi oranında askıya alınabilir veya gecikebilir.
+
+19. Sözleşme Değişiklikleri
+
+Sofrasofra, işbu Üyelik Sözleşmesi’ni mevzuat değişiklikleri, hizmet modeli, teknik altyapı, operasyonel ihtiyaçlar, güvenlik gereklilikleri veya platform politikaları doğrultusunda güncelleyebilir.
+
+Güncel Üyelik Sözleşmesi www.sofrasofra.com ve ilgili dijital kanallar üzerinden yayınlandığı anda yürürlüğe girer. Platformun kullanılmaya devam edilmesi, güncel sözleşme hükümlerinin kabul edildiği anlamına gelir.
+
+20. Uygulanacak Hukuk ve Uyuşmazlık Çözümü
+
+İşbu Üyelik Sözleşmesi’nin uygulanmasında Türkiye Cumhuriyeti hukuku geçerlidir.
+
+Tüketici sıfatına sahip kullanıcıların tüketici mevzuatından kaynaklanan hakları saklıdır. Tüketici işlemlerinde ilgili mevzuat uyarınca tüketici hakem heyetleri ve tüketici mahkemeleri yetkili olabilir.
+
+Ticari nitelikteki işlemler, iş ortaklığı ilişkileri, üretici, şef, restoran, kurye veya platform hizmetlerinden kaynaklanan uyuşmazlıklarda, mevzuatın emredici hükümleri saklı kalmak kaydıyla İstanbul mahkemeleri ve icra daireleri yetkili kabul edilebilir.
+
+21. Yürürlük
+
+Kullanıcı, platforma üye olarak, platformu kullanarak, sipariş vererek, başvuru yaparak veya Sofrasofra hizmetlerinden yararlanarak işbu Üyelik Sözleşmesi hükümlerini okuduğunu, anladığını ve kabul ettiğini beyan eder.
+
+22. İletişim
+
+Üyelik Sözleşmesi’ne ilişkin soru, talep ve bildirimler için aşağıdaki iletişim kanalları kullanılabilir:
+
+UYBAT TEKNOLOJİ YAZILIM VE TİCARET LİMİTED ŞİRKETİ
+E-posta: info@sofrasofra.com
+Telefon: +90 536 299 13 24
+WhatsApp Hattı: +90 533 322 13 24
+Adres: Abdurrahman Nafiz Gürman Mahallesi, Kınalıtepe Sokak, Simitaş 8 Blok No: 1, İç Kapı No: 311, Güngören / İstanbul
 ''',
   ),
 ];
