@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:sofrasofra_arena_v2/modules/widgets/campaign_counter_panel.dart';
 import 'package:sofrasofra_arena_v2/modules/auth/satici_admin_giris_sayfasi.dart';
 import 'package:sofrasofra_arena_v2/modules/widgets/kurumsal_footer_links.dart';
+import 'package:sofrasofra_arena_v2/modules/widgets/kurumsal_site_card.dart';
 import 'package:sofrasofra_arena_v2/onboarding/onayli_panel_yonlendirici.dart';
 import 'dart:convert';
 
@@ -522,6 +523,8 @@ class _ArenaEntryPageState extends State<ArenaEntryPage> {
                           ),
                   ),
                   const SizedBox(height: 28),
+                  const KurumsalSiteCard(),
+                  const SizedBox(height: 18),
                   const KurumsalFooterLinks(),
                   const SizedBox(height: 90),
                 ],
