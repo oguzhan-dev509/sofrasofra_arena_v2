@@ -950,17 +950,211 @@ Mesafeli Satış Sözleşmesi
 
 Son güncelleme tarihi: 16.05.2026
 
-İşbu Mesafeli Satış Sözleşmesi, Sofrasofra platformu üzerinden verilen siparişlerde, alıcı ile satıcı/hizmet sağlayıcı arasında elektronik ortamda kurulan mesafeli satış ilişkisine ilişkin hak ve yükümlülükleri düzenler.
+1. Taraflar
 
-Bu metin; Ev Lezzetleri ürünleri, Usta Şef imza tabakları, restoran ürünleri, catering, danışmanlık, eğitim, rezervasyon, teslimat ve gel-al siparişleri gibi Sofrasofra üzerinden sunulabilecek ürün ve hizmetleri kapsar.
+İşbu Mesafeli Satış Sözleşmesi, Sofrasofra platformu üzerinden elektronik ortamda verilen siparişlerde, alıcı ile satıcı/hizmet sağlayıcı arasında kurulan mesafeli satış ilişkisine ilişkin hak ve yükümlülükleri düzenlemek amacıyla hazırlanmıştır.
 
-Sofrasofra, teknoloji tabanlı bir platform olarak sipariş, ödeme yönlendirme, sepet, teslimat organizasyonu, destek ve operasyon süreçlerine aracılık edebilir. Ürün veya hizmeti fiilen sunan satıcı/hizmet sağlayıcı; ürünün niteliği, açıklaması, hijyeni, fiyatı, hazırlanması, teslimata uygunluğu, faturalandırılması ve mevzuata uygunluğundan kendi statüsü ölçüsünde sorumludur.
+Platform İşleticisi / Aracı Hizmet Sağlayıcı:
+UYBAT TEKNOLOJİ YAZILIM VE TİCARET LİMİTED ŞİRKETİ
+Ticaret Sicil No: 1096741
+MERSİS No: 0898132285200001
+Adres: Abdurrahman Nafiz Gürman Mahallesi, Kınalıtepe Sokak, Simitaş 8 Blok No: 1, İç Kapı No: 311, Güngören / İstanbul
+Web Sitesi: www.sofrasofra.com
+E-posta: info@sofrasofra.com
+Telefon: +90 536 299 13 24
+WhatsApp Hattı: +90 533 322 13 24
 
-Alıcı, sipariş vermeden önce ürün veya hizmet açıklamasını, fiyatı, teslimat yöntemini, ödeme koşullarını, iptal/iade şartlarını ve varsa cayma hakkı istisnalarını okuyup kabul ettiğini beyan eder.
+Alıcı:
+Sofrasofra platformu üzerinden ürün veya hizmet siparişi veren gerçek veya tüzel kişidir. Alıcıya ait ad, soyad/unvan, telefon, e-posta, teslimat adresi, fatura bilgileri ve sipariş detayları ilgili sipariş ekranlarında veya sistem kayıtlarında yer alır.
 
-Gıda ürünleri, çabuk bozulabilen ürünler, son kullanma tarihi kısa olan ürünler, kişiye özel hazırlanan ürünler, belirli tarih veya saat için hazırlanan yemek, pasta, catering, davet, rezervasyon ve benzeri hizmetlerde cayma hakkı mevzuat gereği sınırlı olabilir veya kullanılamayabilir.
+Satıcı / Hizmet Sağlayıcı:
+Sofrasofra platformunda Ev Lezzetleri üreticisi, Usta Şef, restoran, işletme veya benzeri sıfatla ürün ya da hizmet sunan kişidir. Satıcı/hizmet sağlayıcıya ait bilgiler, ilgili ürün, profil, başvuru, sipariş veya fatura kayıtlarında gösterilebilir.
 
-Ayrıntılı hükümler, Ön Bilgilendirme Formu ve İptal, İade ve Cayma Hakkı Politikası ile birlikte değerlendirilir.
+2. Sözleşmenin Konusu
+
+İşbu Sözleşme’nin konusu; alıcının Sofrasofra platformu üzerinden elektronik ortamda sipariş verdiği ürün veya hizmetlerin satışı, hazırlanması, teslimi, ödemesi, iptali, iadesi, cayma hakkı ve tarafların hak ve yükümlülüklerinin belirlenmesidir.
+
+Sofrasofra; Ev Lezzetleri üreticilerini, Usta Şefleri, restoranları, kuryeleri ve müşterileri dijital ortamda bir araya getiren teknoloji tabanlı bir platformdur.
+
+Sofrasofra’nın rolü, her somut işlemde ürünün doğrudan satıcısı olduğu anlamına gelmez. Ürün veya hizmeti fiilen sunan satıcı/hizmet sağlayıcı; ürünün niteliği, içeriği, hijyeni, açıklaması, fiyatı, hazırlanması, faturalandırılması ve mevzuata uygunluğundan kendi statüsü ve faaliyeti ölçüsünde sorumludur.
+
+3. Ürün ve Hizmet Bilgileri
+
+Siparişe konu ürün veya hizmetin temel nitelikleri, satış fiyatı, varsa teslimat/kurye bedeli, ödeme işlem ücreti, platform hizmet bedeli, teslimat yöntemi, hazırlık süresi, satıcı/hizmet sağlayıcı bilgisi ve diğer sipariş detayları sipariş öncesinde platform ekranlarında gösterilir.
+
+Alıcı, sipariş vermeden önce ürün/hizmet açıklamasını, fiyatı, teslimat/gel-al seçeneklerini, varsa alerjen veya içerik açıklamalarını, iptal/iade koşullarını ve sipariş özetini kontrol etmekle yükümlüdür.
+
+Gıda ürünleri, ev yapımı yemekler, kişiye özel hazırlanabilen siparişler, belirli tarih ve saat için hazırlanan ürünler, danışmanlık, eğitim, rezervasyon, davet, catering veya benzeri hizmetler ürünün/hizmetin niteliğine göre farklı iptal, iade ve cayma koşullarına tabi olabilir.
+
+4. Siparişin Oluşturulması
+
+Alıcı, platform üzerinden ürünü veya hizmeti seçip sepete ekleyerek, sipariş bilgilerini onaylayarak ve ödeme adımını tamamlayarak sipariş oluşturabilir.
+
+Siparişin alınması, ödeme sürecinin başarıyla tamamlanması, satıcı/hizmet sağlayıcının siparişi kabul etmesi veya platform tarafından operasyonel olarak onaylanması gibi aşamalar sipariş türüne göre değişebilir.
+
+Sofrasofra, teknik hata, stok/talep uygunsuzluğu, ödeme başarısızlığı, satıcı/hizmet sağlayıcı onayının alınamaması, teslimat imkânsızlığı, güvenlik riski veya mevzuata aykırılık halinde siparişi iptal edebilir ya da işleme almayabilir.
+
+5. Ödeme
+
+Ödeme işlemleri, ilgili ödeme hizmet sağlayıcısının güvenli altyapısı üzerinden gerçekleştirilebilir.
+
+Sofrasofra, kart numarası, CVV veya benzeri hassas kart bilgilerini kendi sistemlerinde saklamaz. Ödeme sonucuna, sipariş durumu bilgisine ve finansal işlem kayıtlarına erişebilir.
+
+Sipariş bedeli; ürün/hizmet bedeli, varsa teslimat/kurye bedeli, ödeme işlem ücreti, platform hizmet bedeli, komisyon veya ilgili ek kalemlerden oluşabilir. Bu kalemler platform ekranlarında gösterilebilir.
+
+Ödeme başarısız olursa sipariş tamamlanmayabilir. Ödemenin alınmasına rağmen siparişin ifa edilememesi halinde iptal/iade süreci ilgili mevzuat, satıcı/hizmet sağlayıcı durumu ve ödeme hizmet sağlayıcısı kuralları dikkate alınarak yürütülür.
+
+6. Teslimat ve Gel-Al
+
+Teslimat; satıcı/hizmet sağlayıcı, platform kuryesi, bağımsız kurye, üçüncü taraf teslimat hizmeti veya alıcının gel-al tercihiyle gerçekleştirilebilir.
+
+Teslimat adresinin doğru, açık ve ulaşılabilir şekilde girilmesinden alıcı sorumludur. Yanlış, eksik veya ulaşılamayan adres, telefonun kapalı olması, alıcının teslimat noktasında bulunmaması veya teslimatın alıcıdan kaynaklanan sebeplerle gerçekleştirilememesi halinde doğabilecek gecikme, iptal veya ek maliyetlerden alıcı sorumlu olabilir.
+
+Gıda ürünlerinde teslimat süresi; hazırlık süresi, mesafe, trafik, hava koşulları, kurye uygunluğu, satıcı/hizmet sağlayıcı yoğunluğu ve mücbir sebeplerden etkilenebilir.
+
+Gel-al siparişlerinde alıcı, belirtilen saat aralığında ürünü teslim almakla yükümlüdür. Zamanında teslim alınmayan gıda ürünlerinde kalite, sıcaklık, tazelik veya iade koşulları ürünün niteliğine göre etkilenebilir.
+
+7. Satıcı / Hizmet Sağlayıcının Yükümlülükleri
+
+Satıcı/hizmet sağlayıcı aşağıdaki yükümlülükleri kabul eder:
+
+- Ürün veya hizmet bilgilerini doğru, güncel ve yanıltıcı olmayacak şekilde sunmak,
+- Fiyat, açıklama, görsel, içerik, hazırlık süresi, teslimat seçeneği ve stok bilgilerini doğru yönetmek,
+- Gıda güvenliği, hijyen, sağlık, vergi, fatura, tüketici ve ilgili mevzuata uygun hareket etmek,
+- Siparişi dürüstlük kuralına, ürün açıklamasına ve platformda belirtilen koşullara uygun şekilde hazırlamak veya sunmak,
+- İptal, iade, gecikme, eksik ürün, ayıplı ürün veya müşteri şikâyeti halinde Sofrasofra destek ve operasyon süreçleriyle iş birliği yapmak,
+- Kendi vergi, fatura, gelir, izin, ruhsat, üretim ve mesleki yükümlülüklerinden sorumlu olduğunu kabul etmek.
+
+8. Alıcının Yükümlülükleri
+
+Alıcı aşağıdaki yükümlülükleri kabul eder:
+
+- Sipariş öncesinde ürün/hizmet bilgilerini, fiyatı, teslimat seçeneğini, cayma/iptal/iade koşullarını ve sipariş özetini kontrol etmek,
+- Teslimat adresi, telefon, fatura ve iletişim bilgilerini doğru ve güncel vermek,
+- Gıda alerjisi, hassasiyet, özel beslenme tercihi veya benzeri konularda satıcı/hizmet sağlayıcı açıklamalarını dikkatle incelemek ve gerekirse sipariş öncesi destek istemek,
+- Teslimat veya gel-al sürecinde belirtilen saat ve adreste hazır bulunmak,
+- Platformu, ödeme sistemini, sipariş sürecini veya destek kanallarını kötüye kullanmamak,
+- Sipariş ve ödeme işlemlerinde hukuka ve dürüstlük kuralına uygun hareket etmek.
+
+9. Sofrasofra’nın Platform Rolü
+
+Sofrasofra; siparişin dijital ortamda oluşturulması, ödeme yönlendirmesi, satıcı/hizmet sağlayıcı görünürlüğü, teslimat organizasyonu, sepet, sipariş takibi, destek, uyuşmazlık ve operasyon süreçlerinde teknik altyapı ve platform hizmeti sunar.
+
+Sofrasofra, satıcı/hizmet sağlayıcı tarafından sunulan ürün veya hizmetin fiili üreticisi, hazırlayıcısı veya sağlayıcısı olmayabilir. Bu nedenle ürünün içeriği, hijyeni, ayıplı olup olmadığı, mevzuata uygunluğu, faturalandırma ve fiili ifa süreçlerinden esasen ilgili satıcı/hizmet sağlayıcı sorumludur.
+
+Sofrasofra, kullanıcı güvenliği, platform düzeni, tüketici memnuniyeti ve operasyon kalitesi için makul inceleme, yönlendirme, destek, içerik kaldırma, satıcı/hizmet sağlayıcı uyarma, görünürlük azaltma, hesap askıya alma veya başvuru sonlandırma gibi önlemler alabilir.
+
+10. Cayma Hakkı
+
+Alıcı, mesafeli satış mevzuatı kapsamında cayma hakkına sahip olabilir. Cayma hakkı, ürün veya hizmetin niteliğine, teslimat durumuna, ifa aşamasına ve mevzuatta düzenlenen istisnalara göre değerlendirilir.
+
+Cayma hakkının kullanılabileceği hallerde alıcı, cayma hakkını süresi içinde satıcı/hizmet sağlayıcıya veya Sofrasofra destek kanallarına açık bir beyanla bildirebilir.
+
+Cayma hakkı bildirimi; e-posta, destek kanalı, yazılı bildirim veya platformda sunulması halinde ilgili cayma/iptal aracı üzerinden yapılabilir.
+
+Cayma hakkının usulüne uygun şekilde kullanılması halinde iade süreci, ödeme hizmet sağlayıcısı kuralları ve ilgili mevzuat hükümleri dikkate alınarak yürütülür.
+
+11. Cayma Hakkının İstisnaları
+
+Aşağıdaki ürün ve hizmetlerde, mevzuatın izin verdiği ölçüde cayma hakkı kullanılamayabilir:
+
+- Çabuk bozulabilen veya son kullanma tarihi çabuk geçebilecek gıda ürünleri,
+- Alıcının özel istekleri veya kişisel ihtiyaçları doğrultusunda hazırlanan ürünler,
+- Belirli bir tarih veya dönemde yapılması gereken yiyecek-içecek tedariki, davet, catering, organizasyon, rezervasyon veya benzeri hizmetler,
+- Tesliminden sonra sağlık veya hijyen açısından iadesi uygun olmayan ürünler,
+- Hazırlık veya üretim süreci alıcı onayıyla başlamış ve niteliği gereği iadesi mümkün olmayan ürün/hizmetler,
+- Elektronik ortamda anında ifa edilen eğitim, dijital içerik, video, danışmanlık veya benzeri hizmetler,
+- Mevzuatta cayma hakkı istisnası olarak düzenlenen diğer ürün ve hizmetler.
+
+Sofrasofra’nın faaliyet alanı gereği ev yapımı yemek, sıcak yemek, yaş pasta, günlük üretim, siparişe özel hazırlanan gıda, belirli saate hazırlanan tabak, catering, davet, restoran ürünü ve benzeri ürün/hizmetlerde cayma hakkı sınırlı veya kullanılamaz olabilir.
+
+12. İptal Süreci
+
+Alıcı, siparişin durumuna göre iptal talebinde bulunabilir. İptal talebi; siparişin hazırlanma aşaması, ürünün niteliği, satıcı/hizmet sağlayıcı onayı, kurye ataması, ödeme durumu ve teslimat aşaması dikkate alınarak değerlendirilir.
+
+Hazırlanmaya başlanmış, kişiye özel üretilmiş, çabuk bozulabilir nitelikte olan, kurye teslimatına verilmiş veya belirli saat/tarih için organize edilmiş siparişlerde iptal talebi reddedilebilir ya da kesinti uygulanabilir.
+
+Satıcı/hizmet sağlayıcıdan kaynaklanan hazırlanamama, stok/üretim imkânsızlığı, kalite sorunu veya teslimat imkânsızlığı hallerinde sipariş iptal edilebilir ve uygun görülen hallerde bedel iadesi yapılabilir.
+
+13. İade ve Geri Ödeme
+
+İade ve geri ödeme süreci; ürün/hizmetin niteliği, cayma hakkı durumu, iptal sebebi, ödeme yöntemi, satıcı/hizmet sağlayıcı sorumluluğu ve ödeme hizmet sağlayıcısının işlem kuralları dikkate alınarak yürütülür.
+
+İade yapılması gereken hallerde geri ödeme, mümkün olduğu ölçüde alıcının ödeme yaptığı yöntemle gerçekleştirilir. Banka, kart kuruluşu veya ödeme hizmet sağlayıcısından kaynaklanan gecikmeler Sofrasofra’nın doğrudan kontrolü dışında olabilir.
+
+Kısmi iade, tam iade, kupon, bakiye, yeniden gönderim, ürün değişimi veya destek çözümü gibi yöntemler somut olayın niteliğine göre uygulanabilir.
+
+Teslim edilmiş ve niteliği gereği iadesi mümkün olmayan gıda ürünlerinde iade yerine kalite incelemesi, destek kaydı, satıcı değerlendirmesi veya uygun görülen başka bir çözüm uygulanabilir.
+
+14. Ayıplı, Eksik veya Hatalı Ürün/Hizmet
+
+Alıcı, siparişin eksik, hatalı, bozuk, ayıplı, açıklamaya aykırı veya teslimata uygun olmayan şekilde geldiğini düşünüyorsa durumu makul süre içinde Sofrasofra destek kanallarına bildirmelidir.
+
+Bildirimde sipariş numarası, ürün/hizmet bilgisi, açıklama, fotoğraf, video veya destekleyici bilgi talep edilebilir.
+
+Sofrasofra, satıcı/hizmet sağlayıcı, kurye ve alıcı beyanlarını, fotoğraf/video kayıtlarını, sipariş geçmişini, teslimat durumunu ve ilgili operasyon kayıtlarını inceleyerek makul bir çözüm süreci yürütebilir.
+
+Ayıplı veya eksik ifadan doğan yasal sorumluluk, somut olayın niteliğine göre ilgili satıcı/hizmet sağlayıcıya ait olabilir.
+
+15. Fatura ve Vergisel Yükümlülükler
+
+Siparişe konu ürün veya hizmete ilişkin fiş/fatura düzenleme yükümlülüğü, ürün veya hizmeti sunan satıcı/hizmet sağlayıcının hukuki ve vergisel statüsüne göre belirlenir.
+
+Sofrasofra, satıcı/hizmet sağlayıcıdan aldığı komisyon, platform hizmet bedeli veya benzeri hizmetleri için ilgili kişiye/işletmeye fatura düzenleyebilir.
+
+Alıcı, fatura bilgilerini doğru ve eksiksiz vermekle yükümlüdür. Yanlış veya eksik fatura bilgilerinden doğabilecek sonuçlardan alıcı sorumludur.
+
+16. Gıda Güvenliği, Alerjenler ve Ürün İçeriği
+
+Gıda ürünlerinde içerik, alerjen, üretim yöntemi, saklama koşulları, porsiyon, gramaj, sıcaklık, tazelik ve benzeri bilgiler satıcı/hizmet sağlayıcı tarafından sağlanır.
+
+Alıcı; alerji, intolerans, sağlık hassasiyeti, özel diyet, hamilelik, çocuk tüketimi veya benzeri özel durumlarda sipariş öncesinde ürün açıklamalarını dikkatle incelemeli ve gerekirse satıcı/hizmet sağlayıcı veya Sofrasofra destek kanalları üzerinden bilgi almalıdır.
+
+Sofrasofra, satıcı/hizmet sağlayıcı tarafından bildirilmeyen veya eksik bildirilen içerik, alerjen, hijyen, üretim veya saklama bilgilerinden doğrudan sorumlu tutulamayabilir. Ancak bildirilen risklerde makul inceleme ve destek süreci yürütebilir.
+
+17. Uyuşmazlık ve Destek Süreci
+
+Alıcı, satıcı/hizmet sağlayıcı, kurye veya teslimat süreciyle ilgili soru, talep ve şikâyetlerini Sofrasofra destek kanallarına iletebilir.
+
+Sofrasofra, uyuşmazlıkların çözümü için taraflar arasında iletişim kurulmasına, kayıtların incelenmesine, destek çözümü üretilmesine ve platform politikalarının uygulanmasına yardımcı olabilir.
+
+Sofrasofra’nın destek sürecinde çözüm üretmeye çalışması, satıcı/hizmet sağlayıcı veya kurye yerine doğrudan yasal sorumluluk üstlendiği anlamına gelmez.
+
+18. Kişisel Veriler
+
+Alıcı, satıcı/hizmet sağlayıcı ve sipariş sürecinde yer alan kişilere ait kişisel veriler; siparişin alınması, ödeme, teslimat, fatura, destek, iptal, iade, güvenlik ve yasal yükümlülüklerin yerine getirilmesi amacıyla işlenebilir.
+
+Kişisel verilerin işlenmesine ilişkin ayrıntılı hükümler Gizlilik Politikası, KVKK Aydınlatma Metni, Çerez Politikası ve ilgili diğer hukuki metinlerde düzenlenir.
+
+19. Mücbir Sebep
+
+Doğal afet, yangın, sel, deprem, salgın hastalık, savaş, terör, grev, lokavt, resmi makam kararları, internet ve enerji kesintileri, ödeme sistemi arızaları, bulut altyapısı sorunları, siber saldırılar, trafik, hava koşulları, tedarik ve teslimat aksaklıkları veya tarafların makul kontrolü dışında gelişen olaylar mücbir sebep sayılır.
+
+Mücbir sebep hallerinde siparişin hazırlanması, teslimi, iptali, iadesi veya hizmetin ifası gecikebilir, askıya alınabilir veya imkânsız hale gelebilir.
+
+20. Uygulanacak Hukuk ve Yetki
+
+İşbu Mesafeli Satış Sözleşmesi’nin uygulanmasında Türkiye Cumhuriyeti hukuku geçerlidir.
+
+Tüketici sıfatına sahip alıcıların tüketici mevzuatından kaynaklanan hakları saklıdır. Tüketici işlemlerinde ilgili mevzuat uyarınca tüketici hakem heyetleri ve tüketici mahkemeleri yetkili olabilir.
+
+Ticari nitelikteki işlemler veya iş ortaklığı ilişkilerinden kaynaklanan uyuşmazlıklarda, mevzuatın emredici hükümleri saklı kalmak kaydıyla İstanbul mahkemeleri ve icra daireleri yetkili kabul edilebilir.
+
+21. Yürürlük
+
+Alıcı, platform üzerinden sipariş vererek işbu Mesafeli Satış Sözleşmesi’ni, Ön Bilgilendirme Formu’nu, İptal, İade ve Cayma Hakkı Politikası’nı ve ilgili diğer hukuki metinleri okuduğunu, anladığını ve siparişe uygulanacak koşulları kabul ettiğini beyan eder.
+
+İşbu Sözleşme, elektronik ortamda alıcı tarafından onaylandığı veya sipariş oluşturulduğu anda yürürlüğe girer.
+
+22. İletişim
+
+Mesafeli Satış Sözleşmesi’ne ilişkin soru, talep ve bildirimler için aşağıdaki iletişim kanalları kullanılabilir:
+
+UYBAT TEKNOLOJİ YAZILIM VE TİCARET LİMİTED ŞİRKETİ
+E-posta: info@sofrasofra.com
+Telefon: +90 536 299 13 24
+WhatsApp Hattı: +90 533 322 13 24
+Adres: Abdurrahman Nafiz Gürman Mahallesi, Kınalıtepe Sokak, Simitaş 8 Blok No: 1, İç Kapı No: 311, Güngören / İstanbul
 ''',
   ),
   SofrasofraHukukiMetin(
