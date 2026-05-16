@@ -13,7 +13,10 @@ class KurumsalSiteCard extends StatelessWidget {
     if (!_siteReady) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Kurumsal site çok yakında yayında olacak.'),
+          content: Text(
+            'Sofrasofra kurumsal web sitesi yayın hazırlığında. '
+            'Hukuki merkez ve başvuru altyapısı uygulama içinde aktiftir.',
+          ),
         ),
       );
       return;
@@ -92,7 +95,7 @@ class KurumsalSiteCard extends StatelessWidget {
                     ),
                     SizedBox(height: 5),
                     Text(
-                      'Hakkımızda, iş ortaklığı, mahalle mutfak ağı, blog ve hukuki bilgiler.',
+                      'Hakkımızda, iş ortaklığı, mahalle mutfak ağı, blog, hukuki merkez ve başvuru altyapısı.',
                       style: TextStyle(
                         color: Color(0xFFCCCCCC),
                         fontSize: 13,
