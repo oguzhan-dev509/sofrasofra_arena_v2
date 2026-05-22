@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+
 import 'models/restoran_model.dart';
+import 'restoran_detay_sayfasi.dart';
 import 'widgets/restoran_premium_card.dart';
 
 class PremiumRestoranVitrini extends StatelessWidget {
@@ -86,10 +88,10 @@ class PremiumRestoranVitrini extends StatelessWidget {
               ratingText: restaurant.ratingText,
               serviceText: restaurant.serviceText,
               onTap: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(
-                      '${restaurant.name} için siparişler lansman döneminde aktif edilecek.',
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => RestoranDetaySayfasi(
+                      restaurant: restaurant,
                     ),
                   ),
                 );
