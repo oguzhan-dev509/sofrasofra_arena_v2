@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:sofrasofra_arena_v2/services/platform_admin_service.dart';
 
+import 'models/restoran_menu_item_model.dart';
 import 'models/restoran_model.dart';
+import 'widgets/restoran_menu_item_card.dart';
 import 'widgets/restoran_status_badge.dart';
 
 class RestoranDetaySayfasi extends StatelessWidget {
@@ -40,7 +43,17 @@ class RestoranDetaySayfasi extends StatelessWidget {
           const SizedBox(height: 18),
           _LaunchNotice(restaurant: restaurant),
           const SizedBox(height: 18),
-          _MenuPreviewSection(),
+          FutureBuilder<bool>(
+            future: PlatformAdminService.isCurrentUserPlatformAdmin(),
+            builder: (context, snapshot) {
+              final isAdmin = snapshot.data == true;
+
+              return _MenuPreviewSection(
+                restaurant: restaurant,
+                isAdmin: isAdmin,
+              );
+            },
+          ),
         ],
       ),
     );
@@ -249,38 +262,140 @@ class _LaunchNotice extends StatelessWidget {
 }
 
 class _MenuPreviewSection extends StatelessWidget {
+  const _MenuPreviewSection({
+    required this.restaurant,
+    required this.isAdmin,
+  });
+
+  final RestoranModel restaurant;
+  final bool isAdmin;
+
   static const Color _gold = Color(0xFFFFB300);
+
+  List<RestoranMenuItemModel> get _demoItems {
+    return [
+      RestoranMenuItemModel(
+        id: '${restaurant.id}_gunun_corbasi',
+        restaurantId: restaurant.id,
+        name: 'Günün Çorbası',
+        description: 'Restoranın günlük hazırladığı sıcak başlangıç lezzeti.',
+        category: 'Çorbalar',
+        img: 'https://images.unsplash.com/photo-1547592166-23ac45744acd',
+        gelAlFiyat: 80,
+        goturFiyat: 95,
+        isFeatured: true,
+        preparationMinutes: 12,
+      ),
+      RestoranMenuItemModel(
+        id: '${restaurant.id}_izgara_kofte',
+        restaurantId: restaurant.id,
+        name: 'Izgara Köfte',
+        description:
+            'Pilav, salata ve günlük garnitür eşliğinde restoran usulü köfte.',
+        category: 'Ana Yemekler',
+        img: 'https://images.unsplash.com/photo-1529692236671-f1f6cf9683ba',
+        gelAlFiyat: 220,
+        goturFiyat: 250,
+        preparationMinutes: 25,
+      ),
+      RestoranMenuItemModel(
+        id: '${restaurant.id}_lahmacun',
+        restaurantId: restaurant.id,
+        name: 'Taş Fırın Lahmacun',
+        description:
+            'İnce hamur, taze harç ve fırından sıcak çıkan mahalle lezzeti.',
+        category: 'Fırın',
+        img: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38',
+        gelAlFiyat: 90,
+        goturFiyat: 110,
+        preparationMinutes: 18,
+      ),
+    ];
+  }
 
   @override
   Widget build(BuildContext context) {
+    if (!isAdmin) {
+      return Container(
+        padding: const EdgeInsets.all(18),
+        decoration: BoxDecoration(
+          color: Colors.white.withValues(alpha: 0.04),
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(
+            color: Colors.white.withValues(alpha: 0.10),
+          ),
+        ),
+        child: const Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Menü altyapısı hazırlanıyor',
+              style: TextStyle(
+                color: _gold,
+                fontSize: 18,
+                fontWeight: FontWeight.w900,
+              ),
+            ),
+            SizedBox(height: 10),
+            Text(
+              'Restoran ürünleri, menü kategorileri ve Gel-Al / Götür fiyatları lansman döneminde müşterilere açılacak.',
+              style: TextStyle(
+                color: Colors.white70,
+                fontSize: 14,
+                height: 1.45,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    final items = _demoItems;
+
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.04),
         borderRadius: BorderRadius.circular(24),
         border: Border.all(
-          color: Colors.white.withValues(alpha: 0.10),
+          color: _gold.withValues(alpha: 0.22),
         ),
       ),
-      child: const Column(
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Menü altyapısı hazırlanıyor',
+          const Text(
+            'Admin Menü Önizlemesi',
             style: TextStyle(
               color: _gold,
               fontSize: 18,
               fontWeight: FontWeight.w900,
             ),
           ),
-          SizedBox(height: 10),
-          Text(
-            'Bir sonraki aşamada restoran ürünleri, menü kategorileri, Gel-Al / Götür fiyatları ve sepete hazır ürün modeli bu alana bağlanacak.',
+          const SizedBox(height: 8),
+          const Text(
+            'Bu alan yalnızca platform adminleri tarafından görülür. Restoran menüsü, ürün fiyatları ve lansman öncesi sipariş altyapısı burada test edilecek.',
             style: TextStyle(
               color: Colors.white70,
-              fontSize: 14,
+              fontSize: 13.5,
               height: 1.45,
               fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: 16),
+          ...items.map(
+            (item) => RestoranMenuItemCard(
+              item: item,
+              onTap: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      '${item.name} admin test için hazır. Sepet bağlantısı sonraki aşamada açılacak.',
+                    ),
+                  ),
+                );
+              },
             ),
           ),
         ],

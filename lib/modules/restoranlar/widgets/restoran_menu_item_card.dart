@@ -27,33 +27,18 @@ class RestoranMenuItemCard extends StatelessWidget {
       ),
       clipBehavior: Clip.antiAlias,
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
             width: 112,
+            height: 132,
             child: item.imageForUi.isEmpty
-                ? Container(
-                    color: const Color(0xFF202020),
-                    alignment: Alignment.center,
-                    child: const Icon(
-                      Icons.restaurant_menu,
-                      color: Colors.white38,
-                      size: 34,
-                    ),
-                  )
+                ? _ImageFallback()
                 : Image.network(
                     item.imageForUi,
                     fit: BoxFit.cover,
                     errorBuilder: (context, error, stackTrace) {
-                      return Container(
-                        color: const Color(0xFF202020),
-                        alignment: Alignment.center,
-                        child: const Icon(
-                          Icons.restaurant_menu,
-                          color: Colors.white38,
-                          size: 34,
-                        ),
-                      );
+                      return _ImageFallback();
                     },
                   ),
           ),
@@ -107,19 +92,18 @@ class RestoranMenuItemCard extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 10),
-                  Row(
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    crossAxisAlignment: WrapCrossAlignment.center,
                     children: [
-                      Expanded(
-                        child: Text(
-                          '${item.category} • ${item.preparationMinutes} dk',
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            color: Colors.white54,
-                            fontSize: 11.5,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
+                      _MiniBadge(
+                        label: item.category,
+                        icon: Icons.category_outlined,
+                      ),
+                      _MiniBadge(
+                        label: '${item.preparationMinutes} dk',
+                        icon: Icons.timer_outlined,
                       ),
                       InkWell(
                         borderRadius: BorderRadius.circular(999),
@@ -150,6 +134,67 @@ class RestoranMenuItemCard extends StatelessWidget {
                   ),
                 ],
               ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ImageFallback extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: const Color(0xFF202020),
+      alignment: Alignment.center,
+      child: const Icon(
+        Icons.restaurant_menu,
+        color: Colors.white38,
+        size: 34,
+      ),
+    );
+  }
+}
+
+class _MiniBadge extends StatelessWidget {
+  const _MiniBadge({
+    required this.label,
+    required this.icon,
+  });
+
+  final String label;
+  final IconData icon;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: 9,
+        vertical: 6,
+      ),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.06),
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(
+          color: Colors.white.withValues(alpha: 0.12),
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            icon,
+            color: Colors.white60,
+            size: 13,
+          ),
+          const SizedBox(width: 5),
+          Text(
+            label,
+            style: const TextStyle(
+              color: Colors.white70,
+              fontSize: 11,
+              fontWeight: FontWeight.w800,
             ),
           ),
         ],
