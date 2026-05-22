@@ -11,6 +11,7 @@ class RestoranPremiumCard extends StatelessWidget {
     required this.district,
     required this.preparationText,
     required this.ratingText,
+    required this.serviceText,
     required this.onTap,
   });
 
@@ -21,6 +22,7 @@ class RestoranPremiumCard extends StatelessWidget {
   final String district;
   final String preparationText;
   final String ratingText;
+  final String serviceText;
   final VoidCallback onTap;
 
   static const Color _gold = Color(0xFFFFB300);
@@ -145,6 +147,11 @@ class RestoranPremiumCard extends StatelessWidget {
                       RestoranStatusBadge(
                         label: district,
                         icon: Icons.location_on_outlined,
+                      ),
+                      RestoranStatusBadge(
+                        label: serviceText,
+                        icon: Icons.shopping_bag_outlined,
+                        isGold: true,
                       ),
                       RestoranStatusBadge(
                         label: preparationText,

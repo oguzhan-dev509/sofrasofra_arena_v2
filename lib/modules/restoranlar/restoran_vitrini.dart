@@ -84,6 +84,7 @@ class PremiumRestoranVitrini extends StatelessWidget {
               district: restaurant.locationText,
               preparationText: restaurant.preparationText,
               ratingText: restaurant.ratingText,
+              serviceText: restaurant.serviceText,
               onTap: () {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
