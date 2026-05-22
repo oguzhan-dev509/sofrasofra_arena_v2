@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'models/restoran_model.dart';
 import 'widgets/restoran_premium_card.dart';
 
 class PremiumRestoranVitrini extends StatelessWidget {
@@ -7,39 +8,49 @@ class PremiumRestoranVitrini extends StatelessWidget {
   static const Color _gold = Color(0xFFFFB300);
   static const Color _bg = Color(0xFF050505);
 
-  static const List<Map<String, String>> _demoRestaurants = [
-    {
-      'name': 'Mahalle Ocakbaşı',
-      'description':
+  static const List<RestoranModel> _demoRestaurants = [
+    RestoranModel(
+      id: 'mahalle_ocakbasi',
+      name: 'Mahalle Ocakbaşı',
+      description:
           'Kebap, ızgara ve günlük sıcak yemekleriyle mahalle lezzetini Sofrasofra standardında sunar.',
-      'imageUrl': 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5',
-      'cuisine': 'Kebap & Izgara',
-      'district': 'Güngören',
-      'preparation': '25-35 dk',
-      'rating': '4.8 ★',
-    },
-    {
-      'name': 'Butik Esnaf Lokantası',
-      'description':
+      imageUrl: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5',
+      cuisine: 'Kebap & Izgara',
+      city: 'İstanbul',
+      district: 'Güngören',
+      preparationText: '25-35 dk',
+      ratingText: '4.8 ★',
+      supportsGelAl: true,
+      supportsGotur: true,
+    ),
+    RestoranModel(
+      id: 'butik_esnaf_lokantasi',
+      name: 'Butik Esnaf Lokantası',
+      description:
           'Günlük tencere yemekleri, çorba, pilav ve ev sıcaklığında restoran menüsü.',
-      'imageUrl':
-          'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4',
-      'cuisine': 'Esnaf Lokantası',
-      'district': 'Kadıköy',
-      'preparation': '20-30 dk',
-      'rating': '4.9 ★',
-    },
-    {
-      'name': 'Sofra Pide & Lahmacun',
-      'description':
+      imageUrl: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4',
+      cuisine: 'Esnaf Lokantası',
+      city: 'İstanbul',
+      district: 'Kadıköy',
+      preparationText: '20-30 dk',
+      ratingText: '4.9 ★',
+      supportsGelAl: true,
+      supportsGotur: true,
+    ),
+    RestoranModel(
+      id: 'sofra_pide_lahmacun',
+      name: 'Sofra Pide & Lahmacun',
+      description:
           'Taş fırın lezzetleri, mahalleye özel hızlı hazırlık ve kurucu restoran avantajı.',
-      'imageUrl':
-          'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38',
-      'cuisine': 'Pide & Lahmacun',
-      'district': 'Fatih',
-      'preparation': '18-28 dk',
-      'rating': '4.7 ★',
-    },
+      imageUrl: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38',
+      cuisine: 'Pide & Lahmacun',
+      city: 'İstanbul',
+      district: 'Fatih',
+      preparationText: '18-28 dk',
+      ratingText: '4.7 ★',
+      supportsGelAl: true,
+      supportsGotur: true,
+    ),
   ];
 
   @override
@@ -66,18 +77,18 @@ class PremiumRestoranVitrini extends StatelessWidget {
           const SizedBox(height: 20),
           ..._demoRestaurants.map(
             (restaurant) => RestoranPremiumCard(
-              name: restaurant['name'] ?? '',
-              description: restaurant['description'] ?? '',
-              imageUrl: restaurant['imageUrl'] ?? '',
-              cuisine: restaurant['cuisine'] ?? '',
-              district: restaurant['district'] ?? '',
-              preparationText: restaurant['preparation'] ?? '',
-              ratingText: restaurant['rating'] ?? '',
+              name: restaurant.name,
+              description: restaurant.description,
+              imageUrl: restaurant.imageUrl,
+              cuisine: restaurant.cuisine,
+              district: restaurant.locationText,
+              preparationText: restaurant.preparationText,
+              ratingText: restaurant.ratingText,
               onTap: () {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
+                  SnackBar(
                     content: Text(
-                      'Restoran siparişleri lansman döneminde aktif edilecek.',
+                      '${restaurant.name} için siparişler lansman döneminde aktif edilecek.',
                     ),
                   ),
                 );
