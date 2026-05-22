@@ -79,6 +79,7 @@ class AppAuthService {
 
   static const Set<String> allowedAdminEmails = {
     'meminhazret@gmail.com',
+    'admin@sofrasofra.com',
   };
   static Future<void> signOut() async {
     await _auth.signOut();
