@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:sofrasofra_arena_v2/modules/restoranlar/restoran_vitrini.dart';
 
 class RestoranlarVitrini extends StatefulWidget {
   const RestoranlarVitrini({super.key});
@@ -433,6 +434,40 @@ class _RestoranlarVitriniState extends State<RestoranlarVitrini> {
                                 color: Colors.black,
                                 fontWeight: FontWeight.w900,
                                 fontSize: 15,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      MouseRegion(
+                        cursor: SystemMouseCursors.click,
+                        child: GestureDetector(
+                          onTap: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (_) => const PremiumRestoranVitrini(),
+                              ),
+                            );
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 22,
+                              vertical: 14,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.black.withValues(alpha: 0.45),
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(
+                                color: _gold.withValues(alpha: 0.55),
+                              ),
+                            ),
+                            child: const Text(
+                              'Premium Restoran Vitrinini Gör',
+                              style: TextStyle(
+                                color: _gold,
+                                fontWeight: FontWeight.w900,
+                                fontSize: 14,
                               ),
                             ),
                           ),
