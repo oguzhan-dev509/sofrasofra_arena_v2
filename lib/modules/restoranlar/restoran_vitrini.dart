@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sofrasofra_arena_v2/services/restoran_service.dart';
 
 import 'models/restoran_model.dart';
 import 'restoran_detay_sayfasi.dart';
@@ -72,39 +73,61 @@ class PremiumRestoranVitrini extends StatelessWidget {
           ),
         ),
       ),
-      body: ListView(
-        padding: const EdgeInsets.fromLTRB(18, 18, 18, 32),
-        children: [
-          _HeroBlock(),
-          const SizedBox(height: 20),
-          ..._demoRestaurants.map(
-            (restaurant) => RestoranPremiumCard(
-              name: restaurant.name,
-              description: restaurant.description,
-              imageUrl: restaurant.imageUrl,
-              cuisine: restaurant.cuisine,
-              district: restaurant.locationText,
-              preparationText: restaurant.preparationText,
-              ratingText: restaurant.ratingText,
-              serviceText: restaurant.serviceText,
-              onTap: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (_) => RestoranDetaySayfasi(
-                      restaurant: restaurant,
-                    ),
-                  ),
-                );
-              },
-            ),
-          ),
-        ],
+      body: StreamBuilder<List<RestoranModel>>(
+        stream: RestoranService.streamRestaurantsForShowcase(),
+        builder: (context, snapshot) {
+          final firestoreRestaurants = snapshot.data ?? const <RestoranModel>[];
+
+          final restaurants = firestoreRestaurants.isNotEmpty
+              ? firestoreRestaurants
+              : _demoRestaurants;
+
+          final showFallbackNotice =
+              snapshot.hasError || firestoreRestaurants.isEmpty;
+
+          return ListView(
+            padding: const EdgeInsets.fromLTRB(18, 18, 18, 32),
+            children: [
+              const _HeroBlock(),
+              if (showFallbackNotice) ...[
+                const SizedBox(height: 14),
+                _FallbackNotice(
+                  hasError: snapshot.hasError,
+                ),
+              ],
+              const SizedBox(height: 20),
+              ...restaurants.map(
+                (restaurant) => RestoranPremiumCard(
+                  name: restaurant.name,
+                  description: restaurant.description,
+                  imageUrl: restaurant.imageUrl,
+                  cuisine: restaurant.cuisine,
+                  district: restaurant.locationText,
+                  preparationText: restaurant.preparationText,
+                  ratingText: restaurant.ratingText,
+                  serviceText: restaurant.serviceText,
+                  onTap: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => RestoranDetaySayfasi(
+                          restaurant: restaurant,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          );
+        },
       ),
     );
   }
 }
 
 class _HeroBlock extends StatelessWidget {
+  const _HeroBlock();
+
   static const Color _gold = Color(0xFFFFB300);
 
   @override
@@ -138,6 +161,54 @@ class _HeroBlock extends StatelessWidget {
               fontSize: 14,
               height: 1.45,
               fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _FallbackNotice extends StatelessWidget {
+  const _FallbackNotice({
+    required this.hasError,
+  });
+
+  final bool hasError;
+
+  static const Color _gold = Color(0xFFFFB300);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: _gold.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(
+          color: _gold.withValues(alpha: 0.24),
+        ),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Icon(
+            Icons.info_outline,
+            color: _gold,
+            size: 20,
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              hasError
+                  ? 'Restoran verileri şu anda okunamadı. Geliştirme önizlemesi gösteriliyor.'
+                  : 'Firestore restoran verisi henüz eklenmedi. Geliştirme önizlemesi gösteriliyor.',
+              style: const TextStyle(
+                color: Colors.white70,
+                fontSize: 12.8,
+                height: 1.35,
+                fontWeight: FontWeight.w700,
+              ),
             ),
           ),
         ],
