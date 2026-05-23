@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:sofrasofra_arena_v2/services/platform_admin_service.dart';
+import 'package:sofrasofra_arena_v2/services/restoran_service.dart';
 
 import 'models/restoran_menu_item_model.dart';
 import 'models/restoran_model.dart';
@@ -325,81 +326,75 @@ class _MenuPreviewSection extends StatelessWidget {
             color: Colors.white.withValues(alpha: 0.10),
           ),
         ),
-        child: const Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Menü altyapısı hazırlanıyor',
-              style: TextStyle(
-                color: _gold,
-                fontSize: 18,
-                fontWeight: FontWeight.w900,
-              ),
-            ),
-            SizedBox(height: 10),
-            Text(
-              'Restoran ürünleri, menü kategorileri ve Gel-Al / Götür fiyatları lansman döneminde müşterilere açılacak.',
-              style: TextStyle(
-                color: Colors.white70,
-                fontSize: 14,
-                height: 1.45,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ],
+        child: const Text(
+          'Restoran menüsü yakında Sofrasofra’da yayında olacak.',
+          style: TextStyle(
+            color: Colors.white70,
+            fontSize: 13.5,
+            height: 1.45,
+            fontWeight: FontWeight.w600,
+          ),
         ),
       );
     }
 
-    final items = _demoItems;
+    return StreamBuilder<List<RestoranMenuItemModel>>(
+      stream: RestoranService.streamMenuItems(
+        restaurantId: restaurant.id,
+      ),
+      builder: (context, snapshot) {
+        final firestoreItems = snapshot.data ?? const <RestoranMenuItemModel>[];
+        final items = firestoreItems.isNotEmpty ? firestoreItems : _demoItems;
 
-    return Container(
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.04),
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(
-          color: _gold.withValues(alpha: 0.22),
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Admin Menü Önizlemesi',
-            style: TextStyle(
-              color: _gold,
-              fontSize: 18,
-              fontWeight: FontWeight.w900,
+        return Container(
+          padding: const EdgeInsets.all(18),
+          decoration: BoxDecoration(
+            color: Colors.white.withValues(alpha: 0.04),
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(
+              color: _gold.withValues(alpha: 0.22),
             ),
           ),
-          const SizedBox(height: 8),
-          const Text(
-            'Bu alan yalnızca platform adminleri tarafından görülür. Restoran menüsü, ürün fiyatları ve lansman öncesi sipariş altyapısı burada test edilecek.',
-            style: TextStyle(
-              color: Colors.white70,
-              fontSize: 13.5,
-              height: 1.45,
-              fontWeight: FontWeight.w600,
-            ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Admin Menü Önizlemesi',
+                style: TextStyle(
+                  color: _gold,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+              const SizedBox(height: 8),
+              const Text(
+                'Bu alan yalnızca platform adminleri tarafından görülür. Restoran menüsü, ürün fiyatları ve lansman öncesi sipariş altyapısı burada test edilecek.',
+                style: TextStyle(
+                  color: Colors.white70,
+                  fontSize: 13.5,
+                  height: 1.45,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(height: 16),
+              ...items.map(
+                (item) => RestoranMenuItemCard(
+                  item: item,
+                  onTap: () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          '${item.name} admin test için hazır. Sepet bağlantısı sonraki aşamada açılacak.',
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 16),
-          ...items.map(
-            (item) => RestoranMenuItemCard(
-              item: item,
-              onTap: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(
-                      '${item.name} admin test için hazır. Sepet bağlantısı sonraki aşamada açılacak.',
-                    ),
-                  ),
-                );
-              },
-            ),
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 }
