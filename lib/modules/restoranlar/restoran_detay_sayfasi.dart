@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sofrasofra_arena_v2/cart/sepet_sayfasi.dart';
 import 'package:sofrasofra_arena_v2/services/platform_admin_service.dart';
 import 'package:sofrasofra_arena_v2/services/restoran_service.dart';
 import 'package:sofrasofra_arena_v2/services/sepet_service.dart';
@@ -315,6 +316,59 @@ class _MenuPreviewSection extends StatelessWidget {
     ];
   }
 
+  Future<void> _sepeteRestoranUrunuEkle({
+    required BuildContext context,
+    required RestoranMenuItemModel item,
+    required String teslimatTipi,
+  }) async {
+    final isGotur = teslimatTipi == 'gotur';
+    final selectedPrice = isGotur ? item.goturFiyat : item.gelAlFiyat;
+    final teslimatLabel = isGotur ? 'Götür' : 'Gel-Al';
+
+    try {
+      await SepetService.sepeteEkle(
+        urunId: 'restaurant_${restaurant.id}_${item.id}_$teslimatTipi',
+        urunAdi: item.name,
+        dukkanAdi: restaurant.name,
+        kategori: item.category,
+        img: item.imageForUi,
+        fiyat: selectedPrice,
+        gelAlFiyat: item.gelAlFiyat,
+        goturFiyat: item.goturFiyat,
+        teslimatTipi: teslimatTipi,
+        deliveryIncludedInPrice: true,
+        feeIncludedInPrice: true,
+        saticiId: restaurant.id,
+        dukkanId: restaurant.id,
+        sellerTypeOverride: 'restaurant',
+      );
+
+      if (!context.mounted) return;
+
+      final messenger = ScaffoldMessenger.of(context);
+      messenger.hideCurrentSnackBar();
+
+      messenger.showSnackBar(
+        SnackBar(
+          duration: const Duration(milliseconds: 1400),
+          content: Text(
+            '${item.name} $teslimatLabel olarak sepete eklendi.',
+          ),
+        ),
+      );
+    } catch (e) {
+      if (!context.mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Sepete eklenemedi: $e',
+          ),
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     if (!isAdmin) {
@@ -381,45 +435,19 @@ class _MenuPreviewSection extends StatelessWidget {
               ...items.map(
                 (item) => RestoranMenuItemCard(
                   item: item,
-                  onTap: () async {
-                    try {
-                      await SepetService.sepeteEkle(
-                        urunId: 'restaurant_${restaurant.id}_${item.id}',
-                        urunAdi: item.name,
-                        dukkanAdi: restaurant.name,
-                        kategori: item.category,
-                        img: item.imageForUi,
-                        fiyat: item.gelAlFiyat,
-                        gelAlFiyat: item.gelAlFiyat,
-                        goturFiyat: item.goturFiyat,
-                        teslimatTipi: 'gel_al',
-                        deliveryIncludedInPrice: true,
-                        feeIncludedInPrice: true,
-                        saticiId: restaurant.id,
-                        dukkanId: restaurant.id,
-                        sellerTypeOverride: 'restaurant',
-                      );
-
-                      if (!context.mounted) return;
-
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                            '${item.name} sepete eklendi.',
-                          ),
-                        ),
-                      );
-                    } catch (e) {
-                      if (!context.mounted) return;
-
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                            'Sepete eklenemedi: $e',
-                          ),
-                        ),
-                      );
-                    }
+                  onGelAlTap: () async {
+                    await _sepeteRestoranUrunuEkle(
+                      context: context,
+                      item: item,
+                      teslimatTipi: 'gel_al',
+                    );
+                  },
+                  onGoturTap: () async {
+                    await _sepeteRestoranUrunuEkle(
+                      context: context,
+                      item: item,
+                      teslimatTipi: 'gotur',
+                    );
                   },
                 ),
               ),

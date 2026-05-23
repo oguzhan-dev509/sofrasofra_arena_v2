@@ -6,11 +6,13 @@ class RestoranMenuItemCard extends StatelessWidget {
   const RestoranMenuItemCard({
     super.key,
     required this.item,
-    required this.onTap,
+    required this.onGelAlTap,
+    required this.onGoturTap,
   });
 
   final RestoranMenuItemModel item;
-  final VoidCallback onTap;
+  final VoidCallback onGelAlTap;
+  final VoidCallback onGoturTap;
 
   static const Color _gold = Color(0xFFFFB300);
 
@@ -107,7 +109,7 @@ class RestoranMenuItemCard extends StatelessWidget {
                       ),
                       InkWell(
                         borderRadius: BorderRadius.circular(999),
-                        onTap: onTap,
+                        onTap: onGelAlTap,
                         child: Container(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 11,
@@ -120,10 +122,35 @@ class RestoranMenuItemCard extends StatelessWidget {
                               color: _gold.withValues(alpha: 0.36),
                             ),
                           ),
-                          child: const Text(
-                            'Sepete Ekle',
-                            style: TextStyle(
+                          child: Text(
+                            'Gel-Al ${item.gelAlFiyat.toStringAsFixed(0)} TL',
+                            style: const TextStyle(
                               color: _gold,
+                              fontSize: 11,
+                              fontWeight: FontWeight.w900,
+                            ),
+                          ),
+                        ),
+                      ),
+                      InkWell(
+                        borderRadius: BorderRadius.circular(999),
+                        onTap: onGoturTap,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 11,
+                            vertical: 7,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.08),
+                            borderRadius: BorderRadius.circular(999),
+                            border: Border.all(
+                              color: Colors.white.withValues(alpha: 0.22),
+                            ),
+                          ),
+                          child: Text(
+                            'Götür ${item.goturFiyat.toStringAsFixed(0)} TL',
+                            style: const TextStyle(
+                              color: Colors.white,
                               fontSize: 11,
                               fontWeight: FontWeight.w900,
                             ),
