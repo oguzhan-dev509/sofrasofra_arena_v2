@@ -121,7 +121,7 @@ class RestoranMenuItemCard extends StatelessWidget {
                             ),
                           ),
                           child: const Text(
-                            'Lansmanda aktif',
+                            'Sepete Ekle',
                             style: TextStyle(
                               color: _gold,
                               fontSize: 11,
