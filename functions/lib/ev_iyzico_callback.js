@@ -197,6 +197,33 @@ exports.evIyzicoCallback = (0, https_1.onRequest)({
             paymentUpdatedAt: firestore_1.FieldValue.serverTimestamp(),
             updatedAt: firestore_1.FieldValue.serverTimestamp(),
         });
+        const sellerOrdersSnap = await db
+            .collection("sellerOrders")
+            .where("orderId", "==", orderId)
+            .get();
+        if (!sellerOrdersSnap.empty) {
+            const sellerOrderBatch = db.batch();
+            sellerOrdersSnap.docs.forEach((doc) => {
+                sellerOrderBatch.update(doc.ref, {
+                    paymentStatus: nextPaymentStatus,
+                    status: nextOrderStatus,
+                    durum: nextOrderStatus,
+                    iyzicoCallbackToken: token,
+                    iyzicoCallbackConversationId: callbackConversationId,
+                    iyzicoPaymentStatus,
+                    iyzicoFraudStatus: Number.isFinite(fraudStatus)
+                        ? fraudStatus
+                        : null,
+                    iyzicoPaymentId: retrieveData.paymentId ?? null,
+                    iyzicoBasketId: retrieveData.basketId ?? null,
+                    iyzicoPaidPrice: retrieveData.paidPrice ?? null,
+                    iyzicoPrice: retrieveData.price ?? null,
+                    paymentUpdatedAt: firestore_1.FieldValue.serverTimestamp(),
+                    updatedAt: firestore_1.FieldValue.serverTimestamp(),
+                });
+            });
+            await sellerOrderBatch.commit();
+        }
         await db.collection("orderTimeline").add({
             orderId,
             siparisNo: orderData.siparisNo ?? orderId,
