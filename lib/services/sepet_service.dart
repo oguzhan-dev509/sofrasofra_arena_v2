@@ -32,6 +32,7 @@ class SepetService {
     bool feeIncludedInPrice = false,
     String? saticiId,
     String? dukkanId,
+    String? sellerTypeOverride,
   }) async {
     final sepetRef = _firestore.collection('sepetler').doc(_cartId);
     final itemsRef = sepetRef.collection('items');
@@ -50,7 +51,9 @@ class SepetService {
     final sellerData = sellerSnap.data() ?? {};
 
     final String rawSellerType =
-        (sellerData['sellerType'] ?? '').toString().trim();
+        (sellerTypeOverride != null && sellerTypeOverride.trim().isNotEmpty)
+            ? sellerTypeOverride.trim()
+            : (sellerData['sellerType'] ?? '').toString().trim();
 
     final String kategoriKey = kategori.toLowerCase().trim();
     final String dukkanKey = dukkanAdi.toLowerCase().trim();
@@ -67,15 +70,23 @@ class SepetService {
         ? rawSellerType
         : (looksLikeChefSignature ? 'chef_signature' : 'ev_lezzetleri');
 
-    final String paymentChannel =
-        sellerType == 'chef_signature' ? 'chef_signature_order' : 'ev_order';
+    final String paymentChannel = switch (sellerType) {
+      'restaurant' => 'restaurant_order',
+      'chef_signature' => 'chef_signature_order',
+      _ => 'ev_order',
+    };
 
-    final String iyzicoCategory =
-        sellerType == 'chef_signature' ? 'ChefSignature' : 'EvLezzetleri';
+    final String iyzicoCategory = switch (sellerType) {
+      'restaurant' => 'Restaurant',
+      'chef_signature' => 'ChefSignature',
+      _ => 'EvLezzetleri',
+    };
 
-    final String orderSource =
-        sellerType == 'chef_signature' ? 'chef_signature_dish' : 'ev_product';
-
+    final String orderSource = switch (sellerType) {
+      'restaurant' => 'restaurant_menu_item',
+      'chef_signature' => 'chef_signature_dish',
+      _ => 'ev_product',
+    };
     final List<String> teslimatModlari = _asStringList(
       sellerData['teslimatModlari'],
     );

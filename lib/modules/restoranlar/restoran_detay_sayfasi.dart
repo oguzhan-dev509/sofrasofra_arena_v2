@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:sofrasofra_arena_v2/services/platform_admin_service.dart';
 import 'package:sofrasofra_arena_v2/services/restoran_service.dart';
+import 'package:sofrasofra_arena_v2/services/sepet_service.dart';
 
 import 'models/restoran_menu_item_model.dart';
 import 'models/restoran_model.dart';
@@ -380,14 +381,45 @@ class _MenuPreviewSection extends StatelessWidget {
               ...items.map(
                 (item) => RestoranMenuItemCard(
                   item: item,
-                  onTap: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          '${item.name} admin test için hazır. Sepet bağlantısı sonraki aşamada açılacak.',
+                  onTap: () async {
+                    try {
+                      await SepetService.sepeteEkle(
+                        urunId: 'restaurant_${restaurant.id}_${item.id}',
+                        urunAdi: item.name,
+                        dukkanAdi: restaurant.name,
+                        kategori: item.category,
+                        img: item.imageForUi,
+                        fiyat: item.gelAlFiyat,
+                        gelAlFiyat: item.gelAlFiyat,
+                        goturFiyat: item.goturFiyat,
+                        teslimatTipi: 'gel_al',
+                        deliveryIncludedInPrice: true,
+                        feeIncludedInPrice: true,
+                        saticiId: restaurant.id,
+                        dukkanId: restaurant.id,
+                        sellerTypeOverride: 'restaurant',
+                      );
+
+                      if (!context.mounted) return;
+
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            '${item.name} sepete eklendi.',
+                          ),
                         ),
-                      ),
-                    );
+                      );
+                    } catch (e) {
+                      if (!context.mounted) return;
+
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            'Sepete eklenemedi: $e',
+                          ),
+                        ),
+                      );
+                    }
                   },
                 ),
               ),
