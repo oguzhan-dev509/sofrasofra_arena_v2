@@ -8,11 +8,17 @@ class RestoranMenuItemCard extends StatelessWidget {
     required this.item,
     required this.onGelAlTap,
     required this.onGoturTap,
+    this.canManageMedia = false,
+    this.onAddPhotoTap,
+    this.onDeletePhotoTap,
   });
 
   final RestoranMenuItemModel item;
   final VoidCallback onGelAlTap;
   final VoidCallback onGoturTap;
+  final bool canManageMedia;
+  final VoidCallback? onAddPhotoTap;
+  final VoidCallback? onDeletePhotoTap;
 
   static const Color _gold = Color(0xFFFFB300);
   static const Color _cardBlack = Color(0xFF101010);
@@ -49,7 +55,12 @@ class RestoranMenuItemCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _HeroImage(item: item),
+          _HeroImage(
+            item: item,
+            canManageMedia: canManageMedia,
+            onAddPhotoTap: onAddPhotoTap,
+            onDeletePhotoTap: onDeletePhotoTap,
+          ),
           _PremiumContent(
             item: item,
             onGelAlTap: onGelAlTap,
@@ -64,10 +75,15 @@ class RestoranMenuItemCard extends StatelessWidget {
 class _HeroImage extends StatelessWidget {
   const _HeroImage({
     required this.item,
+    required this.canManageMedia,
+    required this.onAddPhotoTap,
+    required this.onDeletePhotoTap,
   });
 
   final RestoranMenuItemModel item;
-
+  final bool canManageMedia;
+  final VoidCallback? onAddPhotoTap;
+  final VoidCallback? onDeletePhotoTap;
   static const Color _gold = Color(0xFFFFB300);
 
   @override
@@ -156,6 +172,28 @@ class _HeroImage extends StatelessWidget {
               ),
             ),
           ),
+          if (canManageMedia)
+            Positioned(
+              right: 14,
+              top: 58,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  _MediaIconButton(
+                    tooltip: 'Fotoğraf ekle / değiştir',
+                    icon: Icons.add_photo_alternate_outlined,
+                    onTap: onAddPhotoTap,
+                  ),
+                  const SizedBox(width: 8),
+                  _MediaIconButton(
+                    tooltip: 'Fotoğraf sil',
+                    icon: Icons.delete_outline,
+                    isDanger: true,
+                    onTap: onDeletePhotoTap,
+                  ),
+                ],
+              ),
+            ),
           Positioned(
             left: 16,
             right: 16,
@@ -458,6 +496,61 @@ class _ImageFallback extends StatelessWidget {
         Icons.restaurant_menu,
         color: Colors.white38,
         size: 46,
+      ),
+    );
+  }
+}
+
+class _MediaIconButton extends StatelessWidget {
+  const _MediaIconButton({
+    required this.tooltip,
+    required this.icon,
+    required this.onTap,
+    this.isDanger = false,
+  });
+
+  final String tooltip;
+  final IconData icon;
+  final VoidCallback? onTap;
+  final bool isDanger;
+
+  static const Color _gold = Color(0xFFFFB300);
+
+  @override
+  Widget build(BuildContext context) {
+    final color = isDanger ? Colors.redAccent : _gold;
+
+    return Tooltip(
+      message: tooltip,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(999),
+          onTap: onTap,
+          child: Container(
+            width: 36,
+            height: 36,
+            decoration: BoxDecoration(
+              color: Colors.black.withValues(alpha: 0.72),
+              borderRadius: BorderRadius.circular(999),
+              border: Border.all(
+                color: color.withValues(alpha: 0.55),
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.30),
+                  blurRadius: 10,
+                  offset: Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Icon(
+              icon,
+              color: color,
+              size: 19,
+            ),
+          ),
+        ),
       ),
     );
   }

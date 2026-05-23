@@ -3,7 +3,7 @@ import 'package:sofrasofra_arena_v2/cart/sepet_sayfasi.dart';
 import 'package:sofrasofra_arena_v2/services/platform_admin_service.dart';
 import 'package:sofrasofra_arena_v2/services/restoran_service.dart';
 import 'package:sofrasofra_arena_v2/services/sepet_service.dart';
-
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'models/restoran_menu_item_model.dart';
 import 'models/restoran_model.dart';
 import 'widgets/restoran_menu_item_card.dart';
@@ -386,6 +386,199 @@ class _MenuPreviewSection extends StatelessWidget {
     }
   }
 
+  Future<void> _menuFotografiEkle({
+    required BuildContext context,
+    required RestoranMenuItemModel item,
+  }) async {
+    final controller = TextEditingController(text: item.imageForUi);
+
+    final imageUrl = await showDialog<String>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          backgroundColor: const Color(0xFF151515),
+          title: const Text(
+            'Menü fotoğrafı ekle',
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+          content: TextField(
+            controller: controller,
+            autofocus: true,
+            style: const TextStyle(color: Colors.white),
+            decoration: InputDecoration(
+              hintText: 'Fotoğraf URL adresi',
+              hintStyle: TextStyle(
+                color: Colors.white.withValues(alpha: 0.42),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderSide: BorderSide(
+                  color: Colors.white.withValues(alpha: 0.18),
+                ),
+              ),
+              focusedBorder: const OutlineInputBorder(
+                borderSide: BorderSide(color: _gold),
+              ),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext),
+              child: const Text(
+                'Vazgeç',
+                style: TextStyle(color: Colors.white70),
+              ),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: _gold,
+                foregroundColor: Colors.black,
+              ),
+              onPressed: () {
+                Navigator.pop(dialogContext, controller.text.trim());
+              },
+              child: const Text(
+                'Kaydet',
+                style: TextStyle(fontWeight: FontWeight.w900),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+
+    controller.dispose();
+
+    if (imageUrl == null) return;
+
+    final cleanUrl = imageUrl.trim();
+
+    if (cleanUrl.isEmpty) {
+      if (!context.mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Fotoğraf URL boş olamaz.'),
+        ),
+      );
+      return;
+    }
+
+    try {
+      await FirebaseFirestore.instance
+          .collection('restaurants')
+          .doc(restaurant.id)
+          .collection('menu_items')
+          .doc(item.id)
+          .set(
+        {
+          'img': cleanUrl,
+          'updatedAt': FieldValue.serverTimestamp(),
+        },
+        SetOptions(merge: true),
+      );
+
+      if (!context.mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('${item.name} fotoğrafı güncellendi.'),
+        ),
+      );
+    } catch (e) {
+      if (!context.mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Fotoğraf güncellenemedi: $e'),
+        ),
+      );
+    }
+  }
+
+  Future<void> _menuFotografiSil({
+    required BuildContext context,
+    required RestoranMenuItemModel item,
+  }) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          backgroundColor: const Color(0xFF151515),
+          title: const Text(
+            'Fotoğraf silinsin mi?',
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+          content: Text(
+            '${item.name} için kapak fotoğrafı kaldırılacak.',
+            style: const TextStyle(
+              color: Colors.white70,
+              height: 1.35,
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext, false),
+              child: const Text(
+                'Vazgeç',
+                style: TextStyle(color: Colors.white70),
+              ),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.redAccent,
+                foregroundColor: Colors.white,
+              ),
+              onPressed: () => Navigator.pop(dialogContext, true),
+              child: const Text(
+                'Sil',
+                style: TextStyle(fontWeight: FontWeight.w900),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmed != true) return;
+
+    try {
+      await FirebaseFirestore.instance
+          .collection('restaurants')
+          .doc(restaurant.id)
+          .collection('menu_items')
+          .doc(item.id)
+          .set(
+        {
+          'img': '',
+          'updatedAt': FieldValue.serverTimestamp(),
+        },
+        SetOptions(merge: true),
+      );
+
+      if (!context.mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('${item.name} fotoğrafı silindi.'),
+        ),
+      );
+    } catch (e) {
+      if (!context.mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Fotoğraf silinemedi: $e'),
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     if (!isAdmin) {
@@ -452,6 +645,19 @@ class _MenuPreviewSection extends StatelessWidget {
               ...items.map(
                 (item) => RestoranMenuItemCard(
                   item: item,
+                  canManageMedia: isAdmin,
+                  onAddPhotoTap: () async {
+                    await _menuFotografiEkle(
+                      context: context,
+                      item: item,
+                    );
+                  },
+                  onDeletePhotoTap: () async {
+                    await _menuFotografiSil(
+                      context: context,
+                      item: item,
+                    );
+                  },
                   onGelAlTap: () async {
                     await _sepeteRestoranUrunuEkle(
                       context: context,
