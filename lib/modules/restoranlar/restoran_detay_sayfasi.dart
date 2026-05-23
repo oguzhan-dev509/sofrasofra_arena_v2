@@ -36,6 +36,23 @@ class RestoranDetaySayfasi extends StatelessWidget {
             letterSpacing: 2,
           ),
         ),
+        actions: [
+          IconButton(
+            tooltip: 'Sepetim',
+            icon: const Icon(
+              Icons.shopping_cart_outlined,
+              color: _gold,
+            ),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const SepetSayfasi(),
+                ),
+              );
+            },
+          ),
+        ],
       ),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(18, 18, 18, 34),
