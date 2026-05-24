@@ -476,6 +476,167 @@ class _MenuPreviewSection extends StatelessWidget {
     }
   }
 
+  Future<void> _menuProfilFotografiEkle({
+    required BuildContext context,
+    required RestoranMenuItemModel item,
+  }) async {
+    try {
+      final picker = ImagePicker();
+
+      final file = await picker.pickImage(
+        source: ImageSource.gallery,
+        imageQuality: 88,
+      );
+
+      if (file == null) {
+        return;
+      }
+
+      final bytes = await file.readAsBytes();
+
+      if (bytes.isEmpty) {
+        if (!context.mounted) return;
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Seçilen profil fotoğrafı okunamadı.'),
+          ),
+        );
+        return;
+      }
+
+      final safeFileName = file.name.replaceAll(
+        RegExp(r'[^a-zA-Z0-9._-]'),
+        '_',
+      );
+
+      final fileName = '${DateTime.now().millisecondsSinceEpoch}_$safeFileName';
+
+      final storagePath =
+          'restaurants/${restaurant.id}/menu_items/${item.id}/profile/$fileName';
+
+      debugPrint('RESTORAN PROFIL UPLOAD START path=$storagePath');
+
+      final ref = FirebaseStorage.instance.ref().child(storagePath);
+
+      final uploadTask = await ref.putData(
+        bytes,
+        SettableMetadata(
+          contentType: 'image/jpeg',
+        ),
+      );
+
+      final downloadUrl = await uploadTask.ref.getDownloadURL();
+
+      debugPrint('RESTORAN PROFIL UPLOAD SUCCESS url=$downloadUrl');
+
+      await FirebaseFirestore.instance
+          .collection('restaurants')
+          .doc(restaurant.id)
+          .collection('menu_items')
+          .doc(item.id)
+          .set(
+        {
+          'profileImg': downloadUrl,
+          'updatedAt': FieldValue.serverTimestamp(),
+        },
+        SetOptions(merge: true),
+      );
+
+      if (!context.mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Profil fotoğrafı güncellendi.'),
+        ),
+      );
+    } catch (error, stackTrace) {
+      debugPrint('RESTORAN PROFIL EKLE ERROR => $error');
+      debugPrintStack(stackTrace: stackTrace);
+
+      if (!context.mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Profil fotoğrafı güncellenemedi: $error'),
+        ),
+      );
+    }
+  }
+
+  Future<void> _menuProfilFotografiSil({
+    required BuildContext context,
+    required RestoranMenuItemModel item,
+  }) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          backgroundColor: const Color(0xFF151515),
+          title: const Text(
+            'Profil fotoğrafı silinsin mi?',
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+          content: const Text(
+            'Bu işlem yalnızca küçük yuvarlak profil / logo fotoğrafını kaldırır. Kapak ve galeri fotoğraflarına dokunulmaz.',
+            style: TextStyle(color: Colors.white70),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(false),
+              child: const Text('Vazgeç'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(true),
+              child: const Text('Sil'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmed != true) {
+      return;
+    }
+
+    try {
+      await FirebaseFirestore.instance
+          .collection('restaurants')
+          .doc(restaurant.id)
+          .collection('menu_items')
+          .doc(item.id)
+          .set(
+        {
+          'profileImg': '',
+          'updatedAt': FieldValue.serverTimestamp(),
+        },
+        SetOptions(merge: true),
+      );
+
+      if (!context.mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Profil fotoğrafı silindi.'),
+        ),
+      );
+    } catch (error, stackTrace) {
+      debugPrint('RESTORAN PROFIL SIL ERROR => $error');
+      debugPrintStack(stackTrace: stackTrace);
+
+      if (!context.mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Profil fotoğrafı silinemedi: $error'),
+        ),
+      );
+    }
+  }
+
   Future<void> _menuGaleriFotografiEkle({
     required BuildContext context,
     required RestoranMenuItemModel item,
@@ -952,14 +1113,14 @@ class _MenuPreviewSection extends StatelessWidget {
                 (item) => RestoranMenuItemCard(
                   item: item,
                   canManageMedia: isAdmin,
-                  onAddPhotoTap: () async {
-                    await _menuFotografiEkle(
+                  onAddProfilePhotoTap: () async {
+                    await _menuProfilFotografiEkle(
                       context: context,
                       item: item,
                     );
                   },
-                  onDeletePhotoTap: () async {
-                    await _menuFotografiSil(
+                  onDeleteProfilePhotoTap: () async {
+                    await _menuProfilFotografiSil(
                       context: context,
                       item: item,
                     );

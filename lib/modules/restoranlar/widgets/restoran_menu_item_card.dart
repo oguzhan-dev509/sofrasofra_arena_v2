@@ -14,6 +14,8 @@ class RestoranMenuItemCard extends StatelessWidget {
     this.onDeletePhotoTap,
     this.onAddGalleryPhotoTap,
     this.onDeleteGalleryPhotoTap,
+    this.onAddProfilePhotoTap,
+    this.onDeleteProfilePhotoTap,
   });
 
   final RestoranMenuItemModel item;
@@ -24,6 +26,8 @@ class RestoranMenuItemCard extends StatelessWidget {
   final VoidCallback? onDeletePhotoTap;
   final VoidCallback? onAddGalleryPhotoTap;
   final ValueChanged<String>? onDeleteGalleryPhotoTap;
+  final VoidCallback? onAddProfilePhotoTap;
+  final VoidCallback? onDeleteProfilePhotoTap;
 
   static const Color _gold = Color(0xFFFFB300);
   static const Color _cardBlack = Color(0xFF101010);
@@ -65,6 +69,8 @@ class RestoranMenuItemCard extends StatelessWidget {
             canManageMedia: canManageMedia,
             onAddPhotoTap: onAddPhotoTap,
             onDeletePhotoTap: onDeletePhotoTap,
+            onAddProfilePhotoTap: onAddProfilePhotoTap,
+            onDeleteProfilePhotoTap: onDeleteProfilePhotoTap,
           ),
           RestoranMenuGalleryStrip(
             item: item,
@@ -90,14 +96,16 @@ class _HeroImage extends StatelessWidget {
     required this.canManageMedia,
     required this.onAddPhotoTap,
     required this.onDeletePhotoTap,
+    required this.onAddProfilePhotoTap,
+    required this.onDeleteProfilePhotoTap,
   });
 
   final RestoranMenuItemModel item;
   final bool canManageMedia;
   final VoidCallback? onAddPhotoTap;
   final VoidCallback? onDeletePhotoTap;
-  static const Color _gold = Color(0xFFFFB300);
-
+  final VoidCallback? onAddProfilePhotoTap;
+  final VoidCallback? onDeleteProfilePhotoTap;
   @override
   Widget build(BuildContext context) {
     final galleryImages = <String>[
@@ -213,6 +221,16 @@ class _HeroImage extends StatelessWidget {
                 ],
               ),
             ),
+          Positioned(
+            left: 18,
+            bottom: 70,
+            child: _ProfileAvatarOverlay(
+              imageUrl: item.profileImg,
+              canManageMedia: canManageMedia,
+              onAddProfilePhotoTap: onAddProfilePhotoTap,
+              onDeleteProfilePhotoTap: onDeleteProfilePhotoTap,
+            ),
+          ),
           Positioned(
             left: 16,
             right: 16,
@@ -670,6 +688,130 @@ class _MediaIconButton extends StatelessWidget {
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _ProfileAvatarOverlay extends StatelessWidget {
+  const _ProfileAvatarOverlay({
+    required this.imageUrl,
+    required this.canManageMedia,
+    required this.onAddProfilePhotoTap,
+    required this.onDeleteProfilePhotoTap,
+  });
+
+  final String imageUrl;
+  final bool canManageMedia;
+  final VoidCallback? onAddProfilePhotoTap;
+  final VoidCallback? onDeleteProfilePhotoTap;
+
+  static const Color _gold = Color(0xFFFFB300);
+
+  @override
+  Widget build(BuildContext context) {
+    final cleanUrl = imageUrl.trim();
+    final hasImage = cleanUrl.isNotEmpty;
+
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        Container(
+          width: 82,
+          height: 82,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: Colors.black.withValues(alpha: 0.50),
+            border: Border.all(
+              color: _gold.withValues(alpha: 0.72),
+              width: 2,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.34),
+                blurRadius: 16,
+                offset: const Offset(0, 8),
+              ),
+            ],
+          ),
+          clipBehavior: Clip.antiAlias,
+          child: hasImage
+              ? Image.network(
+                  cleanUrl,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    return const _ProfileAvatarFallback();
+                  },
+                )
+              : const _ProfileAvatarFallback(),
+        ),
+        if (canManageMedia)
+          Positioned(
+            right: -6,
+            bottom: -6,
+            child: InkWell(
+              onTap: onAddProfilePhotoTap,
+              borderRadius: BorderRadius.circular(999),
+              child: Container(
+                width: 30,
+                height: 30,
+                decoration: BoxDecoration(
+                  color: Colors.black.withValues(alpha: 0.84),
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: _gold.withValues(alpha: 0.78),
+                  ),
+                ),
+                child: const Icon(
+                  Icons.add_a_photo_outlined,
+                  color: _gold,
+                  size: 16,
+                ),
+              ),
+            ),
+          ),
+        if (canManageMedia && hasImage && onDeleteProfilePhotoTap != null)
+          Positioned(
+            right: -6,
+            top: -6,
+            child: InkWell(
+              onTap: onDeleteProfilePhotoTap,
+              borderRadius: BorderRadius.circular(999),
+              child: Container(
+                width: 28,
+                height: 28,
+                decoration: BoxDecoration(
+                  color: Colors.black.withValues(alpha: 0.86),
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: Colors.redAccent.withValues(alpha: 0.72),
+                  ),
+                ),
+                child: const Icon(
+                  Icons.close,
+                  color: Colors.white,
+                  size: 15,
+                ),
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+class _ProfileAvatarFallback extends StatelessWidget {
+  const _ProfileAvatarFallback();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: const Color(0xFF171717),
+      alignment: Alignment.center,
+      child: const Icon(
+        Icons.restaurant_menu,
+        color: Colors.white54,
+        size: 34,
       ),
     );
   }

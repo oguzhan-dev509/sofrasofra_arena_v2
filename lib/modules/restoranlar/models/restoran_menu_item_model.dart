@@ -6,6 +6,7 @@ class RestoranMenuItemModel {
     required this.description,
     required this.category,
     required this.img,
+    this.profileImg = '',
     required this.gelAlFiyat,
     required this.goturFiyat,
     this.images = const [],
@@ -24,9 +25,11 @@ class RestoranMenuItemModel {
 
   /// Sofrasofra medya standardı:
   /// Kapak fotoğrafı: img
+  /// Küçük profil/logo/baş foto: profileImg
   /// Galeri: images[]
   /// UI önceliği: img → images
   final String img;
+  final String profileImg;
   final List<String> images;
 
   final double gelAlFiyat;
@@ -130,6 +133,9 @@ class RestoranMenuItemModel {
       description: (data['description'] ?? '').toString(),
       category: (data['category'] ?? 'Menü').toString(),
       img: (data['img'] ?? data['imageUrl'] ?? '').toString(),
+      profileImg:
+          (data['profileImg'] ?? data['avatarUrl'] ?? data['logoUrl'] ?? '')
+              .toString(),
       images: _readImages(data['images']),
       gelAlFiyat: _readDouble(data['gelAlFiyat'] ?? data['price']),
       goturFiyat: _readDouble(data['goturFiyat']),
