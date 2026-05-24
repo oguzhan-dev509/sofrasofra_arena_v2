@@ -61,6 +61,7 @@ class RestoranMenuItemCard extends StatelessWidget {
             onAddPhotoTap: onAddPhotoTap,
             onDeletePhotoTap: onDeletePhotoTap,
           ),
+          _PriceStrip(item: item),
           _PremiumContent(
             item: item,
             onGelAlTap: onGelAlTap,
@@ -213,18 +214,118 @@ class _HeroImage extends StatelessWidget {
                     letterSpacing: -0.3,
                   ),
                 ),
-                const SizedBox(height: 7),
-                Text(
-                  item.priceText,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    color: _gold,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w900,
-                  ),
-                ),
               ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _PriceStrip extends StatelessWidget {
+  const _PriceStrip({
+    required this.item,
+  });
+
+  final RestoranMenuItemModel item;
+
+  static const Color _gold = Color(0xFFFFB300);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.fromLTRB(16, 13, 16, 12),
+      decoration: BoxDecoration(
+        color: Colors.black.withValues(alpha: 0.30),
+        border: Border(
+          bottom: BorderSide(
+            color: Colors.white.withValues(alpha: 0.08),
+          ),
+        ),
+      ),
+      child: Wrap(
+        spacing: 10,
+        runSpacing: 10,
+        children: [
+          _PriceChip(
+            label: 'Gel-Al',
+            price: '${item.gelAlFiyat.toStringAsFixed(0)} TL',
+            icon: Icons.shopping_bag_outlined,
+            isPrimary: true,
+          ),
+          _PriceChip(
+            label: 'Götür',
+            price: '${item.goturFiyat.toStringAsFixed(0)} TL',
+            icon: Icons.delivery_dining_outlined,
+            isPrimary: false,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _PriceChip extends StatelessWidget {
+  const _PriceChip({
+    required this.label,
+    required this.price,
+    required this.icon,
+    required this.isPrimary,
+  });
+
+  final String label;
+  final String price;
+  final IconData icon;
+  final bool isPrimary;
+
+  static const Color _gold = Color(0xFFFFB300);
+
+  @override
+  Widget build(BuildContext context) {
+    final color = isPrimary ? _gold : Colors.white;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: 12,
+        vertical: 9,
+      ),
+      decoration: BoxDecoration(
+        color: isPrimary
+            ? _gold.withValues(alpha: 0.13)
+            : Colors.white.withValues(alpha: 0.07),
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(
+          color: isPrimary
+              ? _gold.withValues(alpha: 0.45)
+              : Colors.white.withValues(alpha: 0.16),
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            icon,
+            color: color,
+            size: 15,
+          ),
+          const SizedBox(width: 7),
+          Text(
+            label,
+            style: TextStyle(
+              color: color,
+              fontSize: 12,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+          const SizedBox(width: 6),
+          Text(
+            price,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 12,
+              fontWeight: FontWeight.w900,
             ),
           ),
         ],
