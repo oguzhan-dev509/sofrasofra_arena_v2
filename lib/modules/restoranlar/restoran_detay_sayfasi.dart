@@ -579,6 +579,134 @@ class _MenuPreviewSection extends StatelessWidget {
     }
   }
 
+  Future<void> _yeniMenuUrunuDialogAc({
+    required BuildContext context,
+  }) async {
+    await showDialog<void>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          backgroundColor: const Color(0xFF151515),
+          title: const Text(
+            'Yeni menü ürünü',
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+          content: SingleChildScrollView(
+            child: SizedBox(
+              width: 420,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const SizedBox(height: 10),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          keyboardType: TextInputType.number,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w700,
+                          ),
+                          decoration: InputDecoration(
+                            labelText: 'Gel-Al fiyatı',
+                            hintText: '80',
+                            labelStyle: const TextStyle(
+                              color: _gold,
+                              fontWeight: FontWeight.w800,
+                            ),
+                            hintStyle: TextStyle(
+                              color: Colors.white.withValues(alpha: 0.35),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderSide: BorderSide(
+                                color: Colors.white.withValues(alpha: 0.18),
+                              ),
+                            ),
+                            focusedBorder: const OutlineInputBorder(
+                              borderSide: BorderSide(color: _gold),
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: TextField(
+                          keyboardType: TextInputType.number,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w700,
+                          ),
+                          decoration: InputDecoration(
+                            labelText: 'Götür fiyatı',
+                            hintText: '95',
+                            labelStyle: const TextStyle(
+                              color: _gold,
+                              fontWeight: FontWeight.w800,
+                            ),
+                            hintStyle: TextStyle(
+                              color: Colors.white.withValues(alpha: 0.35),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderSide: BorderSide(
+                                color: Colors.white.withValues(alpha: 0.18),
+                              ),
+                            ),
+                            focusedBorder: const OutlineInputBorder(
+                              borderSide: BorderSide(color: _gold),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  TextField(
+                    maxLines: 3,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w700,
+                    ),
+                    decoration: InputDecoration(
+                      labelText: 'Açıklama',
+                      hintText: 'Kısa ürün açıklaması',
+                      labelStyle: const TextStyle(
+                        color: _gold,
+                        fontWeight: FontWeight.w800,
+                      ),
+                      hintStyle: TextStyle(
+                        color: Colors.white.withValues(alpha: 0.35),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(
+                          color: Colors.white.withValues(alpha: 0.18),
+                        ),
+                      ),
+                      focusedBorder: const OutlineInputBorder(
+                        borderSide: BorderSide(color: _gold),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext),
+              child: const Text(
+                'Kapat',
+                style: TextStyle(color: Colors.white70),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     if (!isAdmin) {
@@ -623,13 +751,36 @@ class _MenuPreviewSection extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'Admin Menü Önizlemesi',
-                style: TextStyle(
-                  color: _gold,
-                  fontSize: 18,
-                  fontWeight: FontWeight.w900,
-                ),
+              Row(
+                children: [
+                  const Expanded(
+                    child: Text(
+                      'Admin Menü Önizlemesi',
+                      style: TextStyle(
+                        color: _gold,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
+                  ),
+                  TextButton.icon(
+                    onPressed: () async {
+                      await _yeniMenuUrunuDialogAc(context: context);
+                    },
+                    icon: const Icon(
+                      Icons.add_circle_outline,
+                      color: _gold,
+                      size: 18,
+                    ),
+                    label: const Text(
+                      'Yeni Ürün',
+                      style: TextStyle(
+                        color: _gold,
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
+                  ),
+                ],
               ),
               const SizedBox(height: 8),
               const Text(
