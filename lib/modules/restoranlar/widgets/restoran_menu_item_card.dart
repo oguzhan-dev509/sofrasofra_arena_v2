@@ -89,15 +89,22 @@ class _HeroImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final galleryImages = <String>[
+      if (item.img.trim().isNotEmpty) item.img.trim(),
+      ...item.images.map((url) => url.trim()).where((url) => url.isNotEmpty),
+    ];
+
+    final heroImageUrl = galleryImages.isNotEmpty ? galleryImages.first : '';
+
     return AspectRatio(
       aspectRatio: 16 / 9,
       child: Stack(
         fit: StackFit.expand,
         children: [
-          item.imageForUi.isEmpty
+          heroImageUrl.isEmpty
               ? const _ImageFallback()
               : Image.network(
-                  item.imageForUi,
+                  heroImageUrl,
                   fit: BoxFit.cover,
                   errorBuilder: (context, error, stackTrace) {
                     return const _ImageFallback();
@@ -185,6 +192,43 @@ class _HeroImage extends StatelessWidget {
                     icon: Icons.add_photo_alternate_outlined,
                     onTap: onAddPhotoTap,
                   ),
+                  if (galleryImages.length > 1)
+                    Positioned(
+                      left: 16,
+                      bottom: 76,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 7,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.black.withValues(alpha: 0.64),
+                          borderRadius: BorderRadius.circular(999),
+                          border: Border.all(
+                            color: _gold.withValues(alpha: 0.36),
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(
+                              Icons.photo_library_outlined,
+                              color: _gold,
+                              size: 14,
+                            ),
+                            const SizedBox(width: 6),
+                            Text(
+                              '${galleryImages.length} fotoğraf',
+                              style: const TextStyle(
+                                color: _gold,
+                                fontSize: 11.5,
+                                fontWeight: FontWeight.w900,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
                   const SizedBox(width: 8),
                   _MediaIconButton(
                     tooltip: 'Fotoğraf sil',
