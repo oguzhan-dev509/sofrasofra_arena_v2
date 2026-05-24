@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../models/restoran_menu_item_model.dart';
+import 'restoran_menu_gallery_strip.dart';
 
 class RestoranMenuItemCard extends StatelessWidget {
   const RestoranMenuItemCard({
@@ -61,6 +62,7 @@ class RestoranMenuItemCard extends StatelessWidget {
             onAddPhotoTap: onAddPhotoTap,
             onDeletePhotoTap: onDeletePhotoTap,
           ),
+          RestoranMenuGalleryStrip(item: item),
           _PriceStrip(item: item),
           _PremiumContent(
             item: item,
@@ -192,43 +194,6 @@ class _HeroImage extends StatelessWidget {
                     icon: Icons.add_photo_alternate_outlined,
                     onTap: onAddPhotoTap,
                   ),
-                  if (galleryImages.length > 1)
-                    Positioned(
-                      left: 16,
-                      bottom: 76,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 7,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.black.withValues(alpha: 0.64),
-                          borderRadius: BorderRadius.circular(999),
-                          border: Border.all(
-                            color: _gold.withValues(alpha: 0.36),
-                          ),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Icon(
-                              Icons.photo_library_outlined,
-                              color: _gold,
-                              size: 14,
-                            ),
-                            const SizedBox(width: 6),
-                            Text(
-                              '${galleryImages.length} fotoğraf',
-                              style: const TextStyle(
-                                color: _gold,
-                                fontSize: 11.5,
-                                fontWeight: FontWeight.w900,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
                   const SizedBox(width: 8),
                   _MediaIconButton(
                     tooltip: 'Fotoğraf sil',
