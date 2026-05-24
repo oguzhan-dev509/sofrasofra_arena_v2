@@ -12,6 +12,8 @@ class RestoranMenuItemCard extends StatelessWidget {
     this.canManageMedia = false,
     this.onAddPhotoTap,
     this.onDeletePhotoTap,
+    this.onAddGalleryPhotoTap,
+    this.onDeleteGalleryPhotoTap,
   });
 
   final RestoranMenuItemModel item;
@@ -20,6 +22,8 @@ class RestoranMenuItemCard extends StatelessWidget {
   final bool canManageMedia;
   final VoidCallback? onAddPhotoTap;
   final VoidCallback? onDeletePhotoTap;
+  final VoidCallback? onAddGalleryPhotoTap;
+  final ValueChanged<String>? onDeleteGalleryPhotoTap;
 
   static const Color _gold = Color(0xFFFFB300);
   static const Color _cardBlack = Color(0xFF101010);
@@ -62,7 +66,12 @@ class RestoranMenuItemCard extends StatelessWidget {
             onAddPhotoTap: onAddPhotoTap,
             onDeletePhotoTap: onDeletePhotoTap,
           ),
-          RestoranMenuGalleryStrip(item: item),
+          RestoranMenuGalleryStrip(
+            item: item,
+            canManage: canManageMedia,
+            onAddGalleryPhoto: onAddGalleryPhotoTap,
+            onDeleteGalleryPhoto: onDeleteGalleryPhotoTap,
+          ),
           _PriceStrip(item: item),
           _PremiumContent(
             item: item,
@@ -118,11 +127,11 @@ class _HeroImage extends StatelessWidget {
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [
-                  Colors.black.withValues(alpha: 0.04),
-                  Colors.black.withValues(alpha: 0.28),
-                  Colors.black.withValues(alpha: 0.82),
+                  Colors.black.withValues(alpha: 0.00),
+                  Colors.black.withValues(alpha: 0.12),
+                  Colors.black.withValues(alpha: 0.48),
                 ],
-                stops: const [0.0, 0.45, 1.0],
+                stops: const [0.0, 0.55, 1.0],
               ),
             ),
           ),
@@ -155,7 +164,7 @@ class _HeroImage extends StatelessWidget {
                 vertical: 7,
               ),
               decoration: BoxDecoration(
-                color: Colors.black.withValues(alpha: 0.62),
+                color: Colors.black.withValues(alpha: 0.42),
                 borderRadius: BorderRadius.circular(999),
                 border: Border.all(
                   color: Colors.white.withValues(alpha: 0.18),

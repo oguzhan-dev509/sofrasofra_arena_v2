@@ -144,6 +144,15 @@ match /producer_applications/{applicationId} {
   allow create: if signedIn();
   allow update, delete: if isPlatformAdmin();
 }
+match /restaurants/{restaurantId} {
+  allow read: if true;
+  allow create, update, delete: if isPlatformAdmin();
+
+  match /menu_items/{itemId} {
+    allow read: if true;
+    allow create, update, delete: if isPlatformAdmin();
+  }
+}
  match /chef_signature_dishes/{dishId} {
       allow read: if true;
       allow create, update, delete: if signedIn();

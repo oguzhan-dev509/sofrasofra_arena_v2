@@ -8,6 +8,8 @@ import 'models/restoran_menu_item_model.dart';
 import 'models/restoran_model.dart';
 import 'widgets/restoran_menu_item_card.dart';
 import 'widgets/restoran_status_badge.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:image_picker/image_picker.dart';
 
 class RestoranDetaySayfasi extends StatelessWidget {
   const RestoranDetaySayfasi({
@@ -390,83 +392,56 @@ class _MenuPreviewSection extends StatelessWidget {
     required BuildContext context,
     required RestoranMenuItemModel item,
   }) async {
-    final controller = TextEditingController(text: item.imageForUi);
+    try {
+      final picker = ImagePicker();
 
-    final imageUrl = await showDialog<String>(
-      context: context,
-      builder: (dialogContext) {
-        return AlertDialog(
-          backgroundColor: const Color(0xFF151515),
-          title: const Text(
-            'Menü fotoğrafı ekle',
-            style: TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.w900,
-            ),
+      final file = await picker.pickImage(
+        source: ImageSource.gallery,
+        imageQuality: 88,
+      );
+
+      if (file == null) {
+        return;
+      }
+
+      final bytes = await file.readAsBytes();
+
+      if (bytes.isEmpty) {
+        if (!context.mounted) return;
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Seçilen kapak fotoğrafı okunamadı.'),
           ),
-          content: TextField(
-            controller: controller,
-            autofocus: true,
-            style: const TextStyle(color: Colors.white),
-            decoration: InputDecoration(
-              hintText: 'Fotoğraf URL adresi',
-              hintStyle: TextStyle(
-                color: Colors.white.withValues(alpha: 0.42),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderSide: BorderSide(
-                  color: Colors.white.withValues(alpha: 0.18),
-                ),
-              ),
-              focusedBorder: const OutlineInputBorder(
-                borderSide: BorderSide(color: _gold),
-              ),
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(dialogContext),
-              child: const Text(
-                'Vazgeç',
-                style: TextStyle(color: Colors.white70),
-              ),
-            ),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: _gold,
-                foregroundColor: Colors.black,
-              ),
-              onPressed: () {
-                Navigator.pop(dialogContext, controller.text.trim());
-              },
-              child: const Text(
-                'Kaydet',
-                style: TextStyle(fontWeight: FontWeight.w900),
-              ),
-            ),
-          ],
         );
-      },
-    );
+        return;
+      }
 
-    controller.dispose();
+      final safeFileName = file.name.replaceAll(
+        RegExp(r'[^a-zA-Z0-9._-]'),
+        '_',
+      );
 
-    if (imageUrl == null) return;
+      final fileName = '${DateTime.now().millisecondsSinceEpoch}_$safeFileName';
 
-    final cleanUrl = imageUrl.trim();
+      final storagePath =
+          'restaurants/${restaurant.id}/menu_items/${item.id}/cover/$fileName';
 
-    if (cleanUrl.isEmpty) {
-      if (!context.mounted) return;
+      debugPrint('RESTORAN KAPAK UPLOAD START path=$storagePath');
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Fotoğraf URL boş olamaz.'),
+      final ref = FirebaseStorage.instance.ref().child(storagePath);
+
+      final uploadTask = await ref.putData(
+        bytes,
+        SettableMetadata(
+          contentType: 'image/jpeg',
         ),
       );
-      return;
-    }
 
-    try {
+      final downloadUrl = await uploadTask.ref.getDownloadURL();
+
+      debugPrint('RESTORAN KAPAK UPLOAD SUCCESS url=$downloadUrl');
+
       await FirebaseFirestore.instance
           .collection('restaurants')
           .doc(restaurant.id)
@@ -474,7 +449,7 @@ class _MenuPreviewSection extends StatelessWidget {
           .doc(item.id)
           .set(
         {
-          'img': cleanUrl,
+          'img': downloadUrl,
           'updatedAt': FieldValue.serverTimestamp(),
         },
         SetOptions(merge: true),
@@ -483,16 +458,196 @@ class _MenuPreviewSection extends StatelessWidget {
       if (!context.mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('${item.name} fotoğrafı güncellendi.'),
+        const SnackBar(
+          content: Text('Kapak fotoğrafı güncellendi.'),
         ),
       );
-    } catch (e) {
+    } catch (error, stackTrace) {
+      debugPrint('RESTORAN KAPAK EKLE ERROR => $error');
+      debugPrintStack(stackTrace: stackTrace);
+
       if (!context.mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Fotoğraf güncellenemedi: $e'),
+          content: Text('Kapak fotoğrafı güncellenemedi: $error'),
+        ),
+      );
+    }
+  }
+
+  Future<void> _menuGaleriFotografiEkle({
+    required BuildContext context,
+    required RestoranMenuItemModel item,
+  }) async {
+    try {
+      final picker = ImagePicker();
+
+      final file = await picker.pickImage(
+        source: ImageSource.gallery,
+        imageQuality: 88,
+      );
+
+      if (file == null) {
+        return;
+      }
+
+      final bytes = await file.readAsBytes();
+
+      if (bytes.isEmpty) {
+        if (!context.mounted) return;
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Seçilen fotoğraf okunamadı.'),
+          ),
+        );
+        return;
+      }
+
+      final safeFileName =
+          file.name.replaceAll(RegExp(r'[^a-zA-Z0-9._-]'), '_');
+      final fileName = '${DateTime.now().millisecondsSinceEpoch}_$safeFileName';
+
+      final storagePath =
+          'restaurants/${restaurant.id}/menu_items/${item.id}/gallery/$fileName';
+
+      debugPrint('RESTORAN GALERI UPLOAD START path=$storagePath');
+
+      final ref = FirebaseStorage.instance.ref().child(storagePath);
+
+      final uploadTask = await ref.putData(
+        bytes,
+        SettableMetadata(
+          contentType: 'image/jpeg',
+        ),
+      );
+
+      final downloadUrl = await uploadTask.ref.getDownloadURL();
+
+      debugPrint('RESTORAN GALERI UPLOAD SUCCESS url=$downloadUrl');
+
+      await FirebaseFirestore.instance
+          .collection('restaurants')
+          .doc(restaurant.id)
+          .collection('menu_items')
+          .doc(item.id)
+          .set(
+        {
+          'images': FieldValue.arrayUnion([downloadUrl]),
+          'updatedAt': FieldValue.serverTimestamp(),
+        },
+        SetOptions(merge: true),
+      );
+
+      if (!context.mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Galeriye fotoğraf eklendi.'),
+        ),
+      );
+    } catch (error, stackTrace) {
+      debugPrint('RESTORAN GALERI EKLE ERROR => $error');
+      debugPrintStack(stackTrace: stackTrace);
+
+      if (!context.mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Galeri fotoğrafı eklenemedi: $error'),
+        ),
+      );
+    }
+  }
+
+  Future<void> _menuGaleriFotografiSil({
+    required BuildContext context,
+    required RestoranMenuItemModel item,
+    required String imageUrl,
+  }) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          backgroundColor: const Color(0xFF151515),
+          title: const Text(
+            'Galeri fotoğrafı silinsin mi?',
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+          content: const Text(
+            'Bu işlem sadece galeri fotoğrafını kaldırır. Kapak fotoğrafına dokunulmaz.',
+            style: TextStyle(color: Colors.white70),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(false),
+              child: const Text('Vazgeç'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(true),
+              child: const Text('Sil'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmed != true) {
+      return;
+    }
+
+    try {
+      final itemRef = FirebaseFirestore.instance
+          .collection('restaurants')
+          .doc(restaurant.id)
+          .collection('menu_items')
+          .doc(item.id);
+
+      debugPrint('RESTORAN GALERI SIL restaurantId=${restaurant.id}');
+      debugPrint('RESTORAN GALERI SIL itemId=${item.id}');
+      debugPrint('RESTORAN GALERI SIL imageUrl=$imageUrl');
+
+      final doc = await itemRef.get();
+      final data = doc.data();
+
+      final currentImages = ((data?['images'] as List?) ?? [])
+          .map((url) => url.toString().trim())
+          .where((url) => url.isNotEmpty)
+          .toList();
+
+      debugPrint('RESTORAN GALERI SIL before=$currentImages');
+
+      final cleanedImages =
+          currentImages.where((url) => url != imageUrl.trim()).toList();
+
+      await itemRef.set(
+        {
+          'images': cleanedImages,
+          'updatedAt': FieldValue.serverTimestamp(),
+        },
+        SetOptions(merge: true),
+      );
+
+      final afterDoc = await itemRef.get();
+      debugPrint('RESTORAN GALERI SIL after=${afterDoc.data()?['images']}');
+
+      if (!context.mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Galeri fotoğrafı silindi.'),
+        ),
+      );
+    } catch (error) {
+      if (!context.mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Galeri fotoğrafı silinemedi: $error'),
         ),
       );
     }
@@ -807,6 +962,19 @@ class _MenuPreviewSection extends StatelessWidget {
                     await _menuFotografiSil(
                       context: context,
                       item: item,
+                    );
+                  },
+                  onAddGalleryPhotoTap: () async {
+                    await _menuGaleriFotografiEkle(
+                      context: context,
+                      item: item,
+                    );
+                  },
+                  onDeleteGalleryPhotoTap: (imageUrl) async {
+                    await _menuGaleriFotografiSil(
+                      context: context,
+                      item: item,
+                      imageUrl: imageUrl,
                     );
                   },
                   onGelAlTap: () async {
