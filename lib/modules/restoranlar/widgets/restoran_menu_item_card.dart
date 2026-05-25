@@ -29,7 +29,7 @@ class RestoranMenuItemCard extends StatelessWidget {
   final ValueChanged<String>? onDeleteGalleryPhotoTap;
   final VoidCallback? onAddProfilePhotoTap;
   final VoidCallback? onDeleteProfilePhotoTap;
-  final VoidCallback? onEditMenuItemTap;
+  final ValueChanged<String>? onEditMenuItemTap;
 
   static const Color _gold = Color(0xFFFFB300);
   static const Color _cardBlack = Color(0xFF101010);

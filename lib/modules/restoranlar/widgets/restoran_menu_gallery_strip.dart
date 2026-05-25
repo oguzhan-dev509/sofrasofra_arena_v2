@@ -21,7 +21,7 @@ class RestoranMenuGalleryStrip extends StatelessWidget {
   final bool busy;
   final VoidCallback? onAddGalleryPhoto;
   final ValueChanged<String>? onDeleteGalleryPhoto;
-  final VoidCallback? onEditMenuItemTap;
+  final ValueChanged<String>? onEditMenuItemTap;
   final VoidCallback? onGelAlTap;
   final VoidCallback? onGoturTap;
 
@@ -168,8 +168,8 @@ class RestoranMenuGalleryStrip extends StatelessWidget {
                             busy: busy,
                             onDeleteGalleryPhoto: onDeleteGalleryPhoto,
                             onEditMenuItemTap: onEditMenuItemTap,
-                            gelAlFiyat: item.gelAlFiyat,
-                            goturFiyat: item.goturFiyat,
+                            gelAlFiyat: item.gelAlFiyatForImage(imageUrl),
+                            goturFiyat: item.goturFiyatForImage(imageUrl),
                             onGelAlTap: onGelAlTap,
                             onGoturTap: onGoturTap,
                           ),
@@ -201,8 +201,8 @@ class RestoranMenuGalleryStrip extends StatelessWidget {
                           busy: busy,
                           onDeleteGalleryPhoto: onDeleteGalleryPhoto,
                           onEditMenuItemTap: onEditMenuItemTap,
-                          gelAlFiyat: item.gelAlFiyat,
-                          goturFiyat: item.goturFiyat,
+                          gelAlFiyat: item.gelAlFiyatForImage(imageUrl),
+                          goturFiyat: item.goturFiyatForImage(imageUrl),
                           onGelAlTap: onGelAlTap,
                           onGoturTap: onGoturTap,
                         ),
@@ -241,7 +241,7 @@ class _GalleryPhotoCard extends StatelessWidget {
   final bool canManage;
   final bool busy;
   final ValueChanged<String>? onDeleteGalleryPhoto;
-  final VoidCallback? onEditMenuItemTap;
+  final ValueChanged<String>? onEditMenuItemTap;
   final double gelAlFiyat;
   final double goturFiyat;
   final VoidCallback? onGelAlTap;
@@ -381,6 +381,7 @@ class _GalleryPhotoCard extends StatelessWidget {
               ),
             ),
             _GalleryCartActionBar(
+              imageUrl: imageUrl,
               gelAlFiyat: gelAlFiyat,
               goturFiyat: goturFiyat,
               onGelAlTap: onGelAlTap,
@@ -398,6 +399,7 @@ class _GalleryPhotoCard extends StatelessWidget {
 
 class _GalleryCartActionBar extends StatelessWidget {
   const _GalleryCartActionBar({
+    required this.imageUrl,
     required this.gelAlFiyat,
     required this.goturFiyat,
     required this.onGelAlTap,
@@ -409,11 +411,12 @@ class _GalleryCartActionBar extends StatelessWidget {
 
   final double gelAlFiyat;
   final double goturFiyat;
+  final String imageUrl;
   final VoidCallback? onGelAlTap;
   final VoidCallback? onGoturTap;
   final bool canManage;
   final bool busy;
-  final VoidCallback? onEditMenuItemTap;
+  final ValueChanged<String>? onEditMenuItemTap;
 
   @override
   Widget build(BuildContext context) {
@@ -443,7 +446,7 @@ class _GalleryCartActionBar extends StatelessWidget {
               onTap: busy
                   ? null
                   : () {
-                      onEditMenuItemTap?.call();
+                      onEditMenuItemTap?.call(imageUrl);
                     },
             ),
             if (showGelAl || showGotur) const SizedBox(width: 7),

@@ -1,3 +1,18 @@
+class RestaurantGalleryPhotoMeta {
+  const RestaurantGalleryPhotoMeta({
+    this.gelAlFiyat = 0,
+    this.goturFiyat = 0,
+    this.description = '',
+  });
+
+  final double gelAlFiyat;
+  final double goturFiyat;
+  final String description;
+
+  bool get hasCustomPrice => gelAlFiyat > 0 || goturFiyat > 0;
+  bool get hasDescription => description.trim().isNotEmpty;
+}
+
 class RestoranMenuItemModel {
   const RestoranMenuItemModel({
     required this.id,
@@ -10,6 +25,7 @@ class RestoranMenuItemModel {
     required this.gelAlFiyat,
     required this.goturFiyat,
     this.images = const [],
+    this.galleryMeta = const {},
     this.isActive = true,
     this.isAvailable = true,
     this.isFeatured = false,
@@ -30,6 +46,7 @@ class RestoranMenuItemModel {
   /// UI önceliği: img → images
   final String img;
   final String profileImg;
+  final Map<String, RestaurantGalleryPhotoMeta> galleryMeta;
   final List<String> images;
 
   final double gelAlFiyat;
@@ -137,6 +154,7 @@ class RestoranMenuItemModel {
           (data['profileImg'] ?? data['avatarUrl'] ?? data['logoUrl'] ?? '')
               .toString(),
       images: _readImages(data['images']),
+      galleryMeta: _readGalleryMeta(data['galleryMeta']),
       gelAlFiyat: _readDouble(data['gelAlFiyat'] ?? data['price']),
       goturFiyat: _readDouble(data['goturFiyat']),
       isActive: data['isActive'] != false,
@@ -148,6 +166,70 @@ class RestoranMenuItemModel {
       ),
       allergenNote: (data['allergenNote'] ?? '').toString(),
     );
+  }
+
+  static String galleryImageKey(String imageUrl) {
+    return imageUrl
+        .trim()
+        .replaceAll(RegExp(r'[^a-zA-Z0-9]'), '_')
+        .replaceAll(RegExp(r'_+'), '_');
+  }
+
+  static Map<String, RestaurantGalleryPhotoMeta> _readGalleryMeta(
+    dynamic value,
+  ) {
+    if (value is! Map) {
+      return const {};
+    }
+
+    final result = <String, RestaurantGalleryPhotoMeta>{};
+
+    value.forEach((key, rawMeta) {
+      if (rawMeta is! Map) return;
+
+      final cleanKey = key.toString().trim();
+      if (cleanKey.isEmpty) return;
+
+      result[cleanKey] = RestaurantGalleryPhotoMeta(
+        gelAlFiyat: _readDouble(rawMeta['gelAlFiyat']),
+        goturFiyat: _readDouble(rawMeta['goturFiyat']),
+        description: (rawMeta['description'] ?? '').toString(),
+      );
+    });
+
+    return result;
+  }
+
+  RestaurantGalleryPhotoMeta? galleryMetaFor(String imageUrl) {
+    final key = galleryImageKey(imageUrl);
+    return galleryMeta[key];
+  }
+
+  double gelAlFiyatForImage(String imageUrl) {
+    final meta = galleryMetaFor(imageUrl);
+    if (meta != null && meta.gelAlFiyat > 0) {
+      return meta.gelAlFiyat;
+    }
+
+    return gelAlFiyat;
+  }
+
+  double goturFiyatForImage(String imageUrl) {
+    final meta = galleryMetaFor(imageUrl);
+    if (meta != null && meta.goturFiyat > 0) {
+      return meta.goturFiyat;
+    }
+
+    return goturFiyat;
+  }
+
+  String descriptionForImage(String imageUrl) {
+    final meta = galleryMetaFor(imageUrl);
+    if (meta != null && meta.description.trim().isNotEmpty) {
+      return meta.description.trim();
+    }
+
+    return description;
   }
 
   Map<String, dynamic> toCartSnapshot({

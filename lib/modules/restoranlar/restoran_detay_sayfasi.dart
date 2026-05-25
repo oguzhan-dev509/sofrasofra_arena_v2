@@ -1057,6 +1057,264 @@ class _MenuPreviewSection extends StatelessWidget {
     );
   }
 
+  Future<void> _menuUrunuDuzenleDialogAc({
+    required BuildContext context,
+    required RestoranMenuItemModel item,
+    required String imageUrl,
+  }) async {
+    final meta = item.galleryMetaFor(imageUrl);
+
+    final currentGelAlFiyat = meta?.gelAlFiyat ?? item.gelAlFiyat;
+    final currentGoturFiyat = meta?.goturFiyat ?? item.goturFiyat;
+    final currentDescription = meta?.description.trim().isNotEmpty == true
+        ? meta!.description
+        : item.description;
+
+    final gelAlController = TextEditingController(
+      text: currentGelAlFiyat > 0 ? currentGelAlFiyat.toStringAsFixed(0) : '',
+    );
+
+    final goturController = TextEditingController(
+      text: currentGoturFiyat > 0 ? currentGoturFiyat.toStringAsFixed(0) : '',
+    );
+
+    final descriptionController = TextEditingController(
+      text: currentDescription,
+    );
+
+    try {
+      await showDialog<void>(
+        context: context,
+        builder: (dialogContext) {
+          bool saving = false;
+
+          return StatefulBuilder(
+            builder: (context, setDialogState) {
+              Future<void> kaydet() async {
+                final gelAlText =
+                    gelAlController.text.trim().replaceAll(',', '.');
+                final goturText =
+                    goturController.text.trim().replaceAll(',', '.');
+                final description = descriptionController.text.trim();
+
+                final gelAlFiyat = double.tryParse(gelAlText) ?? 0;
+                final goturFiyat = double.tryParse(goturText) ?? 0;
+
+                if (gelAlFiyat <= 0 && goturFiyat <= 0) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('En az bir fiyat alanı girilmelidir.'),
+                    ),
+                  );
+                  return;
+                }
+
+                setDialogState(() {
+                  saving = true;
+                });
+
+                try {
+                  final imageKey =
+                      RestoranMenuItemModel.galleryImageKey(imageUrl);
+
+                  final itemRef = FirebaseFirestore.instance
+                      .collection('restaurants')
+                      .doc(restaurant.id)
+                      .collection('menu_items')
+                      .doc(item.id);
+
+                  debugPrint('RESTORAN GALERI META UPDATE imageKey=$imageKey');
+                  debugPrint('RESTORAN GALERI META UPDATE imageUrl=$imageUrl');
+                  debugPrint(
+                    'RESTORAN GALERI META UPDATE gelAl=$gelAlFiyat gotur=$goturFiyat',
+                  );
+
+                  await itemRef.update({
+                    'galleryMeta.$imageKey.gelAlFiyat': gelAlFiyat,
+                    'galleryMeta.$imageKey.goturFiyat': goturFiyat,
+                    'galleryMeta.$imageKey.description': description,
+                    'galleryMeta.$imageKey.updatedAt':
+                        FieldValue.serverTimestamp(),
+                    'updatedAt': FieldValue.serverTimestamp(),
+                  });
+
+                  if (!context.mounted) return;
+
+                  Navigator.of(dialogContext).pop();
+
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('${item.name} güncellendi.'),
+                    ),
+                  );
+                } catch (e) {
+                  setDialogState(() {
+                    saving = false;
+                  });
+
+                  if (!context.mounted) return;
+
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Menü ürünü güncellenemedi: $e'),
+                    ),
+                  );
+                }
+              }
+
+              return AlertDialog(
+                backgroundColor: const Color(0xFF151515),
+                title: Text(
+                  '${item.name} düzenle',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+                content: SingleChildScrollView(
+                  child: SizedBox(
+                    width: 420,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const SizedBox(height: 8),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: TextField(
+                                controller: gelAlController,
+                                keyboardType: TextInputType.number,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                                decoration: InputDecoration(
+                                  labelText: 'Gel-Al fiyatı',
+                                  hintText: '80',
+                                  labelStyle: const TextStyle(
+                                    color: _gold,
+                                    fontWeight: FontWeight.w800,
+                                  ),
+                                  hintStyle: TextStyle(
+                                    color: Colors.white.withValues(alpha: 0.35),
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(
+                                      color:
+                                          Colors.white.withValues(alpha: 0.18),
+                                    ),
+                                  ),
+                                  focusedBorder: const OutlineInputBorder(
+                                    borderSide: BorderSide(color: _gold),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: TextField(
+                                controller: goturController,
+                                keyboardType: TextInputType.number,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                                decoration: InputDecoration(
+                                  labelText: 'Götür fiyatı',
+                                  hintText: '95',
+                                  labelStyle: const TextStyle(
+                                    color: _gold,
+                                    fontWeight: FontWeight.w800,
+                                  ),
+                                  hintStyle: TextStyle(
+                                    color: Colors.white.withValues(alpha: 0.35),
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(
+                                      color:
+                                          Colors.white.withValues(alpha: 0.18),
+                                    ),
+                                  ),
+                                  focusedBorder: const OutlineInputBorder(
+                                    borderSide: BorderSide(color: _gold),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        TextField(
+                          controller: descriptionController,
+                          maxLines: 4,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w700,
+                          ),
+                          decoration: InputDecoration(
+                            labelText: 'Açıklama',
+                            hintText: 'Kısa ürün açıklaması',
+                            labelStyle: const TextStyle(
+                              color: _gold,
+                              fontWeight: FontWeight.w800,
+                            ),
+                            hintStyle: TextStyle(
+                              color: Colors.white.withValues(alpha: 0.35),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderSide: BorderSide(
+                                color: Colors.white.withValues(alpha: 0.18),
+                              ),
+                            ),
+                            focusedBorder: const OutlineInputBorder(
+                              borderSide: BorderSide(color: _gold),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                actions: [
+                  TextButton(
+                    onPressed:
+                        saving ? null : () => Navigator.pop(dialogContext),
+                    child: const Text(
+                      'Vazgeç',
+                      style: TextStyle(color: Colors.white70),
+                    ),
+                  ),
+                  ElevatedButton.icon(
+                    onPressed: saving ? null : kaydet,
+                    icon: saving
+                        ? const SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Icon(Icons.save_outlined),
+                    label: Text(saving ? 'Kaydediliyor...' : 'Kaydet'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: _gold,
+                      foregroundColor: Colors.black,
+                      textStyle: const TextStyle(
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
+                  ),
+                ],
+              );
+            },
+          );
+        },
+      );
+    } finally {
+      gelAlController.dispose();
+      goturController.dispose();
+      descriptionController.dispose();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     if (!isAdmin) {
@@ -1172,13 +1430,11 @@ class _MenuPreviewSection extends StatelessWidget {
                       imageUrl: imageUrl,
                     );
                   },
-                  onEditMenuItemTap: () {
-                    ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content:
-                            Text('Fiyat ve açıklama düzenleme hazırlanıyor.'),
-                      ),
+                  onEditMenuItemTap: (imageUrl) async {
+                    await _menuUrunuDuzenleDialogAc(
+                      context: context,
+                      item: item,
+                      imageUrl: imageUrl,
                     );
                   },
                   onGelAlTap: () async {
