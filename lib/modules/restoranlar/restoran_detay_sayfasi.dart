@@ -1172,6 +1172,15 @@ class _MenuPreviewSection extends StatelessWidget {
                       imageUrl: imageUrl,
                     );
                   },
+                  onEditMenuItemTap: () {
+                    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content:
+                            Text('Fiyat ve açıklama düzenleme hazırlanıyor.'),
+                      ),
+                    );
+                  },
                   onGelAlTap: () async {
                     await _sepeteRestoranUrunuEkle(
                       context: context,

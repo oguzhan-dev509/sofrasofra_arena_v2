@@ -14,6 +14,7 @@ class RestoranMenuItemCard extends StatelessWidget {
     this.onDeletePhotoTap,
     this.onAddGalleryPhotoTap,
     this.onDeleteGalleryPhotoTap,
+    this.onEditMenuItemTap,
     this.onAddProfilePhotoTap,
     this.onDeleteProfilePhotoTap,
   });
@@ -28,6 +29,7 @@ class RestoranMenuItemCard extends StatelessWidget {
   final ValueChanged<String>? onDeleteGalleryPhotoTap;
   final VoidCallback? onAddProfilePhotoTap;
   final VoidCallback? onDeleteProfilePhotoTap;
+  final VoidCallback? onEditMenuItemTap;
 
   static const Color _gold = Color(0xFFFFB300);
   static const Color _cardBlack = Color(0xFF101010);
@@ -77,6 +79,7 @@ class RestoranMenuItemCard extends StatelessWidget {
             canManage: canManageMedia,
             onAddGalleryPhoto: onAddGalleryPhotoTap,
             onDeleteGalleryPhoto: onDeleteGalleryPhotoTap,
+            onEditMenuItemTap: onEditMenuItemTap,
             onGelAlTap: onGelAlTap,
             onGoturTap: onGoturTap,
           ),
