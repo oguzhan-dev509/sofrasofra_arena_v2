@@ -1405,20 +1405,20 @@ class _MenuPreviewSection extends StatelessWidget {
                 (item) => RestoranMenuItemCard(
                   item: item,
                   canManageMedia: isAdmin,
+                  onAddPhotoTap: () async {
+                    await _menuFotografiEkle(
+                      context: context,
+                      item: item,
+                    );
+                  },
+                  onDeletePhotoTap: () async {
+                    await _menuFotografiSil(
+                      context: context,
+                      item: item,
+                    );
+                  },
                   onAddProfilePhotoTap: () async {
                     await _menuProfilFotografiEkle(
-                      context: context,
-                      item: item,
-                    );
-                  },
-                  onDeleteProfilePhotoTap: () async {
-                    await _menuProfilFotografiSil(
-                      context: context,
-                      item: item,
-                    );
-                  },
-                  onAddGalleryPhotoTap: () async {
-                    await _menuGaleriFotografiEkle(
                       context: context,
                       item: item,
                     );
