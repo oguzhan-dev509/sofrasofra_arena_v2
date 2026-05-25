@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../../fullscreen_gallery.dart';
 import '../models/restoran_menu_item_model.dart';
 
@@ -10,6 +11,7 @@ class RestoranMenuGalleryStrip extends StatelessWidget {
     this.busy = false,
     this.onAddGalleryPhoto,
     this.onDeleteGalleryPhoto,
+    this.onEditMenuItemTap,
     this.onGelAlTap,
     this.onGoturTap,
   });
@@ -19,6 +21,7 @@ class RestoranMenuGalleryStrip extends StatelessWidget {
   final bool busy;
   final VoidCallback? onAddGalleryPhoto;
   final ValueChanged<String>? onDeleteGalleryPhoto;
+  final VoidCallback? onEditMenuItemTap;
   final VoidCallback? onGelAlTap;
   final VoidCallback? onGoturTap;
 
@@ -30,7 +33,6 @@ class RestoranMenuGalleryStrip extends StatelessWidget {
 
     void addUrl(String value) {
       final cleanUrl = value.trim();
-
       if (cleanUrl.isEmpty) return;
       if (seen.contains(cleanUrl)) return;
 
@@ -65,7 +67,6 @@ class RestoranMenuGalleryStrip extends StatelessWidget {
       builder: (context, constraints) {
         final isCompact = constraints.maxWidth < 720;
         final visibleImages = galleryImages.take(6).toList();
-
         final cardHeight = isCompact ? 150.0 : 220.0;
 
         return Container(
@@ -166,6 +167,7 @@ class RestoranMenuGalleryStrip extends StatelessWidget {
                             canManage: canManage,
                             busy: busy,
                             onDeleteGalleryPhoto: onDeleteGalleryPhoto,
+                            onEditMenuItemTap: onEditMenuItemTap,
                             gelAlFiyat: item.gelAlFiyat,
                             goturFiyat: item.goturFiyat,
                             onGelAlTap: onGelAlTap,
@@ -198,6 +200,7 @@ class RestoranMenuGalleryStrip extends StatelessWidget {
                           canManage: canManage,
                           busy: busy,
                           onDeleteGalleryPhoto: onDeleteGalleryPhoto,
+                          onEditMenuItemTap: onEditMenuItemTap,
                           gelAlFiyat: item.gelAlFiyat,
                           goturFiyat: item.goturFiyat,
                           onGelAlTap: onGelAlTap,
@@ -224,10 +227,11 @@ class _GalleryPhotoCard extends StatelessWidget {
     required this.canManage,
     required this.busy,
     required this.onDeleteGalleryPhoto,
+    this.onEditMenuItemTap,
     required this.gelAlFiyat,
     required this.goturFiyat,
-    this.onGelAlTap,
-    this.onGoturTap,
+    required this.onGelAlTap,
+    required this.onGoturTap,
   });
 
   final String imageUrl;
@@ -237,6 +241,7 @@ class _GalleryPhotoCard extends StatelessWidget {
   final bool canManage;
   final bool busy;
   final ValueChanged<String>? onDeleteGalleryPhoto;
+  final VoidCallback? onEditMenuItemTap;
   final double gelAlFiyat;
   final double goturFiyat;
   final VoidCallback? onGelAlTap;
@@ -302,31 +307,6 @@ class _GalleryPhotoCard extends StatelessWidget {
                     ),
                   ),
                   Positioned(
-                    right: 10,
-                    bottom: 10,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 9,
-                        vertical: 5,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.black.withValues(alpha: 0.58),
-                        borderRadius: BorderRadius.circular(999),
-                        border: Border.all(
-                          color: Colors.white.withValues(alpha: 0.18),
-                        ),
-                      ),
-                      child: Text(
-                        '${index + 1}',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w900,
-                        ),
-                      ),
-                    ),
-                  ),
-                  Positioned(
                     left: 10,
                     top: 10,
                     child: InkWell(
@@ -363,8 +343,8 @@ class _GalleryPhotoCard extends StatelessWidget {
                       isGalleryImage &&
                       onDeleteGalleryPhoto != null)
                     Positioned(
-                      top: -7,
-                      right: -7,
+                      top: 8,
+                      right: 8,
                       child: InkWell(
                         onTap: busy
                             ? null
@@ -373,19 +353,26 @@ class _GalleryPhotoCard extends StatelessWidget {
                               },
                         borderRadius: BorderRadius.circular(999),
                         child: Container(
-                          width: 28,
-                          height: 28,
+                          width: 30,
+                          height: 30,
                           decoration: BoxDecoration(
                             color: const Color(0xFF2B1A1A),
                             shape: BoxShape.circle,
                             border: Border.all(
-                              color: Colors.white.withValues(alpha: 0.24),
+                              color: Colors.white.withValues(alpha: 0.30),
                             ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.30),
+                                blurRadius: 8,
+                                offset: const Offset(0, 3),
+                              ),
+                            ],
                           ),
                           child: const Icon(
-                            Icons.close,
+                            Icons.close_rounded,
                             color: Colors.white,
-                            size: 17,
+                            size: 18,
                           ),
                         ),
                       ),
@@ -398,6 +385,9 @@ class _GalleryPhotoCard extends StatelessWidget {
               goturFiyat: goturFiyat,
               onGelAlTap: onGelAlTap,
               onGoturTap: onGoturTap,
+              canManage: canManage,
+              busy: busy,
+              onEditMenuItemTap: onEditMenuItemTap,
             ),
           ],
         ),
@@ -412,19 +402,26 @@ class _GalleryCartActionBar extends StatelessWidget {
     required this.goturFiyat,
     required this.onGelAlTap,
     required this.onGoturTap,
+    required this.canManage,
+    required this.busy,
+    this.onEditMenuItemTap,
   });
 
   final double gelAlFiyat;
   final double goturFiyat;
   final VoidCallback? onGelAlTap;
   final VoidCallback? onGoturTap;
+  final bool canManage;
+  final bool busy;
+  final VoidCallback? onEditMenuItemTap;
 
   @override
   Widget build(BuildContext context) {
     final showGelAl = onGelAlTap != null && gelAlFiyat > 0;
     final showGotur = onGoturTap != null && goturFiyat > 0;
+    final showEdit = canManage && onEditMenuItemTap != null;
 
-    if (!showGelAl && !showGotur) {
+    if (!showEdit && !showGelAl && !showGotur) {
       return const SizedBox.shrink();
     }
 
@@ -441,6 +438,16 @@ class _GalleryCartActionBar extends StatelessWidget {
       ),
       child: Row(
         children: [
+          if (showEdit) ...[
+            _GalleryEditActionChip(
+              onTap: busy
+                  ? null
+                  : () {
+                      onEditMenuItemTap?.call();
+                    },
+            ),
+            if (showGelAl || showGotur) const SizedBox(width: 7),
+          ],
           if (showGelAl)
             Expanded(
               child: _GalleryCartActionChip(
@@ -463,6 +470,44 @@ class _GalleryCartActionBar extends StatelessWidget {
               ),
             ),
         ],
+      ),
+    );
+  }
+}
+
+class _GalleryEditActionChip extends StatelessWidget {
+  const _GalleryEditActionChip({
+    required this.onTap,
+  });
+
+  final VoidCallback? onTap;
+
+  static const Color _gold = Color(0xFFFFB300);
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.black.withValues(alpha: 0.62),
+      shape: const CircleBorder(),
+      child: InkWell(
+        onTap: onTap,
+        customBorder: const CircleBorder(),
+        child: Container(
+          width: 38,
+          height: 38,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            border: Border.all(
+              color: _gold.withValues(alpha: 0.78),
+              width: 1.05,
+            ),
+          ),
+          child: const Icon(
+            Icons.edit_outlined,
+            color: _gold,
+            size: 18,
+          ),
+        ),
       ),
     );
   }
