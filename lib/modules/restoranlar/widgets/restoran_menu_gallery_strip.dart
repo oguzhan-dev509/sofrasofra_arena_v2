@@ -60,7 +60,7 @@ class RestoranMenuGalleryStrip extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final isCompact = constraints.maxWidth < 720;
-        final visibleImages = galleryImages.take(3).toList();
+        final visibleImages = galleryImages.take(6).toList();
 
         final cardHeight = isCompact ? 150.0 : 220.0;
 
@@ -156,7 +156,7 @@ class RestoranMenuGalleryStrip extends StatelessWidget {
                           height: cardHeight,
                           child: _GalleryPhotoCard(
                             imageUrl: imageUrl,
-                            images: visibleImages,
+                            images: galleryImages,
                             index: index,
                             isGalleryImage: isGalleryImage,
                             canManage: canManage,
@@ -168,29 +168,28 @@ class RestoranMenuGalleryStrip extends StatelessWidget {
                     ),
                   )
                 else
-                  Row(
+                  Wrap(
+                    spacing: 14,
+                    runSpacing: 14,
                     children: List.generate(visibleImages.length, (index) {
                       final imageUrl = visibleImages[index];
                       final isGalleryImage =
                           galleryOnlyImages.contains(imageUrl);
 
-                      return Expanded(
-                        child: Padding(
-                          padding: EdgeInsets.only(
-                            right: index == visibleImages.length - 1 ? 0 : 14,
-                          ),
-                          child: SizedBox(
-                            height: cardHeight,
-                            child: _GalleryPhotoCard(
-                              imageUrl: imageUrl,
-                              images: visibleImages,
-                              index: index,
-                              isGalleryImage: isGalleryImage,
-                              canManage: canManage,
-                              busy: busy,
-                              onDeleteGalleryPhoto: onDeleteGalleryPhoto,
-                            ),
-                          ),
+                      final contentWidth = constraints.maxWidth - 32;
+                      final cardWidth = (contentWidth - 28) / 3;
+
+                      return SizedBox(
+                        width: cardWidth,
+                        height: cardHeight,
+                        child: _GalleryPhotoCard(
+                          imageUrl: imageUrl,
+                          images: galleryImages,
+                          index: index,
+                          isGalleryImage: isGalleryImage,
+                          canManage: canManage,
+                          busy: busy,
+                          onDeleteGalleryPhoto: onDeleteGalleryPhoto,
                         ),
                       );
                     }),

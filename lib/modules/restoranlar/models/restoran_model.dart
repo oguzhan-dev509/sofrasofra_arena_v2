@@ -9,6 +9,7 @@ class RestoranModel {
     required this.district,
     required this.preparationText,
     required this.ratingText,
+    this.membershipType = 'free',
     this.isFounder = true,
     this.isOpen = false,
     this.isLaunchReady = false,
@@ -25,6 +26,7 @@ class RestoranModel {
   final String district;
   final String preparationText;
   final String ratingText;
+  final String membershipType;
   final bool isFounder;
   final bool isOpen;
   final bool isLaunchReady;
@@ -66,6 +68,40 @@ class RestoranModel {
     return 'Lansmana Hazırlanıyor';
   }
 
+  int get galleryPhotoLimit {
+    final type = membershipType.toLowerCase().trim();
+
+    if (type == 'pro' ||
+        type == 'kurumsal' ||
+        type == 'corporate' ||
+        type == 'enterprise') {
+      return 24;
+    }
+
+    if (type == 'premium') {
+      return 12;
+    }
+
+    return 6;
+  }
+
+  String get membershipLabel {
+    final type = membershipType.toLowerCase().trim();
+
+    if (type == 'pro' ||
+        type == 'kurumsal' ||
+        type == 'corporate' ||
+        type == 'enterprise') {
+      return 'Pro / Kurumsal Restoran';
+    }
+
+    if (type == 'premium') {
+      return 'Premium Restoran';
+    }
+
+    return 'Free Restoran';
+  }
+
   static RestoranModel fromMap(String id, Map<String, dynamic> data) {
     return RestoranModel(
       id: id,
@@ -79,6 +115,14 @@ class RestoranModel {
           (data['preparationText'] ?? data['averagePreparationText'] ?? '')
               .toString(),
       ratingText: (data['ratingText'] ?? data['rating'] ?? '').toString(),
+      membershipType: (data['membershipType'] ??
+              data['packageType'] ??
+              data['plan'] ??
+              data['subscriptionTier'] ??
+              'free')
+          .toString()
+          .toLowerCase()
+          .trim(),
       isFounder: data['isFounder'] == true,
       isOpen: data['isOpen'] == true,
       isLaunchReady: data['isLaunchReady'] == true,

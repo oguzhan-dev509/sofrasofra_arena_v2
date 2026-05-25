@@ -642,6 +642,34 @@ class _MenuPreviewSection extends StatelessWidget {
     required RestoranMenuItemModel item,
   }) async {
     try {
+      final galleryLimit = restaurant.galleryPhotoLimit;
+
+      final itemRef = FirebaseFirestore.instance
+          .collection('restaurants')
+          .doc(restaurant.id)
+          .collection('menu_items')
+          .doc(item.id);
+
+      final itemDoc = await itemRef.get();
+      final currentImages = ((itemDoc.data()?['images'] as List?) ?? [])
+          .map((url) => url.toString().trim())
+          .where((url) => url.isNotEmpty)
+          .toList();
+
+      if (currentImages.length >= galleryLimit) {
+        if (!context.mounted) return;
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              '${restaurant.membershipLabel} galeri limiti doldu. '
+              'Bu paket için en fazla $galleryLimit fotoğraf eklenebilir.',
+            ),
+          ),
+        );
+        return;
+      }
+
       final picker = ImagePicker();
 
       final file = await picker.pickImage(
@@ -688,12 +716,7 @@ class _MenuPreviewSection extends StatelessWidget {
 
       debugPrint('RESTORAN GALERI UPLOAD SUCCESS url=$downloadUrl');
 
-      await FirebaseFirestore.instance
-          .collection('restaurants')
-          .doc(restaurant.id)
-          .collection('menu_items')
-          .doc(item.id)
-          .set(
+      await itemRef.set(
         {
           'images': FieldValue.arrayUnion([downloadUrl]),
           'updatedAt': FieldValue.serverTimestamp(),
