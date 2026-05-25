@@ -369,10 +369,21 @@ class _MenuPreviewSection extends StatelessWidget {
 
       messenger.showSnackBar(
         SnackBar(
-          duration: const Duration(milliseconds: 1400),
+          duration: const Duration(milliseconds: 900),
           content: Text(
             '${item.name} $teslimatLabel olarak sepete eklendi.',
           ),
+        ),
+      );
+
+      await Future<void>.delayed(const Duration(milliseconds: 180));
+
+      if (!context.mounted) return;
+
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => const SepetSayfasi(),
         ),
       );
     } catch (e) {
