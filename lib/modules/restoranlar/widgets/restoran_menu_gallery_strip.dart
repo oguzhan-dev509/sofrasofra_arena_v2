@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-
+import '../../fullscreen_gallery.dart';
 import '../models/restoran_menu_item_model.dart';
 
 class RestoranMenuGalleryStrip extends StatelessWidget {
@@ -62,7 +62,7 @@ class RestoranMenuGalleryStrip extends StatelessWidget {
         final isCompact = constraints.maxWidth < 720;
         final visibleImages = galleryImages.take(3).toList();
 
-        final cardHeight = isCompact ? 122.0 : 168.0;
+        final cardHeight = isCompact ? 150.0 : 220.0;
 
         return Container(
           width: double.infinity,
@@ -152,10 +152,11 @@ class RestoranMenuGalleryStrip extends StatelessWidget {
                             galleryOnlyImages.contains(imageUrl);
 
                         return SizedBox(
-                          width: 150,
+                          width: 210,
                           height: cardHeight,
                           child: _GalleryPhotoCard(
                             imageUrl: imageUrl,
+                            images: visibleImages,
                             index: index,
                             isGalleryImage: isGalleryImage,
                             canManage: canManage,
@@ -182,6 +183,7 @@ class RestoranMenuGalleryStrip extends StatelessWidget {
                             height: cardHeight,
                             child: _GalleryPhotoCard(
                               imageUrl: imageUrl,
+                              images: visibleImages,
                               index: index,
                               isGalleryImage: isGalleryImage,
                               canManage: canManage,
@@ -205,6 +207,7 @@ class RestoranMenuGalleryStrip extends StatelessWidget {
 class _GalleryPhotoCard extends StatelessWidget {
   const _GalleryPhotoCard({
     required this.imageUrl,
+    required this.images,
     required this.index,
     required this.isGalleryImage,
     required this.canManage,
@@ -213,6 +216,7 @@ class _GalleryPhotoCard extends StatelessWidget {
   });
 
   final String imageUrl;
+  final List<String> images;
   final int index;
   final bool isGalleryImage;
   final bool canManage;
@@ -297,6 +301,46 @@ class _GalleryPhotoCard extends StatelessWidget {
                 color: Colors.white,
                 fontSize: 11,
                 fontWeight: FontWeight.w900,
+              ),
+            ),
+          ),
+        ),
+        Positioned(
+          left: 10,
+          top: 10,
+          child: InkWell(
+            onTap: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => FullScreenGallery(
+                    images: images,
+                    initialIndex: index,
+                  ),
+                ),
+              );
+            },
+            borderRadius: BorderRadius.circular(999),
+            child: Container(
+              width: 32,
+              height: 32,
+              decoration: BoxDecoration(
+                color: Colors.black.withValues(alpha: 0.68),
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: Colors.white.withValues(alpha: 0.22),
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.30),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: const Icon(
+                Icons.zoom_in_rounded,
+                color: Colors.white,
+                size: 19,
               ),
             ),
           ),
