@@ -92,7 +92,7 @@ class _CoverSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 280,
+      height: 155,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(28),
         border: Border.all(
