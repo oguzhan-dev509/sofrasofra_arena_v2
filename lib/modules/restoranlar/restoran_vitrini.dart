@@ -88,7 +88,7 @@ class PremiumRestoranVitrini extends StatelessWidget {
           return ListView(
             padding: const EdgeInsets.fromLTRB(18, 18, 18, 32),
             children: [
-              _HeroBlock(),
+              const _HeroBlock(),
               if (showFallbackNotice) ...[
                 const SizedBox(height: 14),
                 _FallbackNotice(
@@ -126,7 +126,7 @@ class PremiumRestoranVitrini extends StatelessWidget {
 }
 
 class _HeroBlock extends StatelessWidget {
-  _HeroBlock();
+  const _HeroBlock();
 
   static const Color _gold = Color(0xFFFFB300);
 
@@ -135,8 +135,11 @@ class _HeroBlock extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isCompact = MediaQuery.of(context).size.width < 600;
+    final heroHeight = isCompact ? 370.0 : 340.0;
+
     return Container(
-      height: 340,
+      height: heroHeight,
       width: double.infinity,
       clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
@@ -170,15 +173,15 @@ class _HeroBlock extends StatelessWidget {
                 begin: Alignment.centerLeft,
                 end: Alignment.centerRight,
                 colors: [
-                  Colors.black.withValues(alpha: 0.86),
-                  Colors.black.withValues(alpha: 0.52),
-                  Colors.black.withValues(alpha: 0.18),
+                  Colors.black.withValues(alpha: 0.88),
+                  Colors.black.withValues(alpha: 0.58),
+                  Colors.black.withValues(alpha: 0.22),
                 ],
               ),
             ),
           ),
           Padding(
-            padding: const EdgeInsets.all(22),
+            padding: EdgeInsets.all(isCompact ? 16 : 22),
             child: Align(
               alignment: Alignment.centerLeft,
               child: ConstrainedBox(
@@ -232,83 +235,91 @@ class _HeroBlock extends StatelessWidget {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 22),
-                    const Text(
+                    SizedBox(height: isCompact ? 16 : 22),
+                    Text(
                       'Restoranlar Çok Yakında\nSofrasofra’da',
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         color: Colors.white,
-                        fontSize: 34,
-                        height: 1.08,
+                        fontSize: isCompact ? 30 : 34,
+                        height: 1.06,
                         fontWeight: FontWeight.w900,
                       ),
                     ),
-                    const SizedBox(height: 18),
-                    const Text(
+                    SizedBox(height: isCompact ? 12 : 18),
+                    Text(
                       'Ürün sizin, emek sizin, kazanç sizin.',
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         color: Colors.white,
-                        fontSize: 20,
-                        height: 1.25,
+                        fontSize: isCompact ? 18 : 20,
+                        height: 1.20,
                         fontWeight: FontWeight.w900,
                       ),
                     ),
-                    const SizedBox(height: 10),
-                    const Text(
+                    SizedBox(height: isCompact ? 8 : 10),
+                    Text(
                       'Kurucu restoranlar için 1 yıl ücretsiz avantaj ve erken görünürlük fırsatı.',
+                      maxLines: isCompact ? 2 : 3,
+                      overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         color: Colors.white70,
-                        fontSize: 14.5,
-                        height: 1.45,
+                        fontSize: isCompact ? 13 : 14.5,
+                        height: 1.30,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
-                    const SizedBox(height: 24),
-                    Wrap(
-                      spacing: 12,
-                      runSpacing: 12,
-                      children: [
-                        ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: _gold,
-                            foregroundColor: Colors.black,
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 22,
-                              vertical: 15,
+                    if (!isCompact) ...[
+                      const SizedBox(height: 24),
+                      Wrap(
+                        spacing: 12,
+                        runSpacing: 12,
+                        children: [
+                          ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: _gold,
+                              foregroundColor: Colors.black,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 22,
+                                vertical: 15,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(18),
+                              ),
                             ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(18),
-                            ),
-                          ),
-                          onPressed: () {},
-                          child: const Text(
-                            '1 Yıl Ücretsiz Katıl',
-                            style: TextStyle(
-                              fontWeight: FontWeight.w900,
-                            ),
-                          ),
-                        ),
-                        OutlinedButton(
-                          style: OutlinedButton.styleFrom(
-                            foregroundColor: _gold,
-                            side: const BorderSide(color: _gold),
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 22,
-                              vertical: 15,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(18),
+                            onPressed: () {},
+                            child: const Text(
+                              '1 Yıl Ücretsiz Katıl',
+                              style: TextStyle(
+                                fontWeight: FontWeight.w900,
+                              ),
                             ),
                           ),
-                          onPressed: () {},
-                          child: const Text(
-                            'Premium Restoran Vitrinini Gör',
-                            style: TextStyle(
-                              fontWeight: FontWeight.w900,
+                          OutlinedButton(
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: _gold,
+                              side: const BorderSide(color: _gold),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 22,
+                                vertical: 15,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(18),
+                              ),
+                            ),
+                            onPressed: () {},
+                            child: const Text(
+                              'Premium Restoran Vitrinini Gör',
+                              style: TextStyle(
+                                fontWeight: FontWeight.w900,
+                              ),
                             ),
                           ),
-                        ),
-                      ],
-                    ),
+                        ],
+                      ),
+                    ],
                   ],
                 ),
               ),
