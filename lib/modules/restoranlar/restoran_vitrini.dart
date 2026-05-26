@@ -137,6 +137,47 @@ class PremiumRestoranVitrini extends StatelessWidget {
   }
 }
 
+class _HeroBadge extends StatelessWidget {
+  const _HeroBadge({
+    required this.label,
+    this.filled = false,
+    this.outlined = false,
+  });
+
+  final String label;
+  final bool filled;
+  final bool outlined;
+
+  static const Color _gold = Color(0xFFFFB300);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: 14,
+        vertical: 8,
+      ),
+      decoration: BoxDecoration(
+        color: filled ? _gold : Colors.black.withValues(alpha: 0.18),
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(
+          color: _gold.withValues(alpha: outlined ? 0.55 : 0.28),
+        ),
+      ),
+      child: Text(
+        label,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: TextStyle(
+          color: filled ? Colors.black : _gold,
+          fontSize: 12.5,
+          fontWeight: FontWeight.w900,
+        ),
+      ),
+    );
+  }
+}
+
 class _HeroBlock extends StatelessWidget {
   const _HeroBlock({this.onPremiumTap});
 
@@ -147,191 +188,102 @@ class _HeroBlock extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isCompact = MediaQuery.of(context).size.width < 600;
-    final heroHeight = isCompact ? 370.0 : 340.0;
 
     return Container(
-      height: heroHeight,
       width: double.infinity,
-      clipBehavior: Clip.antiAlias,
+      padding: EdgeInsets.all(isCompact ? 18 : 22),
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.045),
         borderRadius: BorderRadius.circular(24),
         border: Border.all(
           color: _gold.withValues(alpha: 0.24),
         ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.28),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
+        ],
       ),
-      child: Stack(
-        fit: StackFit.expand,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Positioned.fill(
-            child: Container(
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    Color(0xFF05080D),
-                    Color(0xFF071018),
-                    Color(0xFF101820),
-                  ],
+          Wrap(
+            spacing: 10,
+            runSpacing: 8,
+            children: [
+              _HeroBadge(
+                label: 'İlk 100 Kurucu Restoran',
+                outlined: true,
+              ),
+              _HeroBadge(
+                label: '100 Kaldı',
+                filled: true,
+              ),
+            ],
+          ),
+          const SizedBox(height: 18),
+          Text(
+            'Restoranlar Çok Yakında\nSofrasofra’da',
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: isCompact ? 27 : 34,
+              height: 1.05,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            'Ürün sizin, emek sizin, kazanç sizin.',
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: isCompact ? 16 : 19,
+              height: 1.15,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Kurucu restoranlar için erken görünürlük ve lansman avantajı.',
+            maxLines: isCompact ? 2 : 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              color: Colors.white70,
+              fontSize: isCompact ? 12.5 : 13.5,
+              height: 1.25,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          const SizedBox(height: 14),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: OutlinedButton(
+              style: OutlinedButton.styleFrom(
+                foregroundColor: _gold,
+                side: const BorderSide(color: _gold),
+                padding: EdgeInsets.symmetric(
+                  horizontal: isCompact ? 14 : 18,
+                  vertical: isCompact ? 10 : 12,
+                ),
+                minimumSize: Size.zero,
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
                 ),
               ),
-            ),
-          ),
-          DecoratedBox(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.centerLeft,
-                end: Alignment.centerRight,
-                colors: [
-                  Colors.black.withValues(alpha: 0.88),
-                  Colors.black.withValues(alpha: 0.58),
-                  Colors.black.withValues(alpha: 0.22),
-                ],
-              ),
-            ),
-          ),
-          Padding(
-            padding: EdgeInsets.all(isCompact ? 16 : 22),
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 560),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Wrap(
-                      spacing: 10,
-                      runSpacing: 10,
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 8,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.black.withValues(alpha: 0.38),
-                            borderRadius: BorderRadius.circular(999),
-                            border: Border.all(
-                              color: _gold.withValues(alpha: 0.48),
-                            ),
-                          ),
-                          child: const Text(
-                            'İlk 100 Kurucu Restoran',
-                            style: TextStyle(
-                              color: _gold,
-                              fontSize: 12.5,
-                              fontWeight: FontWeight.w900,
-                            ),
-                          ),
-                        ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 8,
-                          ),
-                          decoration: BoxDecoration(
-                            color: _gold,
-                            borderRadius: BorderRadius.circular(999),
-                          ),
-                          child: const Text(
-                            '100 Kaldı',
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 12.5,
-                              fontWeight: FontWeight.w900,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: isCompact ? 16 : 22),
-                    Text(
-                      'Restoranlar Çok Yakında\nSofrasofra’da',
-                      maxLines: 3,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: isCompact ? 30 : 34,
-                        height: 1.06,
-                        fontWeight: FontWeight.w900,
-                      ),
-                    ),
-                    SizedBox(height: isCompact ? 12 : 18),
-                    Text(
-                      'Ürün sizin, emek sizin, kazanç sizin.',
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: isCompact ? 18 : 20,
-                        height: 1.20,
-                        fontWeight: FontWeight.w900,
-                      ),
-                    ),
-                    SizedBox(height: isCompact ? 8 : 10),
-                    Text(
-                      'Kurucu restoranlar için 1 yıl ücretsiz avantaj ve erken görünürlük fırsatı.',
-                      maxLines: isCompact ? 2 : 3,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        color: Colors.white70,
-                        fontSize: isCompact ? 13 : 14.5,
-                        height: 1.30,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    if (!isCompact) ...[
-                      const SizedBox(height: 24),
-                      Wrap(
-                        spacing: 12,
-                        runSpacing: 12,
-                        children: [
-                          ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: _gold,
-                              foregroundColor: Colors.black,
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 22,
-                                vertical: 15,
-                              ),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(18),
-                              ),
-                            ),
-                            onPressed: () {},
-                            child: const Text(
-                              '1 Yıl Ücretsiz Katıl',
-                              style: TextStyle(
-                                fontWeight: FontWeight.w900,
-                              ),
-                            ),
-                          ),
-                          OutlinedButton(
-                            style: OutlinedButton.styleFrom(
-                              foregroundColor: _gold,
-                              side: const BorderSide(color: _gold),
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 22,
-                                vertical: 15,
-                              ),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(18),
-                              ),
-                            ),
-                            onPressed: onPremiumTap,
-                            child: const Text(
-                              'Premium Restoran Vitrinini Gör',
-                              style: TextStyle(
-                                fontWeight: FontWeight.w900,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ],
+              onPressed: onPremiumTap,
+              child: Text(
+                isCompact ? 'Vitrini Gör' : 'Premium Restoran Vitrinini Gör',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  fontWeight: FontWeight.w900,
                 ),
               ),
             ),
