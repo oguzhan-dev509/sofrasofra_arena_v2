@@ -58,20 +58,20 @@ class RestoranPremiumCard extends StatelessWidget {
               child: Stack(
                 fit: StackFit.expand,
                 children: [
-                  Image.network(
-                    imageUrl,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) {
-                      return Container(
-                        color: const Color(0xFF222222),
-                        alignment: Alignment.center,
-                        child: const Icon(
-                          Icons.restaurant_menu,
-                          color: Colors.white38,
-                          size: 44,
+                  Positioned.fill(
+                    child: Container(
+                      decoration: const BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [
+                            Color(0xFF05080D),
+                            Color(0xFF071018),
+                            Color(0xFF101820),
+                          ],
                         ),
-                      );
-                    },
+                      ),
+                    ),
                   ),
                   DecoratedBox(
                     decoration: BoxDecoration(

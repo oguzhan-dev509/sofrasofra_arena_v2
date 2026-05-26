@@ -88,7 +88,19 @@ class PremiumRestoranVitrini extends StatelessWidget {
           return ListView(
             padding: const EdgeInsets.fromLTRB(18, 18, 18, 32),
             children: [
-              const _HeroBlock(),
+              _HeroBlock(
+                onPremiumTap: restaurants.isEmpty
+                    ? null
+                    : () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => RestoranDetaySayfasi(
+                              restaurant: restaurants.first,
+                            ),
+                          ),
+                        );
+                      },
+              ),
               if (showFallbackNotice) ...[
                 const SizedBox(height: 14),
                 _FallbackNotice(
@@ -126,12 +138,11 @@ class PremiumRestoranVitrini extends StatelessWidget {
 }
 
 class _HeroBlock extends StatelessWidget {
-  const _HeroBlock();
+  const _HeroBlock({this.onPremiumTap});
+
+  final VoidCallback? onPremiumTap;
 
   static const Color _gold = Color(0xFFFFB300);
-
-  static const String _heroImageUrl =
-      'https://images.unsplash.com/photo-1555396273-367ea4eb4db5';
 
   @override
   Widget build(BuildContext context) {
@@ -152,20 +163,20 @@ class _HeroBlock extends StatelessWidget {
       child: Stack(
         fit: StackFit.expand,
         children: [
-          Image.network(
-            _heroImageUrl,
-            fit: BoxFit.cover,
-            errorBuilder: (context, error, stackTrace) {
-              return Container(
-                color: const Color(0xFF111111),
-                alignment: Alignment.center,
-                child: const Icon(
-                  Icons.restaurant_menu,
-                  color: Colors.white38,
-                  size: 58,
+          Positioned.fill(
+            child: Container(
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    Color(0xFF05080D),
+                    Color(0xFF071018),
+                    Color(0xFF101820),
+                  ],
                 ),
-              );
-            },
+              ),
+            ),
           ),
           DecoratedBox(
             decoration: BoxDecoration(
@@ -309,7 +320,7 @@ class _HeroBlock extends StatelessWidget {
                                 borderRadius: BorderRadius.circular(18),
                               ),
                             ),
-                            onPressed: () {},
+                            onPressed: onPremiumTap,
                             child: const Text(
                               'Premium Restoran Vitrinini Gör',
                               style: TextStyle(
