@@ -101,6 +101,8 @@ class PremiumRestoranVitrini extends StatelessWidget {
                         );
                       },
               ),
+              const SizedBox(height: 18),
+              const _RestaurantPricingSection(),
               if (showFallbackNotice) ...[
                 const SizedBox(height: 14),
                 _FallbackNotice(
@@ -340,4 +342,328 @@ class _FallbackNotice extends StatelessWidget {
       ),
     );
   }
+}
+
+class _RestaurantPricingSection extends StatelessWidget {
+  const _RestaurantPricingSection();
+
+  static const Color _gold = Color(0xFFFFB300);
+
+  @override
+  Widget build(BuildContext context) {
+    final isCompact = MediaQuery.of(context).size.width < 720;
+
+    final packages = const [
+      _RestaurantPlanData(
+        name: 'Free Restoran',
+        price: '0 TL',
+        period: 'aylık',
+        commission: '%11',
+        target: 'Denemek isteyen küçük lokanta',
+        highlight: '1 ay ücretsiz deneme',
+        features: [
+          '6 fotoğraf hakkı',
+          'Temel restoran vitrini',
+          'Gel-Al / Götür fiyatı',
+          'Sepete ekleme ve ödeme',
+          'Standart destek',
+        ],
+      ),
+      _RestaurantPlanData(
+        name: 'Pro Restoran',
+        price: '499 TL',
+        period: 'aylık',
+        commission: '%7',
+        target: 'Aktif satış yapmak isteyen restoran',
+        highlight: 'Daha fazla görünürlük',
+        features: [
+          'Daha geniş menü kapasitesi',
+          'Daha fazla galeri alanı',
+          'Fotoğraf bazlı fiyatlandırma',
+          'Kampanya görünürlüğü',
+          'Öncelikli destek',
+        ],
+      ),
+      _RestaurantPlanData(
+        name: 'Premium Restoran',
+        price: '899 TL',
+        period: 'aylık',
+        commission: '%4',
+        target: 'Maliyeti düşürmek ve öne çıkmak isteyen restoran',
+        highlight: 'En düşük komisyon',
+        features: [
+          'Öncelikli vitrin görünürlüğü',
+          'Geniş medya kapasitesi',
+          'Radyo / blog tanıtım alanı',
+          'Gelişmiş satış vitrini',
+          'VIP destek',
+        ],
+      ),
+    ];
+
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.all(isCompact ? 16 : 20),
+      decoration: BoxDecoration(
+        color: Colors.black,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(
+          color: _gold.withValues(alpha: 0.32),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Restoran Paketleri',
+            style: TextStyle(
+              color: _gold,
+              fontSize: 18,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            'Satış yaptıkça daha az komisyon öde, daha fazla görünür ol.',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 14,
+              height: 1.35,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            'İyzico ödeme işlem bedeli tüm paketlerde ayrıca ve şeffaf şekilde gösterilir: %4,29 + 0,25 TL.',
+            style: TextStyle(
+              color: Colors.white70,
+              fontSize: 12.5,
+              height: 1.35,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: 18),
+          if (isCompact)
+            Column(
+              children: packages
+                  .map(
+                    (plan) => Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: _RestaurantPlanCard(plan: plan),
+                    ),
+                  )
+                  .toList(),
+            )
+          else
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: packages
+                  .map(
+                    (plan) => Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 6),
+                        child: _RestaurantPlanCard(plan: plan),
+                      ),
+                    ),
+                  )
+                  .toList(),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+class _RestaurantPlanCard extends StatelessWidget {
+  const _RestaurantPlanCard({
+    required this.plan,
+  });
+
+  final _RestaurantPlanData plan;
+
+  static const Color _gold = Color(0xFFFFB300);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(15),
+      decoration: BoxDecoration(
+        color: const Color(0xFF0B0B0B),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: _gold.withValues(alpha: 0.28),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            plan.name,
+            style: const TextStyle(
+              color: _gold,
+              fontSize: 15.5,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                plan.price,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 24,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+              const SizedBox(width: 6),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 3),
+                child: Text(
+                  '/ ${plan.period}',
+                  style: const TextStyle(
+                    color: Colors.white60,
+                    fontSize: 12.5,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          _PlanInfoRow(
+            label: 'Sofrasofra komisyonu',
+            value: plan.commission,
+          ),
+          const _PlanInfoRow(
+            label: 'İyzico işlem bedeli',
+            value: '%4,29 + 0,25 TL',
+          ),
+          const SizedBox(height: 10),
+          Container(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 10,
+              vertical: 7,
+            ),
+            decoration: BoxDecoration(
+              color: _gold.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(999),
+              border: Border.all(
+                color: _gold.withValues(alpha: 0.32),
+              ),
+            ),
+            child: Text(
+              plan.highlight,
+              style: const TextStyle(
+                color: _gold,
+                fontSize: 12,
+                fontWeight: FontWeight.w900,
+              ),
+            ),
+          ),
+          const SizedBox(height: 10),
+          Text(
+            plan.target,
+            style: const TextStyle(
+              color: Colors.white70,
+              fontSize: 12.5,
+              height: 1.35,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: 12),
+          ...plan.features.map(
+            (feature) => Padding(
+              padding: const EdgeInsets.only(bottom: 7),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Icon(
+                    Icons.check_circle_outline,
+                    color: _gold,
+                    size: 16,
+                  ),
+                  const SizedBox(width: 7),
+                  Expanded(
+                    child: Text(
+                      feature,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 12.5,
+                        height: 1.25,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _PlanInfoRow extends StatelessWidget {
+  const _PlanInfoRow({
+    required this.label,
+    required this.value,
+  });
+
+  final String label;
+  final String value;
+
+  static const Color _gold = Color(0xFFFFB300);
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 5),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              label,
+              style: const TextStyle(
+                color: Colors.white60,
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+          Text(
+            value,
+            style: const TextStyle(
+              color: _gold,
+              fontSize: 12.5,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _RestaurantPlanData {
+  const _RestaurantPlanData({
+    required this.name,
+    required this.price,
+    required this.period,
+    required this.commission,
+    required this.target,
+    required this.highlight,
+    required this.features,
+  });
+
+  final String name;
+  final String price;
+  final String period;
+  final String commission;
+  final String target;
+  final String highlight;
+  final List<String> features;
 }
