@@ -20,8 +20,8 @@ class RestoranMenuItemCard extends StatelessWidget {
   });
 
   final RestoranMenuItemModel item;
-  final VoidCallback onGelAlTap;
-  final VoidCallback onGoturTap;
+  final ValueChanged<String> onGelAlTap;
+  final ValueChanged<String> onGoturTap;
   final bool canManageMedia;
   final VoidCallback? onAddPhotoTap;
   final VoidCallback? onDeletePhotoTap;

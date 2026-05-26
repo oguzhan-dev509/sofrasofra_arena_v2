@@ -339,21 +339,35 @@ class _MenuPreviewSection extends StatelessWidget {
     required BuildContext context,
     required RestoranMenuItemModel item,
     required String teslimatTipi,
+    String? imageUrl,
   }) async {
     final isGotur = teslimatTipi == 'gotur';
-    final selectedPrice = isGotur ? item.goturFiyat : item.gelAlFiyat;
+    final effectiveImageUrl = imageUrl?.trim().isNotEmpty == true
+        ? imageUrl!.trim()
+        : item.imageForUi;
+
+    final effectiveGelAlFiyat = effectiveImageUrl.isNotEmpty
+        ? item.gelAlFiyatForImage(effectiveImageUrl)
+        : item.gelAlFiyat;
+
+    final effectiveGoturFiyat = effectiveImageUrl.isNotEmpty
+        ? item.goturFiyatForImage(effectiveImageUrl)
+        : item.goturFiyat;
+
+    final selectedPrice = isGotur ? effectiveGoturFiyat : effectiveGelAlFiyat;
     final teslimatLabel = isGotur ? 'Götür' : 'Gel-Al';
 
     try {
       await SepetService.sepeteEkle(
-        urunId: 'restaurant_${restaurant.id}_${item.id}_$teslimatTipi',
+        urunId:
+            'restaurant_${restaurant.id}_${item.id}_${RestoranMenuItemModel.galleryImageKey(effectiveImageUrl)}_$teslimatTipi',
         urunAdi: item.name,
         dukkanAdi: restaurant.name,
         kategori: item.category,
-        img: item.imageForUi,
+        img: effectiveImageUrl,
         fiyat: selectedPrice,
-        gelAlFiyat: item.gelAlFiyat,
-        goturFiyat: item.goturFiyat,
+        gelAlFiyat: effectiveGelAlFiyat,
+        goturFiyat: effectiveGoturFiyat,
         teslimatTipi: teslimatTipi,
         deliveryIncludedInPrice: true,
         feeIncludedInPrice: true,
@@ -366,34 +380,26 @@ class _MenuPreviewSection extends StatelessWidget {
 
       final messenger = ScaffoldMessenger.of(context);
       messenger.hideCurrentSnackBar();
-
       messenger.showSnackBar(
         SnackBar(
-          duration: const Duration(milliseconds: 900),
-          content: Text(
-            '${item.name} $teslimatLabel olarak sepete eklendi.',
-          ),
+          content: Text('${item.name} sepete eklendi. ($teslimatLabel)'),
         ),
       );
 
-      await Future<void>.delayed(const Duration(milliseconds: 180));
-
-      if (!context.mounted) return;
-
-      Navigator.push(
-        context,
+      Navigator.of(context).push(
         MaterialPageRoute(
           builder: (_) => const SepetSayfasi(),
         ),
       );
-    } catch (e) {
+    } catch (error, stackTrace) {
+      debugPrint('RESTORAN SEPET EKLE ERROR => $error');
+      debugPrintStack(stackTrace: stackTrace);
+
       if (!context.mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-            'Sepete eklenemedi: $e',
-          ),
+          content: Text('Ürün sepete eklenemedi: $error'),
         ),
       );
     }
@@ -1437,18 +1443,20 @@ class _MenuPreviewSection extends StatelessWidget {
                       imageUrl: imageUrl,
                     );
                   },
-                  onGelAlTap: () async {
+                  onGelAlTap: (imageUrl) async {
                     await _sepeteRestoranUrunuEkle(
                       context: context,
                       item: item,
                       teslimatTipi: 'gel_al',
+                      imageUrl: imageUrl,
                     );
                   },
-                  onGoturTap: () async {
+                  onGoturTap: (imageUrl) async {
                     await _sepeteRestoranUrunuEkle(
                       context: context,
                       item: item,
                       teslimatTipi: 'gotur',
+                      imageUrl: imageUrl,
                     );
                   },
                 ),

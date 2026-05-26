@@ -22,8 +22,8 @@ class RestoranMenuGalleryStrip extends StatelessWidget {
   final VoidCallback? onAddGalleryPhoto;
   final ValueChanged<String>? onDeleteGalleryPhoto;
   final ValueChanged<String>? onEditMenuItemTap;
-  final VoidCallback? onGelAlTap;
-  final VoidCallback? onGoturTap;
+  final ValueChanged<String>? onGelAlTap;
+  final ValueChanged<String>? onGoturTap;
 
   static const Color _gold = Color(0xFFFFB300);
 
@@ -243,8 +243,8 @@ class _GalleryPhotoCard extends StatelessWidget {
   final ValueChanged<String>? onEditMenuItemTap;
   final double gelAlFiyat;
   final double goturFiyat;
-  final VoidCallback? onGelAlTap;
-  final VoidCallback? onGoturTap;
+  final ValueChanged<String>? onGelAlTap;
+  final ValueChanged<String>? onGoturTap;
 
   static const Color _gold = Color(0xFFFFB300);
 
@@ -411,8 +411,8 @@ class _GalleryCartActionBar extends StatelessWidget {
   final double gelAlFiyat;
   final double goturFiyat;
   final String imageUrl;
-  final VoidCallback? onGelAlTap;
-  final VoidCallback? onGoturTap;
+  final ValueChanged<String>? onGelAlTap;
+  final ValueChanged<String>? onGoturTap;
   final bool canManage;
   final bool busy;
   final ValueChanged<String>? onEditMenuItemTap;
@@ -457,7 +457,9 @@ class _GalleryCartActionBar extends StatelessWidget {
                 price: '${gelAlFiyat.toStringAsFixed(0)} TL',
                 icon: Icons.shopping_bag_outlined,
                 isPrimary: true,
-                onTap: onGelAlTap!,
+                onTap: () {
+                  onGelAlTap?.call(imageUrl);
+                },
               ),
             ),
           if (showGelAl && showGotur) const SizedBox(width: 7),
@@ -468,7 +470,9 @@ class _GalleryCartActionBar extends StatelessWidget {
                 price: '${goturFiyat.toStringAsFixed(0)} TL',
                 icon: Icons.delivery_dining_outlined,
                 isPrimary: false,
-                onTap: onGoturTap!,
+                onTap: () {
+                  onGoturTap?.call(imageUrl);
+                },
               ),
             ),
         ],
