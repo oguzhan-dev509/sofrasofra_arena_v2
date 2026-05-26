@@ -67,8 +67,7 @@ class RestoranMenuGalleryStrip extends StatelessWidget {
       builder: (context, constraints) {
         final isCompact = constraints.maxWidth < 720;
         final visibleImages = galleryImages.take(6).toList();
-        final cardHeight = isCompact ? 150.0 : 220.0;
-
+        final cardHeight = isCompact ? 240.0 : 310.0;
         return Container(
           width: double.infinity,
           padding: const EdgeInsets.fromLTRB(16, 16, 16, 18),
@@ -157,7 +156,7 @@ class RestoranMenuGalleryStrip extends StatelessWidget {
                             galleryOnlyImages.contains(imageUrl);
 
                         return SizedBox(
-                          width: 210,
+                          width: 250,
                           height: cardHeight,
                           child: _GalleryPhotoCard(
                             imageUrl: imageUrl,
