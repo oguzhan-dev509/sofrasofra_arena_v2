@@ -739,7 +739,7 @@ class _PartnerBannerText extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'RESTORAN İŞ ORTAĞI VİTRİNİ',
+          'SPONSORLU RESTORAN VİTRİNİ',
           style: TextStyle(
             color: _gold,
             fontSize: 11,
@@ -749,7 +749,7 @@ class _PartnerBannerText extends StatelessWidget {
         ),
         SizedBox(height: 8),
         Text(
-          'Restoranlara Özel İş Ortağı Fırsatları',
+          'Restoranını Daha Görünür Hale Getir',
           style: TextStyle(
             color: Colors.white,
             fontSize: 20,
@@ -759,7 +759,7 @@ class _PartnerBannerText extends StatelessWidget {
         ),
         SizedBox(height: 8),
         Text(
-          'Ambalaj, mutfak ekipmanı, paket servis çözümleri ve yerel tedarik avantajları yakında Sofrasofra restoranları için burada yer alacak.',
+          'Öne çıkmak isteyen restoranlar için Sofrasofra vitrin alanı. Mahallenizdeki lezzetinizi daha fazla müşteriye gösterin.',
           style: TextStyle(
             color: Colors.white70,
             fontSize: 13,
@@ -782,16 +782,16 @@ class _PartnerOpportunityWrap extends StatelessWidget {
       runSpacing: 10,
       children: [
         _PartnerOpportunityChip(
-          icon: Icons.inventory_2_outlined,
-          label: 'Ambalaj & Paket Servis',
+          icon: Icons.campaign_outlined,
+          label: 'Sponsorlu Vitrin',
         ),
         _PartnerOpportunityChip(
-          icon: Icons.restaurant_menu_rounded,
-          label: 'Mutfak Ekipmanı',
+          icon: Icons.star_border_rounded,
+          label: 'Haftanın Restoranı',
         ),
         _PartnerOpportunityChip(
-          icon: Icons.local_shipping_outlined,
-          label: 'Yerel Tedarik Avantajları',
+          icon: Icons.location_on_outlined,
+          label: 'Mahallede Öne Çık',
         ),
       ],
     );
@@ -859,13 +859,13 @@ class _PartnerBannerCta extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(
-            Icons.handshake_outlined,
+            Icons.trending_up_rounded,
             color: _gold,
             size: 18,
           ),
           SizedBox(width: 8),
           Text(
-            'İş Ortağı Olun',
+            'Restoranımı Öne Çıkar',
             style: TextStyle(
               color: _gold,
               fontSize: 12.5,
