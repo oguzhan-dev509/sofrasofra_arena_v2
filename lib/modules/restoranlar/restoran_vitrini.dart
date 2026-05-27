@@ -103,6 +103,8 @@ class PremiumRestoranVitrini extends StatelessWidget {
               ),
               const SizedBox(height: 18),
               const _RestaurantPricingSection(),
+              const SizedBox(height: 18),
+              const _RestaurantPartnerBanner(),
               if (showFallbackNotice) ...[
                 const SizedBox(height: 14),
                 _FallbackNotice(
@@ -666,4 +668,212 @@ class _RestaurantPlanData {
   final String target;
   final String highlight;
   final List<String> features;
+}
+
+class _RestaurantPartnerBanner extends StatelessWidget {
+  const _RestaurantPartnerBanner();
+
+  static const Color _gold = Color(0xFFFFB300);
+  static const Color _card = Color(0xFF101010);
+  static const Color _border = Color(0x33FFB300);
+
+  @override
+  Widget build(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+    final isCompact = width < 720;
+
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.all(isCompact ? 18 : 22),
+      decoration: BoxDecoration(
+        color: _card,
+        borderRadius: BorderRadius.circular(26),
+        border: Border.all(color: _border),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.30),
+            blurRadius: 24,
+            offset: const Offset(0, 14),
+          ),
+        ],
+      ),
+      child: isCompact
+          ? const Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _PartnerBannerText(),
+                SizedBox(height: 16),
+                _PartnerOpportunityWrap(),
+                SizedBox(height: 16),
+                _PartnerBannerCta(),
+              ],
+            )
+          : const Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Expanded(
+                  flex: 5,
+                  child: _PartnerBannerText(),
+                ),
+                SizedBox(width: 18),
+                Expanded(
+                  flex: 5,
+                  child: _PartnerOpportunityWrap(),
+                ),
+                SizedBox(width: 18),
+                _PartnerBannerCta(),
+              ],
+            ),
+    );
+  }
+}
+
+class _PartnerBannerText extends StatelessWidget {
+  const _PartnerBannerText();
+
+  static const Color _gold = Color(0xFFFFB300);
+
+  @override
+  Widget build(BuildContext context) {
+    return const Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'RESTORAN İŞ ORTAĞI VİTRİNİ',
+          style: TextStyle(
+            color: _gold,
+            fontSize: 11,
+            fontWeight: FontWeight.w900,
+            letterSpacing: 1.4,
+          ),
+        ),
+        SizedBox(height: 8),
+        Text(
+          'Restoranlara Özel İş Ortağı Fırsatları',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 20,
+            fontWeight: FontWeight.w900,
+            height: 1.15,
+          ),
+        ),
+        SizedBox(height: 8),
+        Text(
+          'Ambalaj, mutfak ekipmanı, paket servis çözümleri ve yerel tedarik avantajları yakında Sofrasofra restoranları için burada yer alacak.',
+          style: TextStyle(
+            color: Colors.white70,
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
+            height: 1.45,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _PartnerOpportunityWrap extends StatelessWidget {
+  const _PartnerOpportunityWrap();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Wrap(
+      spacing: 10,
+      runSpacing: 10,
+      children: [
+        _PartnerOpportunityChip(
+          icon: Icons.inventory_2_outlined,
+          label: 'Ambalaj & Paket Servis',
+        ),
+        _PartnerOpportunityChip(
+          icon: Icons.restaurant_menu_rounded,
+          label: 'Mutfak Ekipmanı',
+        ),
+        _PartnerOpportunityChip(
+          icon: Icons.local_shipping_outlined,
+          label: 'Yerel Tedarik Avantajları',
+        ),
+      ],
+    );
+  }
+}
+
+class _PartnerOpportunityChip extends StatelessWidget {
+  const _PartnerOpportunityChip({
+    required this.icon,
+    required this.label,
+  });
+
+  final IconData icon;
+  final String label;
+
+  static const Color _gold = Color(0xFFFFB300);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.06),
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(
+          color: _gold.withValues(alpha: 0.22),
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, color: _gold, size: 17),
+          const SizedBox(width: 8),
+          Text(
+            label,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 12,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _PartnerBannerCta extends StatelessWidget {
+  const _PartnerBannerCta();
+
+  static const Color _gold = Color(0xFFFFB300);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
+      decoration: BoxDecoration(
+        color: _gold.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(
+          color: _gold.withValues(alpha: 0.55),
+        ),
+      ),
+      child: const Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            Icons.handshake_outlined,
+            color: _gold,
+            size: 18,
+          ),
+          SizedBox(width: 8),
+          Text(
+            'İş Ortağı Olun',
+            style: TextStyle(
+              color: _gold,
+              fontSize: 12.5,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
