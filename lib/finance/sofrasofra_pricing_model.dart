@@ -46,11 +46,11 @@ class SofrasofraPricingModel {
       case UserType.restoran:
         switch (plan) {
           case PlanType.free:
-            return 0.15;
+            return 0.11;
           case PlanType.pro:
-            return 0.08;
+            return 0.07;
           case PlanType.premium:
-            return 0.05;
+            return 0.04;
           default:
             return 0.0;
         }
@@ -62,6 +62,10 @@ class SofrasofraPricingModel {
   }
 
   static double getPaymentFeeRate() {
-    return 0.003;
+    return 0.0429; // İyzico %4,29
+  }
+
+  static double getPaymentFixedFee() {
+    return 0.25; // İyzico işlem başı 0,25 TL
   }
 }

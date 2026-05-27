@@ -12,7 +12,7 @@ class SofrasofraFinanceCalculator {
     double? producerCommissionRateOverride,
     double? courierCommissionRateOverride,
     double? paymentFeeRateOverride,
-
+    double? paymentFixedFeeOverride,
     // Nihai fiyat senaryoları:
     // Ev Galeri / Şef Galeri gibi fiyat zaten teslimat veya işlem bedelini içeriyorsa
     // müşteriye tekrar ücret bindirilmez.
@@ -40,10 +40,17 @@ class SofrasofraFinanceCalculator {
     final paymentRate =
         paymentFeeRateOverride ?? SofrasofraPricingModel.getPaymentFeeRate();
 
+    final paymentFixedFee =
+        paymentFixedFeeOverride ?? SofrasofraPricingModel.getPaymentFixedFee();
+
     final paymentBase = _roundMoney(safeProductTotal + effectiveDeliveryFee);
 
+    final calculatedPaymentFee = _roundMoney(
+      (paymentBase * paymentRate) + paymentFixedFee,
+    );
+
     final paymentProcessingFee =
-        feeIncludedInPrice ? 0.0 : _roundMoney(paymentBase * paymentRate);
+        feeIncludedInPrice ? calculatedPaymentFee : calculatedPaymentFee;
 
     final producerCommissionAmount = _roundMoney(
       safeProductTotal * producerRate,

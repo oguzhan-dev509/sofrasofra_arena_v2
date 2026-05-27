@@ -26,6 +26,118 @@ class _SepetSayfasiState extends State<SepetSayfasi> {
     return 'guest_cart';
   }
 
+  UserType _userTypeFromSellerType(String sellerType) {
+    switch (sellerType.trim()) {
+      case 'restaurant':
+        return UserType.restoran;
+      case 'chef_signature':
+        return UserType.ustaSef;
+      case 'ev_lezzetleri':
+      default:
+        return UserType.evLezzetleri;
+    }
+  }
+
+  PlanType _planFromCartData(Map<String, dynamic> cartData) {
+    final rawPlan = (cartData['plan'] ??
+            cartData['planType'] ??
+            cartData['membershipType'] ??
+            cartData['packageType'] ??
+            '')
+        .toString()
+        .trim()
+        .toLowerCase();
+
+    switch (rawPlan) {
+      case 'pro':
+        return PlanType.pro;
+      case 'premium':
+        return PlanType.premium;
+      case 'founding':
+      case 'kurucu':
+        return PlanType.founding;
+      case 'free':
+      default:
+        return PlanType.free;
+    }
+  }
+
+  String _sellerTypeFromCartDocs(
+    List<QueryDocumentSnapshot<Map<String, dynamic>>> docs,
+  ) {
+    if (docs.isEmpty) return 'ev_lezzetleri';
+
+    final data = docs.first.data();
+
+    final explicitSellerType =
+        (data['sellerType'] ?? data['saticiTipi'] ?? data['type'] ?? '')
+            .toString()
+            .trim();
+
+    if (explicitSellerType.isNotEmpty) {
+      return explicitSellerType;
+    }
+
+    final urunId = (data['urunId'] ?? '').toString().toLowerCase().trim();
+    final paymentChannel =
+        (data['paymentChannel'] ?? '').toString().toLowerCase().trim();
+    final iyzicoCategory =
+        (data['iyzicoCategory'] ?? '').toString().toLowerCase().trim();
+    final orderSource =
+        (data['orderSource'] ?? '').toString().toLowerCase().trim();
+    final kategori = (data['kategori'] ?? '').toString().toLowerCase().trim();
+
+    if (urunId.startsWith('restaurant_') ||
+        paymentChannel == 'restaurant_order' ||
+        iyzicoCategory == 'restaurant' ||
+        orderSource == 'restaurant_menu_item' ||
+        kategori.contains('restoran') ||
+        kategori.contains('restaurant')) {
+      return 'restaurant';
+    }
+
+    if (urunId.startsWith('chef_') ||
+        paymentChannel == 'chef_signature_order' ||
+        iyzicoCategory == 'chefsignature' ||
+        orderSource == 'chef_signature_dish' ||
+        kategori.contains('şef') ||
+        kategori.contains('sef')) {
+      return 'chef_signature';
+    }
+
+    return 'ev_lezzetleri';
+  }
+
+  PlanType _planFromCartDocs(
+    List<QueryDocumentSnapshot<Map<String, dynamic>>> docs,
+  ) {
+    if (docs.isEmpty) return PlanType.free;
+
+    final data = docs.first.data();
+
+    final rawPlan = (data['plan'] ??
+            data['planType'] ??
+            data['membershipType'] ??
+            data['packageType'] ??
+            '')
+        .toString()
+        .trim()
+        .toLowerCase();
+
+    switch (rawPlan) {
+      case 'pro':
+        return PlanType.pro;
+      case 'premium':
+        return PlanType.premium;
+      case 'founding':
+      case 'kurucu':
+        return PlanType.founding;
+      case 'free':
+      default:
+        return PlanType.free;
+    }
+  }
+
   bool _siparisOlusturuluyor = false;
 
   static const Color _bg = Color(0xFF070707);
@@ -134,12 +246,21 @@ class _SepetSayfasiState extends State<SepetSayfasi> {
 
     try {
       final totals = _buildCartTotals(docs);
+      final cartData =
+          docs.isNotEmpty ? docs.first.reference.parent.parent : null;
+      final cartSnap = cartData == null ? null : await cartData.get();
+      final sepetData = cartSnap?.data() as Map<String, dynamic>? ?? {};
+
+      final sellerType =
+          (sepetData['sellerType'] ?? 'ev_lezzetleri').toString();
+      final userType = _userTypeFromSellerType(sellerType);
+      final plan = _planFromCartData(sepetData);
 
       final finance = SofrasofraFinanceCalculator.calculate(
         productTotal: totals.araToplam,
         deliveryFee: totals.teslimatUcreti,
-        userType: UserType.evLezzetleri,
-        plan: PlanType.free,
+        userType: userType,
+        plan: plan,
         deliveryIncludedInPrice: totals.deliveryIncludedInPrice,
         feeIncludedInPrice: totals.feeIncludedInPrice,
       );
@@ -152,6 +273,8 @@ class _SepetSayfasiState extends State<SepetSayfasi> {
       debugPrint('Ödeme İşlem Ücreti: ${finance.paymentProcessingFee}');
       debugPrint('Müşteri Toplam: ${finance.customerTotalPayment}');
       debugPrint('Üretici Net: ${finance.producerNetAmount}');
+      debugPrint('Komisyon Oranı: ${finance.producerCommissionRate}');
+      debugPrint('Komisyon Tutarı: ${finance.producerCommissionAmount}');
       debugPrint('Kurye Net: ${finance.courierNetAmount}');
       debugPrint('Platform: ${finance.platformTotalRevenue}');
       debugPrint('=============================');
@@ -614,12 +737,15 @@ class _SepetSayfasiState extends State<SepetSayfasi> {
           }
 
           final totals = _buildCartTotals(docs);
+          final sellerType = _sellerTypeFromCartDocs(docs);
+          final userType = _userTypeFromSellerType(sellerType);
+          final plan = _planFromCartDocs(docs);
 
           final finance = SofrasofraFinanceCalculator.calculate(
             productTotal: totals.araToplam,
             deliveryFee: totals.teslimatUcreti,
-            userType: UserType.evLezzetleri,
-            plan: PlanType.free,
+            userType: userType,
+            plan: plan,
             deliveryIncludedInPrice: totals.deliveryIncludedInPrice,
             feeIncludedInPrice: totals.feeIncludedInPrice,
           );
@@ -936,6 +1062,17 @@ class _SepetSayfasiState extends State<SepetSayfasi> {
                               _price(finance.deliveryFee),
                               valueColor: _textMuted,
                             ),
+                            _ozetSatiri(
+                              'Ara Toplam',
+                              _price(totals.araToplam),
+                              valueColor: _textPrimary,
+                            ),
+                            const SizedBox(height: 10),
+                            _ozetSatiri(
+                              'Teslimat Ücreti',
+                              _price(finance.deliveryFee),
+                              valueColor: _textMuted,
+                            ),
                             const Padding(
                               padding: EdgeInsets.symmetric(vertical: 12),
                               child: Divider(
@@ -944,11 +1081,29 @@ class _SepetSayfasiState extends State<SepetSayfasi> {
                               ),
                             ),
                             _ozetSatiri(
-                              'Ödeme İşlem Ücreti',
+                              'Sofrasofra Komisyonu (%${(finance.producerCommissionRate * 100).toStringAsFixed(0)})',
+                              _price(finance.producerCommissionAmount),
+                              valueColor: _textMuted,
+                            ),
+                            const SizedBox(height: 10),
+                            _ozetSatiri(
+                              'İyzico İşlem Bedeli (%4,29 + 0,25 TL)',
                               _price(finance.paymentProcessingFee),
                               valueColor: _textMuted,
                             ),
                             const SizedBox(height: 10),
+                            _ozetSatiri(
+                              'Restoran Net Hakediş',
+                              _price(finance.producerNetAmount),
+                              valueColor: _textMuted,
+                            ),
+                            const Padding(
+                              padding: EdgeInsets.symmetric(vertical: 12),
+                              child: Divider(
+                                color: _border,
+                                height: 1,
+                              ),
+                            ),
                             _ozetSatiri(
                               'Genel Toplam',
                               _price(finance.customerTotalPayment),
