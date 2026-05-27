@@ -160,6 +160,10 @@ match /restaurants/{restaurantId} {
 
     // Tanımlanmamış koleksiyonlar için vitrin/liste okumasını açık tutar.
     // Yazma kapalıdır. Premium/Pro koruması yukarıdaki özel bloklarda devam eder.
+    match /couriers/{courierId} {
+  allow read: if signedIn();
+  allow create, update, delete: if isPlatformAdmin();
+}
     match /{document=**} {
       allow read: if true;
       allow write: if false;
