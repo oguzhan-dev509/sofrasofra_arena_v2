@@ -10,6 +10,7 @@ import 'widgets/restoran_menu_item_card.dart';
 import 'widgets/restoran_status_badge.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:sofrasofra_arena_v2/modules/restoranlar/restoran_siparis_yonetimi_sayfasi.dart';
 
 class RestoranDetaySayfasi extends StatelessWidget {
   const RestoranDetaySayfasi({
@@ -1365,34 +1366,62 @@ class _MenuPreviewSection extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Expanded(
-                    child: Text(
-                      'Admin Menü Önizlemesi',
-                      style: TextStyle(
-                        color: _gold,
-                        fontSize: 18,
-                        fontWeight: FontWeight.w900,
-                      ),
+                  const Text(
+                    'Admin Menü Önizlemesi',
+                    style: TextStyle(
+                      color: _gold,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w900,
                     ),
                   ),
-                  TextButton.icon(
-                    onPressed: () async {
-                      await _yeniMenuUrunuDialogAc(context: context);
-                    },
-                    icon: const Icon(
-                      Icons.add_circle_outline,
-                      color: _gold,
-                      size: 18,
-                    ),
-                    label: const Text(
-                      'Yeni Ürün',
-                      style: TextStyle(
-                        color: _gold,
-                        fontWeight: FontWeight.w900,
+                  const SizedBox(height: 10),
+                  Wrap(
+                    spacing: 10,
+                    runSpacing: 10,
+                    children: [
+                      TextButton.icon(
+                        onPressed: () async {
+                          await _yeniMenuUrunuDialogAc(context: context);
+                        },
+                        icon: const Icon(
+                          Icons.add_circle_outline,
+                          color: _gold,
+                          size: 18,
+                        ),
+                        label: const Text(
+                          'Yeni Ürün',
+                          style: TextStyle(
+                            color: _gold,
+                            fontWeight: FontWeight.w900,
+                          ),
+                        ),
                       ),
-                    ),
+                      TextButton.icon(
+                        onPressed: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) =>
+                                  const RestoranSiparisYonetimiSayfasi(),
+                            ),
+                          );
+                        },
+                        icon: const Icon(
+                          Icons.receipt_long_outlined,
+                          color: _gold,
+                          size: 18,
+                        ),
+                        label: const Text(
+                          'Restoran Siparişleri',
+                          style: TextStyle(
+                            color: _gold,
+                            fontWeight: FontWeight.w900,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
