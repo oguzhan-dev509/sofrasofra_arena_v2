@@ -22,7 +22,7 @@ class SofrasofraPricingModel {
       case UserType.evLezzetleri:
         switch (plan) {
           case PlanType.free:
-            return 0.10;
+            return 0.08;
           case PlanType.pro:
             return 0.05;
           case PlanType.premium:
@@ -34,7 +34,7 @@ class SofrasofraPricingModel {
       case UserType.ustaSef:
         switch (plan) {
           case PlanType.free:
-            return 0.12;
+            return 0.10;
           case PlanType.pro:
             return 0.06;
           case PlanType.premium:

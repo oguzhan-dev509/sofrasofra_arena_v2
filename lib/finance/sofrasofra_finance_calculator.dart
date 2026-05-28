@@ -21,7 +21,7 @@ class SofrasofraFinanceCalculator {
 
     // true: ödeme işlem ücreti müşteri toplamına eklenir.
     // false: işlem ücreti platform/üretici finansında kalır, müşteriye ayrıca yansımaz.
-    bool chargePaymentFeeToCustomer = true,
+    bool chargePaymentFeeToCustomer = false,
   }) {
     final safeProductTotal = _roundMoney(_nonNegative(productTotal));
     final rawDeliveryFee = _roundMoney(_nonNegative(deliveryFee));
