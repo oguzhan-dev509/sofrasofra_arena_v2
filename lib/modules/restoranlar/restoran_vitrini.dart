@@ -111,27 +111,43 @@ class PremiumRestoranVitrini extends StatelessWidget {
                   hasError: snapshot.hasError,
                 ),
               ],
-              const SizedBox(height: 20),
-              ...restaurants.map(
-                (restaurant) => RestoranPremiumCard(
-                  name: restaurant.name,
-                  description: restaurant.description,
-                  imageUrl: restaurant.imageUrl,
-                  cuisine: restaurant.cuisine,
-                  district: restaurant.locationText,
-                  preparationText: restaurant.preparationText,
-                  ratingText: restaurant.ratingText,
-                  serviceText: restaurant.serviceText,
-                  onTap: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (_) => RestoranDetaySayfasi(
-                          restaurant: restaurant,
+              const SizedBox(height: 12),
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  final isCompact = constraints.maxWidth < 760;
+                  final cardWidth = isCompact
+                      ? constraints.maxWidth
+                      : (constraints.maxWidth - 16) / 2;
+
+                  return Wrap(
+                    spacing: 16,
+                    runSpacing: 16,
+                    children: restaurants.map((restaurant) {
+                      return SizedBox(
+                        width: cardWidth,
+                        child: RestoranPremiumCard(
+                          name: restaurant.name,
+                          description: restaurant.description,
+                          imageUrl: restaurant.imageUrl,
+                          cuisine: restaurant.cuisine,
+                          district: restaurant.locationText,
+                          preparationText: restaurant.preparationText,
+                          ratingText: restaurant.ratingText,
+                          serviceText: restaurant.serviceText,
+                          onTap: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (_) => RestoranDetaySayfasi(
+                                  restaurant: restaurant,
+                                ),
+                              ),
+                            );
+                          },
                         ),
-                      ),
-                    );
-                  },
-                ),
+                      );
+                    }).toList(),
+                  );
+                },
               ),
             ],
           );

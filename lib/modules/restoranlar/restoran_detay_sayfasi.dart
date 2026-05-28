@@ -1446,6 +1446,12 @@ class _MenuPreviewSection extends StatelessWidget {
                       item: item,
                     );
                   },
+                  onAddGalleryPhotoTap: () async {
+                    await _menuGaleriFotografiEkle(
+                      context: context,
+                      item: item,
+                    );
+                  },
                   onDeletePhotoTap: () async {
                     await _menuFotografiSil(
                       context: context,
