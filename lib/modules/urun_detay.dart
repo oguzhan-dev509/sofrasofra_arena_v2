@@ -948,7 +948,6 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
                       '• Aylık: 0 TL\n'
                       '• Komisyon: %8\n'
                       '• İyzico: %4,29 + 0,25 TL\n'
-                      '• Ek ücret müşteriye yansıtılmaz\n'
                       '• 3 fotoğraf\n'
                       '• Temel görünürlük',
                       style: TextStyle(
@@ -964,7 +963,6 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
                       '• Aylık: 149 TL\n'
                       '• Komisyon: %5\n'
                       '• İyzico: %4,29 + 0,25 TL\n'
-                      '• Ek ücret müşteriye yansıtılmaz\n'
                       '• 8 fotoğraf\n'
                       '• 1 video linki\n'
                       '• Daha güçlü görünürlük',
@@ -981,7 +979,6 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
                       '• Aylık: 299 TL\n'
                       '• Komisyon: %2\n'
                       '• İyzico: %4,29 + 0,25 TL\n'
-                      '• Ek ücret müşteriye yansıtılmaz\n'
                       '• 24 fotoğraf\n'
                       '• 3 video linki\n'
                       '• Mahalle vitrin önceliği',
