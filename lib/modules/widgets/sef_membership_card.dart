@@ -224,7 +224,7 @@ void showChefPlanSheet(BuildContext context, String membershipType) {
                   'Ücretsiz',
                   [
                     'Aylık: 0 TL',
-                    'Komisyon: %12',
+                    'Komisyon: %10',
                     '6 galeri fotoğrafı',
                     '0 tanıtım videosu',
                     'Eğitim videoları ücretsiz',
