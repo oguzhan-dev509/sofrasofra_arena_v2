@@ -738,6 +738,9 @@ class _SepetSayfasiState extends State<SepetSayfasi> {
 
           final totals = _buildCartTotals(docs);
           final sellerType = _sellerTypeFromCartDocs(docs);
+          final netEarningsLabel = sellerType == 'chef_signature'
+              ? 'Şef Net Hakediş'
+              : 'Restoran Net Hakediş';
           final userType = _userTypeFromSellerType(sellerType);
           final plan = _planFromCartDocs(docs);
 
@@ -1093,7 +1096,7 @@ class _SepetSayfasiState extends State<SepetSayfasi> {
                             ),
                             const SizedBox(height: 10),
                             _ozetSatiri(
-                              'Restoran Net Hakediş',
+                              netEarningsLabel,
                               _price(finance.producerNetAmount),
                               valueColor: _textMuted,
                             ),
