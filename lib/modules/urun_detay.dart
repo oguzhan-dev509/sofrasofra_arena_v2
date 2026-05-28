@@ -944,7 +944,7 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
                     ),
                     SizedBox(height: 16),
                     Text(
-                      'Ücretsiz\n• Aylık: 0 TL\n• Komisyon: %10\n• 3 fotoğraf\n• Temel görünürlük',
+                     'Ücretsiz\n• Aylık: 0 TL\n• Komisyon: %8\n• İyzico: %4,29 + 0,25 TL\n• Ek ücret müşteriye yansıtılmaz\n• 3 fotoğraf\n• Temel görünürlük'
                       style: TextStyle(
                         color: Colors.white70,
                         height: 1.45,
@@ -954,7 +954,7 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
                     ),
                     SizedBox(height: 16),
                     Text(
-                      'Pro\n• Aylık: 149 TL\n• Komisyon: %5\n• 8 fotoğraf\n• 1 video linki\n• Daha güçlü görünürlük',
+                     'Pro\n• Aylık: 149 TL\n• Komisyon: %5\n• İyzico: %4,29 + 0,25 TL\n• Ek ücret müşteriye yansıtılmaz\n• 8 fotoğraf\n• 1 video linki\n• Daha güçlü görünürlük'
                       style: TextStyle(
                         color: Colors.white70,
                         height: 1.45,
@@ -964,7 +964,7 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
                     ),
                     SizedBox(height: 16),
                     Text(
-                      'Premium\n• Aylık: 299 TL\n• Komisyon: %2\n• 24 fotoğraf\n• 3 video linki\n• Mahalle vitrin önceliği',
+                     'Premium\n• Aylık: 299 TL\n• Komisyon: %2\n• İyzico: %4,29 + 0,25 TL\n• Ek ücret müşteriye yansıtılmaz\n• 24 fotoğraf\n• 3 video linki\n• Mahalle vitrin önceliği'
                       style: TextStyle(
                         color: Colors.white70,
                         height: 1.45,
