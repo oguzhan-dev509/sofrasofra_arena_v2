@@ -23,6 +23,7 @@ class _RadyoMerkeziSayfasiState extends State<RadyoMerkeziSayfasi> {
     _RadioCategory(label: 'Ev Lezzetleri', value: 'ev_lezzetleri'),
     _RadioCategory(label: 'Usta Şefler', value: 'usta_sefler'),
     _RadioCategory(label: 'Restoranlar', value: 'restoranlar'),
+    _RadioCategory(label: 'Kurye', value: 'kurye'),
   ];
 
   @override
@@ -40,9 +41,52 @@ class _RadyoMerkeziSayfasiState extends State<RadyoMerkeziSayfasi> {
     });
   }
 
+  String _normalizeCategory(String raw) {
+    final value = raw
+        .trim()
+        .toLowerCase()
+        .replaceAll('ı', 'i')
+        .replaceAll('ğ', 'g')
+        .replaceAll('ü', 'u')
+        .replaceAll('ş', 's')
+        .replaceAll('ö', 'o')
+        .replaceAll('ç', 'c')
+        .replaceAll('-', '_')
+        .replaceAll(' ', '_');
+
+    if (value == 'ev' || value == 'ev_lezzeti' || value == 'ev_lezzetleri') {
+      return 'ev_lezzetleri';
+    }
+
+    if (value == 'usta_sef' ||
+        value == 'usta_sefler' ||
+        value == 'usta_sefleri' ||
+        value == 'sef' ||
+        value == 'sefler' ||
+        value == 'sefleri') {
+      return 'usta_sefler';
+    }
+
+    if (value == 'restoran' ||
+        value == 'restoranlar' ||
+        value == 'restaurant' ||
+        value == 'restaurants') {
+      return 'restoranlar';
+    }
+
+    if (value == 'kurye' || value == 'kuryeler' || value == 'kurye_agi') {
+      return 'kurye';
+    }
+
+    return value.isEmpty ? 'genel' : value;
+  }
+
   List<RadioProgram> _filteredPrograms(List<RadioProgram> all) {
     if (_selectedCategory == 'tum') return all;
-    return all.where((e) => e.kategori == _selectedCategory).toList();
+
+    return all
+        .where((e) => _normalizeCategory(e.kategori) == _selectedCategory)
+        .toList();
   }
 
   int _globalIndexOf(RadioProgram program) {
