@@ -29,6 +29,7 @@ import 'package:sofrasofra_arena_v2/admin/finans_operasyon_merkezi_sayfasi.dart'
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:sofrasofra_arena_v2/admin/usta_sef_yonetimi_sayfasi.dart';
 import 'package:sofrasofra_arena_v2/admin/radyo_admin_sayfasi.dart';
+import 'package:sofrasofra_arena_v2/admin/blog_admin_sayfasi.dart';
 
 class GastronomiYonetimMerkezi extends StatelessWidget {
   final String? chefId;
@@ -467,6 +468,20 @@ class GastronomiYonetimMerkezi extends StatelessWidget {
             context,
             MaterialPageRoute(
               builder: (_) => const RadyoAdminSayfasi(),
+            ),
+          );
+        },
+      ),
+      _DashboardItem(
+        title: 'Blog ve Rehber Yönetimi',
+        subtitle:
+            'Sofrasofra blog yazılarını, rehber içeriklerini ve kategori arşivini yönet.',
+        icon: Icons.article_rounded,
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => const BlogAdminSayfasi(),
             ),
           );
         },
