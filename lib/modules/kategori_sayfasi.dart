@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'package:sofrasofra_arena_v2/modules/vitrinler/ev_lezzetleri_vitrini.dart';
-import 'package:sofrasofra_arena_v2/modules/vitrinler/restoranlar_vitrini.dart';
+import 'package:sofrasofra_arena_v2/modules/restoranlar/restoran_vitrini.dart';
 import 'package:sofrasofra_arena_v2/modules/vitrinler/sef_vitrini_v2.dart';
 import 'package:sofrasofra_arena_v2/modules/radyo/radyo_merkezi_sayfasi.dart';
 import 'package:sofrasofra_arena_v2/onboarding/kurye_basvuru_sayfasi.dart';
@@ -312,7 +312,7 @@ class _KategoriSayfasiState extends State<KategoriSayfasi> {
                                 'Premium restoran görünümü',
                               ],
                               onTap: () {
-                                _openPage(const RestoranlarVitrini());
+                                _openPage(const PremiumRestoranVitrini());
                               },
                             ),
                           ],
