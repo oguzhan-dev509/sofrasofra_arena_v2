@@ -8,6 +8,7 @@ import 'package:sofrasofra_arena_v2/onboarding/ev_lezzetleri_basvuru_sayfasi.dar
 import 'package:sofrasofra_arena_v2/onboarding/profesyonel_isletme_basvuru_sayfasi.dart';
 import 'package:sofrasofra_arena_v2/modules/kurumsal/sofrasofra_hukuki_index_sayfasi.dart';
 import 'package:sofrasofra_arena_v2/modules/kurumsal/kurumsal_bilgi_sayfasi.dart';
+import 'package:sofrasofra_arena_v2/modules/blog/blog_rehberler_sayfasi.dart';
 
 class KurumsalFooterLinks extends StatelessWidget {
   const KurumsalFooterLinks({super.key});
@@ -142,16 +143,9 @@ class KurumsalFooterLinks extends StatelessWidget {
                       'Kadın dernekleri, muhtarlıklar ve mahalle koçluğu modeliyle büyütülür.',
                     ],
                   ),
-              'Blog ve Rehberler': () => _openInfoPage(
+              'Blog ve Rehberler': () => _openPage(
                     context,
-                    title: 'Blog ve Rehberler',
-                    description:
-                        'Sofrasofra blog ve rehber alanı; ev üreticileri, şefler, restoranlar, kuryeler ve müşteriler için bilgilendirici içerikler yayınlamak üzere hazırlanır.',
-                    bullets: const [
-                      'Gıda güvenliği, başvuru süreçleri ve platform kullanımı anlatılır.',
-                      'Ev Lezzetleri, Usta Şefler ve restoranlar için rehber içerikler hazırlanır.',
-                      'Kurumsal web sitesi yayına alındığında bu alan dış web ile güçlendirilir.',
-                    ],
+                    const BlogRehberlerSayfasi(),
                   ),
               'Sofrasofra Radyo': () => _openPage(
                     context,
