@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:sofrasofra_arena_v2/modules/widgets/legal_consent_checkbox.dart';
 
 class KuryeBasvuruMerkeziSayfasi extends StatefulWidget {
   const KuryeBasvuruMerkeziSayfasi({super.key});
@@ -31,7 +32,7 @@ class _KuryeBasvuruMerkeziSayfasiState
   final TextEditingController _notController = TextEditingController();
 
   bool _gonderiliyor = false;
-
+  bool _legalAccepted = false;
   @override
   void dispose() {
     _adSoyadController.dispose();
@@ -53,6 +54,18 @@ class _KuryeBasvuruMerkeziSayfasiState
 
   Future<void> _basvuruGonder() async {
     if (!_formKey.currentState!.validate()) return;
+
+    if (!_legalAccepted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          backgroundColor: _red,
+          content: Text(
+            'Başvuruyu tamamlamak için kullanım koşulları ve KVKK metinlerini okuyup onaylamanız gerekir.',
+          ),
+        ),
+      );
+      return;
+    }
 
     setState(() => _gonderiliyor = true);
 
@@ -76,6 +89,16 @@ class _KuryeBasvuruMerkeziSayfasiState
         'rating': 5,
         'source': 'public_kurye_basvuru_formu',
         'basvuruKanal': 'uygulama',
+        'legalAccepted': true,
+        'legalAcceptedAt': FieldValue.serverTimestamp(),
+        'legalAcceptedAtClient': DateTime.now().toIso8601String(),
+        'legalAcceptedVersion': 'v1.0',
+        'legalAcceptedTexts': [
+          'kullanim_kosullari',
+          'kvkk_aydinlatma',
+          'gizlilik_politikasi',
+          'kurye_basvuru_sartlari',
+        ],
         'createdAt': FieldValue.serverTimestamp(),
         'updatedAt': FieldValue.serverTimestamp(),
       });
@@ -87,7 +110,9 @@ class _KuryeBasvuruMerkeziSayfasiState
       _aracTipiController.clear();
       _plakaController.clear();
       _notController.clear();
-
+      setState(() {
+        _legalAccepted = false;
+      });
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -363,6 +388,19 @@ class _KuryeBasvuruMerkeziSayfasiState
                 hint:
                     'Çalışma saatleri, bölge tercihi veya kısa not bırakabilirsiniz.',
               ),
+            ),
+            const SizedBox(height: 20),
+            LegalConsentCheckbox(
+              value: _legalAccepted,
+              onChanged: (value) {
+                setState(() {
+                  _legalAccepted = value;
+                });
+              },
+              title:
+                  'Kullanım koşullarını, KVKK metinlerini ve Kurye Ağı başvuru şartlarını okudum, anladım ve onaylıyorum.',
+              description:
+                  'Başvuruyu göndererek Sofrasofra kullanım koşullarını, KVKK aydınlatma metnini, gizlilik politikasını ve Kurye Ağı başvuru/değerlendirme şartlarını kabul etmiş olursunuz.',
             ),
             const SizedBox(height: 20),
             SizedBox(
