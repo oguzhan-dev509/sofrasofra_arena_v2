@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:sofrasofra_arena_v2/modules/widgets/legal_consent_checkbox.dart';
 
 class KuryeFormSayfasi extends StatefulWidget {
   const KuryeFormSayfasi({super.key});
@@ -21,7 +22,7 @@ class _KuryeFormSayfasiState extends State<KuryeFormSayfasi> {
   String _aracTipi = 'Motosiklet';
   String _calismaTercihi = 'Tam zamanlı';
   bool _loading = false;
-
+  bool _legalAccepted = false;
   static const Color _bg = Color(0xFF090909);
   static const Color _panel = Color(0xFF151515);
   static const Color _gold = Color(0xFFFFB300);
@@ -52,8 +53,18 @@ class _KuryeFormSayfasiState extends State<KuryeFormSayfasi> {
       return;
     }
 
-    setState(() => _loading = true);
+    if (!_legalAccepted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Başvuruyu tamamlamak için kullanım koşulları ve KVKK metinlerini okuyup onaylamanız gerekir.',
+          ),
+        ),
+      );
+      return;
+    }
 
+    setState(() => _loading = true);
     try {
       await FirebaseFirestore.instance.collection('courier_applications').add({
         'adSoyad': _adSoyadController.text.trim(),
@@ -68,6 +79,16 @@ class _KuryeFormSayfasiState extends State<KuryeFormSayfasi> {
         'not': _notController.text.trim(),
         'status': 'pending',
         'source': 'kurucu_kurye_programi',
+        'legalAccepted': true,
+        'legalAcceptedAt': FieldValue.serverTimestamp(),
+        'legalAcceptedAtClient': DateTime.now().toIso8601String(),
+        'legalAcceptedVersion': 'v1.0',
+        'legalAcceptedTexts': [
+          'kullanim_kosullari',
+          'kvkk_aydinlatma',
+          'gizlilik_politikasi',
+          'kurye_basvuru_sartlari',
+        ],
         'createdAt': FieldValue.serverTimestamp(),
       });
 
@@ -308,6 +329,19 @@ class _KuryeFormSayfasiState extends State<KuryeFormSayfasi> {
                 maxLines: 3,
               ),
               const SizedBox(height: 24),
+              LegalConsentCheckbox(
+                value: _legalAccepted,
+                onChanged: (value) {
+                  setState(() {
+                    _legalAccepted = value;
+                  });
+                },
+                title:
+                    'Kullanım koşullarını, KVKK metinlerini ve Kurye Ağı başvuru şartlarını okudum, anladım ve onaylıyorum.',
+                description:
+                    'Başvuruyu göndererek Sofrasofra kullanım koşullarını, KVKK aydınlatma metnini, gizlilik politikasını ve Kurye Ağı başvuru/değerlendirme şartlarını kabul etmiş olursunuz.',
+              ),
+              const SizedBox(height: 20),
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton.icon(
