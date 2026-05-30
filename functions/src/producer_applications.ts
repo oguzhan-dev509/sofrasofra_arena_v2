@@ -161,6 +161,10 @@ type ProfessionalApplicationPayload = {
   tcknVkn?: string;
   iban?: string;
   aciklama?: string;
+  legalAccepted?: boolean;
+  legalAcceptedAtClient?: string;
+  legalAcceptedVersion?: string;
+  legalAcceptedTexts?: unknown[];
 };
 
 export const submitProfessionalApplication = onCall(
@@ -203,6 +207,17 @@ export const submitProfessionalApplication = onCall(
       );
     }
 
+    if (data.legalAccepted !== true) {
+      throw new HttpsError(
+        "failed-precondition",
+        "Başvuruyu göndermek için hukuki metinleri onaylamalısınız."
+      );
+    }
+
+    const legalAcceptedTexts = Array.isArray(data.legalAcceptedTexts)
+      ? data.legalAcceptedTexts.map((item) => cleanString(item)).filter(Boolean)
+      : [];
+
     const now = admin.firestore.FieldValue.serverTimestamp();
 
     const applicationRef = admin
@@ -232,6 +247,12 @@ export const submitProfessionalApplication = onCall(
         tcknVkn: cleanString(data.tcknVkn),
         iban: cleanString(data.iban).replace(/\s/g, "").toUpperCase(),
         aciklama: cleanString(data.aciklama),
+
+        legalAccepted: true,
+        legalAcceptedAt: now,
+        legalAcceptedAtClient: cleanString(data.legalAcceptedAtClient),
+        legalAcceptedVersion: cleanString(data.legalAcceptedVersion) || "v1.0",
+        legalAcceptedTexts,
 
         source: "profesyonel_isletme_basvuru_formu",
         updatedAt: now,

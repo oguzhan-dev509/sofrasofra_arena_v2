@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:sofrasofra_arena_v2/services/campaign_service.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:sofrasofra_arena_v2/modules/common/basvuru_alindi_sayfasi.dart';
+import 'package:sofrasofra_arena_v2/modules/widgets/legal_consent_checkbox.dart';
 
 class ProfesyonelIsletmeBasvuruSayfasi extends StatefulWidget {
   const ProfesyonelIsletmeBasvuruSayfasi({super.key});
@@ -36,7 +37,7 @@ class _ProfesyonelIsletmeBasvuruSayfasiState
   String _isletmeTipi = 'usta_sef';
   String _professionalStatus = 'individual_chef';
   bool _saving = false;
-
+  bool _legalAccepted = false;
   bool get _requiresTaxCertificate {
     return _professionalStatus == 'business_owner' ||
         _professionalStatus == 'corporate_catering';
@@ -62,6 +63,14 @@ class _ProfesyonelIsletmeBasvuruSayfasiState
 
     final valid = _formKey.currentState?.validate() ?? false;
     if (!valid) return;
+
+    if (!_legalAccepted) {
+      _showSnack(
+        'Başvuruyu tamamlamak için kullanım koşulları ve KVKK metinlerini okuyup onaylamanız gerekir.',
+        isError: true,
+      );
+      return;
+    }
 
     final user = FirebaseAuth.instance.currentUser;
 
@@ -95,6 +104,15 @@ class _ProfesyonelIsletmeBasvuruSayfasiState
         'tcknVkn': _tcknVknCtrl.text.trim(),
         'iban': _ibanCtrl.text.trim().replaceAll(' ', '').toUpperCase(),
         'aciklama': _aciklamaCtrl.text.trim(),
+        'legalAccepted': true,
+        'legalAcceptedAtClient': DateTime.now().toIso8601String(),
+        'legalAcceptedVersion': 'v1.0',
+        'legalAcceptedTexts': [
+          'kullanim_kosullari',
+          'kvkk_aydinlatma',
+          'gizlilik_politikasi',
+          'profesyonel_isletme_basvuru_sartlari',
+        ],
       });
 
       debugPrint('PRO BASVURU FUNCTION RESULT=${result.data}');
@@ -266,6 +284,19 @@ class _ProfesyonelIsletmeBasvuruSayfasiState
                         maxLines: 4,
                       ),
                     ],
+                  ),
+                  const SizedBox(height: 20),
+                  LegalConsentCheckbox(
+                    value: _legalAccepted,
+                    onChanged: (value) {
+                      setState(() {
+                        _legalAccepted = value;
+                      });
+                    },
+                    title:
+                        'Kullanım koşullarını, KVKK metinlerini ve Usta Şef / Profesyonel İşletme başvuru şartlarını okudum, anladım ve onaylıyorum.',
+                    description:
+                        'Başvuruyu göndererek Sofrasofra kullanım koşullarını, KVKK aydınlatma metnini, gizlilik politikasını ve Usta Şef / Profesyonel İşletme başvuru şartlarını kabul etmiş olursunuz.',
                   ),
                   const SizedBox(height: 20),
                   SizedBox(
