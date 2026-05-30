@@ -6,6 +6,7 @@ import 'package:sofrasofra_arena_v2/modules/common/basvuru_alindi_sayfasi.dart';
 import 'package:sofrasofra_arena_v2/modules/widgets/billing_info_form_section.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_functions/cloud_functions.dart';
+import 'package:sofrasofra_arena_v2/modules/widgets/legal_consent_checkbox.dart';
 
 class EvLezzetleriBasvuruSayfasi extends StatefulWidget {
   const EvLezzetleriBasvuruSayfasi({super.key});
@@ -40,7 +41,7 @@ class _EvLezzetleriBasvuruSayfasiState
   final _faturaAdresiCtrl = TextEditingController();
   final _faturaEmailCtrl = TextEditingController();
   bool _saving = false;
-
+  bool _legalAccepted = false;
   @override
   void dispose() {
     _faturaUnvaniCtrl.dispose();
@@ -67,6 +68,13 @@ class _EvLezzetleriBasvuruSayfasiState
 
     if (!valid) {
       _showSnack('Lütfen zorunlu alanları kontrol edin.', isError: true);
+      return;
+    }
+    if (!_legalAccepted) {
+      _showSnack(
+        'Başvuruyu tamamlamak için kullanım koşulları ve KVKK metinlerini okuyup onaylamanız gerekir.',
+        isError: true,
+      );
       return;
     }
     final user = FirebaseAuth.instance.currentUser;
@@ -114,8 +122,16 @@ class _EvLezzetleriBasvuruSayfasiState
           faturaEmailController: _faturaEmailCtrl,
           ibanController: _ibanCtrl,
         ),
+        'legalAccepted': true,
+        'legalAcceptedAtClient': DateTime.now().toIso8601String(),
+        'legalAcceptedVersion': 'v1.0',
+        'legalAcceptedTexts': [
+          'kullanim_kosullari',
+          'kvkk_aydinlatma',
+          'gizlilik_politikasi',
+          'ev_lezzetleri_uretici_sartlari',
+        ],
       });
-
       debugPrint('EV BASVURU FUNCTION RESULT=${result.data}');
 
       if (!mounted) return;
@@ -293,6 +309,20 @@ class _EvLezzetleriBasvuruSayfasiState
                     faturaEmailController: _faturaEmailCtrl,
                     ibanController: _ibanCtrl,
                   ),
+                  const SizedBox(height: 20),
+                  LegalConsentCheckbox(
+                    value: _legalAccepted,
+                    onChanged: (value) {
+                      setState(() {
+                        _legalAccepted = value;
+                      });
+                    },
+                    title:
+                        'Kullanım koşullarını, KVKK metinlerini ve Ev Lezzetleri başvuru şartlarını okudum, anladım ve onaylıyorum.',
+                    description:
+                        'Başvuruyu göndererek Sofrasofra kullanım koşullarını, KVKK aydınlatma metnini, gizlilik politikasını ve Ev Lezzetleri üretici başvuru şartlarını kabul etmiş olursunuz.',
+                  ),
+                  const SizedBox(height: 20),
                   SizedBox(
                     height: 54,
                     child: ElevatedButton.icon(
