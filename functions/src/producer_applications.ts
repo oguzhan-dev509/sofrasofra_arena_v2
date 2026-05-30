@@ -13,6 +13,10 @@ type EvApplicationPayload = {
   faturaAdresi?: string;
   faturaEposta?: string;
   iban?: string;
+  legalAccepted?: boolean;
+  legalAcceptedAtClient?: string;
+  legalAcceptedVersion?: string;
+  legalAcceptedTexts?: unknown[];
 };
 
 function cleanString(value: unknown): string {
@@ -50,6 +54,17 @@ export const submitEvLezzetleriApplication = onCall(
       );
     }
 
+    if (data.legalAccepted !== true) {
+      throw new HttpsError(
+        "failed-precondition",
+        "Başvuruyu göndermek için hukuki metinleri onaylamalısınız."
+      );
+    }
+
+    const legalAcceptedTexts = Array.isArray(data.legalAcceptedTexts)
+      ? data.legalAcceptedTexts.map((item) => cleanString(item)).filter(Boolean)
+      : [];
+
     const now = admin.firestore.FieldValue.serverTimestamp();
 
     const applicationRef = admin
@@ -76,12 +91,19 @@ export const submitEvLezzetleriApplication = onCall(
         faturaEposta: cleanString(data.faturaEposta),
         iban: cleanString(data.iban),
 
+        legalAccepted: true,
+        legalAcceptedAt: now,
+        legalAcceptedAtClient: cleanString(data.legalAcceptedAtClient),
+        legalAcceptedVersion: cleanString(data.legalAcceptedVersion) || "v1.0",
+        legalAcceptedTexts,
+
         source: "ev_lezzetleri_basvuru_formu",
         updatedAt: now,
         createdAt: now,
       },
       { merge: true }
     );
+
     const campaignRef = admin
       .firestore()
       .collection("campaignSettings")
@@ -117,6 +139,7 @@ export const submitEvLezzetleriApplication = onCall(
         { merge: true }
       );
     });
+
     return {
       success: true,
       applicationPath: `producer_applications/${uid}`,
@@ -158,13 +181,14 @@ export const submitProfessionalApplication = onCall(
 
     const isletmeTipi = cleanString(data.isletmeTipi) || "usta_sef";
     const professionalStatus =
-  cleanString(data.professionalStatus) || "individual_chef";
+      cleanString(data.professionalStatus) || "individual_chef";
 
-const requiresTaxCertificate =
-  typeof data.requiresTaxCertificate === "boolean"
-    ? data.requiresTaxCertificate
-    : professionalStatus === "business_owner" ||
-      professionalStatus === "corporate_catering";
+    const requiresTaxCertificate =
+      typeof data.requiresTaxCertificate === "boolean"
+        ? data.requiresTaxCertificate
+        : professionalStatus === "business_owner" ||
+          professionalStatus === "corporate_catering";
+
     const isletmeAdi = cleanString(data.isletmeAdi);
     const yetkiliKisi = cleanString(data.yetkiliKisi);
     const telefon = cleanString(data.telefon);
@@ -194,15 +218,15 @@ const requiresTaxCertificate =
         aiReviewStatus: "not_started",
         riskLevel: "unknown",
 
-       isletmeTipi,
-professionalStatus,
-requiresTaxCertificate,
-isletmeAdi,
-yetkiliKisi,
-telefon,
-email,
-sehir,
-ilce,
+        isletmeTipi,
+        professionalStatus,
+        requiresTaxCertificate,
+        isletmeAdi,
+        yetkiliKisi,
+        telefon,
+        email,
+        sehir,
+        ilce,
 
         vergiNotu: cleanString(data.vergiNotu),
         tcknVkn: cleanString(data.tcknVkn),

@@ -58,6 +58,12 @@ exports.submitEvLezzetleriApplication = (0, https_1.onCall)({
     if (!adSoyad || !telefon || !sehir || !ilce || !mutfakAdi) {
         throw new https_1.HttpsError("invalid-argument", "Zorunlu başvuru alanları eksik.");
     }
+    if (data.legalAccepted !== true) {
+        throw new https_1.HttpsError("failed-precondition", "Başvuruyu göndermek için hukuki metinleri onaylamalısınız.");
+    }
+    const legalAcceptedTexts = Array.isArray(data.legalAcceptedTexts)
+        ? data.legalAcceptedTexts.map((item) => cleanString(item)).filter(Boolean)
+        : [];
     const now = admin.firestore.FieldValue.serverTimestamp();
     const applicationRef = admin
         .firestore()
@@ -78,6 +84,11 @@ exports.submitEvLezzetleriApplication = (0, https_1.onCall)({
         faturaAdresi: cleanString(data.faturaAdresi),
         faturaEposta: cleanString(data.faturaEposta),
         iban: cleanString(data.iban),
+        legalAccepted: true,
+        legalAcceptedAt: now,
+        legalAcceptedAtClient: cleanString(data.legalAcceptedAtClient),
+        legalAcceptedVersion: cleanString(data.legalAcceptedVersion) || "v1.0",
+        legalAcceptedTexts,
         source: "ev_lezzetleri_basvuru_formu",
         updatedAt: now,
         createdAt: now,
