@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:sofrasofra_arena_v2/modules/widgets/legal_consent_checkbox.dart';
 
 class KuryeBasvuruFormu extends StatefulWidget {
   const KuryeBasvuruFormu({super.key});
@@ -20,7 +21,7 @@ class _KuryeBasvuruFormuState extends State<KuryeBasvuruFormu> {
   final TextEditingController _notController = TextEditingController();
 
   bool _gonderiliyor = false;
-
+  bool _legalAccepted = false;
   static const Color _gold = Color(0xFFFFC107);
   static const Color _goldSoft = Color(0x33FFC107);
   static const Color _bg = Colors.black;
@@ -42,6 +43,18 @@ class _KuryeBasvuruFormuState extends State<KuryeBasvuruFormu> {
   Future<void> _basvuruGonder() async {
     if (!_formKey.currentState!.validate()) return;
 
+    if (!_legalAccepted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Başvuruyu tamamlamak için kullanım koşulları ve KVKK metinlerini okuyup onaylamanız gerekir.',
+          ),
+          backgroundColor: Colors.redAccent,
+        ),
+      );
+      return;
+    }
+
     setState(() {
       _gonderiliyor = true;
     });
@@ -60,6 +73,16 @@ class _KuryeBasvuruFormuState extends State<KuryeBasvuruFormu> {
         'reviewedBy': '',
         'redSebebi': '',
         'source': 'kurye_basvuru_formu',
+        'legalAccepted': true,
+        'legalAcceptedAt': FieldValue.serverTimestamp(),
+        'legalAcceptedAtClient': DateTime.now().toIso8601String(),
+        'legalAcceptedVersion': 'v1.0',
+        'legalAcceptedTexts': [
+          'kullanim_kosullari',
+          'kvkk_aydinlatma',
+          'gizlilik_politikasi',
+          'kurye_basvuru_sartlari',
+        ],
         'createdAt': FieldValue.serverTimestamp(),
         'updatedAt': FieldValue.serverTimestamp(),
       });
@@ -71,7 +94,9 @@ class _KuryeBasvuruFormuState extends State<KuryeBasvuruFormu> {
       _aracTipiController.clear();
       _plakaController.clear();
       _notController.clear();
-
+      setState(() {
+        _legalAccepted = false;
+      });
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -276,6 +301,19 @@ class _KuryeBasvuruFormuState extends State<KuryeBasvuruFormu> {
                 decoration: _inputDecoration(
                   'Çalışma saatlerinizi veya notunuzu yazabilirsiniz',
                 ),
+              ),
+              const SizedBox(height: 20),
+              LegalConsentCheckbox(
+                value: _legalAccepted,
+                onChanged: (value) {
+                  setState(() {
+                    _legalAccepted = value;
+                  });
+                },
+                title:
+                    'Kullanım koşullarını, KVKK metinlerini ve Kurye Ağı başvuru şartlarını okudum, anladım ve onaylıyorum.',
+                description:
+                    'Başvuruyu göndererek Sofrasofra kullanım koşullarını, KVKK aydınlatma metnini, gizlilik politikasını ve Kurye Ağı başvuru/değerlendirme şartlarını kabul etmiş olursunuz.',
               ),
               const SizedBox(height: 20),
               SizedBox(
