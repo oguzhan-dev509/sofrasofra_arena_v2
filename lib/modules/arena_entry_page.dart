@@ -3,6 +3,7 @@ import 'package:sofrasofra_arena_v2/modules/kategori_sayfasi.dart';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:sofrasofra_arena_v2/modules/widgets/campaign_counter_panel.dart';
+import 'package:sofrasofra_arena_v2/modules/widgets/sofrasofra_pazaryeri_vitrini.dart';
 import 'package:sofrasofra_arena_v2/modules/auth/satici_admin_giris_sayfasi.dart';
 import 'package:sofrasofra_arena_v2/modules/widgets/kurumsal_footer_links.dart';
 import 'package:sofrasofra_arena_v2/modules/widgets/kurumsal_site_card.dart';
@@ -258,34 +259,8 @@ class _ArenaEntryPageState extends State<ArenaEntryPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
-                    stream: FirebaseFirestore.instance
-                        .collection('site_settings')
-                        .doc('home_banner')
-                        .snapshots(),
-                    builder: (context, snapshot) {
-                      final data = snapshot.data?.data();
-                      final imageUrl = (data?['imageUrl'] ?? '').toString();
-
-                      if (imageUrl.isEmpty) return const SizedBox.shrink();
-                      return Padding(
-                        padding: const EdgeInsets.fromLTRB(0, 0, 0, 16),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(20),
-                          child: SizedBox(
-                            height: isMobile ? 360 : 520,
-                            width: double.infinity,
-                            child: Image.network(
-                              imageUrl,
-                              key: ValueKey(imageUrl),
-                              fit: BoxFit.cover,
-                              alignment: const Alignment(0, 0.34),
-                            ),
-                          ),
-                        ),
-                      );
-                    },
-                  ),
+                  const SofrasofraPazaryeriVitrini(),
+                  const SizedBox(height: 24),
                   Container(
                     padding: const EdgeInsets.all(24),
                     decoration: BoxDecoration(
