@@ -782,3 +782,59 @@ const iyzicoResponse = await axios.post(
 );
 export { initializeEvOrderPayment } from "./ev_order_payment";
 export { evIyzicoCallback } from "./ev_iyzico_callback";
+export const whatsappWebhook = onRequest(
+  { region: "europe-west1" },
+  async (req, res) => {
+    const VERIFY_TOKEN = "sofrasofra_whatsapp_verify_2026";
+
+    try {
+      if (req.method === "GET") {
+        const mode = req.query["hub.mode"];
+        const token = req.query["hub.verify_token"];
+        const challenge = req.query["hub.challenge"];
+
+        if (mode === "subscribe" && token === VERIFY_TOKEN && challenge) {
+          logger.info("WhatsApp webhook verified successfully.");
+          res.status(200).send(challenge);
+          return;
+        }
+
+        logger.warn("WhatsApp webhook verification failed.", {
+          mode,
+          token,
+        });
+
+        res.status(403).send("Forbidden");
+        return;
+      }
+
+      if (req.method === "POST") {
+        const payload = req.body ?? {};
+
+        await db.collection("whatsapp_webhook_events").add({
+          source: "meta_whatsapp_cloud_api",
+          phoneNumber: "05362991324",
+          payload,
+          receivedAt: FieldValue.serverTimestamp(),
+          processed: false,
+          agentStatus: "pending",
+        });
+
+        logger.info("WhatsApp webhook event saved to Firestore.");
+
+        res.status(200).send("EVENT_RECEIVED");
+        return;
+      }
+
+      res.status(405).send("Method Not Allowed");
+      return;
+    } catch (error: any) {
+      logger.error("WhatsApp webhook error", {
+        message: error?.message ?? String(error),
+      });
+
+      res.status(500).send("Internal Server Error");
+      return;
+    }
+  }
+);

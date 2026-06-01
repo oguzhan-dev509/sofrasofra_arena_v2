@@ -36,7 +36,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.evIyzicoCallback = exports.initializeEvOrderPayment = exports.initializeChefTablePayment = exports.notifyCustomerWhenCourierAssigned = exports.notifySellerOnNewOrder = exports.iyzicoCallback = exports.submitProfessionalApplication = exports.submitEvLezzetleriApplication = void 0;
+exports.whatsappWebhook = exports.evIyzicoCallback = exports.initializeEvOrderPayment = exports.initializeChefTablePayment = exports.notifyCustomerWhenCourierAssigned = exports.notifySellerOnNewOrder = exports.iyzicoCallback = exports.submitProfessionalApplication = exports.submitEvLezzetleriApplication = void 0;
 const firestore_1 = require("firebase-functions/v2/firestore");
 const app_1 = require("firebase-admin/app");
 const firestore_2 = require("firebase-admin/firestore");
@@ -596,4 +596,48 @@ var ev_order_payment_1 = require("./ev_order_payment");
 Object.defineProperty(exports, "initializeEvOrderPayment", { enumerable: true, get: function () { return ev_order_payment_1.initializeEvOrderPayment; } });
 var ev_iyzico_callback_1 = require("./ev_iyzico_callback");
 Object.defineProperty(exports, "evIyzicoCallback", { enumerable: true, get: function () { return ev_iyzico_callback_1.evIyzicoCallback; } });
+exports.whatsappWebhook = (0, https_1.onRequest)({ region: "europe-west1" }, async (req, res) => {
+    const VERIFY_TOKEN = "sofrasofra_whatsapp_verify_2026";
+    try {
+        if (req.method === "GET") {
+            const mode = req.query["hub.mode"];
+            const token = req.query["hub.verify_token"];
+            const challenge = req.query["hub.challenge"];
+            if (mode === "subscribe" && token === VERIFY_TOKEN && challenge) {
+                logger.info("WhatsApp webhook verified successfully.");
+                res.status(200).send(challenge);
+                return;
+            }
+            logger.warn("WhatsApp webhook verification failed.", {
+                mode,
+                token,
+            });
+            res.status(403).send("Forbidden");
+            return;
+        }
+        if (req.method === "POST") {
+            const payload = req.body ?? {};
+            await db.collection("whatsapp_webhook_events").add({
+                source: "meta_whatsapp_cloud_api",
+                phoneNumber: "05362991324",
+                payload,
+                receivedAt: firestore_2.FieldValue.serverTimestamp(),
+                processed: false,
+                agentStatus: "pending",
+            });
+            logger.info("WhatsApp webhook event saved to Firestore.");
+            res.status(200).send("EVENT_RECEIVED");
+            return;
+        }
+        res.status(405).send("Method Not Allowed");
+        return;
+    }
+    catch (error) {
+        logger.error("WhatsApp webhook error", {
+            message: error?.message ?? String(error),
+        });
+        res.status(500).send("Internal Server Error");
+        return;
+    }
+});
 //# sourceMappingURL=index.js.map
