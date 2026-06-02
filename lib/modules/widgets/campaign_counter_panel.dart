@@ -103,7 +103,7 @@ class _TopCampaignBox extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'YAYIN ÖNCESİ KURUCU KONTENJAN',
+            'SOFRASOFRA ABONELİK AVANTAJI',
             style: TextStyle(
               color: _gold,
               fontSize: 14,
@@ -113,7 +113,7 @@ class _TopCampaignBox extends StatelessWidget {
           ),
           SizedBox(height: 6),
           Text(
-            'Kurucu üretici ve kurucu şef başvuruları açıldı.',
+            'Her yeni abone için 30 gün ücretsiz deneme süreci başladı.',
             style: TextStyle(
               color: Colors.white,
               fontSize: 22,
@@ -122,7 +122,7 @@ class _TopCampaignBox extends StatelessWidget {
           ),
           SizedBox(height: 6),
           Text(
-            'Ev Lezzetleri ve Usta Şefler için sınırlı süre ücretsiz katılım fırsatı.',
+            'Ev Lezzetleri, Usta Şefler ve Restoranlar için sınırlı süreli ücretsiz katılım fırsatı.',
             style: TextStyle(
               color: Colors.white70,
               fontSize: 13,
