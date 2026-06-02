@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class SofrasofraPazaryeriVitrini extends StatelessWidget {
   const SofrasofraPazaryeriVitrini({super.key});
@@ -42,35 +43,7 @@ class SofrasofraPazaryeriVitrini extends StatelessWidget {
                   children: [
                     const _MarketTitle(),
                     const SizedBox(height: 18),
-                    _ProductSection(
-                      icon: Icons.home_rounded,
-                      title: 'Ev Lezzetleri',
-                      subtitle:
-                          'Evde özenle hazırlanan, mahalleden sofraya gelen lezzetler.',
-                      actionText: 'Tümünü Gör',
-                      items: _evLezzetleriItems,
-                      isMobile: isMobile,
-                    ),
-                    const SizedBox(height: 26),
-                    _ProductSection(
-                      icon: Icons.restaurant_menu_rounded,
-                      title: 'Usta Şefler',
-                      subtitle:
-                          'Profesyonel şeflerin imza tabakları, davet menüleri ve atölyeleri.',
-                      actionText: 'Tümünü Gör',
-                      items: _ustaSefItems,
-                      isMobile: isMobile,
-                    ),
-                    const SizedBox(height: 26),
-                    _ProductSection(
-                      icon: Icons.storefront_rounded,
-                      title: 'Restoranlar',
-                      subtitle:
-                          'Mahallenizin restoranlarından gel-al ve götür seçenekli menüler.',
-                      actionText: 'Tümünü Gör',
-                      items: _restoranItems,
-                      isMobile: isMobile,
-                    ),
+                    _LiveShowcaseSections(isMobile: isMobile),
                     const SizedBox(height: 28),
                     _HowItWorksPanel(isMobile: isMobile),
                     const SizedBox(height: 22),
@@ -80,6 +53,81 @@ class SofrasofraPazaryeriVitrini extends StatelessWidget {
               ),
             ],
           ),
+        );
+      },
+    );
+  }
+}
+
+class _LiveShowcaseSections extends StatelessWidget {
+  const _LiveShowcaseSections({required this.isMobile});
+
+  final bool isMobile;
+
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+      stream: FirebaseFirestore.instance
+          .collection('home_showcase_items')
+          .snapshots(),
+      builder: (context, snapshot) {
+        final docs = snapshot.data?.docs ?? [];
+
+        final liveItems = docs
+            .map((doc) => _MarketItem.fromFirestore(doc.data()))
+            .where((item) => item != null)
+            .cast<_MarketItem>()
+            .toList()
+          ..sort((a, b) => a.order.compareTo(b.order));
+
+        final evItems = liveItems
+            .where((item) => item.section == 'ev_lezzetleri')
+            .take(8)
+            .toList();
+
+        final sefItems = liveItems
+            .where((item) => item.section == 'usta_sefler')
+            .take(8)
+            .toList();
+
+        final restoranItems = liveItems
+            .where((item) => item.section == 'restoranlar')
+            .take(8)
+            .toList();
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _ProductSection(
+              icon: Icons.home_rounded,
+              title: 'Ev Lezzetleri',
+              subtitle:
+                  'Evde özenle hazırlanan, mahalleden sofraya gelen lezzetler.',
+              actionText: 'Tümünü Gör',
+              items: evItems.isEmpty ? _evLezzetleriItems : evItems,
+              isMobile: isMobile,
+            ),
+            const SizedBox(height: 26),
+            _ProductSection(
+              icon: Icons.restaurant_menu_rounded,
+              title: 'Usta Şefler',
+              subtitle:
+                  'Profesyonel şeflerin imza tabakları, davet menüleri ve atölyeleri.',
+              actionText: 'Tümünü Gör',
+              items: sefItems.isEmpty ? _ustaSefItems : sefItems,
+              isMobile: isMobile,
+            ),
+            const SizedBox(height: 26),
+            _ProductSection(
+              icon: Icons.storefront_rounded,
+              title: 'Restoranlar',
+              subtitle:
+                  'Mahallenizin restoranlarından gel-al ve götür seçenekli menüler.',
+              actionText: 'Tümünü Gör',
+              items: restoranItems.isEmpty ? _restoranItems : restoranItems,
+              isMobile: isMobile,
+            ),
+          ],
         );
       },
     );
@@ -1280,6 +1328,11 @@ class _MarketItem {
     required this.ctaIcon,
     required this.icon,
     required this.imageUrl,
+    this.section = '',
+    this.order = 999,
+    this.targetType = '',
+    this.targetId = '',
+    this.sponsored = false,
   });
 
   final String category;
@@ -1290,6 +1343,104 @@ class _MarketItem {
   final IconData ctaIcon;
   final IconData icon;
   final String imageUrl;
+
+  final String section;
+  final int order;
+  final String targetType;
+  final String targetId;
+  final bool sponsored;
+
+  static _MarketItem? fromFirestore(Map<String, dynamic> data) {
+    final active = data['active'];
+    if (active == false) return null;
+
+    final section = (data['section'] ?? '').toString().trim();
+    final title = (data['title'] ?? data['name'] ?? '').toString().trim();
+    final imageUrl = (data['imageUrl'] ?? '').toString().trim();
+
+    if (section.isEmpty || title.isEmpty || imageUrl.isEmpty) {
+      return null;
+    }
+
+    final categoryLabel =
+        (data['categoryLabel'] ?? _categoryFromSection(section)).toString();
+
+    final ctaText = (data['ctaText'] ?? _ctaFromSection(section)).toString();
+
+    return _MarketItem(
+      section: section,
+      category: categoryLabel,
+      name: title,
+      description: (data['description'] ?? '').toString(),
+      price: (data['priceText'] ?? '').toString(),
+      cta: ctaText,
+      ctaIcon: _ctaIconFromSection(section),
+      icon: _iconFromSection(section),
+      imageUrl: imageUrl,
+      order: _intFromValue(data['order'], fallback: 999),
+      targetType: (data['targetType'] ?? '').toString(),
+      targetId: (data['targetId'] ?? '').toString(),
+      sponsored: data['sponsored'] == true,
+    );
+  }
+
+  static String _categoryFromSection(String section) {
+    switch (section) {
+      case 'ev_lezzetleri':
+        return 'Ev Lezzetleri';
+      case 'usta_sefler':
+        return 'Usta Şefler';
+      case 'restoranlar':
+        return 'Restoranlar';
+      default:
+        return 'Sofrasofra';
+    }
+  }
+
+  static String _ctaFromSection(String section) {
+    switch (section) {
+      case 'ev_lezzetleri':
+        return 'Sepete Ekle';
+      case 'usta_sefler':
+        return 'Detayı Gör';
+      case 'restoranlar':
+        return 'Siparişe Başla';
+      default:
+        return 'Detayı Gör';
+    }
+  }
+
+  static IconData _ctaIconFromSection(String section) {
+    switch (section) {
+      case 'ev_lezzetleri':
+        return Icons.shopping_bag_rounded;
+      case 'usta_sefler':
+        return Icons.arrow_forward_rounded;
+      case 'restoranlar':
+        return Icons.room_service_rounded;
+      default:
+        return Icons.arrow_forward_rounded;
+    }
+  }
+
+  static IconData _iconFromSection(String section) {
+    switch (section) {
+      case 'ev_lezzetleri':
+        return Icons.home_rounded;
+      case 'usta_sefler':
+        return Icons.restaurant_menu_rounded;
+      case 'restoranlar':
+        return Icons.storefront_rounded;
+      default:
+        return Icons.restaurant_rounded;
+    }
+  }
+
+  static int _intFromValue(dynamic value, {required int fallback}) {
+    if (value is int) return value;
+    if (value is num) return value.toInt();
+    return int.tryParse(value?.toString() ?? '') ?? fallback;
+  }
 }
 
 class _ChipInfo {
