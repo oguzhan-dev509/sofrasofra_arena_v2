@@ -1324,7 +1324,10 @@ class _MenuPreviewSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (!isAdmin) {
+    const bool iyzicoReviewMode = true;
+    final canSeeMenu = isAdmin || iyzicoReviewMode;
+
+    if (!canSeeMenu) {
       return Container(
         padding: const EdgeInsets.all(18),
         decoration: BoxDecoration(
@@ -1369,65 +1372,60 @@ class _MenuPreviewSection extends StatelessWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Admin Menü Önizlemesi',
-                    style: TextStyle(
-                      color: _gold,
-                      fontSize: 18,
-                      fontWeight: FontWeight.w900,
-                    ),
-                  ),
                   const SizedBox(height: 10),
-                  Wrap(
-                    spacing: 10,
-                    runSpacing: 10,
-                    children: [
-                      TextButton.icon(
-                        onPressed: () async {
-                          await _yeniMenuUrunuDialogAc(context: context);
-                        },
-                        icon: const Icon(
-                          Icons.add_circle_outline,
-                          color: _gold,
-                          size: 18,
-                        ),
-                        label: const Text(
-                          'Yeni Ürün',
-                          style: TextStyle(
+                  if (isAdmin)
+                    Wrap(
+                      spacing: 10,
+                      runSpacing: 10,
+                      children: [
+                        TextButton.icon(
+                          onPressed: () async {
+                            await _yeniMenuUrunuDialogAc(context: context);
+                          },
+                          icon: const Icon(
+                            Icons.add_circle_outline,
                             color: _gold,
-                            fontWeight: FontWeight.w900,
+                            size: 18,
                           ),
-                        ),
-                      ),
-                      TextButton.icon(
-                        onPressed: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (_) =>
-                                  const RestoranSiparisYonetimiSayfasi(),
+                          label: const Text(
+                            'Yeni Ürün',
+                            style: TextStyle(
+                              color: _gold,
+                              fontWeight: FontWeight.w900,
                             ),
-                          );
-                        },
-                        icon: const Icon(
-                          Icons.receipt_long_outlined,
-                          color: _gold,
-                          size: 18,
-                        ),
-                        label: const Text(
-                          'Restoran Siparişleri',
-                          style: TextStyle(
-                            color: _gold,
-                            fontWeight: FontWeight.w900,
                           ),
                         ),
-                      ),
-                    ],
-                  ),
+                        TextButton.icon(
+                          onPressed: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (_) =>
+                                    const RestoranSiparisYonetimiSayfasi(),
+                              ),
+                            );
+                          },
+                          icon: const Icon(
+                            Icons.receipt_long_outlined,
+                            color: _gold,
+                            size: 18,
+                          ),
+                          label: const Text(
+                            'Restoran Siparişleri',
+                            style: TextStyle(
+                              color: _gold,
+                              fontWeight: FontWeight.w900,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                 ],
               ),
               const SizedBox(height: 8),
-              const Text(
-                'Bu alan yalnızca platform adminleri tarafından görülür. Restoran menüsü, ürün fiyatları ve lansman öncesi sipariş altyapısı burada test edilecek.',
+              Text(
+                isAdmin
+                    ? 'Bu alan yalnızca platform adminleri tarafından görülür. Restoran menüsü, ürün fiyatları ve lansman öncesi sipariş altyapısı burada test edilecek.'
+                    : 'Restoran menüsü, Gel-Al ve Götür seçenekleriyle Sofrasofra’da siparişe hazırlanıyor.',
                 style: TextStyle(
                   color: Colors.white70,
                   fontSize: 13.5,

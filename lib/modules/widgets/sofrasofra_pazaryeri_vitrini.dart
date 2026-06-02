@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:sofrasofra_arena_v2/modules/vitrinler/ev_lezzetleri_vitrini.dart';
 import 'package:sofrasofra_arena_v2/modules/vitrinler/sef_vitrini_v2.dart';
-import 'package:sofrasofra_arena_v2/modules/restoranlar/restoran_vitrini.dart';
+
+import 'package:sofrasofra_arena_v2/modules/vitrinler/restoranlar_vitrini.dart';
 
 class SofrasofraPazaryeriVitrini extends StatelessWidget {
   const SofrasofraPazaryeriVitrini({super.key});
@@ -700,7 +701,7 @@ class _MarketProductCard extends StatelessWidget {
         page = const SefVitriniV2();
         break;
       case 'restoranlar':
-        page = const PremiumRestoranVitrini();
+        page = const RestoranlarVitrini();
         break;
       default:
         ScaffoldMessenger.of(context).showSnackBar(
