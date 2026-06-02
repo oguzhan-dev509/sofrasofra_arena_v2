@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:sofrasofra_arena_v2/modules/vitrinler/ev_lezzetleri_vitrini.dart';
+import 'package:sofrasofra_arena_v2/modules/vitrinler/sef_vitrini_v2.dart';
+import 'package:sofrasofra_arena_v2/modules/restoranlar/restoran_vitrini.dart';
 
 class SofrasofraPazaryeriVitrini extends StatelessWidget {
   const SofrasofraPazaryeriVitrini({super.key});
@@ -683,6 +686,37 @@ class _SectionHeader extends StatelessWidget {
 
 class _MarketProductCard extends StatelessWidget {
   const _MarketProductCard({required this.item});
+  void _openShowcaseTarget(BuildContext context, _MarketItem item) {
+    Widget page;
+
+    switch (item.section) {
+      case 'ev_lezzetleri':
+        page = const EvLezzetleriVitrini(
+          city: 'İstanbul',
+          district: 'Kadıköy',
+        );
+        break;
+      case 'usta_sefler':
+        page = const SefVitriniV2();
+        break;
+      case 'restoranlar':
+        page = const PremiumRestoranVitrini();
+        break;
+      default:
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('${item.name} için bağlantı hazırlanıyor.'),
+          ),
+        );
+        return;
+    }
+
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => page,
+      ),
+    );
+  }
 
   final _MarketItem item;
 
@@ -813,14 +847,7 @@ class _MarketProductCard extends StatelessWidget {
                         ),
                       ),
                       ElevatedButton.icon(
-                        onPressed: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content:
-                                  Text('${item.name} aksiyonu hazırlanıyor.'),
-                            ),
-                          );
-                        },
+                        onPressed: () => _openShowcaseTarget(context, item),
                         icon: Icon(item.ctaIcon, size: 16),
                         label: Text(item.cta),
                         style: ElevatedButton.styleFrom(
