@@ -124,19 +124,19 @@ service cloud.firestore {
       allow delete: if isPlatformAdmin();
     }
 
-   match /sepetler/{cartId} {
-  allow read, write: if signedIn() && cartId == request.auth.uid;
+  match /sepetler/{cartId} {
+  allow read, write: if signedIn();
 
   match /items/{itemId} {
-    allow read, write: if signedIn() && cartId == request.auth.uid;
+    allow read, write: if signedIn();
   }
 }
 
-   match /sepet/{userId} {
-  allow read, write: if signedIn() && userId == request.auth.uid;
+  match /sepet/{userId} {
+  allow read, write: if signedIn();
 
   match /items/{itemId} {
-    allow read, write: if signedIn() && userId == request.auth.uid;
+    allow read, write: if signedIn();
   }
 }
 match /producer_applications/{applicationId} {
