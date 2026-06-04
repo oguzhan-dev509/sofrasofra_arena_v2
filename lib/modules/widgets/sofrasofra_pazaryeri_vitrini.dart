@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:sofrasofra_arena_v2/modules/restoranlar/models/restoran_model.dart';
+import 'package:sofrasofra_arena_v2/modules/restoranlar/restoran_detay_sayfasi.dart';
 import 'package:sofrasofra_arena_v2/modules/vitrinler/ev_lezzetleri_vitrini.dart';
 import 'package:sofrasofra_arena_v2/modules/vitrinler/sef_vitrini_v2.dart';
-
 import 'package:sofrasofra_arena_v2/modules/vitrinler/restoranlar_vitrini.dart';
 
 class SofrasofraPazaryeriVitrini extends StatelessWidget {
@@ -688,6 +689,21 @@ class _SectionHeader extends StatelessWidget {
 class _MarketProductCard extends StatelessWidget {
   const _MarketProductCard({required this.item});
   void _openShowcaseTarget(BuildContext context, _MarketItem item) {
+    final targetType = item.targetType.toLowerCase().trim();
+    final targetId = item.targetId.trim();
+
+    if (targetType == 'restaurant' && targetId.isNotEmpty) {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) => _RestaurantShowcaseTargetPage(
+            restaurantId: targetId,
+            fallbackTitle: item.name,
+          ),
+        ),
+      );
+      return;
+    }
+
     Widget page;
 
     switch (item.section) {
@@ -1342,6 +1358,69 @@ class _HeroBadge extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _RestaurantShowcaseTargetPage extends StatelessWidget {
+  const _RestaurantShowcaseTargetPage({
+    required this.restaurantId,
+    required this.fallbackTitle,
+  });
+
+  final String restaurantId;
+  final String fallbackTitle;
+
+  static const Color _gold = Color(0xFFFFB300);
+  static const Color _bg = Color(0xFF050505);
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<DocumentSnapshot<Map<String, dynamic>>>(
+      future: FirebaseFirestore.instance
+          .collection('restaurants')
+          .doc(restaurantId)
+          .get(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Scaffold(
+            backgroundColor: _bg,
+            body: Center(
+              child: CircularProgressIndicator(color: _gold),
+            ),
+          );
+        }
+
+        if (snapshot.hasError || !snapshot.hasData || !snapshot.data!.exists) {
+          return Scaffold(
+            backgroundColor: _bg,
+            appBar: AppBar(
+              backgroundColor: Colors.black,
+              foregroundColor: _gold,
+              title: const Text('Restoran bulunamadı'),
+            ),
+            body: Center(
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Text(
+                  '$fallbackTitle vitrini şu anda görüntülenemiyor.',
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    color: Colors.white70,
+                    fontSize: 15,
+                    height: 1.45,
+                  ),
+                ),
+              ),
+            ),
+          );
+        }
+
+        final doc = snapshot.data!;
+        final restaurant = RestoranModel.fromMap(doc.id, doc.data()!);
+
+        return RestoranDetaySayfasi(restaurant: restaurant);
+      },
     );
   }
 }
