@@ -1215,9 +1215,9 @@ class _FounderHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Column(
+    return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
+      children: const [
         Row(
           children: [
             Icon(
@@ -1225,12 +1225,16 @@ class _FounderHeader extends StatelessWidget {
               color: SofrasofraPazaryeriVitrini._gold,
             ),
             SizedBox(width: 10),
-            Text(
-              'Kurucu Başvurular Açık',
-              style: TextStyle(
-                color: SofrasofraPazaryeriVitrini._text,
-                fontSize: 24,
-                fontWeight: FontWeight.w900,
+            Expanded(
+              child: Text(
+                'Kurucu Başvurular Açık',
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: SofrasofraPazaryeriVitrini._text,
+                  fontSize: 24,
+                  fontWeight: FontWeight.w900,
+                ),
               ),
             ),
           ],

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-
+import '../../fullscreen_gallery.dart';
 import '../models/restoran_menu_item_model.dart';
 import 'restoran_menu_gallery_strip.dart';
 
@@ -122,12 +122,24 @@ class _HeroImage extends StatelessWidget {
         children: [
           heroImageUrl.isEmpty
               ? const _ImageFallback()
-              : Image.network(
-                  heroImageUrl,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    return const _ImageFallback();
+              : GestureDetector(
+                  onTap: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => FullScreenGallery(
+                          images: galleryImages,
+                          initialIndex: 0,
+                        ),
+                      ),
+                    );
                   },
+                  child: Image.network(
+                    heroImageUrl,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) {
+                      return const _ImageFallback();
+                    },
+                  ),
                 ),
           DecoratedBox(
             decoration: BoxDecoration(
