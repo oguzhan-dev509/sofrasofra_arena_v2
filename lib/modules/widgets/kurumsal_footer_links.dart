@@ -204,7 +204,7 @@ class KurumsalFooterLinks extends StatelessWidget {
                       'Tüm prim ve ödüller; başvuruların gerçekliği, üreticinin onay durumu, siparişlerin başarıyla tamamlanması ve Sofrasofra hak ediş kontrolü sonrasında değerlendirilir.',
                       'Başvuru ve detaylı bilgi için bizimle iletişime geçebilirsiniz.',
                       'E-posta: info@sofrasofra.com',
-                      'WhatsApp Destek Hattı: 0533 322 13 24',
+                      'WhatsApp Destek Hattı: +90 533 322 13 24',
                       'Başvuruda ad soyad, şehir, ilçe, mahalle adı, telefon numarası, mahallendeki üretici adayları hakkında kısa bilgi ve neden Mahalle Mutfak Koçu olmak istediğinizi paylaşmanız yeterlidir.',
                       'Mahallendeki emeği görünür kıl. Üreten insanlara destek ol. Sofrasofra Mahalle Mutfak Koçu ol.',
                     ],
@@ -477,12 +477,12 @@ class _ContactInfoBlock extends StatelessWidget {
           ),
           SizedBox(height: 7),
           _ContactLine(
-            label: 'Telefon',
+            label: 'WhatsApp Otomasyon Hattı',
             value: '+90 536 299 13 24',
           ),
           SizedBox(height: 7),
           _ContactLine(
-            label: 'WhatsApp Hattı',
+            label: 'WhatsApp Destek Hattı',
             value: '+90 533 322 13 24',
           ),
           SizedBox(height: 7),

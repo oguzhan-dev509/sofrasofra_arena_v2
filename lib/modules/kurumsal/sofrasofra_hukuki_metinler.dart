@@ -41,8 +41,8 @@ MERSİS No: 0898132285200001
 Adres: Abdurrahman Nafiz Gürman Mahallesi, Kınalıtepe Sokak, Simitaş 8 Blok No: 1, İç Kapı No: 311, Güngören / İstanbul
 Web Sitesi: www.sofrasofra.com
 E-posta: info@sofrasofra.com
-Telefon: +90 536 299 13 24
-WhatsApp Hattı: +90 533 322 13 24
+WhatsApp Otomasyon Hattı: +90 536 299 13 24
+WhatsApp Destek Hattı: +90 533 322 13 24
 
 3. İşlenen Bilgi ve Veri Kategorileri
 
@@ -160,8 +160,8 @@ Gizlilik Politikası ve kişisel verilerin korunmasına ilişkin sorularınız i
 
 UYBAT TEKNOLOJİ YAZILIM VE TİCARET LİMİTED ŞİRKETİ
 E-posta: info@sofrasofra.com
-Telefon: +90 536 299 13 24
-WhatsApp Hattı: +90 533 322 13 24
+WhatsApp Otomasyon Hattı: +90 536 299 13 24
+WhatsApp Destek Hattı: +90 533 322 13 24
 Adres: Abdurrahman Nafiz Gürman Mahallesi, Kınalıtepe Sokak, Simitaş 8 Blok No: 1, İç Kapı No: 311, Güngören / İstanbul
 ''',
   ),
@@ -191,8 +191,8 @@ MERSİS No: 0898132285200001
 Adres: Abdurrahman Nafiz Gürman Mahallesi, Kınalıtepe Sokak, Simitaş 8 Blok No: 1, İç Kapı No: 311, Güngören / İstanbul
 Web Sitesi: www.sofrasofra.com
 E-posta: info@sofrasofra.com
-Telefon: +90 536 299 13 24
-WhatsApp Hattı: +90 533 322 13 24
+WhatsApp Otomasyon Hattı: +90 536 299 13 24
+WhatsApp Destek Hattı: +90 533 322 13 24
 
 3. İşlenen Kişisel Veri Kategorileri
 
@@ -345,8 +345,8 @@ KVKK Aydınlatma Metni ve kişisel verilerin korunmasına ilişkin sorularınız
 
 UYBAT TEKNOLOJİ YAZILIM VE TİCARET LİMİTED ŞİRKETİ
 E-posta: info@sofrasofra.com
-Telefon: +90 536 299 13 24
-WhatsApp Hattı: +90 533 322 13 24
+WhatsApp Otomasyon Hattı: +90 536 299 13 24
+WhatsApp Destek Hattı: +90 533 322 13 24
 Adres: Abdurrahman Nafiz Gürman Mahallesi, Kınalıtepe Sokak, Simitaş 8 Blok No: 1, İç Kapı No: 311, Güngören / İstanbul
 ''',
   ),
@@ -376,8 +376,8 @@ MERSİS No: 0898132285200001
 Adres: Abdurrahman Nafiz Gürman Mahallesi, Kınalıtepe Sokak, Simitaş 8 Blok No: 1, İç Kapı No: 311, Güngören / İstanbul
 Web Sitesi: www.sofrasofra.com
 E-posta: info@sofrasofra.com
-Telefon: +90 536 299 13 24
-WhatsApp Hattı: +90 533 322 13 24
+WhatsApp Otomasyon Hattı: +90 536 299 13 24
+WhatsApp Destek Hattı: +90 533 322 13 24
 
 3. Çerez Nedir?
 
@@ -503,8 +503,8 @@ Sofrasofra tarafından kullanılan bazı teknik hizmet sağlayıcıları, bulut 
 
 UYBAT TEKNOLOJİ YAZILIM VE TİCARET LİMİTED ŞİRKETİ
 E-posta: info@sofrasofra.com
-Telefon: +90 536 299 13 24
-WhatsApp Hattı: +90 533 322 13 24
+WhatsApp Otomasyon Hattı: +90 536 299 13 24
+WhatsApp Destek Hattı: +90 533 322 13 24
 Adres: Abdurrahman Nafiz Gürman Mahallesi, Kınalıtepe Sokak, Simitaş 8 Blok No: 1, İç Kapı No: 311, Güngören / İstanbul
 
 14. Politika Değişiklikleri
@@ -733,8 +733,8 @@ Kullanım Koşulları’na ilişkin soru, talep ve bildirimler için aşağıdak
 
 UYBAT TEKNOLOJİ YAZILIM VE TİCARET LİMİTED ŞİRKETİ
 E-posta: info@sofrasofra.com
-Telefon: +90 536 299 13 24
-WhatsApp Hattı: +90 533 322 13 24
+WhatsApp Otomasyon Hattı: +90 536 299 13 24
+WhatsApp Destek Hattı: +90 533 322 13 24
 Adres: Abdurrahman Nafiz Gürman Mahallesi, Kınalıtepe Sokak, Simitaş 8 Blok No: 1, İç Kapı No: 311, Güngören / İstanbul
 ''',
   ),
@@ -759,8 +759,8 @@ MERSİS No: 0898132285200001
 Adres: Abdurrahman Nafiz Gürman Mahallesi, Kınalıtepe Sokak, Simitaş 8 Blok No: 1, İç Kapı No: 311, Güngören / İstanbul
 Web Sitesi: www.sofrasofra.com
 E-posta: info@sofrasofra.com
-Telefon: +90 536 299 13 24
-WhatsApp Hattı: +90 533 322 13 24
+WhatsApp Otomasyon Hattı: +90 536 299 13 24
+WhatsApp Destek Hattı: +90 533 322 13 24
 
 2. Sözleşmenin Konusu
 
@@ -935,8 +935,8 @@ Kullanıcı, platforma üye olarak, platformu kullanarak, sipariş vererek, baş
 
 UYBAT TEKNOLOJİ YAZILIM VE TİCARET LİMİTED ŞİRKETİ
 E-posta: info@sofrasofra.com
-Telefon: +90 536 299 13 24
-WhatsApp Hattı: +90 533 322 13 24
+WhatsApp Otomasyon Hattı: +90 536 299 13 24
+WhatsApp Destek Hattı: +90 533 322 13 24
 Adres: Abdurrahman Nafiz Gürman Mahallesi, Kınalıtepe Sokak, Simitaş 8 Blok No: 1, İç Kapı No: 311, Güngören / İstanbul
 ''',
   ),
@@ -961,8 +961,8 @@ MERSİS No: 0898132285200001
 Adres: Abdurrahman Nafiz Gürman Mahallesi, Kınalıtepe Sokak, Simitaş 8 Blok No: 1, İç Kapı No: 311, Güngören / İstanbul
 Web Sitesi: www.sofrasofra.com
 E-posta: info@sofrasofra.com
-Telefon: +90 536 299 13 24
-WhatsApp Hattı: +90 533 322 13 24
+WhatsApp Otomasyon Hattı: +90 536 299 13 24
+WhatsApp Destek Hattı: +90 533 322 13 24
 
 Alıcı:
 Sofrasofra platformu üzerinden ürün veya hizmet siparişi veren gerçek veya tüzel kişidir. Alıcıya ait ad, soyad/unvan, telefon, e-posta, teslimat adresi, fatura bilgileri ve sipariş detayları ilgili sipariş ekranlarında veya sistem kayıtlarında yer alır.
@@ -1152,8 +1152,8 @@ Mesafeli Satış Sözleşmesi’ne ilişkin soru, talep ve bildirimler için aş
 
 UYBAT TEKNOLOJİ YAZILIM VE TİCARET LİMİTED ŞİRKETİ
 E-posta: info@sofrasofra.com
-Telefon: +90 536 299 13 24
-WhatsApp Hattı: +90 533 322 13 24
+WhatsApp Otomasyon Hattı: +90 536 299 13 24
+WhatsApp Destek Hattı: +90 533 322 13 24
 Adres: Abdurrahman Nafiz Gürman Mahallesi, Kınalıtepe Sokak, Simitaş 8 Blok No: 1, İç Kapı No: 311, Güngören / İstanbul
 ''',
   ),
@@ -1185,8 +1185,8 @@ MERSİS No: 0898132285200001
 Adres: Abdurrahman Nafiz Gürman Mahallesi, Kınalıtepe Sokak, Simitaş 8 Blok No: 1, İç Kapı No: 311, Güngören / İstanbul
 Web Sitesi: www.sofrasofra.com
 E-posta: info@sofrasofra.com
-Telefon: +90 536 299 13 24
-WhatsApp Hattı: +90 533 322 13 24
+WhatsApp Otomasyon Hattı: +90 536 299 13 24
+WhatsApp Destek Hattı: +90 533 322 13 24
 
 3. Satıcı / Hizmet Sağlayıcı Bilgileri
 
@@ -1318,8 +1318,8 @@ Alıcı, platform üzerinden sipariş vererek işbu Ön Bilgilendirme Formu’nu
 
 UYBAT TEKNOLOJİ YAZILIM VE TİCARET LİMİTED ŞİRKETİ
 E-posta: info@sofrasofra.com
-Telefon: +90 536 299 13 24
-WhatsApp Hattı: +90 533 322 13 24
+WhatsApp Otomasyon Hattı: +90 536 299 13 24
+WhatsApp Destek Hattı: +90 533 322 13 24
 Adres: Abdurrahman Nafiz Gürman Mahallesi, Kınalıtepe Sokak, Simitaş 8 Blok No: 1, İç Kapı No: 311, Güngören / İstanbul
 ''',
   ),
@@ -1500,8 +1500,8 @@ Güncel Politika www.sofrasofra.com ve ilgili dijital kanallar üzerinden yayın
 
 UYBAT TEKNOLOJİ YAZILIM VE TİCARET LİMİTED ŞİRKETİ
 E-posta: info@sofrasofra.com
-Telefon: +90 536 299 13 24
-WhatsApp Hattı: +90 533 322 13 24
+WhatsApp Otomasyon Hattı: +90 536 299 13 24
+WhatsApp Destek Hattı: +90 533 322 13 24
 Adres: Abdurrahman Nafiz Gürman Mahallesi, Kınalıtepe Sokak, Simitaş 8 Blok No: 1, İç Kapı No: 311, Güngören / İstanbul
 ''',
   ),
@@ -1532,8 +1532,8 @@ MERSİS No: 0898132285200001
 Adres: Abdurrahman Nafiz Gürman Mahallesi, Kınalıtepe Sokak, Simitaş 8 Blok No: 1, İç Kapı No: 311, Güngören / İstanbul
 Web Sitesi: www.sofrasofra.com
 E-posta: info@sofrasofra.com
-Telefon: +90 536 299 13 24
-WhatsApp Hattı: +90 533 322 13 24
+WhatsApp Otomasyon Hattı: +90 536 299 13 24
+WhatsApp Destek Hattı: +90 533 322 13 24
 
 3. Açık Rıza Gerektirebilecek İşleme Faaliyetleri
 
@@ -1651,8 +1651,8 @@ Açık rızaya ilişkin talepler, rızanın geri alınması, kişisel verilerin 
 
 UYBAT TEKNOLOJİ YAZILIM VE TİCARET LİMİTED ŞİRKETİ
 E-posta: info@sofrasofra.com
-Telefon: +90 536 299 13 24
-WhatsApp Hattı: +90 533 322 13 24
+WhatsApp Otomasyon Hattı: +90 536 299 13 24
+WhatsApp Destek Hattı: +90 533 322 13 24
 Adres: Abdurrahman Nafiz Gürman Mahallesi, Kınalıtepe Sokak, Simitaş 8 Blok No: 1, İç Kapı No: 311, Güngören / İstanbul
 
 14. Metin Değişiklikleri
@@ -1687,8 +1687,8 @@ MERSİS No: 0898132285200001
 Adres: Abdurrahman Nafiz Gürman Mahallesi, Kınalıtepe Sokak, Simitaş 8 Blok No: 1, İç Kapı No: 311, Güngören / İstanbul
 Web Sitesi: www.sofrasofra.com
 E-posta: info@sofrasofra.com
-Telefon: +90 536 299 13 24
-WhatsApp Hattı: +90 533 322 13 24
+WhatsApp Otomasyon Hattı: +90 536 299 13 24
+WhatsApp Destek Hattı: +90 533 322 13 24
 
 3. Ticari Elektronik İleti Nedir?
 
@@ -1809,8 +1809,8 @@ Ticari elektronik ileti onayı, ret/çıkış talepleri ve kişisel verilerin ko
 
 UYBAT TEKNOLOJİ YAZILIM VE TİCARET LİMİTED ŞİRKETİ
 E-posta: info@sofrasofra.com
-Telefon: +90 536 299 13 24
-WhatsApp Hattı: +90 533 322 13 24
+WhatsApp Otomasyon Hattı: +90 536 299 13 24
+WhatsApp Destek Hattı: +90 533 322 13 24
 Adres: Abdurrahman Nafiz Gürman Mahallesi, Kınalıtepe Sokak, Simitaş 8 Blok No: 1, İç Kapı No: 311, Güngören / İstanbul
 
 15. Onay Beyanı
@@ -1852,8 +1852,8 @@ MERSİS No: 0898132285200001
 Adres: Abdurrahman Nafiz Gürman Mahallesi, Kınalıtepe Sokak, Simitaş 8 Blok No: 1, İç Kapı No: 311, Güngören / İstanbul
 Web Sitesi: www.sofrasofra.com
 E-posta: info@sofrasofra.com
-Telefon: +90 536 299 13 24
-WhatsApp Hattı: +90 533 322 13 24
+WhatsApp Otomasyon Hattı: +90 536 299 13 24
+WhatsApp Destek Hattı: +90 533 322 13 24
 
 Hizmet Sağlayıcı / Satıcı:
 Sofrasofra platformuna Ev Lezzetleri üreticisi, Usta Şef, restoran, işletme, mutfak, profesyonel hizmet sağlayıcı veya benzeri sıfatla başvuru yapan, platformda profil açan veya ürün/hizmet sunan gerçek veya tüzel kişidir.
@@ -2049,8 +2049,8 @@ Ticari nitelikteki işlemler, hizmet sağlayıcı ilişkileri, komisyon, hak edi
 
 UYBAT TEKNOLOJİ YAZILIM VE TİCARET LİMİTED ŞİRKETİ
 E-posta: info@sofrasofra.com
-Telefon: +90 536 299 13 24
-WhatsApp Hattı: +90 533 322 13 24
+WhatsApp Otomasyon Hattı: +90 536 299 13 24
+WhatsApp Destek Hattı: +90 533 322 13 24
 Adres: Abdurrahman Nafiz Gürman Mahallesi, Kınalıtepe Sokak, Simitaş 8 Blok No: 1, İç Kapı No: 311, Güngören / İstanbul
 ''',
   ),
@@ -2081,8 +2081,8 @@ MERSİS No: 0898132285200001
 Adres: Abdurrahman Nafiz Gürman Mahallesi, Kınalıtepe Sokak, Simitaş 8 Blok No: 1, İç Kapı No: 311, Güngören / İstanbul
 Web Sitesi: www.sofrasofra.com
 E-posta: info@sofrasofra.com
-Telefon: +90 536 299 13 24
-WhatsApp Hattı: +90 533 322 13 24
+WhatsApp Otomasyon Hattı: +90 536 299 13 24
+WhatsApp Destek Hattı: +90 533 322 13 24
 
 Kurye:
 Sofrasofra platformuna kurye olarak başvuru yapan, teslimat görevi alan, görev takibi yapan veya teslimat operasyonuna dahil olan gerçek kişiyi ifade eder.
@@ -2252,8 +2252,8 @@ Kurye Hizmet Koşulları’na ilişkin soru, talep ve bildirimler için aşağı
 
 UYBAT TEKNOLOJİ YAZILIM VE TİCARET LİMİTED ŞİRKETİ
 E-posta: info@sofrasofra.com
-Telefon: +90 536 299 13 24
-WhatsApp Hattı: +90 533 322 13 24
+WhatsApp Otomasyon Hattı: +90 536 299 13 24
+WhatsApp Destek Hattı: +90 533 322 13 24
 Adres: Abdurrahman Nafiz Gürman Mahallesi, Kınalıtepe Sokak, Simitaş 8 Blok No: 1, İç Kapı No: 311, Güngören / İstanbul
 ''',
   ),
@@ -2283,8 +2283,8 @@ MERSİS No: 0898132285200001
 Adres: Abdurrahman Nafiz Gürman Mahallesi, Kınalıtepe Sokak, Simitaş 8 Blok No: 1, İç Kapı No: 311, Güngören / İstanbul
 Web Sitesi: www.sofrasofra.com
 E-posta: info@sofrasofra.com
-Telefon: +90 536 299 13 24
-WhatsApp Hattı: +90 533 322 13 24
+WhatsApp Otomasyon Hattı: +90 536 299 13 24
+WhatsApp Destek Hattı: +90 533 322 13 24
 
 3. Başvuru Kapsamındaki Kişiler
 
@@ -2453,8 +2453,8 @@ Başvuruda ad, soyad, iletişim bilgisi, talep konusu ve başvurucunun kimliğin
 
 UYBAT TEKNOLOJİ YAZILIM VE TİCARET LİMİTED ŞİRKETİ
 E-posta: info@sofrasofra.com
-Telefon: +90 536 299 13 24
-WhatsApp Hattı: +90 533 322 13 24
+WhatsApp Otomasyon Hattı: +90 536 299 13 24
+WhatsApp Destek Hattı: +90 533 322 13 24
 Adres: Abdurrahman Nafiz Gürman Mahallesi, Kınalıtepe Sokak, Simitaş 8 Blok No: 1, İç Kapı No: 311, Güngören / İstanbul
 
 16. Metin Değişiklikleri
@@ -2487,8 +2487,8 @@ MERSİS No: 0898132285200001
 Adres: Abdurrahman Nafiz Gürman Mahallesi, Kınalıtepe Sokak, Simitaş 8 Blok No: 1, İç Kapı No: 311, Güngören / İstanbul
 Web Sitesi: www.sofrasofra.com
 E-posta: info@sofrasofra.com
-Telefon: +90 536 299 13 24
-WhatsApp Hattı: +90 533 322 13 24
+WhatsApp Otomasyon Hattı: +90 536 299 13 24
+WhatsApp Destek Hattı: +90 533 322 13 24
 
 3. İçerik Kapsamı
 
@@ -2650,8 +2650,8 @@ Fotoğraf, Video ve İçerik Yayın İzni’ne ilişkin soru, talep, itiraz, kal
 
 UYBAT TEKNOLOJİ YAZILIM VE TİCARET LİMİTED ŞİRKETİ
 E-posta: info@sofrasofra.com
-Telefon: +90 536 299 13 24
-WhatsApp Hattı: +90 533 322 13 24
+WhatsApp Otomasyon Hattı: +90 536 299 13 24
+WhatsApp Destek Hattı: +90 533 322 13 24
 Adres: Abdurrahman Nafiz Gürman Mahallesi, Kınalıtepe Sokak, Simitaş 8 Blok No: 1, İç Kapı No: 311, Güngören / İstanbul
 
 20. Metin Değişiklikleri

@@ -211,8 +211,8 @@ class _CompanyInfoBlock extends StatelessWidget {
         'UYBAT TEKNOLOJİ YAZILIM VE TİCARET LİMİTED ŞİRKETİ\n'
         'Web: www.sofrasofra.com\n'
         'E-posta: info@sofrasofra.com\n'
-        'Telefon: +90 536 299 13 24\n'
-        'WhatsApp: +90 533 322 13 24\n'
+        'WhatsApp Otomasyon Hattı: +90 536 299 13 24\n'
+        'WhatsApp Destek Hattı: +90 533 322 13 24\n'
         'Adres: Abdurrahman Nafiz Gürman Mahallesi, Kınalıtepe Sokak, '
         'Simitaş 8 Blok No: 1, İç Kapı No: 311, Güngören / İstanbul',
         style: TextStyle(
