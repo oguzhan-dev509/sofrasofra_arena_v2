@@ -5,6 +5,7 @@ import 'package:sofrasofra_arena_v2/modules/restoranlar/restoran_detay_sayfasi.d
 import 'package:sofrasofra_arena_v2/modules/vitrinler/ev_lezzetleri_vitrini.dart';
 import 'package:sofrasofra_arena_v2/modules/vitrinler/sef_vitrini_v2.dart';
 import 'package:sofrasofra_arena_v2/modules/vitrinler/restoranlar_vitrini.dart';
+import 'package:sofrasofra_arena_v2/modules/urun_detay.dart';
 
 class SofrasofraPazaryeriVitrini extends StatelessWidget {
   const SofrasofraPazaryeriVitrini({super.key});
@@ -703,7 +704,26 @@ class _MarketProductCard extends StatelessWidget {
       );
       return;
     }
-
+    if (targetType == 'ev_product' && targetId.isNotEmpty) {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) => UrunDetaySayfasi(
+            urunAdi: item.name,
+            urunFiyat: item.price,
+            urunGorsel: item.imageUrl,
+            aciklama: item.description,
+            dukkanAdi: item.category,
+            konum: 'İstanbul',
+            youtubeUrl: '',
+            urunGorseller: [item.imageUrl],
+            productId: targetId,
+            sellerId: item.sellerId.isNotEmpty ? item.sellerId : targetId,
+            kategori: 'Ev Lezzetleri',
+          ),
+        ),
+      );
+      return;
+    }
     Widget page;
 
     switch (item.section) {
@@ -1444,6 +1464,7 @@ class _MarketItem {
     this.targetType = '',
     this.targetId = '',
     this.sponsored = false,
+    this.sellerId = '',
   });
 
   final String category;
@@ -1459,6 +1480,7 @@ class _MarketItem {
   final int order;
   final String targetType;
   final String targetId;
+  final String sellerId;
   final bool sponsored;
 
   static _MarketItem? fromFirestore(Map<String, dynamic> data) {
@@ -1490,6 +1512,7 @@ class _MarketItem {
       imageUrl: imageUrl,
       order: _intFromValue(data['order'], fallback: 999),
       targetType: (data['targetType'] ?? '').toString(),
+      sellerId: (data['sellerId'] ?? data['dukkanId'] ?? '').toString(),
       targetId: (data['targetId'] ?? '').toString(),
       sponsored: data['sponsored'] == true,
     );
