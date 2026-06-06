@@ -14,9 +14,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:sofrasofra_arena_v2/modules/widgets/chef_reviews_section.dart';
 import 'package:sofrasofra_arena_v2/modules/widgets/sef_membership_card.dart';
 import 'package:sofrasofra_arena_v2/modules/sef_vitrin_icerik_yonetimi.dart';
-
-import 'package:sofrasofra_arena_v2/modules/widgets/chef_gallery_sales_bridge.dart';
 import 'package:sofrasofra_arena_v2/modules/widgets/chef_gallery_price_strip.dart';
+import 'package:sofrasofra_arena_v2/modules/widgets/chef_gallery_sales_bridge.dart';
 
 class SefItibarSayfasi extends StatefulWidget {
   final String dukkanId;
@@ -662,41 +661,6 @@ class _SefItibarSayfasiState extends State<SefItibarSayfasi> {
               // const ChipLabel('Kurumsal Davetler'),
             ],
           ),
-          const SizedBox(height: 14),
-          RichText(
-            text: const TextSpan(
-              children: [
-                TextSpan(
-                  text: 'Rezervasyon oluşturmak için ',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 15.5,
-                    height: 1.6,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                TextSpan(
-                  text: 'Şefin Masası',
-                  style: TextStyle(
-                    color: Color(0xFFFFB300),
-                    fontSize: 15.5,
-                    height: 1.6,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-                TextSpan(
-                  text: "'na tıklayın.",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 15.5,
-                    height: 1.6,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 6),
         ],
       ),
     );
@@ -704,14 +668,34 @@ class _SefItibarSayfasiState extends State<SefItibarSayfasi> {
 
 // ignore: unused_element
   Widget _buildCurriculumSection() {
-    return const SectionCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SectionTitleText('AKADEMİ MÜFREDATI'),
-          SizedBox(height: 14),
-          SefAkademiSection(),
-        ],
+    return SectionCard(
+      child: Theme(
+        data: Theme.of(context).copyWith(
+          dividerColor: Colors.transparent,
+        ),
+        child: ExpansionTile(
+          tilePadding: EdgeInsets.zero,
+          childrenPadding: EdgeInsets.zero,
+          iconColor: const Color(0xFFFFB300),
+          collapsedIconColor: const Color(0xFFFFB300),
+          initiallyExpanded: false,
+          title: const SectionTitleText('AKADEMİ MÜFREDATI'),
+          subtitle: const Padding(
+            padding: EdgeInsets.only(top: 8),
+            child: Text(
+              'Ders başlıklarını görmek için tıklayın.',
+              style: TextStyle(
+                color: Colors.white54,
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+          children: const [
+            SizedBox(height: 14),
+            SefAkademiSection(),
+          ],
+        ),
       ),
     );
   }
@@ -759,64 +743,44 @@ class _SefItibarSayfasiState extends State<SefItibarSayfasi> {
               ),
             ),
             if (widget.isAdmin)
-              GestureDetector(
-                onTap: _addGalleryImage,
-                child: Container(
+              ElevatedButton.icon(
+                onPressed: _addGalleryImage,
+                icon: const Icon(Icons.add_photo_alternate_outlined, size: 18),
+                label: const Text('Fotoğraf Ekle'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: gold,
+                  foregroundColor: Colors.black,
                   padding: const EdgeInsets.symmetric(
                     horizontal: 14,
                     vertical: 10,
                   ),
-                  decoration: BoxDecoration(
-                    color: gold,
+                  shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(999),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.25),
-                        blurRadius: 12,
-                        offset: const Offset(0, 6),
-                      ),
-                    ],
                   ),
-                  child: const Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        Icons.add_photo_alternate_outlined,
-                        color: Colors.black,
-                        size: 17,
-                      ),
-                      SizedBox(width: 6),
-                      Text(
-                        'Fotoğraf Ekle',
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w900,
-                        ),
-                      ),
-                    ],
+                  textStyle: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w900,
                   ),
                 ),
               ),
           ],
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 14),
         if (gallery.isEmpty)
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.symmetric(vertical: 28, horizontal: 18),
+            padding: const EdgeInsets.all(18),
             decoration: BoxDecoration(
-              color: const Color(0xFF101010),
+              color: const Color(0xFF111111),
               borderRadius: BorderRadius.circular(18),
               border: Border.all(color: Colors.white10),
             ),
-            child: Text(
-              widget.isAdmin
-                  ? 'Henüz galeri fotoğrafı yok. Sağdaki butonla ilk fotoğrafı ekleyebilirsin.'
-                  : 'Henüz galeri fotoğrafı yok.',
-              style: const TextStyle(
-                color: Colors.white54,
-                fontSize: 12,
+            child: const Text(
+              'Henüz galeri fotoğrafı eklenmemiş.',
+              style: TextStyle(
+                color: Colors.white70,
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
               ),
             ),
           )
@@ -887,6 +851,33 @@ class _SefItibarSayfasiState extends State<SefItibarSayfasi> {
                                     ),
                                   ),
                                 ),
+                                Positioned(
+                                  left: 7,
+                                  bottom: 42,
+                                  child: GestureDetector(
+                                    behavior: HitTestBehavior.opaque,
+                                    onTap: () => _openImage(url),
+                                    child: Container(
+                                      width: 30,
+                                      height: 30,
+                                      alignment: Alignment.center,
+                                      decoration: BoxDecoration(
+                                        color: Colors.black
+                                            .withValues(alpha: 0.58),
+                                        shape: BoxShape.circle,
+                                        border: Border.all(
+                                          color: Colors.white
+                                              .withValues(alpha: 0.16),
+                                        ),
+                                      ),
+                                      child: const Icon(
+                                        Icons.visibility_rounded,
+                                        color: Colors.white,
+                                        size: 17,
+                                      ),
+                                    ),
+                                  ),
+                                ),
                                 Container(
                                   decoration: BoxDecoration(
                                     border: Border.all(
@@ -925,8 +916,13 @@ class _SefItibarSayfasiState extends State<SefItibarSayfasi> {
                         ),
                       ),
                       const SizedBox(height: 6),
+                      ChefGalleryPriceStrip(
+                        chefId: _chefId,
+                        imageUrl: url,
+                      ),
+                      const SizedBox(height: 4),
                       SizedBox(
-                        height: 58,
+                        height: 64,
                         width: double.infinity,
                         child: ChefGallerySalesActions(
                           chefId: _chefId,
@@ -1234,6 +1230,13 @@ class _SefItibarSayfasiState extends State<SefItibarSayfasi> {
                         ),
                         const SizedBox(height: 18),
                       ],
+                      SectionCard(
+                        child: _buildGallerySection(gallery),
+                      ),
+                      const SizedBox(height: 18),
+                      const SectionCard(
+                        child: _SizedImzaSectionPlaceholder(),
+                      ),
                       const SizedBox(height: 18),
                       _buildQuickActionsContent(displayName),
                       const SizedBox(height: 18),
@@ -1249,14 +1252,6 @@ class _SefItibarSayfasiState extends State<SefItibarSayfasi> {
                         child: ChefReviewsSection(
                           chefId: _chefId,
                         ),
-                      ),
-                      const SizedBox(height: 18),
-                      SectionCard(
-                        child: _buildGallerySection(gallery),
-                      ),
-                      const SizedBox(height: 18),
-                      const SectionCard(
-                        child: _SizedImzaSectionPlaceholder(),
                       ),
                     ],
                   ),
@@ -1501,4 +1496,3 @@ class NetworkImageWidget extends StatelessWidget {
     );
   }
 }
-
