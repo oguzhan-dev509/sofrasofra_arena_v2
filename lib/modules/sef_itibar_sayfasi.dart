@@ -852,14 +852,14 @@ class _SefItibarSayfasiState extends State<SefItibarSayfasi> {
                                   ),
                                 ),
                                 Positioned(
-                                  left: 7,
-                                  bottom: 42,
+                                  left: 8,
+                                  top: 8,
                                   child: GestureDetector(
                                     behavior: HitTestBehavior.opaque,
                                     onTap: () => _openImage(url),
                                     child: Container(
-                                      width: 30,
-                                      height: 30,
+                                      width: 34,
+                                      height: 34,
                                       alignment: Alignment.center,
                                       decoration: BoxDecoration(
                                         color: Colors.black

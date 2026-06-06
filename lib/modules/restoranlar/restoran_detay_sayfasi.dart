@@ -11,6 +11,7 @@ import 'widgets/restoran_status_badge.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:sofrasofra_arena_v2/modules/restoranlar/restoran_siparis_yonetimi_sayfasi.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class RestoranDetaySayfasi extends StatelessWidget {
   const RestoranDetaySayfasi({
@@ -61,11 +62,9 @@ class RestoranDetaySayfasi extends StatelessWidget {
         padding: const EdgeInsets.fromLTRB(18, 18, 18, 34),
         children: [
           _CoverSection(restaurant: restaurant),
-          const SizedBox(height: 18),
-          _InfoSection(restaurant: restaurant),
-          const SizedBox(height: 18),
-          _LaunchNotice(restaurant: restaurant),
-          const SizedBox(height: 18),
+          const SizedBox(height: 12),
+          _RestaurantTitleStrip(restaurant: restaurant),
+          const SizedBox(height: 14),
           FutureBuilder<bool>(
             future: PlatformAdminService.isCurrentUserPlatformAdmin(),
             builder: (context, snapshot) {
@@ -77,6 +76,12 @@ class RestoranDetaySayfasi extends StatelessWidget {
               );
             },
           ),
+          const SizedBox(height: 18),
+          _InfoSection(restaurant: restaurant),
+          const SizedBox(height: 18),
+          _LaunchNotice(restaurant: restaurant),
+          const SizedBox(height: 18),
+          _RestaurantReviewsPlaceholder(restaurantId: restaurant.id),
         ],
       ),
     );
@@ -164,6 +169,37 @@ class _CoverSection extends StatelessWidget {
   }
 }
 
+class _RestaurantTitleStrip extends StatelessWidget {
+  const _RestaurantTitleStrip({required this.restaurant});
+
+  final RestoranModel restaurant;
+
+  static const Color _gold = Color(0xFFFFB300);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.045),
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(
+          color: _gold.withValues(alpha: 0.20),
+        ),
+      ),
+      child: Text(
+        restaurant.name,
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 28,
+          height: 1.10,
+          fontWeight: FontWeight.w900,
+        ),
+      ),
+    );
+  }
+}
+
 class _InfoSection extends StatelessWidget {
   const _InfoSection({required this.restaurant});
 
@@ -185,16 +221,6 @@ class _InfoSection extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            restaurant.name,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 26,
-              height: 1.12,
-              fontWeight: FontWeight.w900,
-            ),
-          ),
-          const SizedBox(height: 10),
           Text(
             restaurant.description,
             style: const TextStyle(
@@ -234,6 +260,234 @@ class _InfoSection extends StatelessWidget {
             ],
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _RestaurantReviewsPlaceholder extends StatefulWidget {
+  const _RestaurantReviewsPlaceholder({
+    required this.restaurantId,
+  });
+
+  final String restaurantId;
+
+  @override
+  State<_RestaurantReviewsPlaceholder> createState() =>
+      _RestaurantReviewsPlaceholderState();
+}
+
+class _RestaurantReviewsPlaceholderState
+    extends State<_RestaurantReviewsPlaceholder> {
+  static const Color _gold = Color(0xFFFFB300);
+
+  final TextEditingController _commentController = TextEditingController();
+  bool _isSaving = false;
+
+  @override
+  void dispose() {
+    _commentController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _saveReview() async {
+    final comment = _commentController.text.trim();
+
+    if (comment.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Lütfen yorumunuzu yazın.'),
+        ),
+      );
+      return;
+    }
+
+    setState(() => _isSaving = true);
+
+    try {
+      await FirebaseFirestore.instance
+          .collection('restaurants')
+          .doc(widget.restaurantId)
+          .collection('reviews')
+          .add({
+        'comment': comment,
+        'status': 'pending',
+        'source': 'restaurant_detail_page',
+        'createdAt': FieldValue.serverTimestamp(),
+      });
+
+      _commentController.clear();
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Yorumunuz alındı. İnceleme sonrası yayınlanacaktır.'),
+        ),
+      );
+    } catch (error) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Yorum kaydedilemedi: $error'),
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() => _isSaving = false);
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.045),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(
+          color: _gold.withValues(alpha: 0.20),
+        ),
+      ),
+      child: Theme(
+        data: Theme.of(context).copyWith(
+          dividerColor: Colors.transparent,
+        ),
+        child: ExpansionTile(
+          tilePadding: const EdgeInsets.symmetric(
+            horizontal: 18,
+            vertical: 6,
+          ),
+          childrenPadding: const EdgeInsets.fromLTRB(18, 0, 18, 18),
+          iconColor: _gold,
+          collapsedIconColor: _gold,
+          initiallyExpanded: false,
+          leading: const Icon(
+            Icons.reviews_outlined,
+            color: _gold,
+            size: 22,
+          ),
+          title: const Text(
+            'Restoran Yorumları',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 18,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+          subtitle: const Padding(
+            padding: EdgeInsets.only(top: 6),
+            child: Text(
+              'Yorum yazmak ve yorumları görmek için tıklayın.',
+              style: TextStyle(
+                color: Colors.white54,
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+          children: [
+            const Text(
+              'Müşteri yorumları bu alanda görünecek. İlk fazda restoran deneyimi ve ürün memnuniyeti yorumları burada yayınlanacaktır.',
+              style: TextStyle(
+                color: Colors.white70,
+                fontSize: 13.8,
+                height: 1.45,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: 14),
+            TextField(
+              controller: _commentController,
+              maxLines: 3,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+              ),
+              decoration: InputDecoration(
+                hintText: 'Bu restoran hakkındaki yorumunuzu yazın...',
+                hintStyle: const TextStyle(
+                  color: Colors.white38,
+                  fontSize: 13.5,
+                ),
+                filled: true,
+                fillColor: Colors.white.withValues(alpha: 0.045),
+                contentPadding: const EdgeInsets.all(14),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  borderSide: BorderSide(
+                    color: Colors.white.withValues(alpha: 0.12),
+                  ),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  borderSide: const BorderSide(
+                    color: _gold,
+                    width: 1.2,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                onPressed: _isSaving ? null : _saveReview,
+                icon: _isSaving
+                    ? const SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: _gold,
+                        ),
+                      )
+                    : const Icon(
+                        Icons.send_outlined,
+                        size: 18,
+                        color: _gold,
+                      ),
+                label: Text(
+                  _isSaving ? 'Kaydediliyor...' : 'Yorumu Gönder',
+                  style: const TextStyle(
+                    color: _gold,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+                style: OutlinedButton.styleFrom(
+                  side: const BorderSide(color: _gold),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                ),
+              ),
+            ),
+            const SizedBox(height: 14),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.04),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: Colors.white.withValues(alpha: 0.10),
+                ),
+              ),
+              child: const Text(
+                'Henüz yayınlanmış yorum yok. İlk müşteri yorumları inceleme sonrası burada görünecek.',
+                style: TextStyle(
+                  color: Colors.white60,
+                  fontSize: 13.5,
+                  height: 1.45,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -336,6 +590,73 @@ class _MenuPreviewSection extends StatelessWidget {
     ];
   }
 
+  Future<bool> _showSingleSellerCartDialog(BuildContext context) async {
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          backgroundColor: const Color(0xFF111111),
+          title: const Text(
+            'Sepetinde başka bir mutfak var',
+            style: TextStyle(
+              color: _gold,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+          content: const Text(
+            'Aynı anda yalnızca tek mutfaktan sipariş verebilirsin. '
+            'Devam etmek için mevcut sepeti temizleyelim mi?',
+            style: TextStyle(
+              color: Colors.white70,
+              height: 1.45,
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext, false),
+              child: const Text('Vazgeç'),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.pop(dialogContext, true),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: _gold,
+                foregroundColor: Colors.black,
+              ),
+              child: const Text(
+                'Temizle ve Ekle',
+                style: TextStyle(fontWeight: FontWeight.w900),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+
+    return result == true;
+  }
+
+  Future<void> _clearCurrentUserCart() async {
+    final user = FirebaseAuth.instance.currentUser;
+
+    if (user == null) {
+      throw Exception('Kullanıcı oturumu bulunamadı');
+    }
+
+    final sepetRef =
+        FirebaseFirestore.instance.collection('sepetler').doc(user.uid);
+
+    final itemsSnap = await sepetRef.collection('items').get();
+    final batch = FirebaseFirestore.instance.batch();
+
+    for (final doc in itemsSnap.docs) {
+      batch.delete(doc.reference);
+    }
+
+    batch.delete(sepetRef);
+
+    await batch.commit();
+  }
+
   Future<void> _sepeteRestoranUrunuEkle({
     required BuildContext context,
     required RestoranMenuItemModel item,
@@ -397,6 +718,39 @@ class _MenuPreviewSection extends StatelessWidget {
       debugPrintStack(stackTrace: stackTrace);
 
       if (!context.mounted) return;
+
+      final errorText = error.toString();
+
+      if (errorText.contains('tek satıcıdan')) {
+        final shouldClearCart = await _showSingleSellerCartDialog(context);
+
+        if (!context.mounted) return;
+
+        if (shouldClearCart) {
+          try {
+            await _clearCurrentUserCart();
+
+            if (!context.mounted) return;
+
+            await _sepeteRestoranUrunuEkle(
+              context: context,
+              item: item,
+              teslimatTipi: teslimatTipi,
+              imageUrl: imageUrl,
+            );
+          } catch (clearError) {
+            if (!context.mounted) return;
+
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Sepet temizlenemedi: $clearError'),
+              ),
+            );
+          }
+        }
+
+        return;
+      }
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -1369,71 +1723,54 @@ class _MenuPreviewSection extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 10),
-                  if (isAdmin)
-                    Wrap(
-                      spacing: 10,
-                      runSpacing: 10,
-                      children: [
-                        TextButton.icon(
-                          onPressed: () async {
-                            await _yeniMenuUrunuDialogAc(context: context);
-                          },
-                          icon: const Icon(
-                            Icons.add_circle_outline,
-                            color: _gold,
-                            size: 18,
-                          ),
-                          label: const Text(
-                            'Yeni Ürün',
-                            style: TextStyle(
-                              color: _gold,
-                              fontWeight: FontWeight.w900,
-                            ),
-                          ),
+              if (isAdmin) ...[
+                Wrap(
+                  spacing: 10,
+                  runSpacing: 10,
+                  children: [
+                    TextButton.icon(
+                      onPressed: () async {
+                        await _yeniMenuUrunuDialogAc(context: context);
+                      },
+                      icon: const Icon(
+                        Icons.add_circle_outline,
+                        color: _gold,
+                        size: 18,
+                      ),
+                      label: const Text(
+                        'Yeni Ürün',
+                        style: TextStyle(
+                          color: _gold,
+                          fontWeight: FontWeight.w900,
                         ),
-                        TextButton.icon(
-                          onPressed: () {
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (_) =>
-                                    const RestoranSiparisYonetimiSayfasi(),
-                              ),
-                            );
-                          },
-                          icon: const Icon(
-                            Icons.receipt_long_outlined,
-                            color: _gold,
-                            size: 18,
-                          ),
-                          label: const Text(
-                            'Restoran Siparişleri',
-                            style: TextStyle(
-                              color: _gold,
-                              fontWeight: FontWeight.w900,
-                            ),
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Text(
-                isAdmin
-                    ? 'Bu alan yalnızca platform adminleri tarafından görülür. Restoran menüsü, ürün fiyatları ve lansman öncesi sipariş altyapısı burada test edilecek.'
-                    : 'Restoran menüsü, Gel-Al ve Götür seçenekleriyle Sofrasofra’da siparişe hazırlanıyor.',
-                style: TextStyle(
-                  color: Colors.white70,
-                  fontSize: 13.5,
-                  height: 1.45,
-                  fontWeight: FontWeight.w600,
+                    TextButton.icon(
+                      onPressed: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) =>
+                                const RestoranSiparisYonetimiSayfasi(),
+                          ),
+                        );
+                      },
+                      icon: const Icon(
+                        Icons.receipt_long_outlined,
+                        color: _gold,
+                        size: 18,
+                      ),
+                      label: const Text(
+                        'Restoran Siparişleri',
+                        style: TextStyle(
+                          color: _gold,
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-              const SizedBox(height: 16),
+                const SizedBox(height: 12),
+              ],
               ...items.map(
                 (item) => RestoranMenuItemCard(
                   item: item,
