@@ -1270,12 +1270,6 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
                   const SizedBox(height: 14),
                   _buildMetaCard(),
                   const SizedBox(height: 14),
-                  _buildDescriptionCard(),
-                  const SizedBox(height: 18),
-                  ProductReviewsSection(
-                    productId: (widget.productId ?? '').trim(),
-                  ),
-                  const SizedBox(height: 14),
                   if (_galleryImageUrls.isNotEmpty) ...[
                     if (_canManageMedia) ...[
                       UrunDetayMediaAdminPanel(
@@ -1291,6 +1285,12 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
                     const SizedBox(height: 14),
                   ],
                   _buildQuantityCard(),
+                  const SizedBox(height: 18),
+                  _buildDescriptionCard(),
+                  const SizedBox(height: 18),
+                  ProductReviewsSection(
+                    productId: (widget.productId ?? '').trim(),
+                  ),
                 ],
               ),
             ),
