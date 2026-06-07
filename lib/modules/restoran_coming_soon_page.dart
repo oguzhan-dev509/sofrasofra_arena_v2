@@ -10,21 +10,20 @@ class RestoranComingSoonPage extends StatelessWidget {
     return Scaffold(
       body: Stack(
         children: [
-          /// 🔥 FULLSCREEN GÖRSEL
+          /// 🔥 RESTORAN LANSMAN ZEMİNİ
           Positioned.fill(
-            child: Image.asset(
-              'assets/restoranlar_kurye_lansman.png',
-              fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) {
-                return Container(
-                  color: Colors.black,
-                  alignment: Alignment.center,
-                  child: const Text(
-                    'Görsel yüklenemedi',
-                    style: TextStyle(color: Colors.white, fontSize: 20),
-                  ),
-                );
-              },
+            child: Container(
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Colors.black,
+                    Color(0xFF16110A),
+                    Colors.black,
+                  ],
+                ),
+              ),
             ),
           ),
 
