@@ -9,6 +9,7 @@ import 'package:sofrasofra_arena_v2/onboarding/profesyonel_isletme_basvuru_sayfa
 import 'package:sofrasofra_arena_v2/modules/kurumsal/sofrasofra_hukuki_index_sayfasi.dart';
 import 'package:sofrasofra_arena_v2/modules/kurumsal/kurumsal_bilgi_sayfasi.dart';
 import 'package:sofrasofra_arena_v2/modules/blog/blog_rehberler_sayfasi.dart';
+import 'package:sofrasofra_arena_v2/modules/kurumsal/mahalle_mutfak_kocu_basvuru_sayfasi.dart';
 
 class KurumsalFooterLinks extends StatelessWidget {
   const KurumsalFooterLinks({super.key});
@@ -182,32 +183,9 @@ class KurumsalFooterLinks extends StatelessWidget {
                     context,
                     const KuryeBasvuruSayfasi(),
                   ),
-              'Mahalle Mutfak Koçu Ol': () => _openInfoPage(
+              'Mahalle Mutfak Koçu Ol': () => _openPage(
                     context,
-                    title: 'Mahalle Mutfak Koçu Ol',
-                    description:
-                        'Mahallendeki üretici kadınlara, ev lezzetlerine ve yerel emeğe destek olmak istiyorsan Sofrasofra Mahalle Mutfak Koçu programına başvurabilirsin.',
-                    bullets: const [
-                      'Her mahallede güzel yemek yapan, el emeğiyle üreten, ailesine katkı sağlamak isteyen ama dijital dünyaya nasıl başlayacağını bilmeyen insanlar var.',
-                      'Sofrasofra Mahalle Mutfak Koçu, bu insanlara yol gösteren, onları doğru bilgiyle buluşturan ve mahallede üretim gücünü harekete geçiren güvenilir kişidir.',
-                      'Mahalle Mutfak Koçu; evde üretim yapmak isteyen kişileri Sofrasofra hakkında bilgilendirir, başvuru sürecinde doğru yönlendirme yapar, ürün fotoğrafı, açıklama, fiyatlandırma ve ilk vitrin hazırlığı konusunda destek olur.',
-                      'Koç, sadece başvuru getiren kişi değildir. Mahallede emeğin görünür olmasına aracılık eden yerel bir öncüdür.',
-                      'Mahalle Mutfak Koçu olmak için büyük sermaye gerekmez. Gerekli olan şey güven, emek, takip, insan ilişkileri ve mahallendeki üreticilere faydalı olma isteğidir.',
-                      'Kazanç Modeli:',
-                      'Onaylanan her gerçek üretici başvurusu için 100 TL prim verilir.',
-                      'Koçun yönlendirdiği üretici ilk başarılı satışını tamamladığında 250 TL ek başarı primi verilir.',
-                      'Aylık hedef bonusları: 5 onaylı üretici için 500 TL, 10 onaylı üretici ve en az 10 başarılı sipariş için 1.500 TL, 20 onaylı üretici ve en az 30 başarılı sipariş için 4.000 TL bonus uygulanır.',
-                      'Mahallede 50 başarılı sipariş hedefine ulaşan koçlar için 5.000 TL özel başarı bonusu değerlendirilir.',
-                      'Başarılı Mahalle Mutfak Koçları ilerleyen dönemde Kıdemli Mahalle Koçu, İlçe Mutfak Lideri veya Bölge Koordinatörü gibi daha geniş görevler için değerlendirilebilir.',
-                      'Güven ve sorumluluk ilkesi:',
-                      'Mahalle Mutfak Koçu, Sofrasofra adına üreticilerden para toplamaz. Üreticiden komisyon almaz. Başvuru, üyelik, ödeme ve resmi süreçler yalnızca Sofrasofra’nın dijital sistemi üzerinden yürütülür.',
-                      'Tüm prim ve ödüller; başvuruların gerçekliği, üreticinin onay durumu, siparişlerin başarıyla tamamlanması ve Sofrasofra hak ediş kontrolü sonrasında değerlendirilir.',
-                      'Başvuru ve detaylı bilgi için bizimle iletişime geçebilirsiniz.',
-                      'E-posta: info@sofrasofra.com',
-                      'WhatsApp Destek Hattı: +90 533 322 13 24',
-                      'Başvuruda ad soyad, şehir, ilçe, mahalle adı, telefon numarası, mahallendeki üretici adayları hakkında kısa bilgi ve neden Mahalle Mutfak Koçu olmak istediğinizi paylaşmanız yeterlidir.',
-                      'Mahallendeki emeği görünür kıl. Üreten insanlara destek ol. Sofrasofra Mahalle Mutfak Koçu ol.',
-                    ],
+                    const MahalleMutfakKocuBasvuruSayfasi(),
                   ),
             },
           ),

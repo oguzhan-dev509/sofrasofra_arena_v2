@@ -6,6 +6,7 @@ import 'package:sofrasofra_arena_v2/modules/vitrinler/ev_lezzetleri_vitrini.dart
 import 'package:sofrasofra_arena_v2/modules/vitrinler/sef_vitrini_v2.dart';
 import 'package:sofrasofra_arena_v2/modules/vitrinler/restoranlar_vitrini.dart';
 import 'package:sofrasofra_arena_v2/modules/urun_detay.dart';
+import 'package:sofrasofra_arena_v2/onboarding/profesyonel_isletme_basvuru_sayfasi.dart';
 
 class SofrasofraPazaryeriVitrini extends StatelessWidget {
   const SofrasofraPazaryeriVitrini({super.key});
@@ -269,147 +270,201 @@ class _HeroTextBlock extends StatelessWidget {
 }
 
 class _HeroVisualGrid extends StatelessWidget {
-  const _HeroVisualGrid({required this.isMobile});
+  const _HeroVisualGrid({
+    required this.isMobile,
+  });
 
   final bool isMobile;
 
   @override
   Widget build(BuildContext context) {
-    final height = isMobile ? 220.0 : 300.0;
+    final height = isMobile ? 320.0 : 370.0;
 
     return SizedBox(
+      width: double.infinity,
       height: height,
-      child: Row(
-        children: [
-          Expanded(
-            flex: 6,
-            child: _HeroImageCard(
-              title: 'Ev Mantısı',
-              subtitle: 'Ev Lezzetleri',
-              price: '₺180',
-              imageUrl:
-                  'https://images.unsplash.com/photo-1604909052743-94e838986d24?auto=format&fit=crop&w=900&q=80',
-              large: true,
+      child: _HeroRestaurantCampaignBanner(
+        isMobile: isMobile,
+        onTap: () {
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (_) => const ProfesyonelIsletmeBasvuruSayfasi(),
             ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            flex: 5,
-            child: Column(
-              children: const [
-                Expanded(
-                  child: _HeroImageCard(
-                    title: 'İmza Tabak',
-                    subtitle: 'Usta Şefler',
-                    price: '₺480’den başlayan',
-                    imageUrl:
-                        'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=900&q=80',
-                  ),
-                ),
-                SizedBox(height: 12),
-                Expanded(
-                  child: _HeroImageCard(
-                    title: 'Kaşarlı Pide',
-                    subtitle: 'Restoranlar',
-                    price: '₺170',
-                    imageUrl:
-                        'https://images.unsplash.com/photo-1633321702518-7feccafb94d5?auto=format&fit=crop&w=900&q=80',
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
+          );
+        },
       ),
     );
   }
 }
 
-class _HeroImageCard extends StatelessWidget {
-  const _HeroImageCard({
-    required this.title,
-    required this.subtitle,
-    required this.price,
-    required this.imageUrl,
-    this.large = false,
+class _HeroRestaurantCampaignBanner extends StatelessWidget {
+  const _HeroRestaurantCampaignBanner({
+    required this.isMobile,
+    required this.onTap,
   });
 
-  final String title;
-  final String subtitle;
-  final String price;
-  final String imageUrl;
-  final bool large;
+  final bool isMobile;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(22),
-      child: Stack(
-        fit: StackFit.expand,
-        children: [
-          Image.network(
-            imageUrl,
-            fit: BoxFit.cover,
-            errorBuilder: (context, error, stackTrace) {
-              return Container(
-                color: SofrasofraPazaryeriVitrini._panel,
-                child: const Icon(
-                  Icons.restaurant_rounded,
-                  color: SofrasofraPazaryeriVitrini._gold,
-                  size: 42,
-                ),
-              );
-            },
-          ),
-          Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  Colors.transparent,
-                  Colors.black.withValues(alpha: 0.88),
-                ],
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(24),
+        child: Ink(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(
+              color: SofrasofraPazaryeriVitrini._gold.withValues(
+                alpha: 0.62,
               ),
+              width: 1.3,
             ),
-          ),
-          Positioned(
-            left: 14,
-            right: 14,
-            bottom: 14,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  subtitle,
-                  style: const TextStyle(
-                    color: SofrasofraPazaryeriVitrini._gold,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  title,
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: large ? 22 : 16,
-                    fontWeight: FontWeight.w900,
-                  ),
-                ),
-                const SizedBox(height: 5),
-                Text(
-                  price,
-                  style: const TextStyle(
-                    color: Colors.white70,
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
+            gradient: const LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Color(0xFF49330A),
+                Color(0xFF211805),
+                Color(0xFF090909),
               ],
             ),
           ),
-        ],
+          child: Stack(
+            children: [
+              Positioned(
+                right: isMobile ? -24 : 20,
+                bottom: isMobile ? -20 : -12,
+                child: Icon(
+                  Icons.storefront_rounded,
+                  size: isMobile ? 150 : 220,
+                  color: SofrasofraPazaryeriVitrini._gold.withValues(
+                    alpha: 0.025,
+                  ),
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.all(isMobile ? 20 : 30),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Row(
+                      children: [
+                        Icon(
+                          Icons.workspace_premium_rounded,
+                          color: SofrasofraPazaryeriVitrini._gold,
+                          size: 23,
+                        ),
+                        SizedBox(width: 9),
+                        Expanded(
+                          child: Text(
+                            'KURUCU RESTORAN AVANTAJI',
+                            style: TextStyle(
+                              color: SofrasofraPazaryeriVitrini._gold,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w900,
+                              letterSpacing: 0.7,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: isMobile ? 14 : 20),
+                    Text(
+                      'İlk 100 restorana\n1 yıl üyelik ücretsiz',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: isMobile ? 25 : 34,
+                        height: 1.08,
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
+                    SizedBox(height: isMobile ? 12 : 16),
+                    Text(
+                      'Gel-Al ve Götür siparişlerini Sofrasofra’ya taşı.',
+                      style: TextStyle(
+                        color: Colors.white70,
+                        fontSize: isMobile ? 14 : 17,
+                        height: 1.4,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    SizedBox(height: isMobile ? 14 : 18),
+                    Row(
+                      children: [
+                        const Text(
+                          'Kalan kontenjan',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 18,
+                            vertical: 8,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.black.withValues(alpha: 0.28),
+                            borderRadius: BorderRadius.circular(14),
+                            border: Border.all(
+                              color: SofrasofraPazaryeriVitrini._gold,
+                              width: 1.2,
+                            ),
+                          ),
+                          child: const Text(
+                            '100',
+                            style: TextStyle(
+                              color: SofrasofraPazaryeriVitrini._gold,
+                              fontSize: 24,
+                              fontWeight: FontWeight.w900,
+                              letterSpacing: 1.2,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: isMobile ? 16 : 20),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 11,
+                      ),
+                      decoration: BoxDecoration(
+                        color: SofrasofraPazaryeriVitrini._gold,
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      child: const Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            'RESTORAN BAŞVURUSU',
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 12.5,
+                              fontWeight: FontWeight.w900,
+                            ),
+                          ),
+                          SizedBox(width: 7),
+                          Icon(
+                            Icons.arrow_forward_rounded,
+                            color: Colors.black,
+                            size: 18,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

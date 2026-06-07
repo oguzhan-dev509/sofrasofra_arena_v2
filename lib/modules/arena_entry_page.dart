@@ -9,7 +9,7 @@ import 'package:sofrasofra_arena_v2/modules/widgets/kurumsal_footer_links.dart';
 import 'package:sofrasofra_arena_v2/modules/widgets/kurumsal_site_card.dart';
 import 'package:sofrasofra_arena_v2/onboarding/onayli_panel_yonlendirici.dart';
 import 'dart:convert';
-
+import 'package:sofrasofra_arena_v2/modules/kurumsal/mahalle_mutfak_kocu_basvuru_sayfasi.dart';
 import 'package:flutter/services.dart';
 
 class ArenaEntryPage extends StatefulWidget {
@@ -262,6 +262,7 @@ class _ArenaEntryPageState extends State<ArenaEntryPage> {
                   const SofrasofraPazaryeriVitrini(),
                   const SizedBox(height: 24),
                   Container(
+                    width: double.infinity,
                     padding: const EdgeInsets.all(24),
                     decoration: BoxDecoration(
                       color: _panel,
@@ -270,33 +271,95 @@ class _ArenaEntryPageState extends State<ArenaEntryPage> {
                         color: _gold,
                         width: 1.4,
                       ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: _gold.withValues(alpha: 0.08),
+                          blurRadius: 18,
+                          spreadRadius: 1,
+                        ),
+                      ],
                     ),
-                    child: const Column(
+                    child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          'SOFRASOFRA ARENA',
+                        const Row(
+                          children: [
+                            Icon(
+                              Icons.groups_rounded,
+                              color: _gold,
+                              size: 24,
+                            ),
+                            SizedBox(width: 10),
+                            Expanded(
+                              child: Text(
+                                'MAHALLE MUTFAK KOÇU OL',
+                                style: TextStyle(
+                                  color: _gold,
+                                  fontWeight: FontWeight.w900,
+                                  fontSize: 17,
+                                  letterSpacing: 0.5,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 14),
+                        const Text(
+                          'Ev Lezzetleri üreticilerini, Usta Şefleri ve mahalle restoranlarını Sofrasofra’ya kazandır.',
                           style: TextStyle(
-                            color: _gold,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 14,
+                            color: Colors.white,
+                            fontSize: 18,
+                            height: 1.35,
+                            fontWeight: FontWeight.w800,
                           ),
                         ),
-                        SizedBox(height: 12),
-                        Text(
-                          'Evde pişen emek, mahallede değer bulur.',
-                          style: TextStyle(
-                            color: Colors.white70,
-                            fontSize: 16,
-                            height: 1.4,
-                          ),
+                        const SizedBox(height: 16),
+                        Wrap(
+                          spacing: 10,
+                          runSpacing: 10,
+                          children: [
+                            _CoachRewardBadge(
+                              icon: Icons.verified_rounded,
+                              text: 'Onaylı başvuru: 100 TL',
+                            ),
+                            _CoachRewardBadge(
+                              icon: Icons.shopping_bag_rounded,
+                              text: 'İlk satış: +250 TL',
+                            ),
+                            _CoachRewardBadge(
+                              icon: Icons.workspace_premium_rounded,
+                              text: 'Aylık bonus ve ilçe liderliği',
+                            ),
+                          ],
                         ),
-                        SizedBox(height: 10),
-                        Text(
-                          'Sofrasofra Arena; Ev Lezzetleri, Usta Şefler, Restoranlar, Kurye Ağı ve Mahalle Mutfak Ağı’nı aynı güvenli gastronomi çatısı altında buluşturur.',
-                          style: TextStyle(
-                            color: _muted,
-                            fontSize: 16,
+                        const SizedBox(height: 20),
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton.icon(
+                            onPressed: () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (_) =>
+                                      const MahalleMutfakKocuBasvuruSayfasi(),
+                                ),
+                              );
+                            },
+                            icon: const Icon(Icons.arrow_forward_rounded),
+                            label: const Text(
+                              'HEMEN BAŞVUR',
+                              style: TextStyle(
+                                fontWeight: FontWeight.w900,
+                                letterSpacing: 0.4,
+                              ),
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: _gold,
+                              foregroundColor: Colors.black,
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(15),
+                              ),
+                            ),
                           ),
                         ),
                       ],
@@ -657,6 +720,54 @@ class _HomeBannerImage extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+class _CoachRewardBadge extends StatelessWidget {
+  const _CoachRewardBadge({
+    required this.icon,
+    required this.text,
+  });
+
+  final IconData icon;
+  final String text;
+
+  static const Color _gold = Color(0xFFFFD54F);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: 12,
+        vertical: 9,
+      ),
+      decoration: BoxDecoration(
+        color: _gold.withValues(alpha: 0.10),
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(
+          color: _gold.withValues(alpha: 0.34),
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            icon,
+            color: _gold,
+            size: 17,
+          ),
+          const SizedBox(width: 7),
+          Text(
+            text,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 12.5,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

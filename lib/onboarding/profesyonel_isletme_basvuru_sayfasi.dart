@@ -300,6 +300,7 @@ class _ProfesyonelIsletmeBasvuruSayfasiState
                   ),
                   const SizedBox(height: 20),
                   SizedBox(
+                    width: double.infinity,
                     height: 54,
                     child: ElevatedButton.icon(
                       onPressed: _saving ? null : _submit,
@@ -323,6 +324,8 @@ class _ProfesyonelIsletmeBasvuruSayfasiState
                       style: ElevatedButton.styleFrom(
                         backgroundColor: _gold,
                         foregroundColor: Colors.black,
+                        disabledBackgroundColor: Colors.grey,
+                        elevation: 0,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(18),
                         ),
