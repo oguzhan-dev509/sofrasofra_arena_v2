@@ -12,8 +12,14 @@ class RestoranService {
     return _db.collection('restaurants').snapshots().map((snapshot) {
       final restaurants = snapshot.docs
           .map((doc) => RestoranModel.fromMap(doc.id, doc.data()))
-          .where((restaurant) => restaurant.name.trim().isNotEmpty)
-          .toList();
+          .where((restaurant) {
+        final name = restaurant.name.trim();
+
+        return name.isNotEmpty &&
+            name != 'Mahallenin Pidecisi' &&
+            name != 'Mahalle Kebapçısı' &&
+            name != 'Mahallenin Kebapçısı';
+      }).toList();
 
       restaurants.sort((a, b) {
         if (a.isFounder != b.isFounder) {

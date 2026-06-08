@@ -12,6 +12,7 @@ class RestoranPremiumCard extends StatelessWidget {
     required this.preparationText,
     required this.ratingText,
     required this.serviceText,
+    required this.isOpen,
     required this.onTap,
   });
 
@@ -23,8 +24,8 @@ class RestoranPremiumCard extends StatelessWidget {
   final String preparationText;
   final String ratingText;
   final String serviceText;
+  final bool isOpen;
   final VoidCallback onTap;
-
   static const Color _gold = Color(0xFFFFB300);
   static const Color _card = Color(0xFF151515);
 
@@ -59,19 +60,46 @@ class RestoranPremiumCard extends StatelessWidget {
                 fit: StackFit.expand,
                 children: [
                   Positioned.fill(
-                    child: Container(
-                      decoration: const BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [
-                            Color(0xFF05080D),
-                            Color(0xFF071018),
-                            Color(0xFF101820),
-                          ],
-                        ),
-                      ),
-                    ),
+                    child: imageUrl.trim().isEmpty
+                        ? Container(
+                            decoration: const BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                                colors: [
+                                  Color(0xFF05080D),
+                                  Color(0xFF071018),
+                                  Color(0xFF101820),
+                                ],
+                              ),
+                            ),
+                          )
+                        : Image.network(
+                            imageUrl,
+                            fit: BoxFit.cover,
+                            filterQuality: FilterQuality.medium,
+                            errorBuilder: (context, error, stackTrace) {
+                              return Container(
+                                decoration: const BoxDecoration(
+                                  gradient: LinearGradient(
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                    colors: [
+                                      Color(0xFF05080D),
+                                      Color(0xFF071018),
+                                      Color(0xFF101820),
+                                    ],
+                                  ),
+                                ),
+                                alignment: Alignment.center,
+                                child: const Icon(
+                                  Icons.restaurant_rounded,
+                                  color: Colors.white24,
+                                  size: 54,
+                                ),
+                              );
+                            },
+                          ),
                   ),
                   DecoratedBox(
                     decoration: BoxDecoration(
@@ -92,15 +120,22 @@ class RestoranPremiumCard extends StatelessWidget {
                     child: Wrap(
                       spacing: 8,
                       runSpacing: 8,
-                      children: const [
-                        RestoranStatusBadge(
+                      children: [
+                        const RestoranStatusBadge(
                           label: 'Kurucu Restoran',
                           icon: Icons.workspace_premium,
                           isGold: true,
                         ),
-                        RestoranStatusBadge(
+                        const RestoranStatusBadge(
                           label: 'Lansmana Hazırlanıyor',
                           icon: Icons.lock_clock,
+                        ),
+                        RestoranStatusBadge(
+                          label: isOpen ? 'Açık' : 'Kapalı',
+                          icon: isOpen
+                              ? Icons.check_circle_rounded
+                              : Icons.cancel_rounded,
+                          isGold: isOpen,
                         ),
                       ],
                     ),
@@ -140,28 +175,33 @@ class RestoranPremiumCard extends StatelessWidget {
                     spacing: 8,
                     runSpacing: 8,
                     children: [
-                      RestoranStatusBadge(
-                        label: cuisine,
-                        icon: Icons.local_dining,
-                      ),
-                      RestoranStatusBadge(
-                        label: district,
-                        icon: Icons.location_on_outlined,
-                      ),
-                      RestoranStatusBadge(
-                        label: serviceText,
-                        icon: Icons.shopping_bag_outlined,
-                        isGold: true,
-                      ),
-                      RestoranStatusBadge(
-                        label: preparationText,
-                        icon: Icons.timer_outlined,
-                      ),
-                      RestoranStatusBadge(
-                        label: ratingText,
-                        icon: Icons.star_rounded,
-                        isGold: true,
-                      ),
+                      if (cuisine.trim().isNotEmpty)
+                        RestoranStatusBadge(
+                          label: cuisine,
+                          icon: Icons.local_dining,
+                        ),
+                      if (district.trim().isNotEmpty)
+                        RestoranStatusBadge(
+                          label: district,
+                          icon: Icons.location_on_outlined,
+                        ),
+                      if (serviceText.trim().isNotEmpty)
+                        RestoranStatusBadge(
+                          label: serviceText,
+                          icon: Icons.shopping_bag_outlined,
+                          isGold: true,
+                        ),
+                      if (preparationText.trim().isNotEmpty)
+                        RestoranStatusBadge(
+                          label: preparationText,
+                          icon: Icons.timer_outlined,
+                        ),
+                      if (ratingText.trim().isNotEmpty)
+                        RestoranStatusBadge(
+                          label: ratingText,
+                          icon: Icons.star_rounded,
+                          isGold: true,
+                        ),
                     ],
                   ),
                 ],

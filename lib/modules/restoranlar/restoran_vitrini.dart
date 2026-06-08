@@ -5,11 +5,46 @@ import 'models/restoran_model.dart';
 import 'restoran_detay_sayfasi.dart';
 import 'widgets/restoran_premium_card.dart';
 
-class PremiumRestoranVitrini extends StatelessWidget {
+class PremiumRestoranVitrini extends StatefulWidget {
   const PremiumRestoranVitrini({super.key});
 
+  @override
+  State<PremiumRestoranVitrini> createState() => _PremiumRestoranVitriniState();
+}
+
+class _PremiumRestoranVitriniState extends State<PremiumRestoranVitrini> {
   static const Color _gold = Color(0xFFFFB300);
   static const Color _bg = Color(0xFF050505);
+
+  static const List<String> _categories = [
+    'Tümü',
+    'Kebap & Izgara',
+    'Pide & Lahmacun',
+    'Döner',
+    'Burger',
+    'Pizza',
+    'Tavuk',
+    'Balık',
+    'Tatlı',
+    'Pastane & Fırın',
+    'Kahve',
+    'İçecek',
+  ];
+
+  final TextEditingController _searchController = TextEditingController();
+
+  String _searchQuery = '';
+  String _selectedCategory = 'Tümü';
+  bool _gelAlOnly = false;
+  bool _goturOnly = false;
+  bool _openOnly = false;
+  String _sortMode = 'varsayilan';
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
 
   static const List<RestoranModel> _demoRestaurants = [
     RestoranModel(
@@ -78,237 +113,477 @@ class PremiumRestoranVitrini extends StatelessWidget {
         builder: (context, snapshot) {
           final firestoreRestaurants = snapshot.data ?? const <RestoranModel>[];
 
-          final restaurants = firestoreRestaurants.isNotEmpty
+          final sourceRestaurants = firestoreRestaurants.isNotEmpty
               ? firestoreRestaurants
               : _demoRestaurants;
 
+          String normalizeSearchText(String value) {
+            return value
+                .toLowerCase()
+                .replaceAll('ı', 'i')
+                .replaceAll('ş', 's')
+                .replaceAll('ğ', 'g')
+                .replaceAll('ü', 'u')
+                .replaceAll('ö', 'o')
+                .replaceAll('ç', 'c')
+                .replaceAll(RegExp(r'[\s\-_•]+'), '');
+          }
+
+          final normalizedQuery = normalizeSearchText(_searchQuery);
+
+          final restaurants = sourceRestaurants.where((restaurant) {
+            final matchesCategory = _selectedCategory == 'Tümü' ||
+                restaurant.cuisine.trim().toLowerCase() ==
+                    _selectedCategory.toLowerCase();
+
+            final searchableText = normalizeSearchText(
+              [
+                restaurant.name,
+                restaurant.description,
+                restaurant.cuisine,
+                restaurant.city,
+                restaurant.district,
+                restaurant.serviceText,
+              ].join(' '),
+            );
+
+            final matchesSearch = normalizedQuery.isEmpty ||
+                searchableText.contains(normalizedQuery);
+
+            final matchesGelAl = !_gelAlOnly || restaurant.supportsGelAl;
+            final matchesGotur = !_goturOnly || restaurant.supportsGotur;
+            final matchesOpen = !_openOnly || restaurant.isOpen;
+            return matchesCategory &&
+                matchesSearch &&
+                matchesGelAl &&
+                matchesGotur;
+          }).toList();
+          int preparationMinutes(RestoranModel restaurant) {
+            final match = RegExp(r'\d+').firstMatch(restaurant.preparationText);
+
+            return int.tryParse(match?.group(0) ?? '') ?? 9999;
+          }
+
+          double ratingValue(RestoranModel restaurant) {
+            final normalized = restaurant.ratingText.replaceAll(',', '.');
+            final match = RegExp(r'\d+(?:\.\d+)?').firstMatch(normalized);
+
+            return double.tryParse(match?.group(0) ?? '') ?? 0;
+          }
+
+          if (_sortMode == 'en_hizli') {
+            restaurants.sort(
+              (a, b) => preparationMinutes(a).compareTo(preparationMinutes(b)),
+            );
+          } else if (_sortMode == 'en_yuksek_puan') {
+            restaurants.sort(
+              (a, b) => ratingValue(b).compareTo(ratingValue(a)),
+            );
+          }
           final showFallbackNotice =
               snapshot.hasError || firestoreRestaurants.isEmpty;
 
           return ListView(
             padding: const EdgeInsets.fromLTRB(18, 18, 18, 32),
             children: [
-              _HeroBlock(
-                onPremiumTap: restaurants.isEmpty
-                    ? null
-                    : () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (_) => RestoranDetaySayfasi(
-                              restaurant: restaurants.first,
-                            ),
-                          ),
-                        );
-                      },
+              const Text(
+                'Mahallendeki Restoranları Keşfet',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 24,
+                  fontWeight: FontWeight.w900,
+                ),
               ),
-              const SizedBox(height: 18),
-              const _RestaurantPricingSection(),
-              const SizedBox(height: 18),
-              const _RestaurantPartnerBanner(),
+              const SizedBox(height: 6),
+              const SizedBox(height: 16),
+              TextField(
+                controller: _searchController,
+                onChanged: (value) {
+                  setState(() {
+                    _searchQuery = value;
+                  });
+                },
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w700,
+                ),
+                decoration: InputDecoration(
+                  hintText: 'Restoran, kategori veya bölge ara…',
+                  hintStyle: const TextStyle(
+                    color: Colors.white54,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  prefixIcon: const Icon(
+                    Icons.search_rounded,
+                    color: _gold,
+                  ),
+                  suffixIcon: _searchQuery.isEmpty
+                      ? null
+                      : IconButton(
+                          tooltip: 'Aramayı temizle',
+                          onPressed: () {
+                            _searchController.clear();
+                            setState(() {
+                              _searchQuery = '';
+                            });
+                          },
+                          icon: const Icon(
+                            Icons.close_rounded,
+                            color: Colors.white70,
+                          ),
+                        ),
+                  filled: true,
+                  fillColor: Colors.white.withValues(alpha: 0.055),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 15,
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(18),
+                    borderSide: BorderSide(
+                      color: _gold.withValues(alpha: 0.24),
+                    ),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(18),
+                    borderSide: const BorderSide(
+                      color: _gold,
+                      width: 1.4,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 14),
+              SizedBox(
+                height: 42,
+                child: ListView.separated(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: _categories.length,
+                  separatorBuilder: (_, __) => const SizedBox(width: 8),
+                  itemBuilder: (context, index) {
+                    final category = _categories[index];
+                    final selected = category == _selectedCategory;
+
+                    return ChoiceChip(
+                      selected: selected,
+                      showCheckmark: false,
+                      label: Text(category),
+                      onSelected: (_) {
+                        setState(() {
+                          _selectedCategory = category;
+                        });
+                      },
+                      labelStyle: TextStyle(
+                        color: selected ? Colors.black : Colors.white,
+                        fontWeight: FontWeight.w800,
+                        fontSize: 12.5,
+                      ),
+                      selectedColor: _gold,
+                      backgroundColor: Colors.white.withValues(alpha: 0.055),
+                      side: BorderSide(
+                        color: selected ? _gold : _gold.withValues(alpha: 0.24),
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(999),
+                      ),
+                    );
+                  },
+                ),
+              ),
+              const SizedBox(height: 12),
+              Wrap(
+                spacing: 9,
+                runSpacing: 9,
+                children: [
+                  FilterChip(
+                    selected: _gelAlOnly,
+                    showCheckmark: false,
+                    avatar: Icon(
+                      Icons.storefront_rounded,
+                      size: 18,
+                      color: _gelAlOnly ? Colors.black : _gold,
+                    ),
+                    label: const Text('Gel-Al'),
+                    onSelected: (selected) {
+                      _searchController.clear();
+
+                      setState(() {
+                        _searchQuery = '';
+                        _gelAlOnly = selected;
+
+                        if (selected) {
+                          _goturOnly = false;
+                        }
+                      });
+                    },
+                    labelStyle: TextStyle(
+                      color: _gelAlOnly ? Colors.black : Colors.white,
+                      fontWeight: FontWeight.w800,
+                    ),
+                    selectedColor: _gold,
+                    backgroundColor: Colors.white.withValues(alpha: 0.055),
+                    side: BorderSide(
+                      color: _gelAlOnly ? _gold : _gold.withValues(alpha: 0.24),
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(999),
+                    ),
+                  ),
+                  FilterChip(
+                    selected: _openOnly,
+                    showCheckmark: false,
+                    avatar: Icon(
+                      Icons.store_rounded,
+                      size: 18,
+                      color: _openOnly ? Colors.black : _gold,
+                    ),
+                    label: const Text('Açık Restoranlar'),
+                    onSelected: (selected) {
+                      setState(() {
+                        _openOnly = selected;
+                      });
+                    },
+                    labelStyle: TextStyle(
+                      color: _openOnly ? Colors.black : Colors.white,
+                      fontWeight: FontWeight.w800,
+                    ),
+                    selectedColor: _gold,
+                    backgroundColor: Colors.white.withValues(alpha: 0.055),
+                    side: BorderSide(
+                      color: _openOnly ? _gold : _gold.withValues(alpha: 0.24),
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(999),
+                    ),
+                  ),
+                  FilterChip(
+                    selected: _goturOnly,
+                    showCheckmark: false,
+                    avatar: Icon(
+                      Icons.delivery_dining_rounded,
+                      size: 18,
+                      color: _goturOnly ? Colors.black : _gold,
+                    ),
+                    label: const Text('Götür'),
+                    onSelected: (selected) {
+                      _searchController.clear();
+
+                      setState(() {
+                        _searchQuery = '';
+                        _goturOnly = selected;
+
+                        if (selected) {
+                          _gelAlOnly = false;
+                        }
+                      });
+                    },
+                    labelStyle: TextStyle(
+                      color: _goturOnly ? Colors.black : Colors.white,
+                      fontWeight: FontWeight.w800,
+                    ),
+                    selectedColor: _gold,
+                    backgroundColor: Colors.white.withValues(alpha: 0.055),
+                    side: BorderSide(
+                      color: _goturOnly ? _gold : _gold.withValues(alpha: 0.24),
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(999),
+                    ),
+                  ),
+                  if (_gelAlOnly ||
+                      _goturOnly ||
+                      _openOnly ||
+                      _sortMode != 'varsayilan')
+                    ActionChip(
+                      avatar: const Icon(
+                        Icons.refresh_rounded,
+                        size: 18,
+                        color: Colors.white70,
+                      ),
+                      label: const Text('Filtreyi Temizle'),
+                      onPressed: () {
+                        setState(() {
+                          _gelAlOnly = false;
+                          _goturOnly = false;
+                          _openOnly = false;
+                          _sortMode = 'varsayilan';
+                        });
+                      },
+                      labelStyle: const TextStyle(
+                        color: Colors.white70,
+                        fontWeight: FontWeight.w700,
+                      ),
+                      backgroundColor: Colors.white.withValues(alpha: 0.045),
+                      side: BorderSide(
+                        color: Colors.white.withValues(alpha: 0.12),
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(999),
+                      ),
+                    ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              Wrap(
+                spacing: 9,
+                runSpacing: 9,
+                children: [
+                  ChoiceChip(
+                    selected: _sortMode == 'en_hizli',
+                    showCheckmark: false,
+                    avatar: Icon(
+                      Icons.bolt_rounded,
+                      size: 18,
+                      color: _sortMode == 'en_hizli' ? Colors.black : _gold,
+                    ),
+                    label: const Text('En Hızlı'),
+                    onSelected: (selected) {
+                      setState(() {
+                        _sortMode = selected ? 'en_hizli' : 'varsayilan';
+                      });
+                    },
+                    labelStyle: TextStyle(
+                      color:
+                          _sortMode == 'en_hizli' ? Colors.black : Colors.white,
+                      fontWeight: FontWeight.w800,
+                    ),
+                    selectedColor: _gold,
+                    backgroundColor: Colors.white.withValues(alpha: 0.055),
+                    side: BorderSide(
+                      color: _sortMode == 'en_hizli'
+                          ? _gold
+                          : _gold.withValues(alpha: 0.24),
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(999),
+                    ),
+                  ),
+                  ChoiceChip(
+                    selected: _sortMode == 'en_yuksek_puan',
+                    showCheckmark: false,
+                    avatar: Icon(
+                      Icons.star_rounded,
+                      size: 18,
+                      color:
+                          _sortMode == 'en_yuksek_puan' ? Colors.black : _gold,
+                    ),
+                    label: const Text('En Yüksek Puan'),
+                    onSelected: (selected) {
+                      setState(() {
+                        _sortMode = selected ? 'en_yuksek_puan' : 'varsayilan';
+                      });
+                    },
+                    labelStyle: TextStyle(
+                      color: _sortMode == 'en_yuksek_puan'
+                          ? Colors.black
+                          : Colors.white,
+                      fontWeight: FontWeight.w800,
+                    ),
+                    selectedColor: _gold,
+                    backgroundColor: Colors.white.withValues(alpha: 0.055),
+                    side: BorderSide(
+                      color: _sortMode == 'en_yuksek_puan'
+                          ? _gold
+                          : _gold.withValues(alpha: 0.24),
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(999),
+                    ),
+                  ),
+                ],
+              ),
               if (showFallbackNotice) ...[
                 const SizedBox(height: 14),
                 _FallbackNotice(
                   hasError: snapshot.hasError,
                 ),
               ],
-              const SizedBox(height: 12),
-              LayoutBuilder(
-                builder: (context, constraints) {
-                  final isCompact = constraints.maxWidth < 760;
-                  final cardWidth = isCompact
-                      ? constraints.maxWidth
-                      : (constraints.maxWidth - 16) / 2;
-
-                  return Wrap(
-                    spacing: 16,
-                    runSpacing: 16,
-                    children: restaurants.map((restaurant) {
-                      return SizedBox(
-                        width: cardWidth,
-                        child: RestoranPremiumCard(
-                          name: restaurant.name,
-                          description: restaurant.description,
-                          imageUrl: restaurant.imageUrl,
-                          cuisine: restaurant.cuisine,
-                          district: restaurant.locationText,
-                          preparationText: restaurant.preparationText,
-                          ratingText: restaurant.ratingText,
-                          serviceText: restaurant.serviceText,
-                          onTap: () {
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (_) => RestoranDetaySayfasi(
-                                  restaurant: restaurant,
-                                ),
-                              ),
-                            );
-                          },
+              const SizedBox(height: 18),
+              if (restaurants.isEmpty) ...[
+                const SizedBox(height: 28),
+                Container(
+                  padding: const EdgeInsets.all(24),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.045),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: _gold.withValues(alpha: 0.22),
+                    ),
+                  ),
+                  child: const Column(
+                    children: [
+                      Icon(
+                        Icons.search_off_rounded,
+                        color: _gold,
+                        size: 42,
+                      ),
+                      SizedBox(height: 12),
+                      Text(
+                        'Aramanıza uygun restoran bulunamadı.',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w800,
                         ),
-                      );
-                    }).toList(),
-                  );
-                },
-              ),
+                      ),
+                      SizedBox(height: 6),
+                      Text(
+                        'Başka bir restoran adı, kategori veya bölge deneyin.',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Colors.white60,
+                          fontSize: 13,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+              if (restaurants.isNotEmpty)
+                LayoutBuilder(
+                  builder: (context, constraints) {
+                    final isCompact = constraints.maxWidth < 760;
+                    final cardWidth = isCompact
+                        ? constraints.maxWidth
+                        : (constraints.maxWidth - 16) / 2;
+
+                    return Wrap(
+                      spacing: 16,
+                      runSpacing: 16,
+                      children: restaurants.map((restaurant) {
+                        return SizedBox(
+                          width: cardWidth,
+                          child: RestoranPremiumCard(
+                            name: restaurant.name,
+                            description: restaurant.description,
+                            imageUrl: restaurant.imageUrl,
+                            cuisine: restaurant.cuisine,
+                            district: restaurant.locationText,
+                            preparationText: restaurant.preparationText,
+                            ratingText: restaurant.ratingText,
+                            serviceText: restaurant.serviceText,
+                            isOpen: restaurant.isOpen,
+                            onTap: () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (_) => RestoranDetaySayfasi(
+                                    restaurant: restaurant,
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        );
+                      }).toList(),
+                    );
+                  },
+                ),
+              const SizedBox(height: 22),
+              const _RestaurantPartnerBanner(),
             ],
           );
         },
-      ),
-    );
-  }
-}
-
-class _HeroBadge extends StatelessWidget {
-  const _HeroBadge({
-    required this.label,
-    this.filled = false,
-    this.outlined = false,
-  });
-
-  final String label;
-  final bool filled;
-  final bool outlined;
-
-  static const Color _gold = Color(0xFFFFB300);
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 14,
-        vertical: 8,
-      ),
-      decoration: BoxDecoration(
-        color: filled ? _gold : Colors.black.withValues(alpha: 0.18),
-        borderRadius: BorderRadius.circular(999),
-        border: Border.all(
-          color: _gold.withValues(alpha: outlined ? 0.55 : 0.28),
-        ),
-      ),
-      child: Text(
-        label,
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-        style: TextStyle(
-          color: filled ? Colors.black : _gold,
-          fontSize: 12.5,
-          fontWeight: FontWeight.w900,
-        ),
-      ),
-    );
-  }
-}
-
-class _HeroBlock extends StatelessWidget {
-  const _HeroBlock({this.onPremiumTap});
-
-  final VoidCallback? onPremiumTap;
-
-  static const Color _gold = Color(0xFFFFB300);
-
-  @override
-  Widget build(BuildContext context) {
-    final isCompact = MediaQuery.of(context).size.width < 600;
-
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.all(isCompact ? 18 : 22),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.045),
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(
-          color: _gold.withValues(alpha: 0.24),
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.28),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Wrap(
-            spacing: 10,
-            runSpacing: 8,
-            children: [
-              _HeroBadge(
-                label: 'İlk 100 Kurucu Restoran',
-                outlined: true,
-              ),
-              _HeroBadge(
-                label: '100 Kaldı',
-                filled: true,
-              ),
-            ],
-          ),
-          const SizedBox(height: 18),
-          Text(
-            'Restoranlar Çok Yakında\nSofrasofra’da',
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: isCompact ? 27 : 34,
-              height: 1.05,
-              fontWeight: FontWeight.w900,
-            ),
-          ),
-          const SizedBox(height: 12),
-          Text(
-            'Ürün sizin, emek sizin, kazanç sizin.',
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: isCompact ? 16 : 19,
-              height: 1.15,
-              fontWeight: FontWeight.w900,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Kurucu restoranlar için erken görünürlük ve lansman avantajı.',
-            maxLines: isCompact ? 2 : 1,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              color: Colors.white70,
-              fontSize: isCompact ? 12.5 : 13.5,
-              height: 1.25,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-          const SizedBox(height: 14),
-          Align(
-            alignment: Alignment.centerLeft,
-            child: OutlinedButton(
-              style: OutlinedButton.styleFrom(
-                foregroundColor: _gold,
-                side: const BorderSide(color: _gold),
-                padding: EdgeInsets.symmetric(
-                  horizontal: isCompact ? 14 : 18,
-                  vertical: isCompact ? 10 : 12,
-                ),
-                minimumSize: Size.zero,
-                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                ),
-              ),
-              onPressed: onPremiumTap,
-              child: Text(
-                isCompact ? 'Vitrini Gör' : 'Premium Restoran Vitrinini Gör',
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  fontWeight: FontWeight.w900,
-                ),
-              ),
-            ),
-          ),
-        ],
       ),
     );
   }

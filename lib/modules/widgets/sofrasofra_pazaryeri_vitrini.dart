@@ -346,10 +346,10 @@ class _HeroRestaurantCampaignBanner extends StatelessWidget {
                 ),
               ),
               Padding(
-                padding: EdgeInsets.all(isMobile ? 20 : 30),
+                padding: EdgeInsets.all(isMobile ? 12 : 30),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     const Row(
                       children: [
@@ -372,12 +372,12 @@ class _HeroRestaurantCampaignBanner extends StatelessWidget {
                         ),
                       ],
                     ),
-                    SizedBox(height: isMobile ? 14 : 20),
+                    SizedBox(height: isMobile ? 12 : 16),
                     Text(
                       'İlk 100 restorana\n1 yıl üyelik ücretsiz',
                       style: TextStyle(
                         color: Colors.white,
-                        fontSize: isMobile ? 25 : 34,
+                        fontSize: isMobile ? 23 : 34,
                         height: 1.08,
                         fontWeight: FontWeight.w900,
                       ),

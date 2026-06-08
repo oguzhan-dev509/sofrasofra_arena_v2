@@ -12,6 +12,7 @@ import 'sef_yonetim_paneli.dart';
 import 'teslimat_ayarlar_sayfasi.dart';
 import 'package:sofrasofra_arena_v2/modules/widgets/ev_membership_card.dart';
 import 'package:sofrasofra_arena_v2/courier/kurye_mobil_paneli.dart';
+import 'package:sofrasofra_arena_v2/modules/restoranlar/restoran_yonetim_paneli.dart';
 
 class UreticiYonetimMerkeziSayfasi extends StatelessWidget {
   const UreticiYonetimMerkeziSayfasi({super.key});
@@ -581,22 +582,11 @@ class _PanelShell extends StatelessWidget {
                   case _PanelPageType.restoran:
                     Navigator.of(context).push(
                       MaterialPageRoute(
-                        builder: (_) => const Scaffold(
-                          backgroundColor: Colors.black,
-                          body: Center(
-                            child: Text(
-                              '🔥 DOGRU YER BURASI 🔥',
-                              style: TextStyle(
-                                color: Colors.red,
-                                fontSize: 42,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
+                        builder: (_) => const RestoranYonetimPaneli(
+                          restaurantId: 'mahalle_ocakbasi_test',
                         ),
                       ),
                     );
-
                     break;
                   case _PanelPageType.saticiSiparis:
                     Navigator.push(
