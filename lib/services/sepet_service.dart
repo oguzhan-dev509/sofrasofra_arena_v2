@@ -664,16 +664,7 @@ class SepetService {
   }
 
   static String _normalizeSellerId(String raw) {
-    return raw
-        .toLowerCase()
-        .replaceAll('ı', 'i')
-        .replaceAll('ş', 's')
-        .replaceAll('ğ', 'g')
-        .replaceAll('ç', 'c')
-        .replaceAll('ö', 'o')
-        .replaceAll('ü', 'u')
-        .replaceAll(' ', '_')
-        .trim();
+    return raw.trim();
   }
 
   static List<String> _asStringList(dynamic value) {

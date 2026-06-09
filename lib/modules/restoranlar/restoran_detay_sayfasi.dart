@@ -17,9 +17,11 @@ class RestoranDetaySayfasi extends StatelessWidget {
   const RestoranDetaySayfasi({
     super.key,
     required this.restaurant,
+    this.managementMode = false,
   });
 
   final RestoranModel restaurant;
+  final bool managementMode;
 
   static const Color _gold = Color(0xFFFFB300);
   static const Color _bg = Color(0xFF050505);
@@ -51,7 +53,10 @@ class RestoranDetaySayfasi extends StatelessWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (_) => const SepetSayfasi(),
+                  builder: (_) => RestoranSiparisYonetimiSayfasi(
+                    restaurantId: restaurant.id,
+                    restaurantName: restaurant.name,
+                  ),
                 ),
               );
             },
@@ -68,11 +73,11 @@ class RestoranDetaySayfasi extends StatelessWidget {
           FutureBuilder<bool>(
             future: PlatformAdminService.isCurrentUserPlatformAdmin(),
             builder: (context, snapshot) {
-              final isAdmin = snapshot.data == true;
+              final canManage = managementMode || snapshot.data == true;
 
               return _MenuPreviewSection(
                 restaurant: restaurant,
-                isAdmin: isAdmin,
+                isAdmin: canManage,
               );
             },
           ),
@@ -548,47 +553,6 @@ class _MenuPreviewSection extends StatelessWidget {
   final bool isAdmin;
 
   static const Color _gold = Color(0xFFFFB300);
-
-  List<RestoranMenuItemModel> get _demoItems {
-    return [
-      RestoranMenuItemModel(
-        id: '${restaurant.id}_gunun_corbasi',
-        restaurantId: restaurant.id,
-        name: 'Günün Çorbası',
-        description: 'Restoranın günlük hazırladığı sıcak başlangıç lezzeti.',
-        category: 'Çorbalar',
-        img: 'https://images.unsplash.com/photo-1547592166-23ac45744acd',
-        gelAlFiyat: 80,
-        goturFiyat: 95,
-        isFeatured: true,
-        preparationMinutes: 12,
-      ),
-      RestoranMenuItemModel(
-        id: '${restaurant.id}_izgara_kofte',
-        restaurantId: restaurant.id,
-        name: 'Izgara Köfte',
-        description:
-            'Pilav, salata ve günlük garnitür eşliğinde restoran usulü köfte.',
-        category: 'Ana Yemekler',
-        img: 'https://images.unsplash.com/photo-1529692236671-f1f6cf9683ba',
-        gelAlFiyat: 220,
-        goturFiyat: 250,
-        preparationMinutes: 25,
-      ),
-      RestoranMenuItemModel(
-        id: '${restaurant.id}_lahmacun',
-        restaurantId: restaurant.id,
-        name: 'Taş Fırın Lahmacun',
-        description:
-            'İnce hamur, taze harç ve fırından sıcak çıkan mahalle lezzeti.',
-        category: 'Fırın',
-        img: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38',
-        gelAlFiyat: 90,
-        goturFiyat: 110,
-        preparationMinutes: 18,
-      ),
-    ];
-  }
 
   Future<bool> _showSingleSellerCartDialog(BuildContext context) async {
     final result = await showDialog<bool>(
@@ -1293,129 +1257,370 @@ class _MenuPreviewSection extends StatelessWidget {
   Future<void> _yeniMenuUrunuDialogAc({
     required BuildContext context,
   }) async {
-    await showDialog<void>(
-      context: context,
-      builder: (dialogContext) {
-        return AlertDialog(
-          backgroundColor: const Color(0xFF151515),
-          title: const Text(
-            'Yeni menü ürünü',
-            style: TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.w900,
-            ),
-          ),
-          content: SingleChildScrollView(
-            child: SizedBox(
-              width: 420,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const SizedBox(height: 10),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: TextField(
-                          keyboardType: TextInputType.number,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w700,
-                          ),
-                          decoration: InputDecoration(
-                            labelText: 'Gel-Al fiyatı',
-                            hintText: '80',
-                            labelStyle: const TextStyle(
-                              color: _gold,
-                              fontWeight: FontWeight.w800,
-                            ),
-                            hintStyle: TextStyle(
-                              color: Colors.white.withValues(alpha: 0.35),
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderSide: BorderSide(
-                                color: Colors.white.withValues(alpha: 0.18),
-                              ),
-                            ),
-                            focusedBorder: const OutlineInputBorder(
-                              borderSide: BorderSide(color: _gold),
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: TextField(
-                          keyboardType: TextInputType.number,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w700,
-                          ),
-                          decoration: InputDecoration(
-                            labelText: 'Götür fiyatı',
-                            hintText: '95',
-                            labelStyle: const TextStyle(
-                              color: _gold,
-                              fontWeight: FontWeight.w800,
-                            ),
-                            hintStyle: TextStyle(
-                              color: Colors.white.withValues(alpha: 0.35),
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderSide: BorderSide(
-                                color: Colors.white.withValues(alpha: 0.18),
-                              ),
-                            ),
-                            focusedBorder: const OutlineInputBorder(
-                              borderSide: BorderSide(color: _gold),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 10),
-                  TextField(
-                    maxLines: 3,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w700,
+    final nameController = TextEditingController();
+    final categoryController = TextEditingController();
+    final gelAlController = TextEditingController();
+    final goturController = TextEditingController();
+    final descriptionController = TextEditingController();
+    final preparationController = TextEditingController(text: '20');
+
+    try {
+      await showDialog<void>(
+        context: context,
+        barrierDismissible: false,
+        builder: (dialogContext) {
+          bool saving = false;
+          bool isFeatured = false;
+          bool isAvailable = true;
+
+          return StatefulBuilder(
+            builder: (context, setDialogState) {
+              Future<void> urunuOlustur() async {
+                final name = nameController.text.trim();
+                final category = categoryController.text.trim();
+                final description = descriptionController.text.trim();
+
+                final gelAlText =
+                    gelAlController.text.trim().replaceAll(',', '.');
+                final goturText =
+                    goturController.text.trim().replaceAll(',', '.');
+
+                final gelAlFiyat = double.tryParse(gelAlText) ?? 0;
+                final goturFiyat = double.tryParse(goturText) ?? 0;
+                final preparationMinutes =
+                    int.tryParse(preparationController.text.trim()) ?? 20;
+
+                if (name.isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Ürün adı zorunludur.'),
                     ),
-                    decoration: InputDecoration(
-                      labelText: 'Açıklama',
-                      hintText: 'Kısa ürün açıklaması',
-                      labelStyle: const TextStyle(
-                        color: _gold,
-                        fontWeight: FontWeight.w800,
+                  );
+                  return;
+                }
+
+                if (category.isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Kategori zorunludur.'),
+                    ),
+                  );
+                  return;
+                }
+
+                if (gelAlFiyat <= 0 && goturFiyat <= 0) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('En az bir fiyat girilmelidir.'),
+                    ),
+                  );
+                  return;
+                }
+
+                setDialogState(() {
+                  saving = true;
+                });
+
+                try {
+                  final itemRef = FirebaseFirestore.instance
+                      .collection('restaurants')
+                      .doc(restaurant.id)
+                      .collection('menu_items')
+                      .doc();
+
+                  final itemId = itemRef.id;
+
+                  debugPrint(
+                    'RESTORAN YENI URUN CREATE '
+                    'restaurantId=${restaurant.id} itemId=$itemId name=$name',
+                  );
+
+                  await itemRef.set({
+                    'id': itemId,
+                    'restaurantId': restaurant.id,
+                    'sellerId': restaurant.id,
+                    'name': name,
+                    'title': name,
+                    'description': description,
+                    'category': category,
+                    'img': '',
+                    'profileImg': '',
+                    'images': <String>[],
+                    'galleryMeta': <String, dynamic>{},
+                    'gelAlFiyat': gelAlFiyat,
+                    'goturFiyat': goturFiyat,
+                    'isActive': true,
+                    'isAvailable': isAvailable,
+                    'isFeatured': isFeatured,
+                    'preparationMinutes': preparationMinutes,
+                    'createdAt': FieldValue.serverTimestamp(),
+                    'updatedAt': FieldValue.serverTimestamp(),
+                    'createdBy': FirebaseAuth.instance.currentUser?.uid ?? '',
+                  });
+
+                  debugPrint(
+                    'RESTORAN YENI URUN CREATE SUCCESS itemId=$itemId',
+                  );
+
+                  if (!dialogContext.mounted) return;
+
+                  Navigator.of(dialogContext).pop();
+
+                  if (!context.mounted) return;
+
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        '$name oluşturuldu. Şimdi kapak ve galeri fotoğraflarını ekleyebilirsiniz.',
                       ),
-                      hintStyle: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.35),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide(
-                          color: Colors.white.withValues(alpha: 0.18),
+                    ),
+                  );
+                } catch (error, stackTrace) {
+                  debugPrint('RESTORAN YENI URUN CREATE ERROR => $error');
+                  debugPrintStack(stackTrace: stackTrace);
+
+                  setDialogState(() {
+                    saving = false;
+                  });
+
+                  if (!context.mounted) return;
+
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Ürün oluşturulamadı: $error'),
+                    ),
+                  );
+                }
+              }
+
+              InputDecoration inputDecoration({
+                required String label,
+                String? hint,
+              }) {
+                return InputDecoration(
+                  labelText: label,
+                  hintText: hint,
+                  labelStyle: const TextStyle(
+                    color: _gold,
+                    fontWeight: FontWeight.w800,
+                  ),
+                  hintStyle: TextStyle(
+                    color: Colors.white.withValues(alpha: 0.35),
+                  ),
+                  filled: true,
+                  fillColor: Colors.black.withValues(alpha: 0.22),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(14),
+                    borderSide: BorderSide(
+                      color: Colors.white.withValues(alpha: 0.18),
+                    ),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(14),
+                    borderSide: const BorderSide(
+                      color: _gold,
+                      width: 1.3,
+                    ),
+                  ),
+                );
+              }
+
+              return AlertDialog(
+                backgroundColor: const Color(0xFF151515),
+                title: const Text(
+                  'Yeni Menü Ürünü',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+                content: SizedBox(
+                  width: 560,
+                  child: SingleChildScrollView(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        TextField(
+                          controller: nameController,
+                          enabled: !saving,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w700,
+                          ),
+                          decoration: inputDecoration(
+                            label: 'Ürün adı',
+                            hint: 'Günün Menüsü',
+                          ),
                         ),
-                      ),
-                      focusedBorder: const OutlineInputBorder(
-                        borderSide: BorderSide(color: _gold),
-                      ),
+                        const SizedBox(height: 12),
+                        TextField(
+                          controller: categoryController,
+                          enabled: !saving,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w700,
+                          ),
+                          decoration: inputDecoration(
+                            label: 'Kategori',
+                            hint: 'Sulu Yemekler',
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: TextField(
+                                controller: gelAlController,
+                                enabled: !saving,
+                                keyboardType:
+                                    const TextInputType.numberWithOptions(
+                                  decimal: true,
+                                ),
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                                decoration: inputDecoration(
+                                  label: 'Gel-Al fiyatı',
+                                  hint: '180',
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: TextField(
+                                controller: goturController,
+                                enabled: !saving,
+                                keyboardType:
+                                    const TextInputType.numberWithOptions(
+                                  decimal: true,
+                                ),
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                                decoration: inputDecoration(
+                                  label: 'Götür fiyatı',
+                                  hint: '200',
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        TextField(
+                          controller: preparationController,
+                          enabled: !saving,
+                          keyboardType: TextInputType.number,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w700,
+                          ),
+                          decoration: inputDecoration(
+                            label: 'Hazırlama süresi',
+                            hint: '20 dakika',
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        TextField(
+                          controller: descriptionController,
+                          enabled: !saving,
+                          maxLines: 3,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w700,
+                          ),
+                          decoration: inputDecoration(
+                            label: 'Açıklama',
+                            hint: 'Günlük hazırlanan sıcak ev yemekleri.',
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        SwitchListTile.adaptive(
+                          contentPadding: EdgeInsets.zero,
+                          activeColor: _gold,
+                          value: isAvailable,
+                          title: const Text(
+                            'Ürün satışta',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                          onChanged: saving
+                              ? null
+                              : (value) {
+                                  setDialogState(() {
+                                    isAvailable = value;
+                                  });
+                                },
+                        ),
+                        SwitchListTile.adaptive(
+                          contentPadding: EdgeInsets.zero,
+                          activeColor: _gold,
+                          value: isFeatured,
+                          title: const Text(
+                            'Öne çıkan ürün',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                          onChanged: saving
+                              ? null
+                              : (value) {
+                                  setDialogState(() {
+                                    isFeatured = value;
+                                  });
+                                },
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                actions: [
+                  TextButton(
+                    onPressed:
+                        saving ? null : () => Navigator.of(dialogContext).pop(),
+                    child: const Text(
+                      'Vazgeç',
+                      style: TextStyle(color: Colors.white70),
+                    ),
+                  ),
+                  ElevatedButton.icon(
+                    onPressed: saving ? null : urunuOlustur,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: _gold,
+                      foregroundColor: Colors.black,
+                    ),
+                    icon: saving
+                        ? const SizedBox(
+                            width: 17,
+                            height: 17,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.black,
+                            ),
+                          )
+                        : const Icon(Icons.add_circle_outline_rounded),
+                    label: Text(
+                      saving ? 'Oluşturuluyor...' : 'Ürünü Oluştur',
                     ),
                   ),
                 ],
-              ),
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(dialogContext),
-              child: const Text(
-                'Kapat',
-                style: TextStyle(color: Colors.white70),
-              ),
-            ),
-          ],
-        );
-      },
-    );
+              );
+            },
+          );
+        },
+      );
+    } finally {
+      nameController.dispose();
+      categoryController.dispose();
+      gelAlController.dispose();
+      goturController.dispose();
+      descriptionController.dispose();
+      preparationController.dispose();
+    }
   }
 
   Future<void> _menuUrunuDuzenleDialogAc({
@@ -1446,6 +1651,7 @@ class _MenuPreviewSection extends StatelessWidget {
     try {
       await showDialog<void>(
         context: context,
+        barrierDismissible: false,
         builder: (dialogContext) {
           bool saving = false;
 
@@ -1484,31 +1690,39 @@ class _MenuPreviewSection extends StatelessWidget {
                       .collection('menu_items')
                       .doc(item.id);
 
-                  debugPrint('RESTORAN GALERI META UPDATE imageKey=$imageKey');
-                  debugPrint('RESTORAN GALERI META UPDATE imageUrl=$imageUrl');
                   debugPrint(
-                    'RESTORAN GALERI META UPDATE gelAl=$gelAlFiyat gotur=$goturFiyat',
+                    'RESTORAN GALERI META UPDATE '
+                    'restaurantId=${restaurant.id} '
+                    'itemId=${item.id} '
+                    'imageKey=$imageKey',
                   );
 
                   await itemRef.update({
                     'galleryMeta.$imageKey.gelAlFiyat': gelAlFiyat,
                     'galleryMeta.$imageKey.goturFiyat': goturFiyat,
                     'galleryMeta.$imageKey.description': description,
-                    'galleryMeta.$imageKey.updatedAt':
-                        FieldValue.serverTimestamp(),
                     'updatedAt': FieldValue.serverTimestamp(),
                   });
 
-                  if (!context.mounted) return;
+                  if (!dialogContext.mounted) return;
 
                   Navigator.of(dialogContext).pop();
 
+                  if (!context.mounted) return;
+
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('${item.name} güncellendi.'),
+                    const SnackBar(
+                      content: Text(
+                        'Fotoğraf fiyatı ve açıklaması güncellendi.',
+                      ),
                     ),
                   );
-                } catch (e) {
+                } catch (error, stackTrace) {
+                  debugPrint(
+                    'RESTORAN GALERI META UPDATE ERROR => $error',
+                  );
+                  debugPrintStack(stackTrace: stackTrace);
+
                   setDialogState(() {
                     saving = false;
                   });
@@ -1517,57 +1731,78 @@ class _MenuPreviewSection extends StatelessWidget {
 
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: Text('Menü ürünü güncellenemedi: $e'),
+                      content: Text(
+                        'Fiyat ve açıklama güncellenemedi: $error',
+                      ),
                     ),
                   );
                 }
               }
 
+              InputDecoration inputDecoration({
+                required String label,
+                String? hint,
+              }) {
+                return InputDecoration(
+                  labelText: label,
+                  hintText: hint,
+                  labelStyle: const TextStyle(
+                    color: _gold,
+                    fontWeight: FontWeight.w800,
+                  ),
+                  hintStyle: TextStyle(
+                    color: Colors.white.withValues(alpha: 0.35),
+                  ),
+                  filled: true,
+                  fillColor: Colors.black.withValues(alpha: 0.22),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(14),
+                    borderSide: BorderSide(
+                      color: Colors.white.withValues(alpha: 0.18),
+                    ),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(14),
+                    borderSide: const BorderSide(
+                      color: _gold,
+                      width: 1.3,
+                    ),
+                  ),
+                );
+              }
+
               return AlertDialog(
                 backgroundColor: const Color(0xFF151515),
-                title: Text(
-                  '${item.name} düzenle',
-                  style: const TextStyle(
+                title: const Text(
+                  'Fiyat ve Açıklama Düzenle',
+                  style: TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.w900,
                   ),
                 ),
-                content: SingleChildScrollView(
-                  child: SizedBox(
-                    width: 420,
+                content: SizedBox(
+                  width: 520,
+                  child: SingleChildScrollView(
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const SizedBox(height: 8),
                         Row(
                           children: [
                             Expanded(
                               child: TextField(
                                 controller: gelAlController,
-                                keyboardType: TextInputType.number,
+                                enabled: !saving,
+                                keyboardType:
+                                    const TextInputType.numberWithOptions(
+                                  decimal: true,
+                                ),
                                 style: const TextStyle(
                                   color: Colors.white,
                                   fontWeight: FontWeight.w700,
                                 ),
-                                decoration: InputDecoration(
-                                  labelText: 'Gel-Al fiyatı',
-                                  hintText: '80',
-                                  labelStyle: const TextStyle(
-                                    color: _gold,
-                                    fontWeight: FontWeight.w800,
-                                  ),
-                                  hintStyle: TextStyle(
-                                    color: Colors.white.withValues(alpha: 0.35),
-                                  ),
-                                  enabledBorder: OutlineInputBorder(
-                                    borderSide: BorderSide(
-                                      color:
-                                          Colors.white.withValues(alpha: 0.18),
-                                    ),
-                                  ),
-                                  focusedBorder: const OutlineInputBorder(
-                                    borderSide: BorderSide(color: _gold),
-                                  ),
+                                decoration: inputDecoration(
+                                  label: 'Gel-Al fiyatı',
+                                  hint: '180',
                                 ),
                               ),
                             ),
@@ -1575,30 +1810,18 @@ class _MenuPreviewSection extends StatelessWidget {
                             Expanded(
                               child: TextField(
                                 controller: goturController,
-                                keyboardType: TextInputType.number,
+                                enabled: !saving,
+                                keyboardType:
+                                    const TextInputType.numberWithOptions(
+                                  decimal: true,
+                                ),
                                 style: const TextStyle(
                                   color: Colors.white,
                                   fontWeight: FontWeight.w700,
                                 ),
-                                decoration: InputDecoration(
-                                  labelText: 'Götür fiyatı',
-                                  hintText: '95',
-                                  labelStyle: const TextStyle(
-                                    color: _gold,
-                                    fontWeight: FontWeight.w800,
-                                  ),
-                                  hintStyle: TextStyle(
-                                    color: Colors.white.withValues(alpha: 0.35),
-                                  ),
-                                  enabledBorder: OutlineInputBorder(
-                                    borderSide: BorderSide(
-                                      color:
-                                          Colors.white.withValues(alpha: 0.18),
-                                    ),
-                                  ),
-                                  focusedBorder: const OutlineInputBorder(
-                                    borderSide: BorderSide(color: _gold),
-                                  ),
+                                decoration: inputDecoration(
+                                  label: 'Götür fiyatı',
+                                  hint: '200',
                                 ),
                               ),
                             ),
@@ -1607,29 +1830,15 @@ class _MenuPreviewSection extends StatelessWidget {
                         const SizedBox(height: 12),
                         TextField(
                           controller: descriptionController,
-                          maxLines: 4,
+                          enabled: !saving,
+                          maxLines: 3,
                           style: const TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.w700,
                           ),
-                          decoration: InputDecoration(
-                            labelText: 'Açıklama',
-                            hintText: 'Kısa ürün açıklaması',
-                            labelStyle: const TextStyle(
-                              color: _gold,
-                              fontWeight: FontWeight.w800,
-                            ),
-                            hintStyle: TextStyle(
-                              color: Colors.white.withValues(alpha: 0.35),
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderSide: BorderSide(
-                                color: Colors.white.withValues(alpha: 0.18),
-                              ),
-                            ),
-                            focusedBorder: const OutlineInputBorder(
-                              borderSide: BorderSide(color: _gold),
-                            ),
+                          decoration: inputDecoration(
+                            label: 'Açıklama',
+                            hint: 'Fotoğrafa özel kısa açıklama',
                           ),
                         ),
                       ],
@@ -1639,7 +1848,7 @@ class _MenuPreviewSection extends StatelessWidget {
                 actions: [
                   TextButton(
                     onPressed:
-                        saving ? null : () => Navigator.pop(dialogContext),
+                        saving ? null : () => Navigator.of(dialogContext).pop(),
                     child: const Text(
                       'Vazgeç',
                       style: TextStyle(color: Colors.white70),
@@ -1647,20 +1856,22 @@ class _MenuPreviewSection extends StatelessWidget {
                   ),
                   ElevatedButton.icon(
                     onPressed: saving ? null : kaydet,
-                    icon: saving
-                        ? const SizedBox(
-                            width: 16,
-                            height: 16,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
-                        : const Icon(Icons.save_outlined),
-                    label: Text(saving ? 'Kaydediliyor...' : 'Kaydet'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: _gold,
                       foregroundColor: Colors.black,
-                      textStyle: const TextStyle(
-                        fontWeight: FontWeight.w900,
-                      ),
+                    ),
+                    icon: saving
+                        ? const SizedBox(
+                            width: 17,
+                            height: 17,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.black,
+                            ),
+                          )
+                        : const Icon(Icons.save_outlined),
+                    label: Text(
+                      saving ? 'Kaydediliyor...' : 'Kaydet',
                     ),
                   ),
                 ],
@@ -1674,6 +1885,204 @@ class _MenuPreviewSection extends StatelessWidget {
       goturController.dispose();
       descriptionController.dispose();
     }
+  }
+
+  Widget _buildFirstProductGuide(BuildContext context) {
+    Widget step({
+      required String number,
+      required String title,
+      required String description,
+      required IconData icon,
+    }) {
+      return Container(
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: Colors.black.withValues(alpha: 0.24),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: Colors.white.withValues(alpha: 0.09),
+          ),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: 38,
+              height: 38,
+              decoration: BoxDecoration(
+                color: _gold.withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: _gold.withValues(alpha: 0.42),
+                ),
+              ),
+              alignment: Alignment.center,
+              child: Text(
+                number,
+                style: const TextStyle(
+                  color: _gold,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(
+                        icon,
+                        color: _gold,
+                        size: 18,
+                      ),
+                      const SizedBox(width: 7),
+                      Expanded(
+                        child: Text(
+                          title,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 15,
+                            fontWeight: FontWeight.w900,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 5),
+                  Text(
+                    description,
+                    style: const TextStyle(
+                      color: Colors.white70,
+                      fontSize: 13,
+                      height: 1.4,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: const Color(0xFF111111),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(
+          color: _gold.withValues(alpha: 0.42),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.26),
+            blurRadius: 20,
+            offset: const Offset(0, 12),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Row(
+            children: [
+              Icon(
+                Icons.auto_awesome_rounded,
+                color: _gold,
+                size: 28,
+              ),
+              SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  'Restoranını 4 adımda hazırla',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 22,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            'İlk ürününü oluşturduktan sonra kapak ve galeri fotoğrafı düğmeleri otomatik açılır.',
+            style: TextStyle(
+              color: Colors.white70,
+              fontSize: 13.5,
+              height: 1.45,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: 18),
+          step(
+            number: '1',
+            title: 'İlk ürününü oluştur',
+            description:
+                'Ürün adı, kategori, Gel-Al ve Götür fiyatı ile açıklamayı gir.',
+            icon: Icons.add_circle_outline_rounded,
+          ),
+          const SizedBox(height: 10),
+          step(
+            number: '2',
+            title: 'Kapak fotoğrafını ekle',
+            description:
+                'Bu fotoğraf ürün kartında ve müşterilerin gördüğü vitrinde yer alır.',
+            icon: Icons.add_photo_alternate_outlined,
+          ),
+          const SizedBox(height: 10),
+          step(
+            number: '3',
+            title: 'Galeri fotoğraflarını ekle',
+            description:
+                'Ürününü gerçek fotoğraflarla zenginleştir; web görünümünde üçlü düzen oluşur.',
+            icon: Icons.photo_library_outlined,
+          ),
+          const SizedBox(height: 10),
+          step(
+            number: '4',
+            title: 'Fiyatları kontrol et ve yayına al',
+            description:
+                'Gel-Al ve Götür fiyatlarını kontrol ederek ürünü satışa hazırla.',
+            icon: Icons.verified_outlined,
+          ),
+          const SizedBox(height: 20),
+          SizedBox(
+            width: double.infinity,
+            height: 52,
+            child: ElevatedButton.icon(
+              onPressed: () async {
+                await _yeniMenuUrunuDialogAc(
+                  context: context,
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: _gold,
+                foregroundColor: Colors.black,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+              ),
+              icon: const Icon(
+                Icons.add_business_rounded,
+              ),
+              label: const Text(
+                'İlk Ürünümü Oluştur',
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -1708,9 +2117,45 @@ class _MenuPreviewSection extends StatelessWidget {
         restaurantId: restaurant.id,
       ),
       builder: (context, snapshot) {
-        final firestoreItems = snapshot.data ?? const <RestoranMenuItemModel>[];
-        final items = firestoreItems.isNotEmpty ? firestoreItems : _demoItems;
+        final items = snapshot.data ?? const <RestoranMenuItemModel>[];
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(
+            child: Padding(
+              padding: EdgeInsets.all(32),
+              child: CircularProgressIndicator(
+                color: _gold,
+              ),
+            ),
+          );
+        }
 
+        if (snapshot.hasError) {
+          return Container(
+            padding: const EdgeInsets.all(18),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.04),
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(
+                color: Colors.redAccent.withValues(alpha: 0.45),
+              ),
+            ),
+            child: Text(
+              'Menü ürünleri alınamadı: ${snapshot.error}',
+              style: const TextStyle(
+                color: Colors.white70,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          );
+        }
+
+        if (items.isEmpty) {
+          if (!isAdmin) {
+            return const SizedBox.shrink();
+          }
+
+          return _buildFirstProductGuide(context);
+        }
         return Container(
           padding: const EdgeInsets.all(18),
           decoration: BoxDecoration(
@@ -1749,8 +2194,10 @@ class _MenuPreviewSection extends StatelessWidget {
                       onPressed: () {
                         Navigator.of(context).push(
                           MaterialPageRoute(
-                            builder: (_) =>
-                                const RestoranSiparisYonetimiSayfasi(),
+                            builder: (_) => RestoranSiparisYonetimiSayfasi(
+                              restaurantId: restaurant.id,
+                              restaurantName: restaurant.name,
+                            ),
                           ),
                         );
                       },

@@ -811,6 +811,60 @@ class _MarketProductCard extends StatelessWidget {
   }
 
   final _MarketItem item;
+  Widget _buildCardImage() {
+    final targetType = item.targetType.toLowerCase().trim();
+    final targetId = item.targetId.trim();
+
+    if (targetType != 'restaurant' || targetId.isEmpty) {
+      return _networkImage(item.imageUrl);
+    }
+
+    return StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
+      stream: FirebaseFirestore.instance
+          .collection('restaurants')
+          .doc(targetId)
+          .snapshots(),
+      builder: (context, snapshot) {
+        final data = snapshot.data?.data();
+
+        final restaurantImageUrl =
+            (data?['imageUrl'] ?? data?['img'] ?? '').toString().trim();
+
+        return _networkImage(restaurantImageUrl);
+      },
+    );
+  }
+
+  Widget _networkImage(String imageUrl) {
+    if (imageUrl.trim().isEmpty) {
+      return Container(
+        color: const Color(0xFF222222),
+        alignment: Alignment.center,
+        child: Icon(
+          item.icon,
+          color: SofrasofraPazaryeriVitrini._gold,
+          size: 44,
+        ),
+      );
+    }
+
+    return Image.network(
+      imageUrl,
+      fit: BoxFit.cover,
+      filterQuality: FilterQuality.medium,
+      errorBuilder: (context, error, stackTrace) {
+        return Container(
+          color: const Color(0xFF222222),
+          alignment: Alignment.center,
+          child: Icon(
+            item.icon,
+            color: SofrasofraPazaryeriVitrini._gold,
+            size: 44,
+          ),
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -838,20 +892,7 @@ class _MarketProductCard extends StatelessWidget {
               child: Stack(
                 fit: StackFit.expand,
                 children: [
-                  Image.network(
-                    item.imageUrl,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) {
-                      return Container(
-                        color: const Color(0xFF222222),
-                        child: Icon(
-                          item.icon,
-                          color: SofrasofraPazaryeriVitrini._gold,
-                          size: 44,
-                        ),
-                      );
-                    },
-                  ),
+                  _buildCardImage(),
                   Container(
                     decoration: BoxDecoration(
                       gradient: LinearGradient(

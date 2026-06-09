@@ -12,6 +12,38 @@ service cloud.firestore {
         && exists(/databases/$(database)/documents/platform_admins/$(request.auth.uid));
     }
 
+function isRestaurantOwner(restaurantId) {
+  return signedIn()
+    && restaurantId is string
+    && restaurantId.size() > 0
+    && exists(
+      /databases/$(database)/documents/restaurants/$(restaurantId)
+    )
+    && get(
+      /databases/$(database)/documents/restaurants/$(restaurantId)
+    ).data.ownerUid == request.auth.uid;
+}
+function restaurantOwnerCanUpdate() {
+  return signedIn()
+    && resource.data.ownerUid == request.auth.uid
+    && request.resource.data.ownerUid == resource.data.ownerUid
+    && request.resource.data.restaurantId == resource.data.restaurantId
+    && request.resource.data.sellerId == resource.data.sellerId
+    && !request.resource.data
+      .diff(resource.data)
+      .affectedKeys()
+      .hasAny([
+        'ownerUid',
+        'createdBy',
+        'applicationId',
+        'restaurantId',
+        'sellerId',
+        'membershipType',
+        'packageType',
+        'membershipStatus',
+        'isFounder'
+      ]);
+}
     function protectedMembershipKeys() {
       return [
         'membershipType',
@@ -46,13 +78,63 @@ service cloud.firestore {
       allow read, write: if signedIn();
     }
 
-    match /sellerOrders/{orderId} {
-      allow read, write: if signedIn();
+   match /sellerOrders/{orderId} {
+  // Müşteri yalnızca kendi UID'siyle sipariş oluşturabilir.
+  allow create: if signedIn()
+    && request.resource.data.userId == request.auth.uid
+    && request.resource.data.saticiId is string
+    && request.resource.data.saticiId.size() > 0;
 
-      match /items/{itemId} {
-        allow read, write: if signedIn();
-      }
-    }
+  // Admin, sipariş müşterisi veya ilgili restoran sahibi okuyabilir.
+  allow read: if isPlatformAdmin()
+    || (
+      signedIn()
+      && resource.data.userId == request.auth.uid
+    )
+    || isRestaurantOwner(resource.data.saticiId);
+
+  // Restoran sahibi yalnızca operasyonel durum alanlarını değiştirebilir.
+  allow update: if isPlatformAdmin()
+    || (
+      isRestaurantOwner(resource.data.saticiId)
+      && request.resource.data.userId == resource.data.userId
+      && request.resource.data.saticiId == resource.data.saticiId
+      && request.resource.data.sellerType == resource.data.sellerType
+      && request.resource.data.diff(resource.data)
+        .affectedKeys()
+        .hasOnly([
+          'status',
+          'durum',
+          'statusUpdatedAt',
+          'updatedAt'
+        ])
+    );
+
+  allow delete: if isPlatformAdmin();
+
+  match /items/{itemId} {
+    // Sipariş oluşturulurken aynı batch içindeki üst belgeyi kontrol eder.
+    allow create: if signedIn()
+      && getAfter(
+        /databases/$(database)/documents/sellerOrders/$(orderId)
+      ).data.userId == request.auth.uid;
+
+    allow read: if isPlatformAdmin()
+      || (
+        signedIn()
+        && get(
+          /databases/$(database)/documents/sellerOrders/$(orderId)
+        ).data.userId == request.auth.uid
+      )
+      || isRestaurantOwner(
+        get(
+          /databases/$(database)/documents/sellerOrders/$(orderId)
+        ).data.saticiId
+      );
+
+    allow update, delete: if isPlatformAdmin();
+  }
+}
 
     match /orderTimeline/{docId} {
       allow read, write: if signedIn();
@@ -146,11 +228,27 @@ match /producer_applications/{applicationId} {
 }
 match /restaurants/{restaurantId} {
   allow read: if true;
-  allow create, update, delete: if isPlatformAdmin();
+
+  allow create: if isPlatformAdmin()
+    || (
+      signedIn()
+      && request.resource.data.ownerUid == request.auth.uid
+      && request.resource.data.createdBy == request.auth.uid
+      && request.resource.data.restaurantId == restaurantId
+      && request.resource.data.sellerId == restaurantId
+    );
+
+  allow update: if isPlatformAdmin()
+    || restaurantOwnerCanUpdate();
+
+  // Kalıcı silme şimdilik yalnızca platform yöneticisinde kalsın.
+  allow delete: if isPlatformAdmin();
 
   match /menu_items/{itemId} {
     allow read: if true;
-    allow create, update, delete: if isPlatformAdmin();
+
+    allow create, update, delete: if isPlatformAdmin()
+      || isRestaurantOwner(restaurantId);
   }
 
   match /reviews/{reviewId} {

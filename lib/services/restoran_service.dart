@@ -8,10 +8,18 @@ class RestoranService {
 
   static final FirebaseFirestore _db = FirebaseFirestore.instance;
 
+  /// Müşterilere gösterilecek restoran vitrini.
+  ///
+  /// Mevcut isim bazlı filtreler şimdilik korunmuştur.
   static Stream<List<RestoranModel>> streamRestaurantsForShowcase() {
     return _db.collection('restaurants').snapshots().map((snapshot) {
       final restaurants = snapshot.docs
-          .map((doc) => RestoranModel.fromMap(doc.id, doc.data()))
+          .map(
+        (doc) => RestoranModel.fromMap(
+          doc.id,
+          doc.data(),
+        ),
+      )
           .where((restaurant) {
         final name = restaurant.name.trim();
 
@@ -26,13 +34,67 @@ class RestoranService {
           return a.isFounder ? -1 : 1;
         }
 
-        return a.name.toLowerCase().compareTo(b.name.toLowerCase());
+        return a.name.toLowerCase().compareTo(
+              b.name.toLowerCase(),
+            );
       });
 
       return restaurants;
     });
   }
 
+  /// Restoran yönetim merkezinde gösterilecek bütün restoranlar.
+  ///
+  /// Vitrindeki isim bazlı gizleme burada uygulanmaz. Böylece
+  /// Mahalle Ocakbaşı, Adana Kebapçısı ve diğer restoranlar
+  /// yönetim ekranında birlikte gösterilebilir.
+  static Stream<List<RestoranModel>> streamRestaurantsForManagement({
+    required String currentUid,
+    required bool isPlatformAdmin,
+  }) {
+    final uid = currentUid.trim();
+
+    if (!isPlatformAdmin && uid.isEmpty) {
+      return Stream.value(const <RestoranModel>[]);
+    }
+
+    Query<Map<String, dynamic>> query = _db.collection('restaurants');
+
+    if (!isPlatformAdmin) {
+      query = query.where(
+        'ownerUid',
+        isEqualTo: uid,
+      );
+    }
+
+    return query.snapshots().map((snapshot) {
+      final restaurants = snapshot.docs
+          .map(
+            (doc) => RestoranModel.fromMap(
+              doc.id,
+              doc.data(),
+            ),
+          )
+          .where(
+            (restaurant) => restaurant.name.trim().isNotEmpty,
+          )
+          .toList();
+
+      restaurants.sort((a, b) {
+        if (a.isFounder != b.isFounder) {
+          return a.isFounder ? -1 : 1;
+        }
+
+        return a.name.toLowerCase().compareTo(
+              b.name.toLowerCase(),
+            );
+      });
+
+      return restaurants;
+    });
+  }
+
+  /// Belirtilen restoranın gerçek menü ürünlerini dinler.
   static Stream<List<RestoranMenuItemModel>> streamMenuItems({
     required String restaurantId,
   }) {
@@ -54,7 +116,9 @@ class RestoranService {
               },
             );
           })
-          .where((item) => item.name.trim().isNotEmpty)
+          .where(
+            (item) => item.name.trim().isNotEmpty,
+          )
           .toList();
 
       items.sort((a, b) {
@@ -62,14 +126,19 @@ class RestoranService {
           return a.isFeatured ? -1 : 1;
         }
 
-        return a.name.toLowerCase().compareTo(b.name.toLowerCase());
+        return a.name.toLowerCase().compareTo(
+              b.name.toLowerCase(),
+            );
       });
 
       return items;
     });
   }
 
-  static Future<RestoranModel?> getRestaurantById(String restaurantId) async {
+  /// Restoranı belge kimliği üzerinden tek seferlik getirir.
+  static Future<RestoranModel?> getRestaurantById(
+    String restaurantId,
+  ) async {
     final id = restaurantId.trim();
 
     if (id.isEmpty) {
@@ -88,6 +157,9 @@ class RestoranService {
       return null;
     }
 
-    return RestoranModel.fromMap(doc.id, data);
+    return RestoranModel.fromMap(
+      doc.id,
+      data,
+    );
   }
 }

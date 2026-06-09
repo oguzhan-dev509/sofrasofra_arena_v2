@@ -4,8 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:sofrasofra_arena_v2/services/seller_order_service.dart';
 
 class RestoranSiparisYonetimiSayfasi extends StatelessWidget {
-  const RestoranSiparisYonetimiSayfasi({super.key});
+  const RestoranSiparisYonetimiSayfasi({
+    super.key,
+    required this.restaurantId,
+    this.restaurantName = '',
+  });
 
+  final String restaurantId;
+  final String restaurantName;
   static const Color _gold = Color(0xFFFFB300);
   static const Color _bg = Color(0xFF070707);
   static const Color _card = Color(0xFF111111);
@@ -13,9 +19,11 @@ class RestoranSiparisYonetimiSayfasi extends StatelessWidget {
   Stream<QuerySnapshot<Map<String, dynamic>>> _restaurantOrdersStream() {
     return FirebaseFirestore.instance
         .collection('sellerOrders')
-        .where('sellerType', isEqualTo: 'restaurant')
-        .orderBy('createdAt', descending: true)
-        .limit(30)
+        .where(
+          'saticiId',
+          isEqualTo: restaurantId,
+        )
+        .limit(100)
         .snapshots();
   }
 

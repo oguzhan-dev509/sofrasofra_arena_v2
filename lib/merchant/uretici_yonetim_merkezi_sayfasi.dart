@@ -13,6 +13,7 @@ import 'teslimat_ayarlar_sayfasi.dart';
 import 'package:sofrasofra_arena_v2/modules/widgets/ev_membership_card.dart';
 import 'package:sofrasofra_arena_v2/courier/kurye_mobil_paneli.dart';
 import 'package:sofrasofra_arena_v2/modules/restoranlar/restoran_yonetim_paneli.dart';
+import 'package:sofrasofra_arena_v2/modules/restoranlar/restoranlarim_sayfasi.dart';
 
 class UreticiYonetimMerkeziSayfasi extends StatelessWidget {
   const UreticiYonetimMerkeziSayfasi({super.key});
@@ -582,9 +583,7 @@ class _PanelShell extends StatelessWidget {
                   case _PanelPageType.restoran:
                     Navigator.of(context).push(
                       MaterialPageRoute(
-                        builder: (_) => const RestoranYonetimPaneli(
-                          restaurantId: 'mahalle_ocakbasi_test',
-                        ),
+                        builder: (_) => const RestoranlarimSayfasi(),
                       ),
                     );
                     break;

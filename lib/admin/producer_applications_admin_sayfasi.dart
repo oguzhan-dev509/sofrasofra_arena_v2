@@ -94,25 +94,86 @@ class ProducerApplicationsAdminSayfasi extends StatelessWidget {
     required BuildContext context,
     required String docId,
     required String status,
+    required Map<String, dynamic> applicationData,
   }) async {
     try {
-      await FirebaseFirestore.instance
-          .collection('producer_applications')
-          .doc(docId)
-          .update({
+      final firestore = FirebaseFirestore.instance;
+      final batch = firestore.batch();
+
+      final applicationRef =
+          firestore.collection('producer_applications').doc(docId);
+
+      final applicationUpdate = <String, dynamic>{
         'status': status,
         'adminLastAction': status,
         'adminLastActionAt': FieldValue.serverTimestamp(),
         'updatedAt': FieldValue.serverTimestamp(),
         'reviewedAt': FieldValue.serverTimestamp(),
-      });
+      };
+
+      final type = applicationData['type']?.toString().trim() ?? '';
+      final isletmeTipi =
+          applicationData['isletmeTipi']?.toString().trim() ?? '';
+      final userId = applicationData['userId']?.toString().trim() ?? '';
+      final ownerUid = userId.isNotEmpty ? userId : docId;
+
+      final shouldCreateRestaurant = status == 'approved' &&
+          type == 'profesyonel_isletme' &&
+          isletmeTipi == 'restoran';
+
+      if (shouldCreateRestaurant) {
+        final restaurantId = ownerUid;
+        final restaurantRef =
+            firestore.collection('restaurants').doc(restaurantId);
+
+        final restaurantName =
+            applicationData['isletmeAdi']?.toString().trim().isNotEmpty == true
+                ? applicationData['isletmeAdi'].toString().trim()
+                : 'Restoran';
+
+        batch.set(
+          restaurantRef,
+          {
+            'ownerUid': ownerUid,
+            'applicationId': docId,
+            'name': restaurantName,
+            'restaurantName': restaurantName,
+            'title': restaurantName,
+            'phone': applicationData['telefon']?.toString().trim() ?? '',
+            'email': applicationData['email']?.toString().trim() ?? '',
+            'city': applicationData['sehir']?.toString().trim() ?? '',
+            'district': applicationData['ilce']?.toString().trim() ?? '',
+            'description': applicationData['aciklama']?.toString().trim() ?? '',
+            'category': 'Restoran',
+            'cuisine': '',
+            'isOpen': false,
+            'isActive': true,
+            'isLaunchReady': false,
+            'supportsGelAl': true,
+            'supportsGotur': true,
+            'createdAt': FieldValue.serverTimestamp(),
+            'updatedAt': FieldValue.serverTimestamp(),
+          },
+          SetOptions(merge: true),
+        );
+
+        applicationUpdate['restaurantId'] = restaurantId;
+        applicationUpdate['restaurantCreatedAt'] = FieldValue.serverTimestamp();
+      }
+
+      batch.update(applicationRef, applicationUpdate);
+      await batch.commit();
 
       if (!context.mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            status == 'approved' ? 'Başvuru onaylandı.' : 'Başvuru reddedildi.',
+            shouldCreateRestaurant
+                ? 'Başvuru onaylandı ve restoran hesabı oluşturuldu.'
+                : status == 'approved'
+                    ? 'Başvuru onaylandı.'
+                    : 'Başvuru reddedildi.',
           ),
           backgroundColor:
               status == 'approved' ? Colors.green : Colors.redAccent,
@@ -203,6 +264,7 @@ class ProducerApplicationsAdminSayfasi extends StatelessWidget {
                 final vergiNotu = data['vergiNotu'];
                 final aciklama = data['aciklama'];
                 final billingInfo = data['billingInfo'];
+
                 final status = switch (rawStatus) {
                   'pending' => 'submitted',
                   'new' => 'submitted',
@@ -212,6 +274,7 @@ class ProducerApplicationsAdminSayfasi extends StatelessWidget {
                   'reviewed' => 'reviewed',
                   _ => 'submitted',
                 };
+
                 final title = data['mutfakAdi']?.toString().trim().isNotEmpty ==
                         true
                     ? data['mutfakAdi'].toString()
@@ -245,6 +308,7 @@ class ProducerApplicationsAdminSayfasi extends StatelessWidget {
                 final email = data['email']?.toString() ?? '';
                 final city = data['sehir']?.toString() ?? '';
                 final district = data['ilce']?.toString() ?? '';
+
                 final note =
                     data['uzmanlik']?.toString().trim().isNotEmpty == true
                         ? data['uzmanlik'].toString()
@@ -354,6 +418,7 @@ class ProducerApplicationsAdminSayfasi extends StatelessWidget {
                                         context: context,
                                         docId: doc.id,
                                         status: 'approved',
+                                        applicationData: data,
                                       );
                                     },
                               icon: const Icon(Icons.check_rounded),
@@ -380,6 +445,7 @@ class ProducerApplicationsAdminSayfasi extends StatelessWidget {
                                         context: context,
                                         docId: doc.id,
                                         status: 'rejected',
+                                        applicationData: data,
                                       );
                                     },
                               icon: const Icon(Icons.close_rounded),

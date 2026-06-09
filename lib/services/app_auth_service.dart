@@ -33,18 +33,21 @@ class AppAuthService {
     return cred.user;
   }
 
-  /// Satıcı/admin sabit giriş.
-  /// Anonim kullanıcı varsa önce çıkış yapılır, sonra kalıcı hesapla giriş yapılır.
+  /// Kalıcı satıcı, üretici ve platform yöneticisi girişi.
+  ///
+  /// Yönetici yetkisi burada e-posta listesiyle verilmez.
+  /// Platform yöneticiliği Firestore'daki platform_admins/{uid}
+  /// belgesi üzerinden kontrol edilir.
   static Future<UserCredential> signInSellerOrAdmin({
     required String email,
     required String password,
   }) async {
     final cleanEmail = email.trim().toLowerCase();
 
-    if (!allowedAdminEmails.contains(cleanEmail)) {
+    if (cleanEmail.isEmpty || password.isEmpty) {
       throw FirebaseAuthException(
-        code: 'unauthorized-email',
-        message: 'Bu e-posta yetkili giriş için tanımlı değil.',
+        code: 'missing-credentials',
+        message: 'E-posta ve şifre zorunludur.',
       );
     }
 
@@ -54,33 +57,32 @@ class AppAuthService {
       await _auth.signOut();
     }
 
-    final cred = await _auth.signInWithEmailAndPassword(
+    final credential = await _auth.signInWithEmailAndPassword(
       email: cleanEmail,
       password: password,
     );
 
-    final signedEmail = (cred.user?.email ?? '').trim().toLowerCase();
+    final user = credential.user;
 
-    if (!allowedAdminEmails.contains(signedEmail)) {
+    if (user == null || user.isAnonymous) {
       await _auth.signOut();
 
       throw FirebaseAuthException(
-        code: 'unauthorized-email',
-        message: 'Bu e-posta yetkili giriş için tanımlı değil.',
+        code: 'invalid-fixed-account',
+        message: 'Kalıcı kullanıcı hesabıyla giriş yapılamadı.',
       );
     }
 
     debugPrint(
-      'AUTH FIXED LOGIN uid=${cred.user?.uid} email=${cred.user?.email} anonymous=${cred.user?.isAnonymous}',
+      'AUTH FIXED LOGIN '
+      'uid=${user.uid} '
+      'email=${user.email} '
+      'anonymous=${user.isAnonymous}',
     );
 
-    return cred;
+    return credential;
   }
 
-  static const Set<String> allowedAdminEmails = {
-    'meminhazret@gmail.com',
-    'admin@sofrasofra.com',
-  };
   static Future<void> signOut() async {
     await _auth.signOut();
     debugPrint('AUTH SIGN OUT');

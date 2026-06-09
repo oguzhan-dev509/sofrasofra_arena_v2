@@ -46,51 +46,6 @@ class _PremiumRestoranVitriniState extends State<PremiumRestoranVitrini> {
     super.dispose();
   }
 
-  static const List<RestoranModel> _demoRestaurants = [
-    RestoranModel(
-      id: 'mahalle_ocakbasi',
-      name: 'Mahalle Ocakbaşı',
-      description:
-          'Kebap, ızgara ve günlük sıcak yemekleriyle mahalle lezzetini Sofrasofra standardında sunar.',
-      imageUrl: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5',
-      cuisine: 'Kebap & Izgara',
-      city: 'İstanbul',
-      district: 'Üsküdar',
-      preparationText: '25-35 dk',
-      ratingText: '4.8 ★',
-      supportsGelAl: true,
-      supportsGotur: true,
-    ),
-    RestoranModel(
-      id: 'butik_esnaf_lokantasi',
-      name: 'Butik Esnaf Lokantası',
-      description:
-          'Günlük tencere yemekleri, çorba, pilav ve ev sıcaklığında restoran menüsü.',
-      imageUrl: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4',
-      cuisine: 'Esnaf Lokantası',
-      city: 'İstanbul',
-      district: 'Kadıköy',
-      preparationText: '20-30 dk',
-      ratingText: '4.9 ★',
-      supportsGelAl: true,
-      supportsGotur: true,
-    ),
-    RestoranModel(
-      id: 'sofra_pide_lahmacun',
-      name: 'Sofra Pide & Lahmacun',
-      description:
-          'Taş fırın lezzetleri, mahalleye özel hızlı hazırlık ve kurucu restoran avantajı.',
-      imageUrl: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38',
-      cuisine: 'Pide & Lahmacun',
-      city: 'İstanbul',
-      district: 'Fatih',
-      preparationText: '18-28 dk',
-      ratingText: '4.7 ★',
-      supportsGelAl: true,
-      supportsGotur: true,
-    ),
-  ];
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -111,11 +66,7 @@ class _PremiumRestoranVitriniState extends State<PremiumRestoranVitrini> {
       body: StreamBuilder<List<RestoranModel>>(
         stream: RestoranService.streamRestaurantsForShowcase(),
         builder: (context, snapshot) {
-          final firestoreRestaurants = snapshot.data ?? const <RestoranModel>[];
-
-          final sourceRestaurants = firestoreRestaurants.isNotEmpty
-              ? firestoreRestaurants
-              : _demoRestaurants;
+          final sourceRestaurants = snapshot.data ?? const <RestoranModel>[];
 
           String normalizeSearchText(String value) {
             return value
@@ -181,7 +132,7 @@ class _PremiumRestoranVitriniState extends State<PremiumRestoranVitrini> {
             );
           }
           final showFallbackNotice =
-              snapshot.hasError || firestoreRestaurants.isEmpty;
+              snapshot.hasError || sourceRestaurants.isEmpty;
 
           return ListView(
             padding: const EdgeInsets.fromLTRB(18, 18, 18, 32),
