@@ -103,11 +103,16 @@ function restaurantOwnerCanUpdate() {
       && request.resource.data.diff(resource.data)
         .affectedKeys()
         .hasOnly([
-          'status',
-          'durum',
-          'statusUpdatedAt',
-          'updatedAt'
-        ])
+  'status',
+  'durum',
+  'statusUpdatedAt',
+  'updatedAt',
+  'acceptedAt',
+  'preparationMinutes',
+  'estimatedReadyAt',
+  'rejectedAt',
+  'rejectionReason'
+])
     );
 
   allow delete: if isPlatformAdmin();

@@ -19,7 +19,15 @@ class RestoranYonetimPaneli extends StatelessWidget {
   static const Color _gold = Color(0xFFFFB300);
   static const Color _bg = Color(0xFF070707);
   static const Color _card = Color(0xFF141414);
-
+  static const List<Map<String, String>> _weekDays = [
+    {'key': 'monday', 'label': 'Pazartesi'},
+    {'key': 'tuesday', 'label': 'Salı'},
+    {'key': 'wednesday', 'label': 'Çarşamba'},
+    {'key': 'thursday', 'label': 'Perşembe'},
+    {'key': 'friday', 'label': 'Cuma'},
+    {'key': 'saturday', 'label': 'Cumartesi'},
+    {'key': 'sunday', 'label': 'Pazar'},
+  ];
   DocumentReference<Map<String, dynamic>> get _restaurantRef =>
       FirebaseFirestore.instance.collection('restaurants').doc(restaurantId);
 
@@ -51,6 +59,439 @@ class RestoranYonetimPaneli extends StatelessWidget {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Restoran durumu güncellenemedi: $error'),
+        ),
+      );
+    }
+  }
+
+  String _formatTimeOfDay(TimeOfDay time) {
+    final hour = time.hour.toString().padLeft(2, '0');
+    final minute = time.minute.toString().padLeft(2, '0');
+
+    return '$hour:$minute';
+  }
+
+  TimeOfDay _parseTimeOfDay(
+    dynamic value, {
+    required TimeOfDay fallback,
+  }) {
+    final text = (value ?? '').toString().trim();
+    final parts = text.split(':');
+
+    if (parts.length != 2) {
+      return fallback;
+    }
+
+    final hour = int.tryParse(parts[0]);
+    final minute = int.tryParse(parts[1]);
+
+    if (hour == null ||
+        minute == null ||
+        hour < 0 ||
+        hour > 23 ||
+        minute < 0 ||
+        minute > 59) {
+      return fallback;
+    }
+
+    return TimeOfDay(hour: hour, minute: minute);
+  }
+
+  Future<void> _workingHoursDialog({
+    required BuildContext context,
+    required Map<String, dynamic> restaurantData,
+  }) async {
+    final rawWorkingHours =
+        restaurantData['workingHours'] as Map<String, dynamic>? ?? {};
+
+    final workingHours = <String, Map<String, dynamic>>{};
+
+    for (final day in _weekDays) {
+      final key = day['key']!;
+      final rawDay = rawWorkingHours[key];
+
+      final dayData = rawDay is Map
+          ? Map<String, dynamic>.from(rawDay)
+          : <String, dynamic>{};
+
+      workingHours[key] = {
+        'enabled': dayData['enabled'] != false,
+        'open': (dayData['open'] ?? '09:00').toString(),
+        'close': (dayData['close'] ?? '22:00').toString(),
+      };
+    }
+
+    final shouldSave = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) {
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            return AlertDialog(
+              backgroundColor: _card,
+              title: const Text(
+                'Haftalık Çalışma Saatleri',
+                style: TextStyle(
+                  color: _gold,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+              content: SizedBox(
+                width: 560,
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: _weekDays.map((day) {
+                      final key = day['key']!;
+                      final label = day['label']!;
+                      final dayData = workingHours[key]!;
+                      final enabled = dayData['enabled'] == true;
+
+                      return Container(
+                        margin: const EdgeInsets.only(bottom: 10),
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.black.withValues(alpha: 0.28),
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(
+                            color: enabled
+                                ? _gold.withValues(alpha: 0.30)
+                                : Colors.white12,
+                          ),
+                        ),
+                        child: Column(
+                          children: [
+                            SwitchListTile.adaptive(
+                              contentPadding: EdgeInsets.zero,
+                              value: enabled,
+                              activeColor: _gold,
+                              title: Text(
+                                label,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w900,
+                                ),
+                              ),
+                              subtitle: Text(
+                                enabled ? 'Sipariş alınır' : 'Kapalı gün',
+                                style: TextStyle(
+                                  color: enabled
+                                      ? Colors.white60
+                                      : Colors.redAccent,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                              onChanged: (value) {
+                                setDialogState(() {
+                                  dayData['enabled'] = value;
+                                });
+                              },
+                            ),
+                            if (enabled)
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: OutlinedButton.icon(
+                                      onPressed: () async {
+                                        final selected = await showTimePicker(
+                                          context: context,
+                                          initialTime: _parseTimeOfDay(
+                                            dayData['open'],
+                                            fallback: const TimeOfDay(
+                                              hour: 9,
+                                              minute: 0,
+                                            ),
+                                          ),
+                                        );
+
+                                        if (selected == null) return;
+
+                                        setDialogState(() {
+                                          dayData['open'] =
+                                              _formatTimeOfDay(selected);
+                                        });
+                                      },
+                                      icon: const Icon(
+                                        Icons.wb_sunny_outlined,
+                                      ),
+                                      label: Text(
+                                        'Açılış ${dayData['open']}',
+                                      ),
+                                      style: OutlinedButton.styleFrom(
+                                        foregroundColor: _gold,
+                                        side: BorderSide(
+                                          color: _gold.withValues(alpha: 0.45),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 10),
+                                  Expanded(
+                                    child: OutlinedButton.icon(
+                                      onPressed: () async {
+                                        final selected = await showTimePicker(
+                                          context: context,
+                                          initialTime: _parseTimeOfDay(
+                                            dayData['close'],
+                                            fallback: const TimeOfDay(
+                                              hour: 22,
+                                              minute: 0,
+                                            ),
+                                          ),
+                                        );
+
+                                        if (selected == null) return;
+
+                                        setDialogState(() {
+                                          dayData['close'] =
+                                              _formatTimeOfDay(selected);
+                                        });
+                                      },
+                                      icon: const Icon(
+                                        Icons.nightlight_outlined,
+                                      ),
+                                      label: Text(
+                                        'Kapanış ${dayData['close']}',
+                                      ),
+                                      style: OutlinedButton.styleFrom(
+                                        foregroundColor: Colors.white,
+                                        side: const BorderSide(
+                                          color: Colors.white24,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                          ],
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(dialogContext, false),
+                  child: const Text('Vazgeç'),
+                ),
+                ElevatedButton.icon(
+                  onPressed: () => Navigator.pop(dialogContext, true),
+                  icon: const Icon(Icons.save_outlined),
+                  label: const Text('Saatleri Kaydet'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: _gold,
+                    foregroundColor: Colors.black,
+                  ),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+
+    if (shouldSave != true || !context.mounted) return;
+
+    try {
+      await _restaurantRef.update({
+        'workingHours': workingHours,
+        'timezone': 'Europe/Istanbul',
+        'workingHoursUpdatedAt': FieldValue.serverTimestamp(),
+        'workingHoursUpdatedBy': FirebaseAuth.instance.currentUser?.uid ?? '',
+      });
+
+      if (!context.mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Çalışma saatleri kaydedildi.'),
+        ),
+      );
+    } catch (error) {
+      if (!context.mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Çalışma saatleri kaydedilemedi: $error',
+          ),
+        ),
+      );
+    }
+  }
+
+  Future<void> _temporaryCloseDialog({
+    required BuildContext context,
+  }) async {
+    final selectedAction = await showDialog<String>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          backgroundColor: _card,
+          title: const Text(
+            'Sipariş Durumu',
+            style: TextStyle(
+              color: _gold,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(
+                  Icons.check_circle_rounded,
+                  color: Colors.greenAccent,
+                ),
+                title: const Text(
+                  'Siparişe Aç',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                onTap: () => Navigator.pop(dialogContext, 'open'),
+              ),
+              ListTile(
+                leading: const Icon(
+                  Icons.timer_outlined,
+                  color: _gold,
+                ),
+                title: const Text(
+                  '30 Dakika Kapalı',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                onTap: () => Navigator.pop(dialogContext, '30m'),
+              ),
+              ListTile(
+                leading: const Icon(
+                  Icons.timer_outlined,
+                  color: _gold,
+                ),
+                title: const Text(
+                  '1 Saat Kapalı',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                onTap: () => Navigator.pop(dialogContext, '60m'),
+              ),
+              ListTile(
+                leading: const Icon(
+                  Icons.today_outlined,
+                  color: Colors.orangeAccent,
+                ),
+                title: const Text(
+                  'Bugün Sipariş Almıyorum',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                onTap: () => Navigator.pop(dialogContext, 'today'),
+              ),
+              ListTile(
+                leading: const Icon(
+                  Icons.pause_circle_outline,
+                  color: Colors.redAccent,
+                ),
+                title: const Text(
+                  'Süresiz Geçici Kapat',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                onTap: () => Navigator.pop(dialogContext, 'indefinite'),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+
+    if (selectedAction == null || !context.mounted) return;
+
+    final now = DateTime.now();
+
+    bool temporarilyClosed = true;
+    Timestamp? closedUntil;
+    String reason;
+
+    switch (selectedAction) {
+      case 'open':
+        temporarilyClosed = false;
+        closedUntil = null;
+        reason = '';
+        break;
+
+      case '30m':
+        closedUntil = Timestamp.fromDate(
+          now.add(const Duration(minutes: 30)),
+        );
+        reason = '30 dakika geçici kapalı';
+        break;
+
+      case '60m':
+        closedUntil = Timestamp.fromDate(
+          now.add(const Duration(hours: 1)),
+        );
+        reason = '1 saat geçici kapalı';
+        break;
+
+      case 'today':
+        closedUntil = Timestamp.fromDate(
+          DateTime(
+            now.year,
+            now.month,
+            now.day,
+            23,
+            59,
+            59,
+          ),
+        );
+        reason = 'Bugün sipariş alınmıyor';
+        break;
+
+      default:
+        closedUntil = null;
+        reason = 'Geçici olarak siparişe kapalı';
+    }
+
+    try {
+      await _restaurantRef.update({
+        'temporarilyClosed': temporarilyClosed,
+        'temporaryClosedUntil': closedUntil,
+        'temporaryClosedReason': reason,
+        'temporaryStatusUpdatedAt': FieldValue.serverTimestamp(),
+        'temporaryStatusUpdatedBy':
+            FirebaseAuth.instance.currentUser?.uid ?? '',
+        if (selectedAction == 'open') 'isOpen': true,
+      });
+
+      if (!context.mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            temporarilyClosed
+                ? 'Restoran geçici olarak siparişe kapatıldı.'
+                : 'Restoran yeniden siparişe açıldı.',
+          ),
+        ),
+      );
+    } catch (error) {
+      if (!context.mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Sipariş durumu güncellenemedi: $error',
+          ),
         ),
       );
     }
@@ -541,6 +982,31 @@ class RestoranYonetimPaneli extends StatelessWidget {
                     );
                   },
                 ),
+              ),
+              const SizedBox(height: 16),
+              _actionCard(
+                icon: Icons.schedule_rounded,
+                title: 'Çalışma Saatleri',
+                subtitle:
+                    'Haftanın günlerine göre açılış ve kapanış saatlerini düzenleyin.',
+                onTap: () {
+                  _workingHoursDialog(
+                    context: context,
+                    restaurantData: data,
+                  );
+                },
+              ),
+              const SizedBox(height: 12),
+              _actionCard(
+                icon: Icons.pause_circle_outline_rounded,
+                title: 'Geçici Olarak Siparişe Kapat',
+                subtitle:
+                    '30 dakika, 1 saat, bugünlük veya süresiz olarak siparişi durdurun.',
+                onTap: () {
+                  _temporaryCloseDialog(
+                    context: context,
+                  );
+                },
               ),
               const SizedBox(height: 16),
               _actionCard(

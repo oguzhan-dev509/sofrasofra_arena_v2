@@ -53,6 +53,8 @@ class RestoranSiparisYonetimiSayfasi extends StatelessWidget {
       case 'delivered':
       case 'completed':
         return 'Teslim Edildi';
+      case 'rejected':
+        return 'Restoran Reddetti';
       case 'cancelled':
         return 'İptal';
       default:
@@ -77,6 +79,8 @@ class RestoranSiparisYonetimiSayfasi extends StatelessWidget {
     required BuildContext context,
     required QueryDocumentSnapshot<Map<String, dynamic>> doc,
     required String nextStatus,
+    int? preparationMinutes,
+    String? rejectionReason,
   }) async {
     final data = doc.data();
 
@@ -100,6 +104,8 @@ class RestoranSiparisYonetimiSayfasi extends StatelessWidget {
         siparisNo: siparisNo,
         status: nextStatus,
         saticiId: saticiId,
+        preparationMinutes: preparationMinutes,
+        rejectionReason: rejectionReason,
       );
 
       if (!context.mounted) return;
@@ -121,6 +127,190 @@ class RestoranSiparisYonetimiSayfasi extends StatelessWidget {
     }
   }
 
+  Future<void> _acceptOrderDialog({
+    required BuildContext context,
+    required QueryDocumentSnapshot<Map<String, dynamic>> doc,
+  }) async {
+    int selectedMinutes = 30;
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) {
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            return AlertDialog(
+              backgroundColor: _card,
+              title: const Text(
+                'Siparişi Kabul Et',
+                style: TextStyle(
+                  color: _gold,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Tahmini hazırlama süresini seçin.',
+                    style: TextStyle(
+                      color: Colors.white70,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [15, 20, 30, 45, 60].map((minutes) {
+                      return ChoiceChip(
+                        label: Text('$minutes dk'),
+                        selected: selectedMinutes == minutes,
+                        onSelected: (_) {
+                          setDialogState(() {
+                            selectedMinutes = minutes;
+                          });
+                        },
+                        selectedColor: _gold,
+                        backgroundColor: Colors.black,
+                        labelStyle: TextStyle(
+                          color: selectedMinutes == minutes
+                              ? Colors.black
+                              : Colors.white,
+                          fontWeight: FontWeight.w900,
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(dialogContext, false),
+                  child: const Text('Vazgeç'),
+                ),
+                ElevatedButton(
+                  onPressed: () => Navigator.pop(dialogContext, true),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: _gold,
+                    foregroundColor: Colors.black,
+                  ),
+                  child: const Text(
+                    'Kabul Et ve Hazırlamaya Başla',
+                    style: TextStyle(fontWeight: FontWeight.w900),
+                  ),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+
+    if (confirmed != true || !context.mounted) return;
+
+    await _updateStatus(
+      context: context,
+      doc: doc,
+      nextStatus: 'preparing',
+      preparationMinutes: selectedMinutes,
+    );
+  }
+
+  Future<void> _rejectOrderDialog({
+    required BuildContext context,
+    required QueryDocumentSnapshot<Map<String, dynamic>> doc,
+  }) async {
+    String selectedReason = 'Ürün tükendi';
+
+    const reasons = [
+      'Ürün tükendi',
+      'Restoran kapalı',
+      'Yoğunluk nedeniyle hazırlanamıyor',
+      'Sipariş bilgileri eksik',
+      'Diğer',
+    ];
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) {
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            return AlertDialog(
+              backgroundColor: _card,
+              title: const Text(
+                'Siparişi Reddet',
+                style: TextStyle(
+                  color: Colors.redAccent,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+              content: DropdownButtonFormField<String>(
+                initialValue: selectedReason,
+                dropdownColor: _card,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w700,
+                ),
+                decoration: const InputDecoration(
+                  labelText: 'Ret nedeni',
+                  labelStyle: TextStyle(color: Colors.white70),
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.white24),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.redAccent),
+                  ),
+                ),
+                items: reasons
+                    .map(
+                      (reason) => DropdownMenuItem(
+                        value: reason,
+                        child: Text(reason),
+                      ),
+                    )
+                    .toList(),
+                onChanged: (value) {
+                  if (value == null) return;
+
+                  setDialogState(() {
+                    selectedReason = value;
+                  });
+                },
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(dialogContext, false),
+                  child: const Text('Vazgeç'),
+                ),
+                ElevatedButton(
+                  onPressed: () => Navigator.pop(dialogContext, true),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.redAccent,
+                    foregroundColor: Colors.white,
+                  ),
+                  child: const Text(
+                    'Siparişi Reddet',
+                    style: TextStyle(fontWeight: FontWeight.w900),
+                  ),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+
+    if (confirmed != true || !context.mounted) return;
+
+    await _updateStatus(
+      context: context,
+      doc: doc,
+      nextStatus: 'rejected',
+      rejectionReason: selectedReason,
+    );
+  }
+
   Widget _actionButtons({
     required BuildContext context,
     required QueryDocumentSnapshot<Map<String, dynamic>> doc,
@@ -128,21 +318,47 @@ class RestoranSiparisYonetimiSayfasi extends StatelessWidget {
     required String deliveryMode,
   }) {
     if (status == 'paid' || status == 'payment_success') {
-      return ElevatedButton.icon(
-        onPressed: () async {
-          await _updateStatus(
-            context: context,
-            doc: doc,
-            nextStatus: 'preparing',
-          );
-        },
-        icon: const Icon(Icons.restaurant_menu),
-        label: const Text('Hazırlanıyor'),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: _gold,
-          foregroundColor: Colors.black,
-          textStyle: const TextStyle(fontWeight: FontWeight.w900),
-        ),
+      return Wrap(
+        spacing: 10,
+        runSpacing: 10,
+        children: [
+          ElevatedButton.icon(
+            onPressed: () async {
+              await _acceptOrderDialog(
+                context: context,
+                doc: doc,
+              );
+            },
+            icon: const Icon(Icons.check_circle_outline),
+            label: const Text('Kabul Et'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: _gold,
+              foregroundColor: Colors.black,
+              textStyle: const TextStyle(
+                fontWeight: FontWeight.w900,
+              ),
+            ),
+          ),
+          OutlinedButton.icon(
+            onPressed: () async {
+              await _rejectOrderDialog(
+                context: context,
+                doc: doc,
+              );
+            },
+            icon: const Icon(Icons.cancel_outlined),
+            label: const Text('Reddet'),
+            style: OutlinedButton.styleFrom(
+              foregroundColor: Colors.redAccent,
+              side: const BorderSide(
+                color: Colors.redAccent,
+              ),
+              textStyle: const TextStyle(
+                fontWeight: FontWeight.w900,
+              ),
+            ),
+          ),
+        ],
       );
     }
 
@@ -187,19 +403,28 @@ class RestoranSiparisYonetimiSayfasi extends StatelessWidget {
     final status = _safeString(data['status'] ?? data['durum']);
     final deliveryMode = _safeString(data['deliveryMode']);
     final siparisNo = _safeString(data['siparisNo'], fallback: doc.id);
+
     final restaurantName = _safeString(
       data['saticiAdi'] ?? data['restaurantName'] ?? data['dukkanAdi'],
       fallback: 'Restoran',
     );
+
     final customerName = _safeString(
       data['musteriAd'] ?? data['customerName'],
       fallback: 'Müşteri',
     );
+
     final customerPhone =
         _safeString(data['musteriTelefon'] ?? data['customerPhone']);
+
     final total = _asDouble(data['genelToplam'] ?? data['araToplam']);
     final itemCount = data['urunSayisi'] ?? '-';
 
+    final preparationMinutes = (data['preparationMinutes'] as num?)?.toInt();
+
+    final estimatedReadyAt = data['estimatedReadyAt'] as Timestamp?;
+
+    final rejectionReason = _safeString(data['rejectionReason']);
     return Container(
       margin: const EdgeInsets.only(bottom: 14),
       padding: const EdgeInsets.all(16),
@@ -280,6 +505,37 @@ class RestoranSiparisYonetimiSayfasi extends StatelessWidget {
               fontWeight: FontWeight.w800,
             ),
           ),
+          if (preparationMinutes != null && preparationMinutes > 0) ...[
+            const SizedBox(height: 6),
+            Text(
+              'Hazırlama süresi: $preparationMinutes dakika',
+              style: const TextStyle(
+                color: _gold,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+          ],
+          if (estimatedReadyAt != null) ...[
+            const SizedBox(height: 6),
+            Text(
+              'Tahmini hazır: '
+              '${TimeOfDay.fromDateTime(estimatedReadyAt.toDate()).format(context)}',
+              style: const TextStyle(
+                color: Colors.white70,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ],
+          if (status == 'rejected' && rejectionReason.isNotEmpty) ...[
+            const SizedBox(height: 6),
+            Text(
+              'Ret nedeni: $rejectionReason',
+              style: const TextStyle(
+                color: Colors.redAccent,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+          ],
           const SizedBox(height: 14),
           _actionButtons(
             context: context,

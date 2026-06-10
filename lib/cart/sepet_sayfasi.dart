@@ -291,6 +291,8 @@ class _SepetSayfasiState extends State<SepetSayfasi> {
         finance: finance.toMap(),
       );
 
+      debugPrint('PAYMENT INIT ORDER ID=$orderId');
+
       if (!mounted) return;
 
       final callable = FirebaseFunctions.instanceFor(

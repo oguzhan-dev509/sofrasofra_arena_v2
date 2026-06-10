@@ -4,14 +4,15 @@ import 'restoran_status_badge.dart';
 class RestoranPremiumCard extends StatelessWidget {
   const RestoranPremiumCard({
     super.key,
+    required this.imageUrl,
     required this.name,
     required this.description,
-    required this.imageUrl,
     required this.cuisine,
     required this.district,
     required this.preparationText,
     required this.ratingText,
     required this.serviceText,
+    required this.statusText,
     required this.isOpen,
     required this.onTap,
   });
@@ -24,6 +25,7 @@ class RestoranPremiumCard extends StatelessWidget {
   final String preparationText;
   final String ratingText;
   final String serviceText;
+  final String statusText;
   final bool isOpen;
   final VoidCallback onTap;
   static const Color _gold = Color(0xFFFFB300);
@@ -131,7 +133,7 @@ class RestoranPremiumCard extends StatelessWidget {
                           icon: Icons.lock_clock,
                         ),
                         RestoranStatusBadge(
-                          label: isOpen ? 'Açık' : 'Kapalı',
+                          label: statusText,
                           icon: isOpen
                               ? Icons.check_circle_rounded
                               : Icons.cancel_rounded,

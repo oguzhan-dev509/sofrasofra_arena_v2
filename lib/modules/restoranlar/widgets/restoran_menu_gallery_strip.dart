@@ -165,6 +165,7 @@ class RestoranMenuGalleryStrip extends StatelessWidget {
                             isGalleryImage: isGalleryImage,
                             canManage: canManage,
                             busy: busy,
+                            isOrderable: item.canOrder,
                             onDeleteGalleryPhoto: onDeleteGalleryPhoto,
                             onEditMenuItemTap: onEditMenuItemTap,
                             gelAlFiyat: item.gelAlFiyatForImage(imageUrl),
@@ -198,6 +199,7 @@ class RestoranMenuGalleryStrip extends StatelessWidget {
                           isGalleryImage: isGalleryImage,
                           canManage: canManage,
                           busy: busy,
+                          isOrderable: item.canOrder,
                           onDeleteGalleryPhoto: onDeleteGalleryPhoto,
                           onEditMenuItemTap: onEditMenuItemTap,
                           gelAlFiyat: item.gelAlFiyatForImage(imageUrl),
@@ -225,6 +227,7 @@ class _GalleryPhotoCard extends StatelessWidget {
     required this.isGalleryImage,
     required this.canManage,
     required this.busy,
+    required this.isOrderable,
     required this.onDeleteGalleryPhoto,
     this.onEditMenuItemTap,
     required this.gelAlFiyat,
@@ -239,6 +242,7 @@ class _GalleryPhotoCard extends StatelessWidget {
   final bool isGalleryImage;
   final bool canManage;
   final bool busy;
+  final bool isOrderable;
   final ValueChanged<String>? onDeleteGalleryPhoto;
   final ValueChanged<String>? onEditMenuItemTap;
   final double gelAlFiyat;
@@ -387,6 +391,7 @@ class _GalleryPhotoCard extends StatelessWidget {
               onGoturTap: onGoturTap,
               canManage: canManage,
               busy: busy,
+              isOrderable: isOrderable,
               onEditMenuItemTap: onEditMenuItemTap,
             ),
           ],
@@ -405,6 +410,7 @@ class _GalleryCartActionBar extends StatelessWidget {
     required this.onGoturTap,
     required this.canManage,
     required this.busy,
+    required this.isOrderable,
     this.onEditMenuItemTap,
   });
 
@@ -415,6 +421,7 @@ class _GalleryCartActionBar extends StatelessWidget {
   final ValueChanged<String>? onGoturTap;
   final bool canManage;
   final bool busy;
+  final bool isOrderable;
   final ValueChanged<String>? onEditMenuItemTap;
 
   @override
@@ -457,9 +464,11 @@ class _GalleryCartActionBar extends StatelessWidget {
                 price: '${gelAlFiyat.toStringAsFixed(0)} TL',
                 icon: Icons.shopping_bag_outlined,
                 isPrimary: true,
-                onTap: () {
-                  onGelAlTap?.call(imageUrl);
-                },
+                onTap: busy || !isOrderable
+                    ? null
+                    : () {
+                        onGelAlTap?.call(imageUrl);
+                      },
               ),
             ),
           if (showGelAl && showGotur) const SizedBox(width: 7),
@@ -470,9 +479,11 @@ class _GalleryCartActionBar extends StatelessWidget {
                 price: '${goturFiyat.toStringAsFixed(0)} TL',
                 icon: Icons.delivery_dining_outlined,
                 isPrimary: false,
-                onTap: () {
-                  onGoturTap?.call(imageUrl);
-                },
+                onTap: busy || !isOrderable
+                    ? null
+                    : () {
+                        onGoturTap?.call(imageUrl);
+                      },
               ),
             ),
         ],
@@ -532,19 +543,31 @@ class _GalleryCartActionChip extends StatelessWidget {
   final String price;
   final IconData icon;
   final bool isPrimary;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
 
   static const Color _gold = Color(0xFFFFB300);
 
   @override
   Widget build(BuildContext context) {
-    final borderColor = isPrimary
-        ? _gold.withValues(alpha: 0.72)
-        : Colors.white.withValues(alpha: 0.22);
+    final enabled = onTap != null;
 
-    final backgroundColor = isPrimary
-        ? _gold.withValues(alpha: 0.13)
-        : Colors.white.withValues(alpha: 0.06);
+    final borderColor = !enabled
+        ? Colors.white.withValues(alpha: 0.10)
+        : isPrimary
+            ? _gold.withValues(alpha: 0.72)
+            : Colors.white.withValues(alpha: 0.22);
+
+    final backgroundColor = !enabled
+        ? Colors.white.withValues(alpha: 0.025)
+        : isPrimary
+            ? _gold.withValues(alpha: 0.13)
+            : Colors.white.withValues(alpha: 0.06);
+
+    final foregroundColor = !enabled
+        ? Colors.white38
+        : isPrimary
+            ? _gold
+            : Colors.white;
 
     return Material(
       color: backgroundColor,
@@ -565,7 +588,7 @@ class _GalleryCartActionChip extends StatelessWidget {
               Icon(
                 icon,
                 size: 15,
-                color: isPrimary ? _gold : Colors.white,
+                color: foregroundColor,
               ),
               const SizedBox(width: 5),
               Flexible(
@@ -575,7 +598,7 @@ class _GalleryCartActionChip extends StatelessWidget {
                     '$label  $price',
                     maxLines: 1,
                     style: TextStyle(
-                      color: isPrimary ? _gold : Colors.white,
+                      color: foregroundColor,
                       fontSize: 11.5,
                       fontWeight: FontWeight.w900,
                       letterSpacing: -0.15,

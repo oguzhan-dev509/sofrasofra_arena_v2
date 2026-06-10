@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class RestoranModel {
   const RestoranModel({
     required this.id,
@@ -15,6 +17,11 @@ class RestoranModel {
     this.isLaunchReady = false,
     this.supportsGelAl = true,
     this.supportsGotur = true,
+    this.temporarilyClosed = false,
+    this.temporaryClosedUntil,
+    this.temporaryClosedReason = '',
+    this.workingHours = const <String, dynamic>{},
+    this.timezone = 'Europe/Istanbul',
   });
 
   final String id;
@@ -32,6 +39,167 @@ class RestoranModel {
   final bool isLaunchReady;
   final bool supportsGelAl;
   final bool supportsGotur;
+  final bool temporarilyClosed;
+  final DateTime? temporaryClosedUntil;
+  final String temporaryClosedReason;
+  final Map<String, dynamic> workingHours;
+  final String timezone;
+  DateTime get _istanbulNow {
+    return DateTime.now().toUtc().add(const Duration(hours: 3));
+  }
+
+  String get _todayKey {
+    switch (_istanbulNow.weekday) {
+      case DateTime.monday:
+        return 'monday';
+      case DateTime.tuesday:
+        return 'tuesday';
+      case DateTime.wednesday:
+        return 'wednesday';
+      case DateTime.thursday:
+        return 'thursday';
+      case DateTime.friday:
+        return 'friday';
+      case DateTime.saturday:
+        return 'saturday';
+      case DateTime.sunday:
+        return 'sunday';
+      default:
+        return '';
+    }
+  }
+
+  Map<String, dynamic> get _todayWorkingHours {
+    final raw = workingHours[_todayKey];
+
+    if (raw is Map) {
+      return Map<String, dynamic>.from(raw);
+    }
+
+    return const <String, dynamic>{};
+  }
+
+  int? _timeTextToMinutes(dynamic rawValue) {
+    final value = (rawValue ?? '').toString().trim();
+    final parts = value.split(':');
+
+    if (parts.length != 2) return null;
+
+    final hour = int.tryParse(parts[0]);
+    final minute = int.tryParse(parts[1]);
+
+    if (hour == null ||
+        minute == null ||
+        hour < 0 ||
+        hour > 23 ||
+        minute < 0 ||
+        minute > 59) {
+      return null;
+    }
+
+    return (hour * 60) + minute;
+  }
+
+  bool get isTemporaryClosureActive {
+    if (!temporarilyClosed) return false;
+
+    final until = temporaryClosedUntil;
+
+    // Süresiz geçici kapatma
+    if (until == null) return true;
+
+    return until.isAfter(DateTime.now());
+  }
+
+  bool get isTodayEnabled {
+    // Eski restoranlarda workingHours yoksa mevcut davranışı korur.
+    if (workingHours.isEmpty) return true;
+
+    return _todayWorkingHours['enabled'] != false;
+  }
+
+  bool get isInsideWorkingHours {
+    // Eski restoranlarda saat bilgisi yoksa mevcut davranışı korur.
+    if (workingHours.isEmpty) return true;
+
+    final today = _todayWorkingHours;
+
+    if (today.isEmpty || today['enabled'] == false) {
+      return false;
+    }
+
+    final openMinutes = _timeTextToMinutes(today['open']);
+    final closeMinutes = _timeTextToMinutes(today['close']);
+
+    if (openMinutes == null || closeMinutes == null) {
+      return true;
+    }
+
+    final now = _istanbulNow;
+    final currentMinutes = (now.hour * 60) + now.minute;
+
+    // Gece yarısını aşmayan normal çalışma aralığı
+    if (closeMinutes > openMinutes) {
+      return currentMinutes >= openMinutes && currentMinutes < closeMinutes;
+    }
+
+    // Örneğin 18:00–02:00 gibi gece yarısını aşan çalışma aralığı
+    if (closeMinutes < openMinutes) {
+      return currentMinutes >= openMinutes || currentMinutes < closeMinutes;
+    }
+
+    // Açılış ve kapanış aynıysa kapalı kabul edilir.
+    return false;
+  }
+
+  bool get isEffectivelyOpen {
+    return isOpen &&
+        !isTemporaryClosureActive &&
+        isTodayEnabled &&
+        isInsideWorkingHours;
+  }
+
+  String get effectiveStatusText {
+    if (!isOpen) {
+      return 'Restoran kapalı';
+    }
+
+    if (isTemporaryClosureActive) {
+      final reason = temporaryClosedReason.trim();
+
+      if (reason.isNotEmpty) {
+        return reason;
+      }
+
+      return 'Geçici olarak siparişe kapalı';
+    }
+
+    if (!isTodayEnabled) {
+      return 'Bugün kapalı';
+    }
+
+    final today = _todayWorkingHours;
+    final openText = (today['open'] ?? '').toString().trim();
+    final closeText = (today['close'] ?? '').toString().trim();
+
+    if (!isInsideWorkingHours) {
+      final openMinutes = _timeTextToMinutes(openText);
+      final now = _istanbulNow;
+      final currentMinutes = (now.hour * 60) + now.minute;
+
+      if (openMinutes != null && currentMinutes < openMinutes) {
+        return openText.isEmpty ? 'Henüz açılmadı' : '$openText’da açılıyor';
+      }
+
+      return 'Çalışma saatleri dışında';
+    }
+
+    if (closeText.isNotEmpty) {
+      return 'Açık • $closeText’da kapanıyor';
+    }
+
+    return 'Açık';
+  }
 
   String get locationText {
     if (city.trim().isEmpty) return district;
@@ -57,8 +225,12 @@ class RestoranModel {
   }
 
   String get launchStatusText {
-    if (isOpen) {
-      return 'Açık';
+    if (isEffectivelyOpen) {
+      return effectiveStatusText;
+    }
+
+    if (isOpen || temporarilyClosed || workingHours.isNotEmpty) {
+      return effectiveStatusText;
     }
 
     if (isLaunchReady) {
@@ -128,6 +300,15 @@ class RestoranModel {
       isLaunchReady: data['isLaunchReady'] == true,
       supportsGelAl: data['supportsGelAl'] != false,
       supportsGotur: data['supportsGotur'] != false,
+      temporarilyClosed: data['temporarilyClosed'] == true,
+      temporaryClosedUntil: data['temporaryClosedUntil'] is Timestamp
+          ? (data['temporaryClosedUntil'] as Timestamp).toDate()
+          : null,
+      temporaryClosedReason: (data['temporaryClosedReason'] ?? '').toString(),
+      workingHours: data['workingHours'] is Map
+          ? Map<String, dynamic>.from(data['workingHours'] as Map)
+          : const <String, dynamic>{},
+      timezone: (data['timezone'] ?? 'Europe/Istanbul').toString(),
     );
   }
 }

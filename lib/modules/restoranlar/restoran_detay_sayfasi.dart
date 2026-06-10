@@ -12,6 +12,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:sofrasofra_arena_v2/modules/restoranlar/restoran_siparis_yonetimi_sayfasi.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'models/restaurant_product_stock.dart';
 
 class RestoranDetaySayfasi extends StatelessWidget {
   const RestoranDetaySayfasi({
@@ -627,18 +628,89 @@ class _MenuPreviewSection extends StatelessWidget {
     required String teslimatTipi,
     String? imageUrl,
   }) async {
+    final restaurantSnapshot = await FirebaseFirestore.instance
+        .collection('restaurants')
+        .doc(restaurant.id)
+        .get();
+
+    final latestRestaurant = restaurantSnapshot.exists
+        ? RestoranModel.fromMap(
+            restaurantSnapshot.id,
+            restaurantSnapshot.data() ?? const <String, dynamic>{},
+          )
+        : restaurant;
+
+    if (!latestRestaurant.isEffectivelyOpen) {
+      if (!context.mounted) return;
+
+      final messenger = ScaffoldMessenger.of(context);
+
+      messenger.hideCurrentSnackBar();
+      messenger.showSnackBar(
+        SnackBar(
+          backgroundColor: Colors.redAccent,
+          content: Text(
+            'Bu restoran şu anda sipariş almıyor: '
+            '${latestRestaurant.effectiveStatusText}',
+            style: const TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+        ),
+      );
+
+      return;
+    }
+    final itemSnapshot = await FirebaseFirestore.instance
+        .collection('restaurants')
+        .doc(restaurant.id)
+        .collection('menu_items')
+        .doc(item.id)
+        .get();
+
+    final latestItem = itemSnapshot.exists
+        ? RestoranMenuItemModel.fromMap(
+            itemSnapshot.id,
+            itemSnapshot.data() ?? const <String, dynamic>{},
+          )
+        : item;
+
+    if (!latestItem.canOrder) {
+      if (!context.mounted) return;
+
+      final messenger = ScaffoldMessenger.of(context);
+
+      messenger.hideCurrentSnackBar();
+      messenger.showSnackBar(
+        SnackBar(
+          backgroundColor: Colors.redAccent,
+          content: Text(
+            '${latestItem.name} şu anda siparişe açık değil: '
+            '${latestItem.availabilityText}',
+            style: const TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+        ),
+      );
+
+      return;
+    }
+
     final isGotur = teslimatTipi == 'gotur';
     final effectiveImageUrl = imageUrl?.trim().isNotEmpty == true
         ? imageUrl!.trim()
-        : item.imageForUi;
+        : latestItem.imageForUi;
 
     final effectiveGelAlFiyat = effectiveImageUrl.isNotEmpty
-        ? item.gelAlFiyatForImage(effectiveImageUrl)
-        : item.gelAlFiyat;
+        ? latestItem.gelAlFiyatForImage(effectiveImageUrl)
+        : latestItem.gelAlFiyat;
 
     final effectiveGoturFiyat = effectiveImageUrl.isNotEmpty
-        ? item.goturFiyatForImage(effectiveImageUrl)
-        : item.goturFiyat;
+        ? latestItem.goturFiyatForImage(effectiveImageUrl)
+        : latestItem.goturFiyat;
 
     final selectedPrice = isGotur ? effectiveGoturFiyat : effectiveGelAlFiyat;
     final teslimatLabel = isGotur ? 'Götür' : 'Gel-Al';
@@ -647,9 +719,9 @@ class _MenuPreviewSection extends StatelessWidget {
       await SepetService.sepeteEkle(
         urunId:
             'restaurant_${restaurant.id}_${item.id}_${RestoranMenuItemModel.galleryImageKey(effectiveImageUrl)}_$teslimatTipi',
-        urunAdi: item.name,
+        urunAdi: latestItem.name,
         dukkanAdi: restaurant.name,
-        kategori: item.category,
+        kategori: latestItem.category,
         img: effectiveImageUrl,
         fiyat: selectedPrice,
         gelAlFiyat: effectiveGelAlFiyat,
@@ -668,7 +740,9 @@ class _MenuPreviewSection extends StatelessWidget {
       messenger.hideCurrentSnackBar();
       messenger.showSnackBar(
         SnackBar(
-          content: Text('${item.name} sepete eklendi. ($teslimatLabel)'),
+          content: Text(
+            '${latestItem.name} sepete eklendi. ($teslimatLabel)',
+          ),
         ),
       );
 
@@ -1271,7 +1345,7 @@ class _MenuPreviewSection extends StatelessWidget {
         builder: (dialogContext) {
           bool saving = false;
           bool isFeatured = false;
-          bool isAvailable = true;
+          String stockStatus = RestaurantProductStockStatus.inStock;
 
           return StatefulBuilder(
             builder: (context, setDialogState) {
@@ -1350,7 +1424,10 @@ class _MenuPreviewSection extends StatelessWidget {
                     'gelAlFiyat': gelAlFiyat,
                     'goturFiyat': goturFiyat,
                     'isActive': true,
-                    'isAvailable': isAvailable,
+                    'isAvailable':
+                        stockStatus == RestaurantProductStockStatus.inStock,
+                    'stockStatus': stockStatus,
+                    'stockUpdatedAt': FieldValue.serverTimestamp(),
                     'isFeatured': isFeatured,
                     'preparationMinutes': preparationMinutes,
                     'createdAt': FieldValue.serverTimestamp(),
@@ -1536,25 +1613,37 @@ class _MenuPreviewSection extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(height: 6),
-                        SwitchListTile.adaptive(
-                          contentPadding: EdgeInsets.zero,
-                          activeColor: _gold,
-                          value: isAvailable,
-                          title: const Text(
-                            'Ürün satışta',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w700,
-                            ),
+                        DropdownButtonFormField<String>(
+                          value: stockStatus,
+                          dropdownColor: const Color(0xFF1B1B1B),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w700,
                           ),
+                          decoration: inputDecoration(
+                            label: 'Ürün stok durumu',
+                            hint: 'Stok durumunu seçin',
+                          ),
+                          items:
+                              RestaurantProductStockStatus.values.map((status) {
+                            return DropdownMenuItem<String>(
+                              value: status,
+                              child: Text(
+                                RestaurantProductStockStatus.label(status),
+                              ),
+                            );
+                          }).toList(),
                           onChanged: saving
                               ? null
                               : (value) {
+                                  if (value == null) return;
+
                                   setDialogState(() {
-                                    isAvailable = value;
+                                    stockStatus = value;
                                   });
                                 },
                         ),
+                        const SizedBox(height: 6),
                         SwitchListTile.adaptive(
                           contentPadding: EdgeInsets.zero,
                           activeColor: _gold,

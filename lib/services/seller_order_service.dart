@@ -12,6 +12,8 @@ class SellerOrderService {
     required String siparisNo,
     required String status,
     required String saticiId,
+    int? preparationMinutes,
+    String? rejectionReason,
   }) async {
     final sellerOrderRef =
         _firestore.collection('sellerOrders').doc(sellerOrderId);
@@ -21,31 +23,84 @@ class SellerOrderService {
     final timelineRef = _firestore.collection('orderTimeline').doc();
 
     final batch = _firestore.batch();
-
-    /// sellerOrders status
-    batch.update(sellerOrderRef, {
-      'status': status,
-      'statusUpdatedAt': FieldValue.serverTimestamp(),
-      'updatedAt': FieldValue.serverTimestamp(),
-    });
-
-    /// ana order status
-    batch.update(orderRef, {
+    final sellerOrderUpdates = <String, dynamic>{
       'status': status,
       'durum': status,
       'statusUpdatedAt': FieldValue.serverTimestamp(),
       'updatedAt': FieldValue.serverTimestamp(),
-    });
+    };
 
-    /// timeline event
-    batch.set(timelineRef, {
+    final orderUpdates = <String, dynamic>{
+      'status': status,
+      'durum': status,
+      'statusUpdatedAt': FieldValue.serverTimestamp(),
+      'updatedAt': FieldValue.serverTimestamp(),
+    };
+
+    final timelineData = <String, dynamic>{
       'orderId': orderId,
       'siparisNo': siparisNo,
       'status': status,
       'actorType': 'seller',
       'actorId': saticiId,
       'createdAt': FieldValue.serverTimestamp(),
-    });
+    };
+    if (status == 'preparing' &&
+        preparationMinutes != null &&
+        preparationMinutes > 0) {
+      final estimatedReadyAt = Timestamp.fromDate(
+        DateTime.now().add(
+          Duration(minutes: preparationMinutes),
+        ),
+      );
+
+      sellerOrderUpdates.addAll({
+        'acceptedAt': FieldValue.serverTimestamp(),
+        'preparationMinutes': preparationMinutes,
+        'estimatedReadyAt': estimatedReadyAt,
+        'rejectionReason': FieldValue.delete(),
+        'rejectedAt': FieldValue.delete(),
+      });
+
+      orderUpdates.addAll({
+        'acceptedAt': FieldValue.serverTimestamp(),
+        'preparationMinutes': preparationMinutes,
+        'estimatedReadyAt': estimatedReadyAt,
+        'rejectionReason': FieldValue.delete(),
+        'rejectedAt': FieldValue.delete(),
+      });
+
+      timelineData.addAll({
+        'preparationMinutes': preparationMinutes,
+        'estimatedReadyAt': estimatedReadyAt,
+        'note': 'Sipariş kabul edildi. Tahmini hazırlama süresi: '
+            '$preparationMinutes dakika.',
+      });
+    }
+
+    if (status == 'rejected') {
+      final cleanReason = (rejectionReason ?? '').trim();
+
+      sellerOrderUpdates.addAll({
+        'rejectedAt': FieldValue.serverTimestamp(),
+        'rejectionReason': cleanReason.isEmpty ? 'Belirtilmedi' : cleanReason,
+      });
+
+      orderUpdates.addAll({
+        'rejectedAt': FieldValue.serverTimestamp(),
+        'rejectionReason': cleanReason.isEmpty ? 'Belirtilmedi' : cleanReason,
+      });
+
+      timelineData.addAll({
+        'rejectionReason': cleanReason.isEmpty ? 'Belirtilmedi' : cleanReason,
+        'note': 'Sipariş restoran tarafından reddedildi.',
+      });
+    }
+
+    /// sellerOrders status
+    batch.update(sellerOrderRef, sellerOrderUpdates);
+    batch.update(orderRef, orderUpdates);
+    batch.set(timelineRef, timelineData);
 
     await batch.commit();
 

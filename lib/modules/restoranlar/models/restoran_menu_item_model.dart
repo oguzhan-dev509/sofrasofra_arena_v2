@@ -1,3 +1,5 @@
+import 'restaurant_product_stock.dart';
+
 class RestaurantGalleryPhotoMeta {
   const RestaurantGalleryPhotoMeta({
     this.gelAlFiyat = 0,
@@ -28,6 +30,7 @@ class RestoranMenuItemModel {
     this.galleryMeta = const {},
     this.isActive = true,
     this.isAvailable = true,
+    this.stockStatus = RestaurantProductStockStatus.inStock,
     this.isFeatured = false,
     this.preparationMinutes = 20,
     this.allergenNote = '',
@@ -54,11 +57,15 @@ class RestoranMenuItemModel {
 
   final bool isActive;
   final bool isAvailable;
+  final String stockStatus;
   final bool isFeatured;
   final int preparationMinutes;
   final String allergenNote;
 
-  bool get canOrder => isActive && isAvailable;
+  bool get canOrder =>
+      isActive &&
+      isAvailable &&
+      RestaurantProductStockStatus.isOrderable(stockStatus);
 
   String get priceText {
     if (gelAlFiyat > 0 && goturFiyat > 0) {
@@ -81,8 +88,12 @@ class RestoranMenuItemModel {
       return 'Menüde pasif';
     }
 
-    if (!isAvailable) {
-      return 'Stokta yok';
+    if (stockStatus == RestaurantProductStockStatus.temporarilyOff) {
+      return 'Geçici pasif';
+    }
+
+    if (!isAvailable || stockStatus == RestaurantProductStockStatus.soldOut) {
+      return 'Stok tükendi';
     }
 
     return 'Siparişe hazır';
@@ -159,6 +170,13 @@ class RestoranMenuItemModel {
       goturFiyat: _readDouble(data['goturFiyat']),
       isActive: data['isActive'] != false,
       isAvailable: data['isAvailable'] != false,
+      stockStatus: RestaurantProductStockStatus.isValid(
+        data['stockStatus']?.toString(),
+      )
+          ? data['stockStatus'].toString()
+          : data['isAvailable'] == false
+              ? RestaurantProductStockStatus.soldOut
+              : RestaurantProductStockStatus.inStock,
       isFeatured: data['isFeatured'] == true,
       preparationMinutes: _readInt(
         data['preparationMinutes'],

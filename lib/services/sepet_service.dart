@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:sofrasofra_arena_v2/services/otomatik_kurye_atama_servisi.dart';
+import 'package:sofrasofra_arena_v2/modules/restoranlar/models/restoran_model.dart';
 
 class SepetService {
   static final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -285,7 +286,30 @@ class SepetService {
                 ? 'chef_signature_order'
                 : 'ev_order'))
         .toString();
+    if (sellerType == 'restaurant') {
+      if (saticiId.isEmpty) {
+        throw Exception('Restoran kimliği bulunamadı.');
+      }
 
+      final restaurantSnapshot =
+          await _firestore.collection('restaurants').doc(saticiId).get();
+
+      if (!restaurantSnapshot.exists) {
+        throw Exception('Restoran kaydı bulunamadı.');
+      }
+
+      final restaurant = RestoranModel.fromMap(
+        restaurantSnapshot.id,
+        restaurantSnapshot.data() ?? const <String, dynamic>{},
+      );
+
+      if (!restaurant.isEffectivelyOpen) {
+        throw Exception(
+          'Bu restoran şu anda sipariş almıyor: '
+          '${restaurant.effectiveStatusText}',
+        );
+      }
+    }
     final String iyzicoCategory = (sepetData['iyzicoCategory'] ??
             (sellerType == 'chef_signature' ? 'ChefSignature' : 'EvLezzetleri'))
         .toString();
@@ -520,7 +544,21 @@ class SepetService {
     );
 
     await batch.commit();
+    debugPrint(
+      'ORDER BATCH COMMIT SUCCESS '
+      'orderId=${orderRef.id} '
+      'sellerOrderId=${sellerOrderRef.id} '
+      'saticiId=$saticiId',
+    );
 
+    final createdOrderSnap = await orderRef.get();
+    final createdSellerOrderSnap = await sellerOrderRef.get();
+
+    debugPrint(
+      'ORDER READBACK '
+      'orderExists=${createdOrderSnap.exists} '
+      'sellerOrderExists=${createdSellerOrderSnap.exists}',
+    );
     // Platform kurye siparişlerinde kurye ataması artık sipariş oluşur oluşmaz
 // değil, üretici/satıcı "Hazır" dediğinde SellerOrderService üzerinden başlar.
     if (false && deliveryMode == 'platform_kurye' && platformKuryeAktif) {

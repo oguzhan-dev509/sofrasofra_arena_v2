@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../fullscreen_gallery.dart';
+import '../models/restaurant_product_stock.dart';
 import '../models/restoran_menu_item_model.dart';
 import 'restoran_menu_gallery_strip.dart';
 
@@ -175,6 +176,16 @@ class _HeroImage extends StatelessWidget {
               ],
             ),
           ),
+          if (!item.canOrder)
+            Positioned(
+              left: 14,
+              top: 58,
+              child: _StockStatusBadge(
+                label: item.availabilityText,
+                isTemporarilyOff: item.stockStatus ==
+                    RestaurantProductStockStatus.temporarilyOff,
+              ),
+            ),
           Positioned(
             right: 14,
             top: 14,
@@ -350,6 +361,65 @@ class _HeroBadge extends StatelessWidget {
             style: TextStyle(
               color: color,
               fontSize: 11.5,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _StockStatusBadge extends StatelessWidget {
+  const _StockStatusBadge({
+    required this.label,
+    required this.isTemporarilyOff,
+  });
+
+  final String label;
+  final bool isTemporarilyOff;
+
+  @override
+  Widget build(BuildContext context) {
+    final color = isTemporarilyOff ? Colors.orangeAccent : Colors.redAccent;
+
+    final icon = isTemporarilyOff
+        ? Icons.pause_circle_outline
+        : Icons.remove_shopping_cart_outlined;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: 11,
+        vertical: 7,
+      ),
+      decoration: BoxDecoration(
+        color: Colors.black.withValues(alpha: 0.76),
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(
+          color: color.withValues(alpha: 0.72),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.28),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            icon,
+            color: color,
+            size: 15,
+          ),
+          const SizedBox(width: 6),
+          Text(
+            label,
+            style: TextStyle(
+              color: color,
+              fontSize: 12,
               fontWeight: FontWeight.w900,
             ),
           ),

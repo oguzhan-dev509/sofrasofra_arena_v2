@@ -103,7 +103,7 @@ class _PremiumRestoranVitriniState extends State<PremiumRestoranVitrini> {
 
             final matchesGelAl = !_gelAlOnly || restaurant.supportsGelAl;
             final matchesGotur = !_goturOnly || restaurant.supportsGotur;
-            final matchesOpen = !_openOnly || restaurant.isOpen;
+            final matchesOpen = !_openOnly || restaurant.isEffectivelyOpen;
             return matchesCategory &&
                 matchesSearch &&
                 matchesGelAl &&
@@ -514,7 +514,8 @@ class _PremiumRestoranVitriniState extends State<PremiumRestoranVitrini> {
                             preparationText: restaurant.preparationText,
                             ratingText: restaurant.ratingText,
                             serviceText: restaurant.serviceText,
-                            isOpen: restaurant.isOpen,
+                            statusText: restaurant.effectiveStatusText,
+                            isOpen: restaurant.isEffectivelyOpen,
                             onTap: () {
                               Navigator.of(context).push(
                                 MaterialPageRoute(
