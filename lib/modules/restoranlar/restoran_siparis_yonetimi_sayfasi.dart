@@ -73,6 +73,15 @@ class RestoranSiparisYonetimiSayfasi extends StatelessWidget {
         return 'Hazırlanıyor';
       case 'ready':
         return 'Sipariş Hazır';
+      case 'waiting_courier':
+        return 'Kurye Bekleniyor';
+      case 'retry_scheduled':
+        return 'Kurye Yeniden Aranıyor';
+      case 'manual_review_required':
+        return 'Operasyon Kontrolünde';
+      case 'no_courier_found':
+      case 'not_assigned_after_ready':
+        return 'Kurye Bulunamadı';
       case 'assigned':
         return 'Kurye Atandı';
       case 'on_the_way':
@@ -461,6 +470,26 @@ class RestoranSiparisYonetimiSayfasi extends StatelessWidget {
     final estimatedReadyAt = data['estimatedReadyAt'] as Timestamp?;
 
     final rejectionReason = _safeString(data['rejectionReason']);
+
+    final kuryeAdi = _safeString(
+      data['assignedCourierName'] ?? data['courierName'] ?? data['kuryeAdi'],
+    );
+
+    final kuryeTelefon = _safeString(
+      data['courierPhone'] ?? data['kuryeTelefon'],
+    );
+
+    final rawCourierStatus = _safeString(
+      data['assignmentStatus'] ??
+          data['courierAssignmentStatus'] ??
+          data['courierAssignmentResult'],
+    );
+
+    final courierStatus = rawCourierStatus.isEmpty && kuryeAdi.isNotEmpty
+        ? 'assigned'
+        : rawCourierStatus;
+
+    final isPlatformCourier = deliveryMode == 'platform_kurye';
     return Container(
       margin: const EdgeInsets.only(bottom: 14),
       padding: const EdgeInsets.all(16),
@@ -525,6 +554,52 @@ class RestoranSiparisYonetimiSayfasi extends StatelessWidget {
               fontWeight: FontWeight.w700,
             ),
           ),
+          if (isPlatformCourier) ...[
+            const SizedBox(height: 8),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.04),
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(
+                  color: _gold.withValues(alpha: 0.18),
+                ),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Kurye Durumu: ${_statusLabel(courierStatus)}',
+                    style: const TextStyle(
+                      color: _gold,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                  if (kuryeAdi.isNotEmpty) ...[
+                    const SizedBox(height: 6),
+                    Text(
+                      'Kurye: $kuryeAdi',
+                      style: const TextStyle(
+                        color: Colors.white70,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
+                  if (kuryeTelefon.isNotEmpty) ...[
+                    const SizedBox(height: 6),
+                    Text(
+                      'Kurye Tel: $kuryeTelefon',
+                      style: const TextStyle(
+                        color: Colors.white60,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ],
           const SizedBox(height: 6),
           Text(
             'Müşteri: $customerName${customerPhone.isNotEmpty ? ' • $customerPhone' : ''}',
