@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
+import 'package:sofrasofra_arena_v2/services/platform_admin_service.dart';
 import 'package:sofrasofra_arena_v2/services/seller_order_service.dart';
 
 class RestoranSiparisYonetimiSayfasi extends StatelessWidget {
@@ -15,6 +17,31 @@ class RestoranSiparisYonetimiSayfasi extends StatelessWidget {
   static const Color _gold = Color(0xFFFFB300);
   static const Color _bg = Color(0xFF070707);
   static const Color _card = Color(0xFF111111);
+
+  Future<bool> _canManageRestaurantOrders() async {
+    final isPlatformAdmin =
+        await PlatformAdminService.isCurrentUserPlatformAdmin();
+
+    if (isPlatformAdmin) {
+      return true;
+    }
+
+    final currentUid = (FirebaseAuth.instance.currentUser?.uid ?? '').trim();
+
+    if (currentUid.isEmpty) {
+      return false;
+    }
+
+    final restaurantSnap = await FirebaseFirestore.instance
+        .collection('restaurants')
+        .doc(restaurantId)
+        .get();
+
+    final ownerUid =
+        (restaurantSnap.data()?['ownerUid'] ?? '').toString().trim();
+
+    return ownerUid == currentUid;
+  }
 
   Stream<QuerySnapshot<Map<String, dynamic>>> _restaurantOrdersStream() {
     return FirebaseFirestore.instance
@@ -87,6 +114,15 @@ class RestoranSiparisYonetimiSayfasi extends StatelessWidget {
     final orderId = _safeString(data['orderId']);
     final siparisNo = _safeString(data['siparisNo'], fallback: orderId);
     final saticiId = _safeString(data['saticiId']);
+
+    if (saticiId != restaurantId) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Bu sipariş bu restorana ait değil.'),
+        ),
+      );
+      return;
+    }
 
     if (orderId.isEmpty || saticiId.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -563,47 +599,103 @@ class RestoranSiparisYonetimiSayfasi extends StatelessWidget {
           ),
         ),
       ),
-      body: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-        stream: _restaurantOrdersStream(),
-        builder: (context, snapshot) {
-          if (snapshot.hasError) {
-            return Center(
-              child: Padding(
-                padding: const EdgeInsets.all(20),
-                child: Text(
-                  'Restoran siparişleri okunamadı:\n${snapshot.error}',
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(color: Colors.white70),
-                ),
-              ),
-            );
-          }
-
-          if (!snapshot.hasData) {
+      body: FutureBuilder<bool>(
+        future: _canManageRestaurantOrders(),
+        builder: (context, accessSnapshot) {
+          if (!accessSnapshot.hasData) {
             return const Center(
               child: CircularProgressIndicator(color: _gold),
             );
           }
 
-          final docs = snapshot.data!.docs;
-
-          if (docs.isEmpty) {
-            return const Center(
-              child: Text(
-                'Henüz restoran siparişi bulunmuyor.',
-                style: TextStyle(
-                  color: Colors.white70,
-                  fontWeight: FontWeight.w700,
+          if (accessSnapshot.data != true) {
+            return Center(
+              child: Container(
+                margin: const EdgeInsets.all(24),
+                padding: const EdgeInsets.all(22),
+                decoration: BoxDecoration(
+                  color: _card,
+                  borderRadius: BorderRadius.circular(22),
+                  border: Border.all(
+                    color: Colors.redAccent.withValues(alpha: 0.35),
+                  ),
+                ),
+                child: const Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.lock_outline_rounded,
+                      color: Colors.redAccent,
+                      size: 42,
+                    ),
+                    SizedBox(height: 12),
+                    Text(
+                      'Bu restoranın siparişlerini yönetme yetkiniz yok.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w900,
+                        fontSize: 16,
+                      ),
+                    ),
+                    SizedBox(height: 8),
+                    Text(
+                      'Lütfen doğru restoran sahibi hesabıyla giriş yapın.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Colors.white60,
+                        height: 1.4,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             );
           }
 
-          return ListView.builder(
-            padding: const EdgeInsets.all(16),
-            itemCount: docs.length,
-            itemBuilder: (context, index) {
-              return _orderCard(context, docs[index]);
+          return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+            stream: _restaurantOrdersStream(),
+            builder: (context, snapshot) {
+              if (snapshot.hasError) {
+                return Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: Text(
+                      'Restoran siparişleri okunamadı:\n${snapshot.error}',
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(color: Colors.white70),
+                    ),
+                  ),
+                );
+              }
+
+              if (!snapshot.hasData) {
+                return const Center(
+                  child: CircularProgressIndicator(color: _gold),
+                );
+              }
+
+              final docs = snapshot.data!.docs;
+
+              if (docs.isEmpty) {
+                return const Center(
+                  child: Text(
+                    'Henüz restoran siparişi bulunmuyor.',
+                    style: TextStyle(
+                      color: Colors.white70,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                );
+              }
+
+              return ListView.builder(
+                padding: const EdgeInsets.all(16),
+                itemCount: docs.length,
+                itemBuilder: (context, index) {
+                  return _orderCard(context, docs[index]);
+                },
+              );
             },
           );
         },
