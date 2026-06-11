@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:sofrasofra_arena_v2/services/platform_admin_service.dart';
 
 import 'models/restoran_model.dart';
 import 'restoran_detay_sayfasi.dart';
@@ -819,246 +820,312 @@ class RestoranYonetimPaneli extends StatelessWidget {
           final imageUrl = restaurant.imageUrl.trim();
           final isOpen = data['isOpen'] == true;
 
-          return ListView(
-            padding: const EdgeInsets.all(20),
-            children: [
-              Text(
-                restaurantName,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 26,
-                  fontWeight: FontWeight.w900,
-                ),
-              ),
-              const SizedBox(height: 6),
-              const Text(
-                'Kapak, menü, vitrin ve sipariş operasyonunuzu buradan yönetin.',
-                style: TextStyle(
-                  color: Colors.white60,
-                  fontSize: 14,
-                  height: 1.4,
-                ),
-              ),
-              const SizedBox(height: 22),
-              Container(
-                decoration: BoxDecoration(
-                  color: _card,
-                  borderRadius: BorderRadius.circular(22),
-                  border: Border.all(
-                    color: _gold.withValues(alpha: 0.28),
-                  ),
-                ),
-                clipBehavior: Clip.antiAlias,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    AspectRatio(
-                      aspectRatio: 16 / 7,
-                      child: imageUrl.isEmpty
-                          ? Container(
-                              decoration: const BoxDecoration(
-                                gradient: LinearGradient(
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
-                                  colors: [
-                                    Color(0xFF05080D),
-                                    Color(0xFF071018),
-                                    Color(0xFF101820),
-                                  ],
-                                ),
-                              ),
-                              child: const Center(
-                                child: Icon(
-                                  Icons.restaurant_rounded,
-                                  color: Colors.white24,
-                                  size: 62,
-                                ),
-                              ),
-                            )
-                          : Image.network(
-                              imageUrl,
-                              fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) {
-                                return const Center(
-                                  child: Icon(
-                                    Icons.broken_image_outlined,
-                                    color: Colors.white38,
-                                    size: 54,
-                                  ),
-                                );
-                              },
-                            ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Wrap(
-                        spacing: 10,
-                        runSpacing: 10,
-                        children: [
-                          ElevatedButton.icon(
-                            onPressed: () async {
-                              await _restaurantCoverUpload(
-                                context: context,
-                              );
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: _gold,
-                              foregroundColor: Colors.black,
-                            ),
-                            icon: Icon(
-                              imageUrl.isEmpty
-                                  ? Icons.add_photo_alternate_rounded
-                                  : Icons.change_circle_rounded,
-                            ),
-                            label: Text(
-                              imageUrl.isEmpty
-                                  ? 'Kapak Fotoğrafı Ekle'
-                                  : 'Kapak Fotoğrafını Değiştir',
-                            ),
-                          ),
-                          if (imageUrl.isNotEmpty)
-                            OutlinedButton.icon(
-                              onPressed: () async {
-                                await _restaurantCoverDelete(
-                                  context: context,
-                                );
-                              },
-                              style: OutlinedButton.styleFrom(
-                                foregroundColor: Colors.redAccent,
-                                side: const BorderSide(
-                                  color: Colors.redAccent,
-                                ),
-                              ),
-                              icon: const Icon(Icons.delete_outline_rounded),
-                              label: const Text('Kapağı Sil'),
-                            ),
-                        ],
+          return FutureBuilder<bool>(
+            future: PlatformAdminService.isCurrentUserPlatformAdmin(),
+            builder: (context, adminSnapshot) {
+              if (!adminSnapshot.hasData) {
+                return const Center(
+                  child: CircularProgressIndicator(color: _gold),
+                );
+              }
+
+              final currentUid =
+                  (FirebaseAuth.instance.currentUser?.uid ?? '').trim();
+              final ownerUid = (data['ownerUid'] ?? '').toString().trim();
+              final isPlatformAdmin = adminSnapshot.data == true;
+              final canManageRestaurant = isPlatformAdmin ||
+                  (currentUid.isNotEmpty && ownerUid == currentUid);
+
+              if (!canManageRestaurant) {
+                return Center(
+                  child: Container(
+                    margin: const EdgeInsets.all(24),
+                    padding: const EdgeInsets.all(22),
+                    decoration: BoxDecoration(
+                      color: _card,
+                      borderRadius: BorderRadius.circular(22),
+                      border: Border.all(
+                        color: Colors.redAccent.withValues(alpha: 0.35),
                       ),
                     ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 16),
-              Container(
-                padding: const EdgeInsets.all(18),
-                decoration: BoxDecoration(
-                  color: _card,
-                  borderRadius: BorderRadius.circular(22),
-                  border: Border.all(
-                    color: _gold.withValues(alpha: 0.28),
+                    child: const Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.lock_outline_rounded,
+                          color: Colors.redAccent,
+                          size: 42,
+                        ),
+                        SizedBox(height: 12),
+                        Text(
+                          'Bu restoran paneline erişim yetkiniz yok.',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w900,
+                            fontSize: 16,
+                          ),
+                        ),
+                        SizedBox(height: 8),
+                        Text(
+                          'Lütfen doğru restoran sahibi hesabıyla giriş yapın.',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: Colors.white60,
+                            height: 1.4,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                child: SwitchListTile.adaptive(
-                  contentPadding: EdgeInsets.zero,
-                  value: isOpen,
-                  activeColor: _gold,
-                  title: Text(
-                    isOpen ? 'Restoran Açık' : 'Restoran Kapalı',
+                );
+              }
+
+              return ListView(
+                padding: const EdgeInsets.all(20),
+                children: [
+                  Text(
+                    restaurantName,
                     style: const TextStyle(
                       color: Colors.white,
-                      fontSize: 18,
+                      fontSize: 26,
                       fontWeight: FontWeight.w900,
                     ),
                   ),
-                  subtitle: Text(
-                    isOpen
-                        ? 'Müşteriler restoranınızı açık olarak görebilir.'
-                        : 'Restoran vitrinde görünür; fakat kapalı olarak işaretlenir.',
-                    style: const TextStyle(
+                  const SizedBox(height: 6),
+                  const Text(
+                    'Kapak, menü, vitrin ve sipariş operasyonunuzu buradan yönetin.',
+                    style: TextStyle(
                       color: Colors.white60,
-                      fontSize: 13,
+                      fontSize: 14,
                       height: 1.4,
                     ),
                   ),
-                  secondary: Icon(
-                    isOpen ? Icons.check_circle_rounded : Icons.cancel_rounded,
-                    color: isOpen ? _gold : Colors.white38,
-                    size: 34,
+                  const SizedBox(height: 22),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: _card,
+                      borderRadius: BorderRadius.circular(22),
+                      border: Border.all(
+                        color: _gold.withValues(alpha: 0.28),
+                      ),
+                    ),
+                    clipBehavior: Clip.antiAlias,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        AspectRatio(
+                          aspectRatio: 16 / 7,
+                          child: imageUrl.isEmpty
+                              ? Container(
+                                  decoration: const BoxDecoration(
+                                    gradient: LinearGradient(
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                      colors: [
+                                        Color(0xFF05080D),
+                                        Color(0xFF071018),
+                                        Color(0xFF101820),
+                                      ],
+                                    ),
+                                  ),
+                                  child: const Center(
+                                    child: Icon(
+                                      Icons.restaurant_rounded,
+                                      color: Colors.white24,
+                                      size: 62,
+                                    ),
+                                  ),
+                                )
+                              : Image.network(
+                                  imageUrl,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return const Center(
+                                      child: Icon(
+                                        Icons.broken_image_outlined,
+                                        color: Colors.white38,
+                                        size: 54,
+                                      ),
+                                    );
+                                  },
+                                ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Wrap(
+                            spacing: 10,
+                            runSpacing: 10,
+                            children: [
+                              ElevatedButton.icon(
+                                onPressed: () async {
+                                  await _restaurantCoverUpload(
+                                    context: context,
+                                  );
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: _gold,
+                                  foregroundColor: Colors.black,
+                                ),
+                                icon: Icon(
+                                  imageUrl.isEmpty
+                                      ? Icons.add_photo_alternate_rounded
+                                      : Icons.change_circle_rounded,
+                                ),
+                                label: Text(
+                                  imageUrl.isEmpty
+                                      ? 'Kapak Fotoğrafı Ekle'
+                                      : 'Kapak Fotoğrafını Değiştir',
+                                ),
+                              ),
+                              if (imageUrl.isNotEmpty)
+                                OutlinedButton.icon(
+                                  onPressed: () async {
+                                    await _restaurantCoverDelete(
+                                      context: context,
+                                    );
+                                  },
+                                  style: OutlinedButton.styleFrom(
+                                    foregroundColor: Colors.redAccent,
+                                    side: const BorderSide(
+                                      color: Colors.redAccent,
+                                    ),
+                                  ),
+                                  icon:
+                                      const Icon(Icons.delete_outline_rounded),
+                                  label: const Text('Kapağı Sil'),
+                                ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                  onChanged: (value) async {
-                    await _updateOpenStatus(
-                      context: context,
-                      isOpen: value,
-                    );
-                  },
-                ),
-              ),
-              const SizedBox(height: 16),
-              _actionCard(
-                icon: Icons.schedule_rounded,
-                title: 'Çalışma Saatleri',
-                subtitle:
-                    'Haftanın günlerine göre açılış ve kapanış saatlerini düzenleyin.',
-                onTap: () {
-                  _workingHoursDialog(
-                    context: context,
-                    restaurantData: data,
-                  );
-                },
-              ),
-              const SizedBox(height: 12),
-              _actionCard(
-                icon: Icons.pause_circle_outline_rounded,
-                title: 'Geçici Olarak Siparişe Kapat',
-                subtitle:
-                    '30 dakika, 1 saat, bugünlük veya süresiz olarak siparişi durdurun.',
-                onTap: () {
-                  _temporaryCloseDialog(
-                    context: context,
-                  );
-                },
-              ),
-              const SizedBox(height: 16),
-              _actionCard(
-                icon: Icons.auto_awesome_rounded,
-                title: 'Restoranı Hazırla',
-                subtitle:
-                    'Restoran detayını açın; kapak, ürün ve galeri alanlarını yönetin.',
-                onTap: () {
-                  _openRestaurantDetail(
-                    context: context,
-                    restaurant: restaurant,
-                  );
-                },
-              ),
-              const SizedBox(height: 12),
-              _actionCard(
-                icon: Icons.add_circle_outline_rounded,
-                title: 'Yeni Menü Ürünü Oluştur',
-                subtitle:
-                    'Mevcut çalışan Yeni Ürün alanına giderek ilk menü ürününü ekleyin.',
-                onTap: () {
-                  _openRestaurantDetail(
-                    context: context,
-                    restaurant: restaurant,
-                  );
-                },
-              ),
-              const SizedBox(height: 12),
-              _actionCard(
-                icon: Icons.storefront_rounded,
-                title: 'Kendi Vitrinimi Gör',
-                subtitle:
-                    'Restoranın müşterilere görünen gerçek premium sayfasını açın.',
-                onTap: () {
-                  _openRestaurantDetail(
-                    context: context,
-                    restaurant: restaurant,
-                  );
-                },
-              ),
-              const SizedBox(height: 12),
-              _actionCard(
-                icon: Icons.receipt_long_rounded,
-                title: 'Sipariş Yönetimi',
-                subtitle:
-                    'Restoran siparişlerini ve operasyon durumlarını görüntüleyin.',
-                onTap: () {
-                  _openOrders(context);
-                },
-              ),
-              const SizedBox(height: 24),
-            ],
+                  const SizedBox(height: 16),
+                  Container(
+                    padding: const EdgeInsets.all(18),
+                    decoration: BoxDecoration(
+                      color: _card,
+                      borderRadius: BorderRadius.circular(22),
+                      border: Border.all(
+                        color: _gold.withValues(alpha: 0.28),
+                      ),
+                    ),
+                    child: SwitchListTile.adaptive(
+                      contentPadding: EdgeInsets.zero,
+                      value: isOpen,
+                      activeColor: _gold,
+                      title: Text(
+                        isOpen ? 'Restoran Açık' : 'Restoran Kapalı',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
+                      subtitle: Text(
+                        isOpen
+                            ? 'Müşteriler restoranınızı açık olarak görebilir.'
+                            : 'Restoran vitrinde görünür; fakat kapalı olarak işaretlenir.',
+                        style: const TextStyle(
+                          color: Colors.white60,
+                          fontSize: 13,
+                          height: 1.4,
+                        ),
+                      ),
+                      secondary: Icon(
+                        isOpen
+                            ? Icons.check_circle_rounded
+                            : Icons.cancel_rounded,
+                        color: isOpen ? _gold : Colors.white38,
+                        size: 34,
+                      ),
+                      onChanged: (value) async {
+                        await _updateOpenStatus(
+                          context: context,
+                          isOpen: value,
+                        );
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  _actionCard(
+                    icon: Icons.schedule_rounded,
+                    title: 'Çalışma Saatleri',
+                    subtitle:
+                        'Haftanın günlerine göre açılış ve kapanış saatlerini düzenleyin.',
+                    onTap: () {
+                      _workingHoursDialog(
+                        context: context,
+                        restaurantData: data,
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 12),
+                  _actionCard(
+                    icon: Icons.pause_circle_outline_rounded,
+                    title: 'Geçici Olarak Siparişe Kapat',
+                    subtitle:
+                        '30 dakika, 1 saat, bugünlük veya süresiz olarak siparişi durdurun.',
+                    onTap: () {
+                      _temporaryCloseDialog(
+                        context: context,
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  _actionCard(
+                    icon: Icons.auto_awesome_rounded,
+                    title: 'Restoranı Hazırla',
+                    subtitle:
+                        'Restoran detayını açın; kapak, ürün ve galeri alanlarını yönetin.',
+                    onTap: () {
+                      _openRestaurantDetail(
+                        context: context,
+                        restaurant: restaurant,
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 12),
+                  _actionCard(
+                    icon: Icons.add_circle_outline_rounded,
+                    title: 'Yeni Menü Ürünü Oluştur',
+                    subtitle:
+                        'Mevcut çalışan Yeni Ürün alanına giderek ilk menü ürününü ekleyin.',
+                    onTap: () {
+                      _openRestaurantDetail(
+                        context: context,
+                        restaurant: restaurant,
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 12),
+                  _actionCard(
+                    icon: Icons.storefront_rounded,
+                    title: 'Kendi Vitrinimi Gör',
+                    subtitle:
+                        'Restoranın müşterilere görünen gerçek premium sayfasını açın.',
+                    onTap: () {
+                      _openRestaurantDetail(
+                        context: context,
+                        restaurant: restaurant,
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 12),
+                  _actionCard(
+                    icon: Icons.receipt_long_rounded,
+                    title: 'Sipariş Yönetimi',
+                    subtitle:
+                        'Restoran siparişlerini ve operasyon durumlarını görüntüleyin.',
+                    onTap: () {
+                      _openOrders(context);
+                    },
+                  ),
+                  const SizedBox(height: 24),
+                ],
+              );
+            },
           );
         },
       ),
