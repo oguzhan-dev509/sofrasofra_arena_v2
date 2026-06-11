@@ -358,6 +358,210 @@ class RestoranSiparisYonetimiSayfasi extends StatelessWidget {
     );
   }
 
+  Widget _receiptButton({
+    required BuildContext context,
+    required QueryDocumentSnapshot<Map<String, dynamic>> doc,
+  }) {
+    return OutlinedButton.icon(
+      onPressed: () {
+        _showReceiptPreviewDialog(
+          context: context,
+          doc: doc,
+        );
+      },
+      icon: const Icon(Icons.receipt_long_outlined),
+      label: const Text('Fiş / Çıktı'),
+      style: OutlinedButton.styleFrom(
+        foregroundColor: _gold,
+        side: BorderSide(
+          color: _gold.withValues(alpha: 0.7),
+        ),
+        textStyle: const TextStyle(
+          fontWeight: FontWeight.w900,
+        ),
+      ),
+    );
+  }
+
+  Widget _receiptLine(
+    String label,
+    String value, {
+    bool highlight = false,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 130,
+            child: Text(
+              label,
+              style: TextStyle(
+                color: highlight ? _gold : Colors.white60,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+          ),
+          Expanded(
+            child: Text(
+              value.isEmpty ? '-' : value,
+              style: TextStyle(
+                color: highlight ? _gold : Colors.white,
+                fontWeight: highlight ? FontWeight.w900 : FontWeight.w700,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showReceiptPreviewDialog({
+    required BuildContext context,
+    required QueryDocumentSnapshot<Map<String, dynamic>> doc,
+  }) {
+    final data = doc.data();
+
+    final status = _safeString(data['status'] ?? data['durum']);
+    final deliveryMode = _safeString(data['deliveryMode']);
+    final siparisNo = _safeString(data['siparisNo'], fallback: doc.id);
+
+    final restaurantName = _safeString(
+      data['saticiAdi'] ?? data['restaurantName'] ?? data['dukkanAdi'],
+      fallback: 'Restoran',
+    );
+
+    final customerName = _safeString(
+      data['musteriAd'] ?? data['customerName'],
+      fallback: 'Müşteri',
+    );
+
+    final customerPhone =
+        _safeString(data['musteriTelefon'] ?? data['customerPhone']);
+
+    final total = _asDouble(data['genelToplam'] ?? data['araToplam']);
+    final itemCount = data['urunSayisi']?.toString() ?? '-';
+
+    final preparationMinutes = (data['preparationMinutes'] as num?)?.toInt();
+
+    final estimatedReadyAt = data['estimatedReadyAt'] as Timestamp?;
+
+    final kuryeAdi = _safeString(
+      data['assignedCourierName'] ?? data['courierName'] ?? data['kuryeAdi'],
+    );
+
+    final kuryeTelefon = _safeString(
+      data['courierPhone'] ?? data['kuryeTelefon'],
+    );
+
+    final rawCourierStatus = _safeString(
+      data['assignmentStatus'] ??
+          data['courierAssignmentStatus'] ??
+          data['courierAssignmentResult'],
+    );
+
+    final courierStatus = rawCourierStatus.isEmpty && kuryeAdi.isNotEmpty
+        ? 'assigned'
+        : rawCourierStatus.isEmpty
+            ? 'courier_pending'
+            : rawCourierStatus;
+
+    final estimatedReadyText = estimatedReadyAt == null
+        ? '-'
+        : TimeOfDay.fromDateTime(estimatedReadyAt.toDate()).format(context);
+
+    showDialog<void>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          backgroundColor: _card,
+          title: const Text(
+            'Fiş / Çıktı Önizleme',
+            style: TextStyle(
+              color: _gold,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+          content: SizedBox(
+            width: 520,
+            child: SingleChildScrollView(
+              child: Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.black.withValues(alpha: 0.22),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: _gold.withValues(alpha: 0.24),
+                  ),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Center(
+                      child: Text(
+                        'SOFRASOFRA RESTORAN SİPARİŞ FİŞİ',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: _gold,
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: 0.4,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    _receiptLine('Sipariş No', siparisNo, highlight: true),
+                    _receiptLine('Restoran', restaurantName),
+                    _receiptLine(
+                      'Müşteri',
+                      '$customerName${customerPhone.isNotEmpty ? ' • $customerPhone' : ''}',
+                    ),
+                    _receiptLine('Teslimat', _deliveryLabel(deliveryMode)),
+                    _receiptLine('Ürün Sayısı', itemCount),
+                    _receiptLine(
+                      'Toplam',
+                      '${total.toStringAsFixed(0)} TL',
+                      highlight: true,
+                    ),
+                    _receiptLine(
+                      'Hazırlama',
+                      preparationMinutes == null
+                          ? '-'
+                          : '$preparationMinutes dakika',
+                    ),
+                    _receiptLine('Tahmini Hazır', estimatedReadyText),
+                    _receiptLine('Sipariş Durumu', _statusLabel(status)),
+                    _receiptLine('Kurye Durumu', _statusLabel(courierStatus)),
+                    if (kuryeAdi.isNotEmpty) _receiptLine('Kurye', kuryeAdi),
+                    if (kuryeTelefon.isNotEmpty)
+                      _receiptLine('Kurye Tel', kuryeTelefon),
+                    const SizedBox(height: 12),
+                    const Divider(color: Colors.white24),
+                    const SizedBox(height: 8),
+                    const Text(
+                      'Not: Bu ekran ilk faz fiş önizlemesidir. Tarayıcıdan yazdırma entegrasyonu sonraki adımda eklenecektir.',
+                      style: TextStyle(
+                        color: Colors.white54,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext),
+              child: const Text('Kapat'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   Widget _actionButtons({
     required BuildContext context,
     required QueryDocumentSnapshot<Map<String, dynamic>> doc,
@@ -405,39 +609,64 @@ class RestoranSiparisYonetimiSayfasi extends StatelessWidget {
               ),
             ),
           ),
+          _receiptButton(
+            context: context,
+            doc: doc,
+          ),
         ],
       );
     }
 
     if (status == 'preparing') {
-      return ElevatedButton.icon(
-        onPressed: () async {
-          await _updateStatus(
+      return Wrap(
+        spacing: 10,
+        runSpacing: 10,
+        children: [
+          ElevatedButton.icon(
+            onPressed: () async {
+              await _updateStatus(
+                context: context,
+                doc: doc,
+                nextStatus: 'ready',
+              );
+            },
+            icon: const Icon(Icons.check_circle_outline),
+            label: Text(
+              deliveryMode == 'platform_kurye'
+                  ? 'Sipariş Hazır / Kurye Çağır'
+                  : 'Sipariş Hazır',
+            ),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: _gold,
+              foregroundColor: Colors.black,
+              textStyle: const TextStyle(fontWeight: FontWeight.w900),
+            ),
+          ),
+          _receiptButton(
             context: context,
             doc: doc,
-            nextStatus: 'ready',
-          );
-        },
-        icon: const Icon(Icons.check_circle_outline),
-        label: Text(
-          deliveryMode == 'platform_kurye'
-              ? 'Sipariş Hazır / Kurye Çağır'
-              : 'Sipariş Hazır',
-        ),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: _gold,
-          foregroundColor: Colors.black,
-          textStyle: const TextStyle(fontWeight: FontWeight.w900),
-        ),
+          ),
+        ],
       );
     }
 
-    return Text(
-      _statusLabel(status),
-      style: const TextStyle(
-        color: Colors.white70,
-        fontWeight: FontWeight.w800,
-      ),
+    return Wrap(
+      spacing: 10,
+      runSpacing: 10,
+      crossAxisAlignment: WrapCrossAlignment.center,
+      children: [
+        Text(
+          _statusLabel(status),
+          style: const TextStyle(
+            color: Colors.white70,
+            fontWeight: FontWeight.w800,
+          ),
+        ),
+        _receiptButton(
+          context: context,
+          doc: doc,
+        ),
+      ],
     );
   }
 
