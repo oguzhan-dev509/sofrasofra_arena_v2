@@ -43,6 +43,25 @@ class _MusteriSiparisTakipSayfasiState
       case 'hazir':
         return 'ready';
 
+      case 'waiting_courier':
+      case 'kurye_bekleniyor':
+      case 'courier_waiting':
+        return 'waiting_courier';
+
+      case 'assigned':
+      case 'courier_assigned':
+      case 'atandi':
+      case 'kurye_atandi':
+        return 'assigned';
+
+      case 'retry_scheduled':
+      case 'kurye_yeniden_araniyor':
+        return 'retry_scheduled';
+
+      case 'manual_review_required':
+      case 'operasyon_kontrolu':
+        return 'manual_review_required';
+
       case 'on_the_way':
       case 'yolda':
         return 'on_the_way';
@@ -74,6 +93,14 @@ class _MusteriSiparisTakipSayfasiState
         return 'Hazırlanıyor';
       case 'ready':
         return 'Hazır';
+      case 'waiting_courier':
+        return 'Kurye Aranıyor';
+      case 'assigned':
+        return 'Kurye Atandı';
+      case 'retry_scheduled':
+        return 'Kurye Yeniden Aranıyor';
+      case 'manual_review_required':
+        return 'Operasyon Kontrolünde';
       case 'on_the_way':
         return 'Yolda';
       case 'delivered':
@@ -95,6 +122,14 @@ class _MusteriSiparisTakipSayfasiState
         return Colors.orange;
       case 'ready':
         return Colors.purple;
+      case 'waiting_courier':
+        return Colors.amber;
+      case 'assigned':
+        return Colors.lightBlueAccent;
+      case 'retry_scheduled':
+        return Colors.deepOrangeAccent;
+      case 'manual_review_required':
+        return Colors.indigoAccent;
       case 'on_the_way':
         return Colors.teal;
       case 'delivered':
@@ -116,6 +151,14 @@ class _MusteriSiparisTakipSayfasiState
         return Icons.restaurant;
       case 'ready':
         return Icons.inventory_2_outlined;
+      case 'waiting_courier':
+        return Icons.search;
+      case 'assigned':
+        return Icons.delivery_dining;
+      case 'retry_scheduled':
+        return Icons.sync;
+      case 'manual_review_required':
+        return Icons.support_agent;
       case 'on_the_way':
         return Icons.delivery_dining;
       case 'delivered':
@@ -286,13 +329,17 @@ class _MusteriSiparisTakipSayfasiState
     final data = siparisDoc.data();
 
     final courierId = _safeString(data['assignedCourierId']);
-    final status = _normalizeStatus(
-      data['status'] ?? data['durum'] ?? data['assignmentStatus'],
+    final status = _normalizeStatus(data['status'] ?? data['durum']);
+    final courierStatus = _normalizeStatus(
+      data['assignmentStatus'] ??
+          data['courierAssignmentStatus'] ??
+          data['courierOfferStatus'],
     );
     final bool hasCourier = courierId.isNotEmpty;
     final bool canOpenLiveMap =
-        hasCourier && (status == 'assigned' || status == 'on_the_way');
-    final bool isDeliveryDone = status == 'delivered' || status == 'completed';
+        hasCourier && (courierStatus == 'assigned' || status == 'on_the_way');
+    final bool isDeliveryDone =
+        status == 'delivered' || courierStatus == 'delivered';
     final siparisNo = _safeString(data['siparisNo'], fallback: siparisDoc.id);
 
     final toplamTutar = _asDouble(
@@ -401,6 +448,18 @@ class _MusteriSiparisTakipSayfasiState
                     label: 'Teslimat',
                     value: teslimatTipi,
                   ),
+                  if (teslimatTipi == 'Platform Kurye' ||
+                      courierStatus != 'pending' ||
+                      hasCourier) ...[
+                    const SizedBox(height: 10),
+                    _infoSatiri(
+                      icon: Icons.delivery_dining_outlined,
+                      label: 'Kurye Takip',
+                      value: hasCourier && courierStatus == 'pending'
+                          ? 'Kurye Atandı'
+                          : _statusText(courierStatus),
+                    ),
+                  ],
                   if (kuryeAdi.isNotEmpty) ...[
                     const SizedBox(height: 10),
                     _infoSatiri(
