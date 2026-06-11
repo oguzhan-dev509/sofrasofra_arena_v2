@@ -489,7 +489,12 @@ class RestoranSiparisYonetimiSayfasi extends StatelessWidget {
         ? 'assigned'
         : rawCourierStatus;
 
-    final isPlatformCourier = deliveryMode == 'platform_kurye';
+    final platformKuryeAktif = data['platformKuryeAktif'] == true;
+
+    final isPlatformCourier = deliveryMode == 'platform_kurye' ||
+        platformKuryeAktif ||
+        rawCourierStatus.isNotEmpty ||
+        kuryeAdi.isNotEmpty;
     return Container(
       margin: const EdgeInsets.only(bottom: 14),
       padding: const EdgeInsets.all(16),
