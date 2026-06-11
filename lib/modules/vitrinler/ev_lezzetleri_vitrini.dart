@@ -698,7 +698,7 @@ class _EvLezzetleriVitriniState extends State<EvLezzetleriVitrini> {
       backgroundColor: _bg,
       appBar: AppBar(
         title: const Text(
-          'MAHALLE MUTFAĞI',
+          'EV LEZZETLERİ',
           style: TextStyle(
             color: _gold,
             fontWeight: FontWeight.bold,
@@ -831,7 +831,7 @@ class _EvLezzetleriVitriniState extends State<EvLezzetleriVitrini> {
                           _SectionTitle(
                             title: 'Kategoriler',
                             subtitle:
-                                'Ev yapımı lezzetleri ihtiyacına göre keşfet',
+                                'Ev yapımı günlük lezzetleri, güven veren üreticilerden keşfet.',
                           ),
                           const SizedBox(height: 12),
                           _CategoryBar(
@@ -1096,7 +1096,7 @@ class _HeroTextBlock extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          'Mahalle Mutfağı',
+          'Ev Lezzetleri',
           style: TextStyle(
             color: _gold,
             fontSize: 30,
@@ -1106,7 +1106,7 @@ class _HeroTextBlock extends StatelessWidget {
         ),
         const SizedBox(height: 10),
         Text(
-          '$areaText ev yapımı günlük yemekler, tatlılar, kahvaltılıklar ve mahalleden gelen sıcak lezzetler.',
+          '$areaText ev yapımı günlük lezzetleri, güven veren üreticilerden keşfet.',
           style: const TextStyle(
             color: Colors.white,
             fontSize: 15,
@@ -1117,8 +1117,8 @@ class _HeroTextBlock extends StatelessWidget {
         const SizedBox(height: 12),
         Text(
           hasCity
-              ? 'Gerçek üreticiler • güven veren mutfaklar • $areaText premium vitrin'
-              : 'Gerçek üreticiler • güven veren mutfaklar • premium vitrin',
+              ? 'Gerçek üreticiler • ev yapımı lezzetler • $areaText premium vitrin'
+              : 'Gerçek üreticiler • ev yapımı lezzetler • premium vitrin',
           style: const TextStyle(
             color: _softGold,
             fontSize: 13,
