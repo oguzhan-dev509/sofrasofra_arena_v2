@@ -73,6 +73,8 @@ class RestoranSiparisYonetimiSayfasi extends StatelessWidget {
         return 'Hazırlanıyor';
       case 'ready':
         return 'Sipariş Hazır';
+      case 'courier_pending':
+        return 'Kurye Süreci Beklemede';
       case 'waiting_courier':
         return 'Kurye Bekleniyor';
       case 'retry_scheduled':
@@ -487,11 +489,17 @@ class RestoranSiparisYonetimiSayfasi extends StatelessWidget {
 
     final courierStatus = rawCourierStatus.isEmpty && kuryeAdi.isNotEmpty
         ? 'assigned'
-        : rawCourierStatus;
+        : rawCourierStatus.isEmpty
+            ? 'courier_pending'
+            : rawCourierStatus;
 
     final platformKuryeAktif = data['platformKuryeAktif'] == true;
 
-    final isPlatformCourier = deliveryMode == 'platform_kurye' ||
+    final isDeliveryOrder = deliveryMode == 'gotur' ||
+        deliveryMode == 'platform_kurye' ||
+        deliveryMode == 'satici_kuryesi';
+
+    final isPlatformCourier = isDeliveryOrder ||
         platformKuryeAktif ||
         rawCourierStatus.isNotEmpty ||
         kuryeAdi.isNotEmpty;
