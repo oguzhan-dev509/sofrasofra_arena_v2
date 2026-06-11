@@ -1743,6 +1743,7 @@ class _MenuPreviewSection extends StatelessWidget {
         barrierDismissible: false,
         builder: (dialogContext) {
           bool saving = false;
+          String stockStatus = item.stockStatus;
 
           return StatefulBuilder(
             builder: (context, setDialogState) {
@@ -1790,6 +1791,10 @@ class _MenuPreviewSection extends StatelessWidget {
                     'galleryMeta.$imageKey.gelAlFiyat': gelAlFiyat,
                     'galleryMeta.$imageKey.goturFiyat': goturFiyat,
                     'galleryMeta.$imageKey.description': description,
+                    'stockStatus': stockStatus,
+                    'isAvailable':
+                        stockStatus == RestaurantProductStockStatus.inStock,
+                    'stockUpdatedAt': FieldValue.serverTimestamp(),
                     'updatedAt': FieldValue.serverTimestamp(),
                   });
 
@@ -1802,7 +1807,7 @@ class _MenuPreviewSection extends StatelessWidget {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
                       content: Text(
-                        'Fotoğraf fiyatı ve açıklaması güncellendi.',
+                        'Fiyat, açıklama ve stok durumu güncellendi.',
                       ),
                     ),
                   );
@@ -1821,7 +1826,7 @@ class _MenuPreviewSection extends StatelessWidget {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Text(
-                        'Fiyat ve açıklama güncellenemedi: $error',
+                        'Fiyat, açıklama ve stok güncellenemedi: $error',
                       ),
                     ),
                   );
@@ -1863,7 +1868,7 @@ class _MenuPreviewSection extends StatelessWidget {
               return AlertDialog(
                 backgroundColor: const Color(0xFF151515),
                 title: const Text(
-                  'Fiyat ve Açıklama Düzenle',
+                  'Fiyat, Açıklama ve Stok Düzenle',
                   style: TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.w900,
@@ -1929,6 +1934,37 @@ class _MenuPreviewSection extends StatelessWidget {
                             label: 'Açıklama',
                             hint: 'Fotoğrafa özel kısa açıklama',
                           ),
+                        ),
+                        const SizedBox(height: 12),
+                        DropdownButtonFormField<String>(
+                          value: stockStatus,
+                          dropdownColor: const Color(0xFF1B1B1B),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w700,
+                          ),
+                          decoration: inputDecoration(
+                            label: 'Ürün stok durumu',
+                            hint: 'Stok durumunu seçin',
+                          ),
+                          items:
+                              RestaurantProductStockStatus.values.map((status) {
+                            return DropdownMenuItem<String>(
+                              value: status,
+                              child: Text(
+                                RestaurantProductStockStatus.label(status),
+                              ),
+                            );
+                          }).toList(),
+                          onChanged: saving
+                              ? null
+                              : (value) {
+                                  if (value == null) return;
+
+                                  setDialogState(() {
+                                    stockStatus = value;
+                                  });
+                                },
                         ),
                       ],
                     ),
