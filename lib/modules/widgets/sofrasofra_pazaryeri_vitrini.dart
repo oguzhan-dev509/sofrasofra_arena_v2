@@ -6,7 +6,6 @@ import 'package:sofrasofra_arena_v2/modules/vitrinler/ev_lezzetleri_vitrini.dart
 import 'package:sofrasofra_arena_v2/modules/vitrinler/sef_vitrini_v2.dart';
 import 'package:sofrasofra_arena_v2/modules/vitrinler/restoranlar_vitrini.dart';
 import 'package:sofrasofra_arena_v2/modules/urun_detay.dart';
-import 'package:sofrasofra_arena_v2/onboarding/profesyonel_isletme_basvuru_sayfasi.dart';
 
 class SofrasofraPazaryeriVitrini extends StatelessWidget {
   const SofrasofraPazaryeriVitrini({super.key});
@@ -203,69 +202,7 @@ class _HeroTextBlock extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              Icons.room_service_rounded,
-              color: SofrasofraPazaryeriVitrini._gold,
-              size: 24,
-            ),
-            SizedBox(width: 10),
-            Text(
-              'SOFRASOFRA',
-              style: TextStyle(
-                color: SofrasofraPazaryeriVitrini._gold,
-                fontWeight: FontWeight.w800,
-                letterSpacing: 1.8,
-                fontSize: 13,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 14),
-        const Text(
-          'Evde pişen emek,\nmahallede değer bulur.',
-          style: TextStyle(
-            color: SofrasofraPazaryeriVitrini._text,
-            fontWeight: FontWeight.w900,
-            fontSize: 36,
-            height: 1.05,
-          ),
-        ),
-        const SizedBox(height: 14),
-        const Text(
-          'Ev Lezzetleri, Usta Şefler ve Restoranlar aynı güvenli gastronomi pazaryerinde buluşur.',
-          style: TextStyle(
-            color: SofrasofraPazaryeriVitrini._muted,
-            fontSize: 16,
-            height: 1.45,
-          ),
-        ),
-        const SizedBox(height: 18),
-        Wrap(
-          spacing: 10,
-          runSpacing: 10,
-          children: const [
-            _HeroBadge(
-              icon: Icons.verified_rounded,
-              text: 'Güvenli pazaryeri',
-            ),
-            _HeroBadge(
-              icon: Icons.shopping_bag_rounded,
-              text: 'Satın alınabilir ürünler',
-            ),
-            _HeroBadge(
-              icon: Icons.location_on_rounded,
-              text: 'Mahalle bazlı keşif',
-            ),
-          ],
-        ),
-      ],
-    );
+    return const SizedBox.shrink();
   }
 }
 
@@ -278,22 +215,7 @@ class _HeroVisualGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final height = isMobile ? 320.0 : 370.0;
-
-    return SizedBox(
-      width: double.infinity,
-      height: height,
-      child: _HeroRestaurantCampaignBanner(
-        isMobile: isMobile,
-        onTap: () {
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (_) => const ProfesyonelIsletmeBasvuruSayfasi(),
-            ),
-          );
-        },
-      ),
-    );
+    return const SizedBox.shrink();
   }
 }
 
