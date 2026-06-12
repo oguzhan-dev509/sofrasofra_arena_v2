@@ -12,6 +12,7 @@ import 'dart:convert';
 import 'package:sofrasofra_arena_v2/modules/kurumsal/mahalle_mutfak_kocu_basvuru_sayfasi.dart';
 import 'package:flutter/services.dart';
 import 'package:sofrasofra_arena_v2/modules/widgets/sofrasofra_ana_modul_gecisleri_section.dart';
+import 'package:sofrasofra_arena_v2/modules/radyo/sofrasofra_radyo_bolumu.dart';
 
 class ArenaEntryPage extends StatefulWidget {
   const ArenaEntryPage({super.key});
@@ -263,6 +264,11 @@ class _ArenaEntryPageState extends State<ArenaEntryPage> {
                   const SofrasofraPazaryeriVitrini(),
                   const SizedBox(height: 24),
                   const SofrasofraAnaModulGecisleriSection(),
+                  const SizedBox(height: 24),
+                  const SofrasofraRadyoBolumu(
+                    maxPrograms: 4,
+                    showRefreshButton: false,
+                  ),
                   const SizedBox(height: 24),
                   Container(
                     width: double.infinity,
