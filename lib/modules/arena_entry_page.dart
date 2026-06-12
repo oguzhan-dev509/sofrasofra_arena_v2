@@ -13,6 +13,9 @@ import 'package:sofrasofra_arena_v2/modules/kurumsal/mahalle_mutfak_kocu_basvuru
 import 'package:flutter/services.dart';
 import 'package:sofrasofra_arena_v2/modules/widgets/sofrasofra_ana_modul_gecisleri_section.dart';
 import 'package:sofrasofra_arena_v2/modules/radyo/sofrasofra_radyo_bolumu.dart';
+import 'package:sofrasofra_arena_v2/modules/restoranlar/restoran_vitrini.dart';
+import 'package:sofrasofra_arena_v2/modules/vitrinler/ev_lezzetleri_vitrini.dart';
+import 'package:sofrasofra_arena_v2/modules/vitrinler/sef_vitrini_v2.dart';
 
 class ArenaEntryPage extends StatefulWidget {
   const ArenaEntryPage({super.key});
@@ -156,6 +159,7 @@ class _ArenaEntryPageState extends State<ArenaEntryPage> {
   };
   String? _selectedCity;
   String? _selectedDistrict;
+  String _selectedModule = 'ev_lezzetleri';
   @override
   void initState() {
     super.initState();
@@ -238,10 +242,31 @@ class _ArenaEntryPageState extends State<ArenaEntryPage> {
       return;
     }
 
+    final city = _selectedCity!;
+    final district = _selectedDistrict!;
+
+    Widget targetPage;
+
+    switch (_selectedModule) {
+      case 'usta_sefler':
+        targetPage = const SefVitriniV2();
+        break;
+      case 'restoranlar':
+        targetPage = const PremiumRestoranVitrini();
+        break;
+      case 'ev_lezzetleri':
+      default:
+        targetPage = EvLezzetleriVitrini(
+          city: city,
+          district: district,
+        );
+        break;
+    }
+
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => const KategoriSayfasi(),
+        builder: (_) => targetPage,
       ),
     );
   }
@@ -404,18 +429,26 @@ class _ArenaEntryPageState extends State<ArenaEntryPage> {
                           ),
                         ),
                         const SizedBox(height: 18),
-                        if (isMobile) ...[
-                          _buildCityDropdown(),
-                          const SizedBox(height: 14),
-                          _buildDistrictDropdown(),
-                        ] else
-                          Row(
-                            children: [
-                              Expanded(child: _buildCityDropdown()),
-                              const SizedBox(width: 14),
-                              Expanded(child: _buildDistrictDropdown()),
-                            ],
-                          ),
+                        isMobile
+                            ? Column(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  _buildCityDropdown(),
+                                  const SizedBox(height: 14),
+                                  _buildDistrictDropdown(),
+                                  const SizedBox(height: 14),
+                                  _buildModuleDropdown(),
+                                ],
+                              )
+                            : Row(
+                                children: [
+                                  Expanded(child: _buildCityDropdown()),
+                                  const SizedBox(width: 14),
+                                  Expanded(child: _buildDistrictDropdown()),
+                                  const SizedBox(width: 14),
+                                  Expanded(child: _buildModuleDropdown()),
+                                ],
+                              ),
                         const SizedBox(height: 18),
                         ElevatedButton(
                           onPressed: _continueSelection,
@@ -673,6 +706,54 @@ class _ArenaEntryPageState extends State<ArenaEntryPage> {
                 });
               }
             : null,
+      ),
+    );
+  }
+
+  Widget _buildModuleDropdown() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      decoration: BoxDecoration(
+        color: const Color(0xFF1C1C1C),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: _gold.withValues(alpha: 0.16)),
+      ),
+      child: DropdownButtonFormField<String>(
+        value: _selectedModule,
+        isExpanded: true,
+        menuMaxHeight: 320,
+        dropdownColor: const Color(0xFF1C1C1C),
+        decoration: const InputDecoration(
+          border: InputBorder.none,
+          labelText: 'Alan seçin',
+          labelStyle: TextStyle(color: _muted),
+        ),
+        style: const TextStyle(
+          color: _text,
+          fontSize: 15,
+          fontWeight: FontWeight.w600,
+        ),
+        items: const [
+          DropdownMenuItem<String>(
+            value: 'ev_lezzetleri',
+            child: Text('Ev Lezzetleri'),
+          ),
+          DropdownMenuItem<String>(
+            value: 'usta_sefler',
+            child: Text('Usta Şefler'),
+          ),
+          DropdownMenuItem<String>(
+            value: 'restoranlar',
+            child: Text('Restoranlar'),
+          ),
+        ],
+        onChanged: (value) {
+          if (value == null) return;
+
+          setState(() {
+            _selectedModule = value;
+          });
+        },
       ),
     );
   }
