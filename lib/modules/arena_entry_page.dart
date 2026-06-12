@@ -11,6 +11,7 @@ import 'package:sofrasofra_arena_v2/onboarding/onayli_panel_yonlendirici.dart';
 import 'dart:convert';
 import 'package:sofrasofra_arena_v2/modules/kurumsal/mahalle_mutfak_kocu_basvuru_sayfasi.dart';
 import 'package:flutter/services.dart';
+import 'package:sofrasofra_arena_v2/modules/widgets/sofrasofra_ana_modul_gecisleri_section.dart';
 
 class ArenaEntryPage extends StatefulWidget {
   const ArenaEntryPage({super.key});
@@ -260,6 +261,8 @@ class _ArenaEntryPageState extends State<ArenaEntryPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SofrasofraPazaryeriVitrini(),
+                  const SizedBox(height: 24),
+                  const SofrasofraAnaModulGecisleriSection(),
                   const SizedBox(height: 24),
                   Container(
                     width: double.infinity,
