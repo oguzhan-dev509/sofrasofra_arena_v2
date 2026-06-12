@@ -8,12 +8,13 @@ import { onCall, onRequest, HttpsError } from "firebase-functions/v2/https";
 import * as logger from "firebase-functions/logger";
 export { submitEvLezzetleriApplication } from "./producer_applications";
 export { submitProfessionalApplication } from "./producer_applications";
+export { initializePaytrOrderPayment } from "./paytr_order_payment";
 import {
   IYZI_API_KEY,
   IYZI_SECRET_KEY,
   getIyziBaseUrl,
 } from "./config";
-
+export { paytrCallback } from "./paytr_callback";
 initializeApp();
 
 const db = getFirestore();
