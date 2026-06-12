@@ -16,6 +16,7 @@ class CampaignCounterPanel extends StatelessWidget {
 
         final evKalan = _readInt(data['evKalan'], fallback: 100);
         final sefKalan = _readInt(data['sefKalan'], fallback: 100);
+        final restoranKalan = _readInt(data['restoranKalan'], fallback: 100);
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -26,46 +27,48 @@ class CampaignCounterPanel extends StatelessWidget {
               builder: (context, constraints) {
                 final isWide = constraints.maxWidth >= 720;
 
-                final cards = [
-                  Expanded(
-                    child: _CampaignCard(
-                      title: 'Ev Lezzetleri',
-                      headline: 'İlk 100 kurucu üreticiye 1 yıl ücretsiz',
-                      subtitle: 'Evde pişen emeğinizi mahallede görünür kılın.',
-                      remaining: evKalan,
-                    ),
+                final campaignCards = [
+                  _CampaignCard(
+                    title: 'Ev Lezzetleri',
+                    headline: 'İlk 100 kurucu üreticiye 1 yıl ücretsiz',
+                    subtitle: 'Evde pişen emeğinizi mahallede görünür kılın.',
+                    remaining: evKalan,
                   ),
-                  const SizedBox(width: 12, height: 12),
-                  Expanded(
-                    child: _CampaignCard(
-                      title: 'Usta Şefler',
-                      headline: 'İlk 100 kurucu şefe 1 yıl ücretsiz',
-                      subtitle:
-                          'İmza mutfağınızı, eğitiminizi ve uzmanlığınızı görünür kılın.',
-                      remaining: sefKalan,
-                    ),
+                  _CampaignCard(
+                    title: 'Usta Şefler',
+                    headline: 'İlk 100 kurucu şefe 1 yıl ücretsiz',
+                    subtitle:
+                        'İmza mutfağınızı, eğitiminizi ve uzmanlığınızı görünür kılın.',
+                    remaining: sefKalan,
+                  ),
+                  _CampaignCard(
+                    title: 'Restoranlar',
+                    headline: 'İlk 100 kurucu restorana 1 yıl ücretsiz',
+                    subtitle:
+                        'Gel-Al ve Götür siparişlerinizi dijital vitrine taşıyın.',
+                    remaining: restoranKalan,
                   ),
                 ];
 
                 if (isWide) {
-                  return Row(children: cards);
+                  return Row(
+                    children: [
+                      for (var i = 0; i < campaignCards.length; i++) ...[
+                        Expanded(child: campaignCards[i]),
+                        if (i != campaignCards.length - 1)
+                          const SizedBox(width: 12),
+                      ],
+                    ],
+                  );
                 }
 
                 return Column(
                   children: [
-                    _CampaignCard(
-                      title: 'Ev Lezzetleri',
-                      headline: 'İlk 100 üreticiye 1 yıl ücretsiz',
-                      subtitle: 'Ev mutfağınızı kazanca dönüştürün.',
-                      remaining: evKalan,
-                    ),
-                    const SizedBox(height: 12),
-                    _CampaignCard(
-                      title: 'Usta Şefler',
-                      headline: 'İlk 100 şefe 1 yıl ücretsiz',
-                      subtitle: 'Markanızı ve bilginizi gelire dönüştürün.',
-                      remaining: sefKalan,
-                    ),
+                    for (var i = 0; i < campaignCards.length; i++) ...[
+                      campaignCards[i],
+                      if (i != campaignCards.length - 1)
+                        const SizedBox(height: 12),
+                    ],
                   ],
                 );
               },
