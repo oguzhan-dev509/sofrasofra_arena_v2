@@ -7,7 +7,7 @@ import 'package:sofrasofra_arena_v2/modules/vitrinler/sef_vitrini_v2.dart';
 import 'package:sofrasofra_arena_v2/modules/vitrinler/restoranlar_vitrini.dart';
 import 'package:sofrasofra_arena_v2/modules/urun_detay.dart';
 
-class SofrasofraPazaryeriVitrini extends StatelessWidget {
+class SofrasofraPazaryeriVitrini extends StatefulWidget {
   const SofrasofraPazaryeriVitrini({super.key});
 
   static const Color _bg = Color(0xFF0D0D0D);
@@ -19,6 +19,15 @@ class SofrasofraPazaryeriVitrini extends StatelessWidget {
   static const Color _muted = Color(0xFFB6ADA0);
 
   @override
+  State<SofrasofraPazaryeriVitrini> createState() =>
+      _SofrasofraPazaryeriVitriniState();
+}
+
+class _SofrasofraPazaryeriVitriniState
+    extends State<SofrasofraPazaryeriVitrini> {
+  String _searchQuery = '';
+
+  @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -27,16 +36,24 @@ class SofrasofraPazaryeriVitrini extends StatelessWidget {
         return Container(
           width: double.infinity,
           decoration: BoxDecoration(
-            color: _bg,
+            color: SofrasofraPazaryeriVitrini._bg,
             borderRadius: BorderRadius.circular(28),
             border: Border.all(
-              color: _gold.withValues(alpha: 0.22),
+              color: SofrasofraPazaryeriVitrini._gold.withValues(alpha: 0.22),
             ),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _HeroShowcase(isMobile: isMobile),
+              _HeroShowcase(
+                isMobile: isMobile,
+                searchQuery: _searchQuery,
+                onSearchChanged: (value) {
+                  setState(() {
+                    _searchQuery = value;
+                  });
+                },
+              ),
               Padding(
                 padding: EdgeInsets.fromLTRB(
                   isMobile ? 18 : 26,
@@ -49,7 +66,10 @@ class SofrasofraPazaryeriVitrini extends StatelessWidget {
                   children: [
                     const _MarketTitle(),
                     const SizedBox(height: 18),
-                    _LiveShowcaseSections(isMobile: isMobile),
+                    _LiveShowcaseSections(
+                      isMobile: isMobile,
+                      searchQuery: _searchQuery,
+                    ),
                     const SizedBox(height: 28),
                     _HowItWorksPanel(isMobile: isMobile),
                     const SizedBox(height: 22),
@@ -66,9 +86,49 @@ class SofrasofraPazaryeriVitrini extends StatelessWidget {
 }
 
 class _LiveShowcaseSections extends StatelessWidget {
-  const _LiveShowcaseSections({required this.isMobile});
+  const _LiveShowcaseSections({
+    required this.isMobile,
+    required this.searchQuery,
+  });
 
   final bool isMobile;
+  final String searchQuery;
+
+  String _normalize(String value) {
+    return value
+        .trim()
+        .toLowerCase()
+        .replaceAll('ı', 'i')
+        .replaceAll('ğ', 'g')
+        .replaceAll('ü', 'u')
+        .replaceAll('ş', 's')
+        .replaceAll('ö', 'o')
+        .replaceAll('ç', 'c');
+  }
+
+  bool _matchesSearch(_MarketItem item) {
+    final query = _normalize(searchQuery);
+    if (query.isEmpty) return true;
+
+    final haystack = _normalize(
+      [
+        item.name,
+        item.description,
+        item.category,
+        item.price,
+        item.section,
+        item.targetType,
+        item.targetId,
+        item.sellerId,
+      ].join(' '),
+    );
+
+    return haystack.contains(query);
+  }
+
+  List<_MarketItem> _visibleItems(List<_MarketItem> items) {
+    return items.where(_matchesSearch).take(8).toList();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -86,20 +146,35 @@ class _LiveShowcaseSections extends StatelessWidget {
             .toList()
           ..sort((a, b) => a.order.compareTo(b.order));
 
-        final evItems = liveItems
-            .where((item) => item.section == 'ev_lezzetleri')
-            .take(8)
-            .toList();
+        final evSource =
+            liveItems.where((item) => item.section == 'ev_lezzetleri').toList();
 
-        final sefItems = liveItems
-            .where((item) => item.section == 'usta_sefler')
-            .take(8)
-            .toList();
+        final sefSource =
+            liveItems.where((item) => item.section == 'usta_sefler').toList();
 
-        final restoranItems = liveItems
-            .where((item) => item.section == 'restoranlar')
-            .take(8)
-            .toList();
+        final restoranSource =
+            liveItems.where((item) => item.section == 'restoranlar').toList();
+
+        final evItems = _visibleItems(
+          evSource.isEmpty ? _evLezzetleriItems : evSource,
+        );
+
+        final sefItems = _visibleItems(
+          sefSource.isEmpty ? _ustaSefItems : sefSource,
+        );
+
+        final restoranItems = _visibleItems(
+          restoranSource.isEmpty ? _restoranItems : restoranSource,
+        );
+
+        final hasSearch = searchQuery.trim().isNotEmpty;
+        final hasAnyResult = evItems.isNotEmpty ||
+            sefItems.isNotEmpty ||
+            restoranItems.isNotEmpty;
+
+        if (hasSearch && !hasAnyResult) {
+          return _SearchEmptyState(query: searchQuery);
+        }
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -110,7 +185,7 @@ class _LiveShowcaseSections extends StatelessWidget {
               subtitle:
                   'Evde özenle hazırlanan, mahalleden sofraya gelen lezzetler.',
               actionText: 'Tümünü Gör',
-              items: evItems.isEmpty ? _evLezzetleriItems : evItems,
+              items: evItems,
               isMobile: isMobile,
             ),
             const SizedBox(height: 26),
@@ -120,7 +195,7 @@ class _LiveShowcaseSections extends StatelessWidget {
               subtitle:
                   'Profesyonel şeflerin imza tabakları, davet menüleri ve atölyeleri.',
               actionText: 'Tümünü Gör',
-              items: sefItems.isEmpty ? _ustaSefItems : sefItems,
+              items: sefItems,
               isMobile: isMobile,
             ),
             const SizedBox(height: 26),
@@ -130,7 +205,7 @@ class _LiveShowcaseSections extends StatelessWidget {
               subtitle:
                   'Mahallenizin restoranlarından gel-al ve götür seçenekli menüler.',
               actionText: 'Tümünü Gör',
-              items: restoranItems.isEmpty ? _restoranItems : restoranItems,
+              items: restoranItems,
               isMobile: isMobile,
             ),
           ],
@@ -141,9 +216,15 @@ class _LiveShowcaseSections extends StatelessWidget {
 }
 
 class _HeroShowcase extends StatelessWidget {
-  const _HeroShowcase({required this.isMobile});
+  const _HeroShowcase({
+    required this.isMobile,
+    required this.searchQuery,
+    required this.onSearchChanged,
+  });
 
   final bool isMobile;
+  final String searchQuery;
+  final ValueChanged<String> onSearchChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -188,7 +269,12 @@ class _HeroShowcase extends StatelessWidget {
             _HeroVisualGrid(isMobile: isMobile),
           ],
           const SizedBox(height: 20),
-          const _PremiumSearchBar(),
+          const _MarketplaceSlogan(),
+          const SizedBox(height: 10),
+          _PremiumSearchBar(
+            searchQuery: searchQuery,
+            onChanged: onSearchChanged,
+          ),
           const SizedBox(height: 14),
           const _CategoryChips(),
         ],
@@ -392,14 +478,37 @@ class _HeroRestaurantCampaignBanner extends StatelessWidget {
   }
 }
 
+class _MarketplaceSlogan extends StatelessWidget {
+  const _MarketplaceSlogan();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Text(
+      'Emeğiniz sizden, ürününüz sizden, kazancınız da sizden yana.',
+      style: TextStyle(
+        color: SofrasofraPazaryeriVitrini._gold,
+        fontSize: 15,
+        fontWeight: FontWeight.w900,
+        height: 1.35,
+      ),
+    );
+  }
+}
+
 class _PremiumSearchBar extends StatelessWidget {
-  const _PremiumSearchBar();
+  const _PremiumSearchBar({
+    required this.searchQuery,
+    required this.onChanged,
+  });
+
+  final String searchQuery;
+  final ValueChanged<String> onChanged;
 
   @override
   Widget build(BuildContext context) {
     return Container(
       height: 54,
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 14),
       decoration: BoxDecoration(
         color: Colors.black.withValues(alpha: 0.40),
         borderRadius: BorderRadius.circular(18),
@@ -407,27 +516,31 @@ class _PremiumSearchBar extends StatelessWidget {
           color: SofrasofraPazaryeriVitrini._gold.withValues(alpha: 0.34),
         ),
       ),
-      child: const Row(
-        children: [
-          Icon(
+      child: TextField(
+        onChanged: onChanged,
+        cursorColor: SofrasofraPazaryeriVitrini._gold,
+        style: const TextStyle(
+          color: SofrasofraPazaryeriVitrini._text,
+          fontSize: 15,
+          fontWeight: FontWeight.w700,
+        ),
+        decoration: const InputDecoration(
+          border: InputBorder.none,
+          icon: Icon(
             Icons.search_rounded,
             color: SofrasofraPazaryeriVitrini._gold,
           ),
-          SizedBox(width: 10),
-          Expanded(
-            child: Text(
-              'Ne yemek istersin?',
-              style: TextStyle(
-                color: SofrasofraPazaryeriVitrini._muted,
-                fontSize: 15,
-              ),
-            ),
+          hintText: 'Ne yemek istersin? Mantı, sarma, börek, kebap...',
+          hintStyle: TextStyle(
+            color: SofrasofraPazaryeriVitrini._muted,
+            fontSize: 15,
+            fontWeight: FontWeight.w600,
           ),
-          Icon(
+          suffixIcon: Icon(
             Icons.tune_rounded,
             color: SofrasofraPazaryeriVitrini._gold,
           ),
-        ],
+        ),
       ),
     );
   }
@@ -524,6 +637,35 @@ class _MarketTitle extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+class _SearchEmptyState extends StatelessWidget {
+  const _SearchEmptyState({required this.query});
+
+  final String query;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: SofrasofraPazaryeriVitrini._panel,
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(
+          color: SofrasofraPazaryeriVitrini._gold.withValues(alpha: 0.24),
+        ),
+      ),
+      child: Text(
+        '"$query" için henüz vitrin sonucu bulunamadı.',
+        style: const TextStyle(
+          color: SofrasofraPazaryeriVitrini._muted,
+          fontSize: 14,
+          fontWeight: FontWeight.w700,
+        ),
+      ),
     );
   }
 }
