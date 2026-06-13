@@ -167,35 +167,58 @@ class _EvLezzetleriVitriniState extends State<EvLezzetleriVitrini> {
   }
 
   String _mapCategory(Map<String, dynamic> data) {
-    final raw = _safeText(
-      data['kategori'] ?? data['altKategori'] ?? data['category'],
-    ).toLowerCase();
+    final raw = _normalizeText(
+      [
+        data['kategori'],
+        data['altKategori'],
+        data['category'],
+        data['categoryLabel'],
+        data['productCategory'],
+        data['urunKategori'],
+        data['ad'],
+        data['urunAdi'],
+        data['yemekAdi'],
+        data['baslik'],
+        data['title'],
+        data['aciklama'],
+        data['description'],
+      ].where((value) => _safeText(value).isNotEmpty).join(' '),
+    );
 
-    if (raw.contains('tatlı') ||
-        raw.contains('cikolata') ||
-        raw.contains('çikolata')) {
+    if (raw.contains('cikolata') ||
+        raw.contains('tatli') ||
+        raw.contains('pasta') ||
+        raw.contains('kurabiye') ||
+        raw.contains('baklava') ||
+        raw.contains('sutlac') ||
+        raw.contains('kek')) {
       return 'Çikolata & Tatlılar';
     }
+
     if (raw.contains('sut') ||
-        raw.contains('süt') ||
         raw.contains('peynir') ||
-        raw.contains('yoğurt') ||
-        raw.contains('yogurt')) {
+        raw.contains('yogurt') ||
+        raw.contains('tereyag') ||
+        raw.contains('kaymak')) {
       return 'Süt Ürünleri';
     }
-    if (raw.contains('turşu') ||
-        raw.contains('tursu') ||
-        raw.contains('reçel') ||
+
+    if (raw.contains('tursu') ||
         raw.contains('recel') ||
-        raw.contains('kahvalt')) {
+        raw.contains('salca') ||
+        raw.contains('konserve') ||
+        raw.contains('zeytin')) {
       return 'Turşu & Diğerleri';
     }
+
     if (raw.contains('baharat') ||
         raw.contains('sos') ||
-        raw.contains('salça') ||
-        raw.contains('salca')) {
+        raw.contains('biber') ||
+        raw.contains('pul biber') ||
+        raw.contains('kekik')) {
       return 'Baharat & Soslar';
     }
+
     return 'Ev Yemekleri';
   }
 
