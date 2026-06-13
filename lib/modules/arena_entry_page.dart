@@ -15,6 +15,7 @@ import 'package:sofrasofra_arena_v2/modules/radyo/sofrasofra_radyo_bolumu.dart';
 import 'package:sofrasofra_arena_v2/modules/restoranlar/restoran_vitrini.dart';
 import 'package:sofrasofra_arena_v2/modules/vitrinler/ev_lezzetleri_vitrini.dart';
 import 'package:sofrasofra_arena_v2/modules/vitrinler/sef_vitrini_v2.dart';
+import 'package:sofrasofra_arena_v2/modules/kurye_basvuru_formu.dart';
 
 class ArenaEntryPage extends StatefulWidget {
   const ArenaEntryPage({super.key});
@@ -288,6 +289,8 @@ class _ArenaEntryPageState extends State<ArenaEntryPage> {
                   const SofrasofraPazaryeriVitrini(),
                   const SizedBox(height: 24),
                   const SofrasofraAnaModulGecisleriSection(),
+                  const SizedBox(height: 24),
+                  const _CourierFounderBanner(),
                   const SizedBox(height: 24),
                   const SofrasofraRadyoBolumu(
                     maxPrograms: 4,
@@ -856,6 +859,128 @@ class _CoachRewardBadge extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _CourierFounderBanner extends StatelessWidget {
+  const _CourierFounderBanner();
+
+  static const Color _gold = Color(0xFFFFB300);
+  static const Color _text = Colors.white;
+  static const Color _muted = Color(0xFFB6ADA0);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(
+          color: _gold.withValues(alpha: 0.42),
+        ),
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Color(0xFF2A2109),
+            Color(0xFF151515),
+            Color(0xFF090909),
+          ],
+        ),
+      ),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final isMobile = constraints.maxWidth < 720;
+
+          final content = Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: const [
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.delivery_dining_rounded,
+                    color: _gold,
+                    size: 28,
+                  ),
+                  SizedBox(width: 10),
+                  Flexible(
+                    child: Text(
+                      'İlk 300 Kurye İçin 3 Ay Komisyonsuz Başlangıç',
+                      style: TextStyle(
+                        color: _text,
+                        fontSize: 24,
+                        fontWeight: FontWeight.w900,
+                        height: 1.18,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 10),
+              Text(
+                'Mahallende teslimat ağına katıl, Sofrasofra siparişlerinden gelir elde et.',
+                style: TextStyle(
+                  color: _muted,
+                  fontSize: 15,
+                  fontWeight: FontWeight.w700,
+                  height: 1.35,
+                ),
+              ),
+            ],
+          );
+
+          final button = ElevatedButton.icon(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const KuryeBasvuruFormu(),
+                ),
+              );
+            },
+            icon: const Icon(Icons.arrow_forward_rounded),
+            label: const Text('Kurye Başvurusu Yap'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: _gold,
+              foregroundColor: Colors.black,
+              elevation: 0,
+              padding: const EdgeInsets.symmetric(
+                horizontal: 20,
+                vertical: 15,
+              ),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(999),
+              ),
+              textStyle: const TextStyle(
+                fontWeight: FontWeight.w900,
+                fontSize: 14,
+              ),
+            ),
+          );
+
+          if (isMobile) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                content,
+                const SizedBox(height: 18),
+                button,
+              ],
+            );
+          }
+
+          return Row(
+            children: [
+              Expanded(child: content),
+              const SizedBox(width: 20),
+              button,
+            ],
+          );
+        },
       ),
     );
   }
