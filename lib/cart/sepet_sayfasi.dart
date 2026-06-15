@@ -297,17 +297,17 @@ class _SepetSayfasiState extends State<SepetSayfasi> {
 
       final callable = FirebaseFunctions.instanceFor(
         region: 'europe-west1',
-      ).httpsCallable('initializeEvOrderPayment');
+      ).httpsCallable('initializePaytrOrderPayment');
 
       final paymentResult = await callable.call({
         'orderId': orderId,
       });
 
       final data = Map<String, dynamic>.from(paymentResult.data as Map);
-      final checkoutUrl = (data['checkoutUrl'] ?? '').toString();
+      final checkoutUrl = (data['iframeUrl'] ?? '').toString();
 
       if (checkoutUrl.isEmpty) {
-        throw Exception('iyzico checkoutUrl boş geldi.');
+        throw Exception('PAYTR iframeUrl boş geldi.');
       }
 
       await launchUrl(

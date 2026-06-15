@@ -417,8 +417,8 @@ class SepetService {
       // Order status
       'status': 'awaiting_payment',
       'durum': 'awaiting_payment',
-      'paymentProvider': 'iyzico',
-      'iyzicoToken': null,
+      'paymentProvider': 'paytr',
+      'paytrToken': null,
       'paymentConversationId': null,
       // Totals
       'araToplam': araToplam,
