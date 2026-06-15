@@ -55,7 +55,7 @@ function asNumber(value) {
     return 0;
 }
 function sanitizeMerchantOid(value) {
-    return value.replace(/[^A-Za-z0-9_-]/g, "_").slice(0, 64);
+    return value.replace(/[^A-Za-z0-9]/g, "").slice(0, 64);
 }
 exports.initializePaytrOrderPayment = (0, https_1.onCall)({
     region: "europe-west1",
@@ -99,9 +99,9 @@ exports.initializePaytrOrderPayment = (0, https_1.onCall)({
         if (!Number.isFinite(amountTl) || amountTl <= 0) {
             throw new https_1.HttpsError("failed-precondition", "Geçersiz toplam tutar.");
         }
-        const merchantId = config_1.PAYTR_MERCHANT_ID.value();
-        const merchantKey = config_1.PAYTR_MERCHANT_KEY.value();
-        const merchantSalt = config_1.PAYTR_MERCHANT_SALT.value();
+        const merchantId = config_1.PAYTR_MERCHANT_ID.value().trim();
+        const merchantKey = config_1.PAYTR_MERCHANT_KEY.value().trim();
+        const merchantSalt = config_1.PAYTR_MERCHANT_SALT.value().trim();
         if (!merchantId || !merchantKey || !merchantSalt) {
             throw new https_1.HttpsError("failed-precondition", "PAYTR secret eksik.");
         }
@@ -183,6 +183,22 @@ exports.initializePaytrOrderPayment = (0, https_1.onCall)({
             merchantOid,
             paymentAmount,
             paymentChannel: orderData.paymentChannel ?? null,
+            paytrDebug: {
+                merchantIdLength: merchantId.length,
+                merchantKeyLength: merchantKey.length,
+                merchantSaltLength: merchantSalt.length,
+                userIp,
+                userEmail,
+                userBasket,
+                noInstallment,
+                maxInstallment,
+                currency,
+                testMode,
+                callbackUrl,
+                okUrl,
+                failUrl,
+                hasPaytrToken: paytrToken.length > 0,
+            },
         });
         const response = await axios_1.default.post(`${(0, config_1.getPaytrBaseUrl)()}/odeme/api/get-token`, payload.toString(), {
             headers: {

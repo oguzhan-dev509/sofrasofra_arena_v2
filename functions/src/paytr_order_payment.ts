@@ -27,7 +27,7 @@ function asNumber(value: unknown): number {
 }
 
 function sanitizeMerchantOid(value: string): string {
-  return value.replace(/[^A-Za-z0-9_-]/g, "_").slice(0, 64);
+  return value.replace(/[^A-Za-z0-9]/g, "").slice(0, 64);
 }
 
 export const initializePaytrOrderPayment = onCall(
@@ -93,9 +93,9 @@ export const initializePaytrOrderPayment = onCall(
         throw new HttpsError("failed-precondition", "Geçersiz toplam tutar.");
       }
 
-      const merchantId = PAYTR_MERCHANT_ID.value();
-      const merchantKey = PAYTR_MERCHANT_KEY.value();
-      const merchantSalt = PAYTR_MERCHANT_SALT.value();
+      const merchantId = PAYTR_MERCHANT_ID.value().trim();
+      const merchantKey = PAYTR_MERCHANT_KEY.value().trim();
+      const merchantSalt = PAYTR_MERCHANT_SALT.value().trim();
 
       if (!merchantId || !merchantKey || !merchantSalt) {
         throw new HttpsError("failed-precondition", "PAYTR secret eksik.");
@@ -210,6 +210,22 @@ export const initializePaytrOrderPayment = onCall(
         merchantOid,
         paymentAmount,
         paymentChannel: orderData.paymentChannel ?? null,
+        paytrDebug: {
+          merchantIdLength: merchantId.length,
+          merchantKeyLength: merchantKey.length,
+          merchantSaltLength: merchantSalt.length,
+          userIp,
+          userEmail,
+          userBasket,
+          noInstallment,
+          maxInstallment,
+          currency,
+          testMode,
+          callbackUrl,
+          okUrl,
+          failUrl,
+          hasPaytrToken: paytrToken.length > 0,
+        },
       });
 
       const response = await axios.post(
@@ -281,3 +297,5 @@ export const initializePaytrOrderPayment = onCall(
     }
   }
 );
+
+
