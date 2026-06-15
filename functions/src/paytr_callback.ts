@@ -7,7 +7,6 @@ import {
   PAYTR_MERCHANT_SALT,
 } from "./config";
 
-const db = getFirestore();
 
 function asString(value: unknown): string {
   return (value ?? "").toString().trim();
@@ -20,6 +19,7 @@ export const paytrCallback = onRequest(
   },
   async (req, res) => {
     try {
+      const db = getFirestore();
       if (req.method !== "POST") {
         res.status(405).send("Method Not Allowed");
         return;
@@ -180,3 +180,4 @@ export const paytrCallback = onRequest(
     }
   }
 );
+

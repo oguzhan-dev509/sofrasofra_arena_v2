@@ -13,7 +13,6 @@ import {
   getPaytrOkUrl,
 } from "./config";
 
-const db = getFirestore();
 
 function asString(value: unknown): string {
   return (value ?? "").toString().trim();
@@ -42,6 +41,7 @@ export const initializePaytrOrderPayment = onCall(
   },
   async (request) => {
     try {
+      const db = getFirestore();
       const uid = request.auth?.uid;
       if (!uid) {
         throw new HttpsError("unauthenticated", "Oturum gerekli.");

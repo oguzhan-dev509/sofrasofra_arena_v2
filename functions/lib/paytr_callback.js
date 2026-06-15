@@ -39,7 +39,6 @@ const firestore_1 = require("firebase-admin/firestore");
 const logger = __importStar(require("firebase-functions/logger"));
 const crypto = __importStar(require("crypto"));
 const config_1 = require("./config");
-const db = (0, firestore_1.getFirestore)();
 function asString(value) {
     return (value ?? "").toString().trim();
 }
@@ -48,6 +47,7 @@ exports.paytrCallback = (0, https_1.onRequest)({
     secrets: [config_1.PAYTR_MERCHANT_KEY, config_1.PAYTR_MERCHANT_SALT],
 }, async (req, res) => {
     try {
+        const db = (0, firestore_1.getFirestore)();
         if (req.method !== "POST") {
             res.status(405).send("Method Not Allowed");
             return;

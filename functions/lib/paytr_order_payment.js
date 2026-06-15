@@ -43,7 +43,6 @@ const logger = __importStar(require("firebase-functions/logger"));
 const axios_1 = __importDefault(require("axios"));
 const crypto = __importStar(require("crypto"));
 const config_1 = require("./config");
-const db = (0, firestore_1.getFirestore)();
 function asString(value) {
     return (value ?? "").toString().trim();
 }
@@ -67,6 +66,7 @@ exports.initializePaytrOrderPayment = (0, https_1.onCall)({
     ],
 }, async (request) => {
     try {
+        const db = (0, firestore_1.getFirestore)();
         const uid = request.auth?.uid;
         if (!uid) {
             throw new https_1.HttpsError("unauthenticated", "Oturum gerekli.");
