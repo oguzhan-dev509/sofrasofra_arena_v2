@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import 'musteri_canli_kurye_takip_haritasi.dart';
@@ -13,7 +14,7 @@ class MusteriSiparisTakipSayfasi extends StatefulWidget {
 
 class _MusteriSiparisTakipSayfasiState
     extends State<MusteriSiparisTakipSayfasi> {
-  final String userId = 'demo_user';
+  String? get userId => FirebaseAuth.instance.currentUser?.uid;
 
   Stream<QuerySnapshot<Map<String, dynamic>>> _siparislerStream() {
     return FirebaseFirestore.instance

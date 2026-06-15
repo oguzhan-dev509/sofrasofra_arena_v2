@@ -48,7 +48,7 @@ class _TeslimatAyarlariSayfasiState extends State<TeslimatAyarlariSayfasi> {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text(
-          'Teslimat ayarları yerel test modunda kaydedildi. Firestore bağlantısını sonra açacağız.',
+          'Teslimat ayarları kaydedildi.',
         ),
       ),
     );

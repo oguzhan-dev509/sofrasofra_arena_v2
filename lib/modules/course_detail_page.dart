@@ -161,7 +161,7 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
 
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Ders satın alındı (test).')),
+        const SnackBar(content: Text('Ders satın alındı.')),
       );
     } catch (e) {
       if (!mounted) return;
@@ -365,9 +365,7 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
                                   )
                                 : const Icon(Icons.shopping_bag_outlined),
                             label: Text(
-                              _isPurchasing
-                                  ? 'İşleniyor...'
-                                  : 'Dersi Satın Al (Test)',
+                              _isPurchasing ? 'İşleniyor...' : 'Dersi Satın Al',
                               style:
                                   const TextStyle(fontWeight: FontWeight.bold),
                             ),

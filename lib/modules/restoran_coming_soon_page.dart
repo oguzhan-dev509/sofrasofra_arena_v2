@@ -57,7 +57,7 @@ class RestoranComingSoonPage extends StatelessWidget {
                 children: [
                   /// 🔥 BAŞLIK
                   const Text(
-                    'TEST YENI SAYFA',
+                    'RESTORANLAR',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       color: Colors.red,

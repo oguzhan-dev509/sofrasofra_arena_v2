@@ -166,7 +166,7 @@ class _VitrinMerkeziSayfasiState extends State<VitrinMerkeziSayfasi> {
         elevation: 0,
         title: Text(
           _sellerYukleniyor
-              ? 'MAHALLE TEST A1 / YÜKLENİYOR'
+              ? 'MAHALLE VİTRİNİ / YÜKLENİYOR'
               : 'ZZZ_CANLI_DOSYA_123 / ${dukkanAdi.isEmpty ? 'Satıcı Merkezi' : dukkanAdi}',
           style: const TextStyle(
             color: _gold,
@@ -178,7 +178,7 @@ class _VitrinMerkeziSayfasiState extends State<VitrinMerkeziSayfasi> {
         actions: [
           IconButton(
             icon: const Icon(Icons.bug_report_outlined),
-            tooltip: 'Mahalle Foto Test',
+            tooltip: 'Mahalle Fotoğrafı',
             color: _gold,
             onPressed: () {
               Navigator.push(

@@ -248,7 +248,7 @@ class SepetService {
   }
 
   static Future<String> siparisiTamamla({
-    String musteriAd = 'Demo Müşteri',
+    String musteriAd = 'Müşteri',
     String musteriTelefon = '0555 000 00 00',
     String teslimatAdresi = 'Kadıköy / İstanbul',
     String sehir = 'istanbul',
