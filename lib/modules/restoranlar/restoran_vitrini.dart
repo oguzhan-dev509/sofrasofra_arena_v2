@@ -607,7 +607,7 @@ class _RestaurantPricingSection extends StatelessWidget {
         target: 'Denemek isteyen küçük lokanta',
         highlight: '1 ay ücretsiz deneme',
         features: [
-          '6 fotoğraf hakkı',
+          'Ürün başına 6 galeri fotoğrafı',
           'Temel restoran vitrini',
           'Gel-Al / Götür fiyatı',
           'Sepete ekleme ve ödeme',
@@ -623,7 +623,7 @@ class _RestaurantPricingSection extends StatelessWidget {
         highlight: 'Daha fazla görünürlük',
         features: [
           'Daha geniş menü kapasitesi',
-          'Daha fazla galeri alanı',
+          'Ürün başına 12 galeri fotoğrafı',
           'Fotoğraf bazlı fiyatlandırma',
           'Kampanya görünürlüğü',
           'Öncelikli destek',
@@ -638,7 +638,7 @@ class _RestaurantPricingSection extends StatelessWidget {
         highlight: 'En düşük komisyon',
         features: [
           'Öncelikli vitrin görünürlüğü',
-          'Geniş medya kapasitesi',
+          'Ürün başına 24 galeri fotoğrafı',
           'Radyo / blog tanıtım alanı',
           'Gelişmiş satış vitrini',
           'VIP destek',

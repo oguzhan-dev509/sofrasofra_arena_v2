@@ -243,14 +243,14 @@ class RestoranModel {
   int get galleryPhotoLimit {
     final type = membershipType.toLowerCase().trim();
 
+    if (type == 'premium') {
+      return 24;
+    }
+
     if (type == 'pro' ||
         type == 'kurumsal' ||
         type == 'corporate' ||
         type == 'enterprise') {
-      return 24;
-    }
-
-    if (type == 'premium') {
       return 12;
     }
 
