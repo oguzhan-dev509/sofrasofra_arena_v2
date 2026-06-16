@@ -40,6 +40,13 @@ class _EvLezzetleriVitriniState extends State<EvLezzetleriVitrini> {
     'Süt Ürünleri',
     'Turşu & Diğerleri',
     'Baharat & Soslar',
+    'Erişte & Mantı',
+    'Tarhana',
+    'Ev Yapımı Kuru Gıda',
+    'Reçel & Marmelat',
+    'Turşu',
+    'Kuru Bakliyat Hazırlıkları',
+    'Hamur Ürünleri / Dondurulmuş Mantı',
   ];
 
   Query<Map<String, dynamic>> _query() {
@@ -184,7 +191,49 @@ class _EvLezzetleriVitriniState extends State<EvLezzetleriVitrini> {
         data['description'],
       ].where((value) => _safeText(value).isNotEmpty).join(' '),
     );
+    if (raw.contains('eriste') ||
+        raw.contains('erişte') ||
+        raw.contains('manti') ||
+        raw.contains('mantı')) {
+      return 'Erişte & Mantı';
+    }
 
+    if (raw.contains('tarhana')) {
+      return 'Tarhana';
+    }
+
+    if (raw.contains('kuru gida') ||
+        raw.contains('kuru gıda') ||
+        raw.contains('kurutulmus') ||
+        raw.contains('kurutulmuş')) {
+      return 'Ev Yapımı Kuru Gıda';
+    }
+
+    if (raw.contains('recel') || raw.contains('reçel')) {
+      return 'Reçel & Marmelat';
+    }
+
+    if (raw.contains('tursu') || raw.contains('turşu')) {
+      return 'Turşu';
+    }
+
+    if (raw.contains('bakliyat') ||
+        raw.contains('nohut') ||
+        raw.contains('fasulye') ||
+        raw.contains('mercimek')) {
+      return 'Kuru Bakliyat Hazırlıkları';
+    }
+
+    if (raw.contains('dondurulmus manti') ||
+        raw.contains('dondurulmuş mantı') ||
+        raw.contains('hamur urunleri') ||
+        raw.contains('hamur ürünleri') ||
+        raw.contains('borek') ||
+        raw.contains('börek') ||
+        raw.contains('pogaca') ||
+        raw.contains('poğaça')) {
+      return 'Hamur Ürünleri / Dondurulmuş Mantı';
+    }
     if (raw.contains('cikolata') ||
         raw.contains('tatli') ||
         raw.contains('pasta') ||
@@ -855,6 +904,54 @@ class _EvLezzetleriVitriniState extends State<EvLezzetleriVitrini> {
                             title: 'Kategoriler',
                             subtitle:
                                 'Ev yapımı günlük lezzetleri, güven veren üreticilerden keşfet.',
+                          ),
+                          const SizedBox(height: 12),
+                          Container(
+                            padding: const EdgeInsets.all(14),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF12100A),
+                              borderRadius: BorderRadius.circular(18),
+                              border: Border.all(
+                                color: const Color(0xFFFFB300)
+                                    .withValues(alpha: 0.34),
+                              ),
+                            ),
+                            child: const Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Icon(
+                                  Icons.verified_user_outlined,
+                                  color: Color(0xFFFFB300),
+                                  size: 22,
+                                ),
+                                SizedBox(width: 10),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Esnaf Vergi Muafiyeti Belgesi ile Satılabilecek Ürünler',
+                                        style: TextStyle(
+                                          color: Color(0xFFFFB300),
+                                          fontWeight: FontWeight.w800,
+                                          fontSize: 14,
+                                        ),
+                                      ),
+                                      SizedBox(height: 7),
+                                      Text(
+                                        'Tarhana, erişte, mantı gibi bazı ev yapımı ürünler için esnaf vergi muafiyeti belgesi alınabilir. Uygunluk belge ve mevzuat kontrolüne tabidir.',
+                                        style: TextStyle(
+                                          color: Colors.white70,
+                                          fontSize: 12.5,
+                                          height: 1.4,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                           const SizedBox(height: 12),
                           _CategoryBar(
