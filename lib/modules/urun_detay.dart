@@ -947,7 +947,7 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
                       'Ücretsiz\n'
                       '• Aylık: 0 TL\n'
                       '• Komisyon: %8\n'
-                      '• İyzico: %4,29 + 0,25 TL\n'
+                      '• PAYTR: %1,99\n'
                       '• 3 fotoğraf\n'
                       '• Temel görünürlük',
                       style: TextStyle(
@@ -962,7 +962,7 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
                       'Pro\n'
                       '• Aylık: 149 TL\n'
                       '• Komisyon: %5\n'
-                      '• İyzico: %4,29 + 0,25 TL\n'
+                      '• PAYTR: %1,99\n'
                       '• 8 fotoğraf\n'
                       '• 1 video linki\n'
                       '• Daha güçlü görünürlük',
@@ -978,7 +978,7 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
                       'Premium\n'
                       '• Aylık: 299 TL\n'
                       '• Komisyon: %2\n'
-                      '• İyzico: %4,29 + 0,25 TL\n'
+                      '• PAYTR: %1,99\n'
                       '• 24 fotoğraf\n'
                       '• 3 video linki\n'
                       '• Mahalle vitrin önceliği',

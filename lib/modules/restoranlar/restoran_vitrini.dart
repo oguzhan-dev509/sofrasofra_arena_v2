@@ -603,7 +603,7 @@ class _RestaurantPricingSection extends StatelessWidget {
         name: 'Free Restoran',
         price: '0 TL',
         period: 'aylık',
-        commission: '%11',
+        commission: 'KDV dahil %10',
         target: 'Denemek isteyen küçük lokanta',
         highlight: '1 ay ücretsiz deneme',
         features: [
@@ -679,7 +679,7 @@ class _RestaurantPricingSection extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           const Text(
-            'İyzico ödeme işlem bedeli tüm paketlerde ayrıca ve şeffaf şekilde gösterilir: %4,29 + 0,25 TL.',
+            'PAYTR online ödeme maliyeti tüm paketlerde ayrıca ve şeffaf şekilde gösterilir: %1,99. Hakediş vadesi 15 gündür.',
             style: TextStyle(
               color: Colors.white70,
               fontSize: 12.5,
@@ -783,8 +783,8 @@ class _RestaurantPlanCard extends StatelessWidget {
             value: plan.commission,
           ),
           const _PlanInfoRow(
-            label: 'İyzico işlem bedeli',
-            value: '%4,29 + 0,25 TL',
+            label: 'PAYTR işlem maliyeti',
+            value: '%1,99',
           ),
           const SizedBox(height: 10),
           Container(

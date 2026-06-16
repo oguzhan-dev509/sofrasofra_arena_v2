@@ -59,7 +59,7 @@ class EvMembershipCard extends StatelessWidget {
                   features: [
                     'Aylık: 0 TL',
                     'Komisyon: %8',
-                    'İyzico: %4,29 + 0,25 TL',
+                    'PAYTR: %1,99',
                     '3 galeri fotoğrafı',
                     '0 video linki',
                     'Temel görünürlük',
@@ -70,7 +70,7 @@ class EvMembershipCard extends StatelessWidget {
                   features: [
                     'Aylık: 149 TL',
                     'Komisyon: %5',
-                    'İyzico: %4,29 + 0,25 TL',
+                    'PAYTR: %1,99',
                     '8 galeri fotoğrafı',
                     '1 video linki',
                     'Daha güçlü görünürlük',
@@ -81,7 +81,7 @@ class EvMembershipCard extends StatelessWidget {
                   features: [
                     'Aylık: 299 TL',
                     'Komisyon: %2',
-                    'İyzico: %4,29 + 0,25 TL',
+                    'PAYTR: %1,99',
                     '24 galeri fotoğrafı',
                     '3 video linki',
                     'Mahalle vitrin önceliği',

@@ -1092,7 +1092,7 @@ class _SepetSayfasiState extends State<SepetSayfasi> {
                             ),
                             const SizedBox(height: 10),
                             _ozetSatiri(
-                              'İyzico İşlem Bedeli (%4,29 + 0,25 TL)',
+                              'PAYTR İşlem Maliyeti (%1,99)',
                               _price(finance.paymentProcessingFee),
                               valueColor: _textMuted,
                             ),

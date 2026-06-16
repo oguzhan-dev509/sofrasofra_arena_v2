@@ -76,7 +76,7 @@ class SofrasofraFinanceCalculator {
     final platformCourierRevenue = courierCommissionAmount;
 
     final platformTotalRevenue = _roundMoney(
-      platformProducerRevenue + platformCourierRevenue + paymentProcessingFee,
+      platformProducerRevenue + platformCourierRevenue,
     );
 
     return SofrasofraOrderFinance(
