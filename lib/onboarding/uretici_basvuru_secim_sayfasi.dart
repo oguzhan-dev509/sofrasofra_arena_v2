@@ -86,9 +86,9 @@ class UreticiBasvuruSecimSayfasi extends StatelessWidget {
                   icon: Icons.home_work_rounded,
                   title: 'Ev Lezzetleri Üreticisi',
                   subtitle:
-                      'Evde üreten, ikametgah veya vergi muafiyet belgesiyle doğrulanan bireysel üreticiler.',
+                      'Evde üreten, ikametgah ve gerekli belge kontrolüyle doğrulanan bireysel üreticiler.',
                   bullets: const [
-                    'E-devlet imzalı ikametgah veya vergi muafiyet belgesi',
+                    'E-devlet imzalı ikametgah ve gerekli başvuru belgeleri',
                     'Şehir / ilçe / mutfak adı',
                     'Onay sonrası Ürün Ekle sayfasına geçiş',
                   ],

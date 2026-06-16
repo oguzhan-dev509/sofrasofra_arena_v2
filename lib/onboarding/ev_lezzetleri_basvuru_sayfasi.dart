@@ -285,7 +285,7 @@ class _EvLezzetleriBasvuruSayfasiState
                         controller: _belgeNotuCtrl,
                         label: 'Belge Notu',
                         hint:
-                            'Örn: E-devlet ikametgahım hazır / vergi muafiyet belgem var',
+                            'Örn: E-devlet ikametgahım hazır / belge kontrolü için evrak yükleyebilirim',
                         icon: Icons.verified_rounded,
                         maxLines: 3,
                       ),

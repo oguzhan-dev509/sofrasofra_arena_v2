@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-class EvVergiMuafiyetiKategoriKutusu extends StatelessWidget {
-  const EvVergiMuafiyetiKategoriKutusu({
+class EvBelgeKontrolKategoriKutusu extends StatelessWidget {
+  const EvBelgeKontrolKategoriKutusu({
     super.key,
     required this.seciliKategori,
     required this.onKategoriSecildi,
@@ -14,7 +14,7 @@ class EvVergiMuafiyetiKategoriKutusu extends StatelessWidget {
 
   static const Color gold = Color(0xFFFFB300);
 
-  static const List<String> muafiyetKategorileri = [
+  static const List<String> belgeKontrolKategorileri = [
     'Erişte & Mantı',
     'Tarhana',
     'Ev Yapımı Kuru Gıda',
@@ -44,7 +44,7 @@ class EvVergiMuafiyetiKategoriKutusu extends StatelessWidget {
               SizedBox(width: 10),
               Expanded(
                 child: Text(
-                  'Esnaf Vergi Muafiyeti Belgesi ile Satılabilecek Ürünler',
+                  'Belge ve Uygunluk Kontrolü Gerektiren Ev Ürünleri',
                   style: TextStyle(
                     color: gold,
                     fontWeight: FontWeight.w800,
@@ -56,7 +56,7 @@ class EvVergiMuafiyetiKategoriKutusu extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            'Tarhana, erişte, mantı gibi bazı ev yapımı ürünler için esnaf vergi muafiyeti belgesi alınabilir. Uygunluk belge ve mevzuat kontrolüne tabidir.',
+            'Tarhana, erişte, mantı gibi bazı ev yapımı ürünler için satış öncesinde belge ve mevzuat uygunluğu kontrol edilir.',
             style: TextStyle(
               color: Colors.white.withValues(alpha: 0.78),
               fontSize: 12,
@@ -67,7 +67,7 @@ class EvVergiMuafiyetiKategoriKutusu extends StatelessWidget {
           Wrap(
             spacing: 8,
             runSpacing: 8,
-            children: muafiyetKategorileri.map((kategori) {
+            children: belgeKontrolKategorileri.map((kategori) {
               final bool selected = seciliKategori == kategori;
 
               return ChoiceChip(

@@ -5,7 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'widgets/ev_vergi_muafiyeti_kategori_kutusu.dart';
+import 'widgets/ev_belge_kontrol_kategori_kutusu.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:image_picker/image_picker.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -768,7 +768,7 @@ class _UrunEklemeSayfasiState extends State<UrunEklemeSayfasi> {
               const SizedBox(height: 12),
               _input("FİYAT (örn: 120)", _fiyatController),
               const SizedBox(height: 12),
-              EvVergiMuafiyetiKategoriKutusu(
+              EvBelgeKontrolKategoriKutusu(
                 seciliKategori: _kategori,
                 enabled: !_yukleniyor,
                 onKategoriSecildi: (kategori) {

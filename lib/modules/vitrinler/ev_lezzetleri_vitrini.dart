@@ -931,7 +931,7 @@ class _EvLezzetleriVitriniState extends State<EvLezzetleriVitrini> {
                                         CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        'Esnaf Vergi Muafiyeti Belgesi ile Satılabilecek Ürünler',
+                                        'Belge ve Uygunluk Kontrolü Gerektiren Ev Ürünleri',
                                         style: TextStyle(
                                           color: Color(0xFFFFB300),
                                           fontWeight: FontWeight.w800,
@@ -940,7 +940,7 @@ class _EvLezzetleriVitriniState extends State<EvLezzetleriVitrini> {
                                       ),
                                       SizedBox(height: 7),
                                       Text(
-                                        'Tarhana, erişte, mantı gibi bazı ev yapımı ürünler için esnaf vergi muafiyeti belgesi alınabilir. Uygunluk belge ve mevzuat kontrolüne tabidir.',
+                                        'Tarhana, erişte, mantı gibi bazı ev yapımı ürünler için satış öncesinde belge ve mevzuat uygunluğu kontrol edilir.',
                                         style: TextStyle(
                                           color: Colors.white70,
                                           fontSize: 12.5,
