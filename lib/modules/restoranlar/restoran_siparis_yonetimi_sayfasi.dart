@@ -74,9 +74,13 @@ class RestoranSiparisYonetimiSayfasi extends StatelessWidget {
       case 'ready':
         return 'Sipariş Hazır';
       case 'courier_pending':
-        return 'Kurye Süreci Beklemede';
+        return 'Kurye bekleniyor';
+      case 'waiting_vendor_ready':
+        return 'Restoran hazır, kurye bekleniyor';
       case 'waiting_courier':
-        return 'Kurye Bekleniyor';
+        return 'Kurye bekleniyor';
+      case 'not_required':
+        return 'Kurye gerekmez';
       case 'retry_scheduled':
         return 'Kurye Yeniden Aranıyor';
       case 'manual_review_required':
@@ -88,6 +92,8 @@ class RestoranSiparisYonetimiSayfasi extends StatelessWidget {
         return 'Kurye Atandı';
       case 'on_the_way':
         return 'Kurye Yolda';
+      case 'picked_up':
+        return 'Kurye teslim aldı';
       case 'delivered':
       case 'completed':
         return 'Teslim Edildi';
