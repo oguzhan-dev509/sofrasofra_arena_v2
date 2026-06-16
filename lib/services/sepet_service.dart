@@ -34,6 +34,8 @@ class SepetService {
     String? saticiId,
     String? dukkanId,
     String? sellerTypeOverride,
+    List<Map<String, dynamic>> selectedAddons = const [],
+    num addonsTotal = 0,
   }) async {
     final sepetRef = _firestore.collection('sepetler').doc(_cartId);
     final itemsRef = sepetRef.collection('items');
@@ -185,6 +187,10 @@ class SepetService {
       'kategori': kategori,
       'img': img,
       'fiyat': effectivePrice,
+      'selectedAddons': selectedAddons
+          .map((addon) => Map<String, dynamic>.from(addon))
+          .toList(),
+      'addonsTotal': addonsTotal,
       'birimFiyat': effectivePrice,
       'gelAlFiyat': gelAlFiyat ?? fiyat,
       'goturFiyat': goturFiyat ?? fiyat,

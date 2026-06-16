@@ -13,6 +13,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:sofrasofra_arena_v2/modules/restoranlar/restoran_siparis_yonetimi_sayfasi.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'models/restaurant_product_stock.dart';
+import 'widgets/restaurant_addon_picker.dart';
 
 class RestoranDetaySayfasi extends StatelessWidget {
   const RestoranDetaySayfasi({
@@ -25,6 +26,7 @@ class RestoranDetaySayfasi extends StatelessWidget {
   final bool managementMode;
 
   static const Color _gold = Color(0xFFFFB300);
+
   static const Color _bg = Color(0xFF050505);
 
   @override
@@ -627,6 +629,8 @@ class _MenuPreviewSection extends StatelessWidget {
     required RestoranMenuItemModel item,
     required String teslimatTipi,
     String? imageUrl,
+    List<Map<String, dynamic>> selectedAddons = const [],
+    num addonsTotal = 0,
   }) async {
     final restaurantSnapshot = await FirebaseFirestore.instance
         .collection('restaurants')
@@ -732,6 +736,8 @@ class _MenuPreviewSection extends StatelessWidget {
         saticiId: restaurant.id,
         dukkanId: restaurant.id,
         sellerTypeOverride: 'restaurant',
+        selectedAddons: selectedAddons,
+        addonsTotal: addonsTotal,
       );
 
       if (!context.mounted) return;
@@ -775,6 +781,8 @@ class _MenuPreviewSection extends StatelessWidget {
               item: item,
               teslimatTipi: teslimatTipi,
               imageUrl: imageUrl,
+              selectedAddons: selectedAddons,
+              addonsTotal: addonsTotal,
             );
           } catch (clearError) {
             if (!context.mounted) return;
@@ -2344,63 +2352,70 @@ class _MenuPreviewSection extends StatelessWidget {
                 const SizedBox(height: 12),
               ],
               ...items.map(
-                (item) => RestoranMenuItemCard(
-                  item: item,
-                  canManageMedia: isAdmin,
-                  onAddPhotoTap: () async {
-                    await _menuFotografiEkle(
-                      context: context,
+                (item) => Column(
+                  children: [
+                    RestoranMenuItemCard(
                       item: item,
-                    );
-                  },
-                  onAddGalleryPhotoTap: () async {
-                    await _menuGaleriFotografiEkle(
-                      context: context,
-                      item: item,
-                    );
-                  },
-                  onDeletePhotoTap: () async {
-                    await _menuFotografiSil(
-                      context: context,
-                      item: item,
-                    );
-                  },
-                  onAddProfilePhotoTap: () async {
-                    await _menuProfilFotografiEkle(
-                      context: context,
-                      item: item,
-                    );
-                  },
-                  onDeleteGalleryPhotoTap: (imageUrl) async {
-                    await _menuGaleriFotografiSil(
-                      context: context,
-                      item: item,
-                      imageUrl: imageUrl,
-                    );
-                  },
-                  onEditMenuItemTap: (imageUrl) async {
-                    await _menuUrunuDuzenleDialogAc(
-                      context: context,
-                      item: item,
-                      imageUrl: imageUrl,
-                    );
-                  },
-                  onGelAlTap: (imageUrl) async {
-                    await _sepeteRestoranUrunuEkle(
-                      context: context,
-                      item: item,
-                      teslimatTipi: 'gel_al',
-                      imageUrl: imageUrl,
-                    );
-                  },
-                  onGoturTap: (imageUrl) async {
-                    await _sepeteRestoranUrunuEkle(
-                      context: context,
-                      item: item,
-                      teslimatTipi: 'gotur',
-                      imageUrl: imageUrl,
-                    );
-                  },
+                      canManageMedia: isAdmin,
+                      onAddPhotoTap: () async {
+                        await _menuFotografiEkle(
+                          context: context,
+                          item: item,
+                        );
+                      },
+                      onAddGalleryPhotoTap: () async {
+                        await _menuGaleriFotografiEkle(
+                          context: context,
+                          item: item,
+                        );
+                      },
+                      onDeletePhotoTap: () async {
+                        await _menuFotografiSil(
+                          context: context,
+                          item: item,
+                        );
+                      },
+                      onAddProfilePhotoTap: () async {
+                        await _menuProfilFotografiEkle(
+                          context: context,
+                          item: item,
+                        );
+                      },
+                      onDeleteGalleryPhotoTap: (imageUrl) async {
+                        await _menuGaleriFotografiSil(
+                          context: context,
+                          item: item,
+                          imageUrl: imageUrl,
+                        );
+                      },
+                      onEditMenuItemTap: (imageUrl) async {
+                        await _menuUrunuDuzenleDialogAc(
+                          context: context,
+                          item: item,
+                          imageUrl: imageUrl,
+                        );
+                      },
+                      onGelAlTap: (imageUrl) async {
+                        await _sepeteRestoranUrunuEkle(
+                          context: context,
+                          item: item,
+                          teslimatTipi: 'gel_al',
+                          imageUrl: imageUrl,
+                        );
+                      },
+                      onGoturTap: (imageUrl) async {
+                        await _sepeteRestoranUrunuEkle(
+                          context: context,
+                          item: item,
+                          teslimatTipi: 'gotur',
+                          imageUrl: imageUrl,
+                        );
+                      },
+                    ),
+                    RestaurantAddonPicker(
+                      restaurantId: restaurant.id,
+                    ),
+                  ],
                 ),
               ),
             ],
