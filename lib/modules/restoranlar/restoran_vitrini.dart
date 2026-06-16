@@ -491,6 +491,8 @@ class _PremiumRestoranVitriniState extends State<PremiumRestoranVitrini> {
                   ),
                 ),
               ],
+              const _RestaurantPricingSection(),
+              const SizedBox(height: 22),
               if (restaurants.isNotEmpty)
                 LayoutBuilder(
                   builder: (context, constraints) {
@@ -618,7 +620,7 @@ class _RestaurantPricingSection extends StatelessWidget {
         name: 'Pro Restoran',
         price: '499 TL',
         period: 'aylık',
-        commission: '%7',
+        commission: 'KDV dahil %7',
         target: 'Aktif satış yapmak isteyen restoran',
         highlight: 'Daha fazla görünürlük',
         features: [
@@ -633,7 +635,7 @@ class _RestaurantPricingSection extends StatelessWidget {
         name: 'Premium Restoran',
         price: '899 TL',
         period: 'aylık',
-        commission: '%4',
+        commission: 'KDV dahil %4',
         target: 'Maliyeti düşürmek ve öne çıkmak isteyen restoran',
         highlight: 'En düşük komisyon',
         features: [
