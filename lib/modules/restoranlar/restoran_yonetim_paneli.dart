@@ -8,6 +8,7 @@ import 'package:sofrasofra_arena_v2/services/platform_admin_service.dart';
 import 'models/restoran_model.dart';
 import 'restoran_detay_sayfasi.dart';
 import 'restoran_siparis_yonetimi_sayfasi.dart';
+import 'restoran_yan_urun_yonetimi_sayfasi.dart';
 
 class RestoranYonetimPaneli extends StatelessWidget {
   const RestoranYonetimPaneli({
@@ -31,6 +32,15 @@ class RestoranYonetimPaneli extends StatelessWidget {
   ];
   DocumentReference<Map<String, dynamic>> get _restaurantRef =>
       FirebaseFirestore.instance.collection('restaurants').doc(restaurantId);
+  void _openAddonManagement(BuildContext context) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => RestoranYanUrunYonetimiSayfasi(
+          restaurantId: restaurantId,
+        ),
+      ),
+    );
+  }
 
   Future<void> _updateOpenStatus({
     required BuildContext context,
@@ -1097,6 +1107,16 @@ class RestoranYonetimPaneli extends StatelessWidget {
                         context: context,
                         restaurant: restaurant,
                       );
+                    },
+                  ),
+                  const SizedBox(height: 12),
+                  _actionCard(
+                    icon: Icons.local_drink_rounded,
+                    title: 'Yan Ürünler Yönetimi',
+                    subtitle:
+                        'İçecek, tatlı ve ekstra ürünleri ekleyin; fiyat, aktiflik ve stok durumunu yönetin.',
+                    onTap: () {
+                      _openAddonManagement(context);
                     },
                   ),
                   const SizedBox(height: 12),

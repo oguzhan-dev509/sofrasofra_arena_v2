@@ -14,6 +14,7 @@ import 'package:sofrasofra_arena_v2/modules/restoranlar/restoran_siparis_yonetim
 import 'package:firebase_auth/firebase_auth.dart';
 import 'models/restaurant_product_stock.dart';
 import 'widgets/restaurant_addon_picker.dart';
+import 'restoran_yan_urun_yonetimi_sayfasi.dart';
 
 class RestoranDetaySayfasi extends StatelessWidget {
   const RestoranDetaySayfasi({
@@ -2437,6 +2438,44 @@ class _MenuPreviewSection extends StatelessWidget {
                           );
                         },
                       ),
+                      if (isAdmin) ...[
+                        const SizedBox(height: 10),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 4),
+                          child: OutlinedButton.icon(
+                            onPressed: () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (_) =>
+                                      RestoranYanUrunYonetimiSayfasi(
+                                    restaurantId: restaurant.id,
+                                  ),
+                                ),
+                              );
+                            },
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: const Color(0xFFFFB300),
+                              side: const BorderSide(
+                                color: Color(0xFFFFB300),
+                              ),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 14,
+                                vertical: 14,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                            ),
+                            icon: const Icon(Icons.local_drink_rounded),
+                            label: const Text(
+                              'Yan Ürün Ekle / Yönet',
+                              style: TextStyle(
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
                       RestaurantAddonPicker(
                         restaurantId: restaurant.id,
                         onSelectionChanged: (addons, total) {

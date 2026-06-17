@@ -6,6 +6,7 @@ import '../../services/restoran_service.dart';
 import 'models/restoran_model.dart';
 import 'restoran_detay_sayfasi.dart';
 import 'restoran_yonetim_paneli.dart';
+import 'restoran_yan_urun_yonetimi_sayfasi.dart';
 import '../../services/platform_admin_service.dart';
 
 class RestoranlarimSayfasi extends StatelessWidget {
@@ -698,6 +699,34 @@ class RestoranlarimSayfasi extends StatelessWidget {
                                             ),
                                           ),
                                         ],
+                                      ),
+                                      const SizedBox(height: 8),
+                                      SizedBox(
+                                        width: double.infinity,
+                                        child: OutlinedButton.icon(
+                                          onPressed: () {
+                                            Navigator.of(context).push(
+                                              MaterialPageRoute(
+                                                builder: (_) =>
+                                                    RestoranYanUrunYonetimiSayfasi(
+                                                  restaurantId: restaurant.id,
+                                                ),
+                                              ),
+                                            );
+                                          },
+                                          style: OutlinedButton.styleFrom(
+                                            foregroundColor: Colors.white,
+                                            side: BorderSide(
+                                              color: _gold.withValues(
+                                                alpha: 0.45,
+                                              ),
+                                            ),
+                                          ),
+                                          icon: const Icon(
+                                            Icons.local_drink_rounded,
+                                          ),
+                                          label: const Text('Yan Ürünler'),
+                                        ),
                                       ),
                                       if (isPlatformAdmin) ...[
                                         const SizedBox(height: 8),
