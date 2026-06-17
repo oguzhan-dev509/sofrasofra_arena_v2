@@ -15,6 +15,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'models/restaurant_product_stock.dart';
 import 'widgets/restaurant_addon_picker.dart';
 import 'restoran_yan_urun_yonetimi_sayfasi.dart';
+import 'restoran_yonetim_paneli.dart';
 
 class RestoranDetaySayfasi extends StatelessWidget {
   const RestoranDetaySayfasi({
@@ -48,7 +49,7 @@ class RestoranDetaySayfasi extends StatelessWidget {
         ),
         actions: [
           IconButton(
-            tooltip: 'Sepetim',
+            tooltip: 'Sipariş Yönetimi',
             icon: const Icon(
               Icons.shopping_cart_outlined,
               color: _gold,
@@ -2319,6 +2320,29 @@ class _MenuPreviewSection extends StatelessWidget {
                   runSpacing: 10,
                   children: [
                     TextButton.icon(
+                      onPressed: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => RestoranYonetimPaneli(
+                              restaurantId: restaurant.id,
+                            ),
+                          ),
+                        );
+                      },
+                      icon: const Icon(
+                        Icons.settings_rounded,
+                        color: _gold,
+                        size: 18,
+                      ),
+                      label: const Text(
+                        'Restoranı Yönet',
+                        style: TextStyle(
+                          color: _gold,
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
+                    ),
+                    TextButton.icon(
                       onPressed: () async {
                         await _yeniMenuUrunuDialogAc(context: context);
                       },
@@ -2352,7 +2376,7 @@ class _MenuPreviewSection extends StatelessWidget {
                         size: 18,
                       ),
                       label: const Text(
-                        'Restoran Siparişleri',
+                        'Sipariş Yönetimi',
                         style: TextStyle(
                           color: _gold,
                           fontWeight: FontWeight.w900,
