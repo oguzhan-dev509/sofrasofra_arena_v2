@@ -676,6 +676,54 @@ class RestoranSiparisYonetimiSayfasi extends StatelessWidget {
     );
   }
 
+  Widget _buildSelectedAddonsList(dynamic rawAddons) {
+    if (rawAddons is! List || rawAddons.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    final addons = rawAddons
+        .whereType<Map>()
+        .map((addon) => Map<String, dynamic>.from(addon))
+        .toList();
+
+    if (addons.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 6),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: addons.map((addon) {
+          final name = (addon['name'] ?? 'Yan ürün').toString().trim();
+          final quantity =
+              int.tryParse((addon['quantity'] ?? 1).toString()) ?? 1;
+
+          final rawPrice = addon['price'];
+          final num price = rawPrice is num
+              ? rawPrice
+              : num.tryParse(rawPrice?.toString() ?? '') ?? 0;
+
+          final priceText = price % 1 == 0
+              ? price.toStringAsFixed(0)
+              : price.toStringAsFixed(2);
+
+          return Padding(
+            padding: const EdgeInsets.only(top: 2),
+            child: Text(
+              '+ $quantity x $name • $priceText TL',
+              style: TextStyle(
+                color: Colors.white.withValues(alpha: 0.72),
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
   Widget _orderCard(
     BuildContext context,
     QueryDocumentSnapshot<Map<String, dynamic>> doc,
@@ -864,6 +912,7 @@ class RestoranSiparisYonetimiSayfasi extends StatelessWidget {
               fontWeight: FontWeight.w800,
             ),
           ),
+          _buildSelectedAddonsList(data['selectedAddons']),
           if (preparationMinutes != null && preparationMinutes > 0) ...[
             const SizedBox(height: 6),
             Text(

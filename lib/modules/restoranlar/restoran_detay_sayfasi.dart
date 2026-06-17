@@ -725,12 +725,6 @@ class _MenuPreviewSection extends StatelessWidget {
     final teslimatLabel = isGotur ? 'Götür' : 'Gel-Al';
 
     try {
-      debugPrint(
-        'RESTORAN ADDON DEBUG => '
-        'item=${latestItem.name} '
-        'selectedAddons=$selectedAddons '
-        'addonsTotal=$addonsTotal',
-      );
       final addonSignature = selectedAddons.isEmpty
           ? 'no_addons'
           : selectedAddons.map((addon) {

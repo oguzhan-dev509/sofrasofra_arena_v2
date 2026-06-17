@@ -31,11 +31,21 @@ class _RestaurantAddonPickerState extends State<RestaurantAddonPicker> {
 
     for (final doc in addons) {
       final quantity = _quantities[doc.id] ?? 0;
+
       if (quantity <= 0) continue;
 
       final data = doc.data();
       final price = data['price'];
+      final stockStatus =
+          (data['stockStatus'] ?? data['stokDurumu'] ?? 'in_stock')
+              .toString()
+              .trim();
 
+      final isOrderable = stockStatus == 'in_stock' ||
+          stockStatus == 'stokta' ||
+          stockStatus == 'Stokta';
+
+      if (!isOrderable) continue;
       if (price is! num || price <= 0) continue;
 
       final total = price * quantity;
@@ -167,7 +177,24 @@ class _RestaurantAddonPickerState extends State<RestaurantAddonPicker> {
                     : price.toStringAsFixed(2);
 
                 final quantity = _quantities[doc.id] ?? 0;
+                final stockStatus =
+                    (data['stockStatus'] ?? data['stokDurumu'] ?? 'in_stock')
+                        .toString()
+                        .trim();
 
+                final isOrderable = stockStatus == 'in_stock' ||
+                    stockStatus == 'stokta' ||
+                    stockStatus == 'Stokta';
+
+                final stockLabel = stockStatus == 'sold_out' ||
+                        stockStatus == 'stok_tukendi' ||
+                        stockStatus == 'Stok tükendi'
+                    ? 'Stok tükendi'
+                    : stockStatus == 'temporarily_off' ||
+                            stockStatus == 'gecici_pasif' ||
+                            stockStatus == 'Geçici pasif'
+                        ? 'Geçici pasif'
+                        : '';
                 return Container(
                   margin: const EdgeInsets.only(top: 8),
                   padding: const EdgeInsets.all(12),

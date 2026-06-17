@@ -591,6 +591,54 @@ class _SepetSayfasiState extends State<SepetSayfasi> {
   }
 
   String _price(double value) => '${value.toStringAsFixed(0)} ₺';
+  Widget _buildSelectedAddonsList(dynamic rawAddons) {
+    if (rawAddons is! List || rawAddons.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    final addons = rawAddons
+        .whereType<Map>()
+        .map((addon) => Map<String, dynamic>.from(addon))
+        .toList();
+
+    if (addons.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 6),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: addons.map((addon) {
+          final name = (addon['name'] ?? 'Yan ürün').toString().trim();
+
+          final quantity =
+              int.tryParse((addon['quantity'] ?? 1).toString()) ?? 1;
+
+          final rawPrice = addon['price'];
+          final num price = rawPrice is num
+              ? rawPrice
+              : num.tryParse(rawPrice?.toString() ?? '') ?? 0;
+
+          final priceText = price % 1 == 0
+              ? price.toStringAsFixed(0)
+              : price.toStringAsFixed(2);
+
+          return Padding(
+            padding: const EdgeInsets.only(top: 2),
+            child: Text(
+              '+ $quantity x $name • $priceText TL',
+              style: const TextStyle(
+                color: _textMuted,
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          );
+        }).toList(),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -894,6 +942,8 @@ class _SepetSayfasiState extends State<SepetSayfasi> {
                                       height: 1.2,
                                     ),
                                   ),
+                                  _buildSelectedAddonsList(
+                                      item['selectedAddons']),
                                   const SizedBox(height: 5),
                                   if (dukkanAdi.isNotEmpty)
                                     Text(
