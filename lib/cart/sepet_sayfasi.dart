@@ -1108,24 +1108,18 @@ class _SepetSayfasiState extends State<SepetSayfasi> {
                           children: [
                             _ozetSatiri(
                               'Ara Toplam',
-                              _price(totals.araToplam),
+                              _price(
+                                (totals.araToplam -
+                                        _courierNetFromCartDocs(docs))
+                                    .clamp(0, double.infinity)
+                                    .toDouble(),
+                              ),
                               valueColor: _textPrimary,
                             ),
                             const SizedBox(height: 10),
                             _ozetSatiri(
                               'Teslimat Ücreti',
-                              _price(finance.deliveryFee),
-                              valueColor: _textMuted,
-                            ),
-                            _ozetSatiri(
-                              'Ara Toplam',
-                              _price(totals.araToplam),
-                              valueColor: _textPrimary,
-                            ),
-                            const SizedBox(height: 10),
-                            _ozetSatiri(
-                              'Teslimat Ücreti',
-                              _price(finance.deliveryFee),
+                              _price(_courierNetFromCartDocs(docs)),
                               valueColor: _textMuted,
                             ),
                             const Padding(
@@ -1214,6 +1208,23 @@ class _SepetSayfasiState extends State<SepetSayfasi> {
         },
       ),
     );
+  }
+
+  double _courierNetFromCartDocs(List<dynamic> docs) {
+    double total = 0;
+
+    for (final doc in docs) {
+      final data = doc.data();
+      final value = data['courierNetAmount'];
+
+      if (value is num) {
+        total += value.toDouble();
+      } else {
+        total += double.tryParse(value?.toString() ?? '') ?? 0;
+      }
+    }
+
+    return total;
   }
 
   Widget _buildSepetImage(String img) {

@@ -178,7 +178,23 @@ class SepetService {
 
     final effectivePrice =
         teslimatTipi == 'gotur' ? (goturFiyat ?? fiyat) : (gelAlFiyat ?? fiyat);
+    final double safeGelAlFiyat = gelAlFiyat ?? fiyat;
+    final double safeGoturFiyat = goturFiyat ?? fiyat;
 
+    final bool isRestaurantGotur =
+        sellerType == 'restaurant' && teslimatTipi == 'gotur';
+
+    final double deliveryDeltaAmount = isRestaurantGotur
+        ? (safeGoturFiyat - safeGelAlFiyat).clamp(0, double.infinity).toDouble()
+        : 0;
+
+    final bool courierRequired = isRestaurantGotur && deliveryDeltaAmount > 0;
+
+    final double restaurantBaseFoodAmount =
+        isRestaurantGotur ? safeGelAlFiyat : effectivePrice;
+
+    final double restaurantGrossFoodAmount =
+        restaurantBaseFoodAmount + addonsTotal.toDouble();
     final itemData = {
       'urunId': urunId,
       'urunAdi': urunAdi,
@@ -192,10 +208,20 @@ class SepetService {
           .toList(),
       'addonsTotal': addonsTotal,
       'birimFiyat': effectivePrice,
-      'gelAlFiyat': gelAlFiyat ?? fiyat,
-      'goturFiyat': goturFiyat ?? fiyat,
+      'gelAlFiyat': safeGelAlFiyat,
+      'goturFiyat': safeGoturFiyat,
       'teslimatTipi': teslimatTipi,
       'deliveryIncludedInPrice': deliveryIncludedInPrice,
+
+// Restaurant courier payout split
+      'baseFoodAmount': restaurantBaseFoodAmount,
+      'restaurantGrossFoodAmount': restaurantGrossFoodAmount,
+      'deliveryDeltaAmount': deliveryDeltaAmount,
+      'courierRequired': courierRequired,
+      'courierNetAmount': courierRequired ? deliveryDeltaAmount : 0,
+      'courierPayoutStatus': courierRequired ? 'pending' : 'not_required',
+      'deliveryPricingModel':
+          isRestaurantGotur ? 'gotur_delta_to_courier' : 'not_required',
       'feeIncludedInPrice': feeIncludedInPrice,
       'adet': 1,
       'saticiId': finalSaticiId,
@@ -361,7 +387,38 @@ class SepetService {
     final String siparisNo = orderRef.id;
 
     final batch = _firestore.batch();
+    double deliveryDeltaAmount = 0;
+    double courierNetAmount = 0;
+    double restaurantGrossFoodAmount = 0;
+    bool courierRequired = false;
 
+    for (final itemDoc in itemsSnap.docs) {
+      final item = itemDoc.data();
+
+      final itemDeliveryDelta = _asDouble(item['deliveryDeltaAmount']);
+      final itemCourierNet = _asDouble(item['courierNetAmount']);
+      final itemRestaurantGross = _asDouble(item['restaurantGrossFoodAmount']);
+
+      deliveryDeltaAmount += itemDeliveryDelta;
+      courierNetAmount += itemCourierNet;
+      restaurantGrossFoodAmount += itemRestaurantGross;
+
+      if (_asBool(item['courierRequired'], defaultValue: false)) {
+        courierRequired = true;
+      }
+    }
+
+    final String courierPayoutStatus =
+        courierRequired ? 'pending' : 'not_required';
+
+    final String deliveryPricingModel =
+        courierRequired ? 'gotur_delta_to_courier' : 'not_required';
+    final double orderAraToplam =
+        (araToplam - deliveryDeltaAmount).clamp(0, double.infinity).toDouble();
+
+    final double orderTeslimatUcreti = deliveryDeltaAmount;
+
+    final double orderGenelToplam = genelToplam;
     batch.set(orderRef, {
       'siparisNo': siparisNo,
       'userId': _cartId,
@@ -427,21 +484,24 @@ class SepetService {
       'paytrToken': null,
       'paymentConversationId': null,
       // Totals
-      'araToplam': araToplam,
-      'teslimatUcreti': teslimatUcreti,
-      'genelToplam': genelToplam,
+      'araToplam': orderAraToplam,
+      'teslimatUcreti': orderTeslimatUcreti,
+      'genelToplam': orderGenelToplam,
       'urunSayisi': urunSayisi,
 // Finance
       'finance': finance ?? <String, dynamic>{},
-      'productTotal': finance?['productTotal'] ?? araToplam,
-      'deliveryFee': finance?['deliveryFee'] ?? teslimatUcreti,
-      'customerTotalPayment': finance?['customerTotalPayment'] ?? genelToplam,
       'producerNetAmount': finance?['producerNetAmount'] ?? araToplam,
-      'courierNetAmount': finance?['courierNetAmount'] ?? teslimatUcreti,
+      'courierNetAmount': courierNetAmount,
+      'deliveryDeltaAmount': deliveryDeltaAmount,
+      'courierRequired': courierRequired,
+      'courierPayoutStatus': courierPayoutStatus,
+      'deliveryPricingModel': deliveryPricingModel,
+      'restaurantGrossFoodAmount': restaurantGrossFoodAmount,
       'platformTotalRevenue': finance?['platformTotalRevenue'] ?? 0,
       'paymentProcessingFee': finance?['paymentProcessingFee'] ?? 0,
       'producerCommissionAmount': finance?['producerCommissionAmount'] ?? 0,
       'courierCommissionAmount': finance?['courierCommissionAmount'] ?? 0,
+// Location
       // Location
       'lat': lat,
       'lng': lng,
@@ -474,13 +534,19 @@ class SepetService {
       'durum': initialStatus,
       'deliveryMode': deliveryMode,
       'assignmentStatus': assignmentStatus,
-      'araToplam': araToplam,
-      'teslimatUcreti': teslimatUcreti,
-      'genelToplam': genelToplam,
+      'araToplam': orderAraToplam,
+      'teslimatUcreti': orderTeslimatUcreti,
+      'genelToplam': orderGenelToplam,
       'urunSayisi': urunSayisi,
       // Finance
       'finance': finance ?? <String, dynamic>{},
       'producerNetAmount': finance?['producerNetAmount'] ?? araToplam,
+      'courierNetAmount': courierNetAmount,
+      'deliveryDeltaAmount': deliveryDeltaAmount,
+      'courierRequired': courierRequired,
+      'courierPayoutStatus': courierPayoutStatus,
+      'deliveryPricingModel': deliveryPricingModel,
+      'restaurantGrossFoodAmount': restaurantGrossFoodAmount,
       'platformTotalRevenue': finance?['platformTotalRevenue'] ?? 0,
       'paymentProcessingFee': finance?['paymentProcessingFee'] ?? 0,
       'producerCommissionAmount': finance?['producerCommissionAmount'] ?? 0,
