@@ -1,14 +1,20 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
+typedef RestaurantAddonSelectionChanged = void Function(
+  List<Map<String, dynamic>> selectedAddons,
+  num addonsTotal,
+);
+
 class RestaurantAddonPicker extends StatefulWidget {
   const RestaurantAddonPicker({
     super.key,
     required this.restaurantId,
+    this.onSelectionChanged,
   });
 
   final String restaurantId;
-
+  final RestaurantAddonSelectionChanged? onSelectionChanged;
   @override
   State<RestaurantAddonPicker> createState() => _RestaurantAddonPickerState();
 }
@@ -17,6 +23,38 @@ class _RestaurantAddonPickerState extends State<RestaurantAddonPicker> {
   final Map<String, int> _quantities = {};
 
   static const Color _gold = Color(0xFFFFB300);
+  void _notifySelection(
+    List<QueryDocumentSnapshot<Map<String, dynamic>>> addons,
+  ) {
+    final selectedAddons = <Map<String, dynamic>>[];
+    num addonsTotal = 0;
+
+    for (final doc in addons) {
+      final quantity = _quantities[doc.id] ?? 0;
+      if (quantity <= 0) continue;
+
+      final data = doc.data();
+      final price = data['price'];
+
+      if (price is! num || price <= 0) continue;
+
+      final total = price * quantity;
+
+      selectedAddons.add({
+        'addonId': doc.id,
+        'name': (data['name'] ?? '').toString().trim(),
+        'description': (data['description'] ?? '').toString().trim(),
+        'category': (data['category'] ?? '').toString().trim(),
+        'price': price,
+        'quantity': quantity,
+        'total': total,
+      });
+
+      addonsTotal += total;
+    }
+
+    widget.onSelectionChanged?.call(selectedAddons, addonsTotal);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -198,6 +236,8 @@ class _RestaurantAddonPickerState extends State<RestaurantAddonPicker> {
                                     } else {
                                       _quantities[doc.id] = nextQuantity;
                                     }
+
+                                    _notifySelection(addons);
                                   });
                                 },
                               ),
@@ -219,6 +259,7 @@ class _RestaurantAddonPickerState extends State<RestaurantAddonPicker> {
                                 onTap: () {
                                   setState(() {
                                     _quantities[doc.id] = quantity + 1;
+                                    _notifySelection(addons);
                                   });
                                 },
                               ),

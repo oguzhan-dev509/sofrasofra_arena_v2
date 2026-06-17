@@ -717,19 +717,36 @@ class _MenuPreviewSection extends StatelessWidget {
         : latestItem.goturFiyat;
 
     final selectedPrice = isGotur ? effectiveGoturFiyat : effectiveGelAlFiyat;
+    final safeAddonsTotal = addonsTotal > 0 ? addonsTotal : 0;
+    final cartPrice = selectedPrice + safeAddonsTotal;
+    final cartGelAlFiyat = effectiveGelAlFiyat + safeAddonsTotal;
+    final cartGoturFiyat = effectiveGoturFiyat + safeAddonsTotal;
     final teslimatLabel = isGotur ? 'Götür' : 'Gel-Al';
 
     try {
+      debugPrint(
+        'RESTORAN ADDON DEBUG => '
+        'item=${latestItem.name} '
+        'selectedAddons=$selectedAddons '
+        'addonsTotal=$addonsTotal',
+      );
+      final addonSignature = selectedAddons.isEmpty
+          ? 'no_addons'
+          : selectedAddons.map((addon) {
+              final addonId = (addon['addonId'] ?? '').toString();
+              final quantity = addon['quantity'] ?? 0;
+              return '${addonId}_$quantity';
+            }).join('_');
       await SepetService.sepeteEkle(
         urunId:
-            'restaurant_${restaurant.id}_${item.id}_${RestoranMenuItemModel.galleryImageKey(effectiveImageUrl)}_$teslimatTipi',
+            'restaurant_${restaurant.id}_${item.id}_${RestoranMenuItemModel.galleryImageKey(effectiveImageUrl)}_${teslimatTipi}_$addonSignature',
         urunAdi: latestItem.name,
         dukkanAdi: restaurant.name,
         kategori: latestItem.category,
         img: effectiveImageUrl,
-        fiyat: selectedPrice,
-        gelAlFiyat: effectiveGelAlFiyat,
-        goturFiyat: effectiveGoturFiyat,
+        fiyat: cartPrice,
+        gelAlFiyat: cartGelAlFiyat,
+        goturFiyat: cartGoturFiyat,
         teslimatTipi: teslimatTipi,
         deliveryIncludedInPrice: true,
         feeIncludedInPrice: true,
@@ -2352,71 +2369,84 @@ class _MenuPreviewSection extends StatelessWidget {
                 const SizedBox(height: 12),
               ],
               ...items.map(
-                (item) => Column(
-                  children: [
-                    RestoranMenuItemCard(
-                      item: item,
-                      canManageMedia: isAdmin,
-                      onAddPhotoTap: () async {
-                        await _menuFotografiEkle(
-                          context: context,
-                          item: item,
-                        );
-                      },
-                      onAddGalleryPhotoTap: () async {
-                        await _menuGaleriFotografiEkle(
-                          context: context,
-                          item: item,
-                        );
-                      },
-                      onDeletePhotoTap: () async {
-                        await _menuFotografiSil(
-                          context: context,
-                          item: item,
-                        );
-                      },
-                      onAddProfilePhotoTap: () async {
-                        await _menuProfilFotografiEkle(
-                          context: context,
-                          item: item,
-                        );
-                      },
-                      onDeleteGalleryPhotoTap: (imageUrl) async {
-                        await _menuGaleriFotografiSil(
-                          context: context,
-                          item: item,
-                          imageUrl: imageUrl,
-                        );
-                      },
-                      onEditMenuItemTap: (imageUrl) async {
-                        await _menuUrunuDuzenleDialogAc(
-                          context: context,
-                          item: item,
-                          imageUrl: imageUrl,
-                        );
-                      },
-                      onGelAlTap: (imageUrl) async {
-                        await _sepeteRestoranUrunuEkle(
-                          context: context,
-                          item: item,
-                          teslimatTipi: 'gel_al',
-                          imageUrl: imageUrl,
-                        );
-                      },
-                      onGoturTap: (imageUrl) async {
-                        await _sepeteRestoranUrunuEkle(
-                          context: context,
-                          item: item,
-                          teslimatTipi: 'gotur',
-                          imageUrl: imageUrl,
-                        );
-                      },
-                    ),
-                    RestaurantAddonPicker(
-                      restaurantId: restaurant.id,
-                    ),
-                  ],
-                ),
+                (item) {
+                  List<Map<String, dynamic>> selectedAddons = const [];
+                  num addonsTotal = 0;
+
+                  return Column(
+                    children: [
+                      RestoranMenuItemCard(
+                        item: item,
+                        canManageMedia: isAdmin,
+                        onAddPhotoTap: () async {
+                          await _menuFotografiEkle(
+                            context: context,
+                            item: item,
+                          );
+                        },
+                        onAddGalleryPhotoTap: () async {
+                          await _menuGaleriFotografiEkle(
+                            context: context,
+                            item: item,
+                          );
+                        },
+                        onDeletePhotoTap: () async {
+                          await _menuFotografiSil(
+                            context: context,
+                            item: item,
+                          );
+                        },
+                        onAddProfilePhotoTap: () async {
+                          await _menuProfilFotografiEkle(
+                            context: context,
+                            item: item,
+                          );
+                        },
+                        onDeleteGalleryPhotoTap: (imageUrl) async {
+                          await _menuGaleriFotografiSil(
+                            context: context,
+                            item: item,
+                            imageUrl: imageUrl,
+                          );
+                        },
+                        onEditMenuItemTap: (imageUrl) async {
+                          await _menuUrunuDuzenleDialogAc(
+                            context: context,
+                            item: item,
+                            imageUrl: imageUrl,
+                          );
+                        },
+                        onGelAlTap: (imageUrl) async {
+                          await _sepeteRestoranUrunuEkle(
+                            context: context,
+                            item: item,
+                            teslimatTipi: 'gel_al',
+                            imageUrl: imageUrl,
+                            selectedAddons: selectedAddons,
+                            addonsTotal: addonsTotal,
+                          );
+                        },
+                        onGoturTap: (imageUrl) async {
+                          await _sepeteRestoranUrunuEkle(
+                            context: context,
+                            item: item,
+                            teslimatTipi: 'gotur',
+                            imageUrl: imageUrl,
+                            selectedAddons: selectedAddons,
+                            addonsTotal: addonsTotal,
+                          );
+                        },
+                      ),
+                      RestaurantAddonPicker(
+                        restaurantId: restaurant.id,
+                        onSelectionChanged: (addons, total) {
+                          selectedAddons = addons;
+                          addonsTotal = total;
+                        },
+                      ),
+                    ],
+                  );
+                },
               ),
             ],
           ),
