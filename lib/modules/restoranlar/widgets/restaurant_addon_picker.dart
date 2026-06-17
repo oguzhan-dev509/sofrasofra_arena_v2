@@ -1,13 +1,20 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
-class RestaurantAddonPicker extends StatelessWidget {
+class RestaurantAddonPicker extends StatefulWidget {
   const RestaurantAddonPicker({
     super.key,
     required this.restaurantId,
   });
 
   final String restaurantId;
+
+  @override
+  State<RestaurantAddonPicker> createState() => _RestaurantAddonPickerState();
+}
+
+class _RestaurantAddonPickerState extends State<RestaurantAddonPicker> {
+  final Map<String, int> _quantities = {};
 
   static const Color _gold = Color(0xFFFFB300);
 
@@ -16,7 +23,7 @@ class RestaurantAddonPicker extends StatelessWidget {
     return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
       stream: FirebaseFirestore.instance
           .collection('restaurants')
-          .doc(restaurantId)
+          .doc(widget.restaurantId)
           .collection('addon_items')
           .where('isActive', isEqualTo: true)
           .snapshots(),
@@ -121,6 +128,8 @@ class RestaurantAddonPicker extends StatelessWidget {
                     ? price.toStringAsFixed(0)
                     : price.toStringAsFixed(2);
 
+                final quantity = _quantities[doc.id] ?? 0;
+
                 return Container(
                   margin: const EdgeInsets.only(top: 8),
                   padding: const EdgeInsets.all(12),
@@ -160,13 +169,62 @@ class RestaurantAddonPicker extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(width: 10),
-                      Text(
-                        '$priceText TL',
-                        style: const TextStyle(
-                          color: _gold,
-                          fontSize: 13,
-                          fontWeight: FontWeight.w900,
-                        ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Text(
+                            '$priceText TL',
+                            style: const TextStyle(
+                              color: _gold,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w900,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              _AddonQuantityButton(
+                                icon: Icons.remove,
+                                enabled: quantity > 0,
+                                onTap: () {
+                                  if (quantity <= 0) return;
+
+                                  setState(() {
+                                    final nextQuantity = quantity - 1;
+
+                                    if (nextQuantity <= 0) {
+                                      _quantities.remove(doc.id);
+                                    } else {
+                                      _quantities[doc.id] = nextQuantity;
+                                    }
+                                  });
+                                },
+                              ),
+                              Container(
+                                width: 30,
+                                alignment: Alignment.center,
+                                child: Text(
+                                  '$quantity',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w900,
+                                  ),
+                                ),
+                              ),
+                              _AddonQuantityButton(
+                                icon: Icons.add,
+                                enabled: true,
+                                onTap: () {
+                                  setState(() {
+                                    _quantities[doc.id] = quantity + 1;
+                                  });
+                                },
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
                     ],
                   ),
@@ -176,6 +234,49 @@ class RestaurantAddonPicker extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+}
+
+class _AddonQuantityButton extends StatelessWidget {
+  const _AddonQuantityButton({
+    required this.icon,
+    required this.enabled,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final bool enabled;
+  final VoidCallback onTap;
+
+  static const Color _gold = Color(0xFFFFB300);
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: enabled ? onTap : null,
+      borderRadius: BorderRadius.circular(999),
+      child: Container(
+        width: 28,
+        height: 28,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: enabled
+              ? _gold.withValues(alpha: 0.16)
+              : Colors.white.withValues(alpha: 0.05),
+          shape: BoxShape.circle,
+          border: Border.all(
+            color: enabled
+                ? _gold.withValues(alpha: 0.70)
+                : Colors.white.withValues(alpha: 0.10),
+          ),
+        ),
+        child: Icon(
+          icon,
+          size: 16,
+          color: enabled ? _gold : Colors.white.withValues(alpha: 0.30),
+        ),
+      ),
     );
   }
 }
