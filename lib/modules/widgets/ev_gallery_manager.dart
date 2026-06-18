@@ -9,6 +9,17 @@ class EvGalleryManager {
   EvGalleryManager._();
 
   static final ImagePicker _picker = ImagePicker();
+  static int photoLimitForPlan(String? plan) {
+    switch ((plan ?? 'free').trim().toLowerCase()) {
+      case 'premium':
+        return 12;
+      case 'pro':
+        return 9;
+      case 'free':
+      default:
+        return 6;
+    }
+  }
 
   static bool isHttpUrl(String? value) {
     final v = (value ?? '').trim();
@@ -160,12 +171,30 @@ class EvGalleryManager {
     required String sellerId,
     required List<String> existingImages,
     required List<String> newUrls,
+    String? membershipType,
   }) async {
     final docRef =
         FirebaseFirestore.instance.collection('urunler').doc(productId);
 
+    final photoLimit = photoLimitForPlan(membershipType);
+
+    final existingNormalized = normalizeGalleryImages(
+      images: existingImages,
+    );
+
+    if (existingNormalized.length >= photoLimit) {
+      throw Exception(
+        'Bu paket için galeri fotoğraf sınırı $photoLimit adet. Daha fazla fotoğraf için paketinizi yükseltebilirsiniz.',
+      );
+    }
+
+    final allowedNewCount = photoLimit - existingNormalized.length;
+
     final merged = normalizeGalleryImages(
-      images: [...existingImages, ...newUrls],
+      images: [
+        ...existingNormalized,
+        ...newUrls.take(allowedNewCount),
+      ],
     );
 
     final currentDoc = await docRef.get();

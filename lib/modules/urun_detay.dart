@@ -728,6 +728,7 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
         sellerId: sellerId,
         existingImages: _effectiveImages,
         newUrls: [url],
+        membershipType: 'free',
       );
 
       if (!mounted) return;
@@ -1327,7 +1328,7 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
   }
 
   Widget _buildGalleryStripCard() {
-    final images = _galleryImageUrls.take(3).toList();
+    final images = _galleryImageUrls.toList();
 
     if (images.isEmpty) {
       return const SizedBox.shrink();
@@ -1367,14 +1368,13 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
               final gap = isMobile ? 10.0 : 14.0;
               final imageHeight = isMobile ? 150.0 : 215.0;
 
-              final itemWidth = isMobile
-                  ? (constraints.maxWidth * 0.78).clamp(245.0, 300.0).toDouble()
-                  : ((constraints.maxWidth - (gap * 2)) / 3)
+              final columns = isMobile ? 2 : 3;
+
+              final itemWidth =
+                  ((constraints.maxWidth - (gap * (columns - 1))) / columns)
                       .clamp(118.0, 360.0)
                       .toDouble();
-
               final galleryHeight = imageHeight + (isMobile ? 210.0 : 125.0);
-
               return SizedBox(
                 height: galleryHeight,
                 child: SingleChildScrollView(
