@@ -181,20 +181,24 @@ class SepetService {
     final double safeGelAlFiyat = gelAlFiyat ?? fiyat;
     final double safeGoturFiyat = goturFiyat ?? fiyat;
 
-    final bool isRestaurantGotur =
-        sellerType == 'restaurant' && teslimatTipi == 'gotur';
+    final bool supportsDeliveryDeltaSplit =
+        sellerType == 'restaurant' || sellerType == 'ev_lezzetleri';
 
-    final double deliveryDeltaAmount = isRestaurantGotur
+    final bool isDeliveryDeltaSplit =
+        supportsDeliveryDeltaSplit && teslimatTipi == 'gotur';
+
+    final double deliveryDeltaAmount = isDeliveryDeltaSplit
         ? (safeGoturFiyat - safeGelAlFiyat).clamp(0, double.infinity).toDouble()
         : 0;
 
-    final bool courierRequired = isRestaurantGotur && deliveryDeltaAmount > 0;
+    final bool courierRequired =
+        isDeliveryDeltaSplit && deliveryDeltaAmount > 0;
 
-    final double restaurantBaseFoodAmount =
-        isRestaurantGotur ? safeGelAlFiyat : effectivePrice;
+    final double sellerBaseFoodAmount =
+        isDeliveryDeltaSplit ? safeGelAlFiyat : effectivePrice;
 
     final double restaurantGrossFoodAmount =
-        restaurantBaseFoodAmount + addonsTotal.toDouble();
+        sellerBaseFoodAmount + addonsTotal.toDouble();
     final itemData = {
       'urunId': urunId,
       'urunAdi': urunAdi,
@@ -214,14 +218,14 @@ class SepetService {
       'deliveryIncludedInPrice': deliveryIncludedInPrice,
 
 // Restaurant courier payout split
-      'baseFoodAmount': restaurantBaseFoodAmount,
+      'baseFoodAmount': sellerBaseFoodAmount,
       'restaurantGrossFoodAmount': restaurantGrossFoodAmount,
       'deliveryDeltaAmount': deliveryDeltaAmount,
       'courierRequired': courierRequired,
       'courierNetAmount': courierRequired ? deliveryDeltaAmount : 0,
       'courierPayoutStatus': courierRequired ? 'pending' : 'not_required',
       'deliveryPricingModel':
-          isRestaurantGotur ? 'gotur_delta_to_courier' : 'not_required',
+          isDeliveryDeltaSplit ? 'gotur_delta_to_courier' : 'not_required',
       'feeIncludedInPrice': feeIncludedInPrice,
       'adet': 1,
       'saticiId': finalSaticiId,
