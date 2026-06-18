@@ -948,9 +948,11 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
                     Text(
                       'Ücretsiz\n'
                       '• Aylık: 0 TL\n'
-                      '• Sofrasofra hizmet bedeli: %8\n'
-                      '• PAYTR: %1,99\n'
-                      '• 6 fotoğraf\n'
+                      '• Sofrasofra hizmet bedeli: %8 KDV dahil\n'
+                      '• PAYTR İşlem Maliyeti: %1,99\n'
+                      '• 6 galeri fotoğrafı\n'
+                      '• 0 tanıtım videosu\n'
+                      '• Eğitim videoları ücretsiz\n'
                       '• Temel görünürlük',
                       style: TextStyle(
                         color: Colors.white70,
@@ -963,9 +965,9 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
                     Text(
                       'Pro\n'
                       '• Aylık: 299 TL\n'
-                      '• Sofrasofra hizmet bedeli: %5\n'
-                      '• PAYTR: %1,99\n'
-                      '• 9 fotoğraf\n'
+                      '• Sofrasofra hizmet bedeli: %5 KDV dahil\n'
+                      '• PAYTR İşlem Maliyeti: %1,99\n'
+                      '• 9 galeri fotoğrafı\n'
                       '• Öne çıkan üretici rozeti\n'
                       '• Ürün galeri yönetimi\n'
                       '• Mahalle vitrininde daha güçlü görünürlük',
@@ -979,13 +981,13 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
                     SizedBox(height: 16),
                     Text(
                       'Premium\n'
-                      '• Aylık: 599 TL\n'
-                      '• Sofrasofra hizmet bedeli: %3\n'
-                      '• PAYTR: %1,99\n'
-                      '• 12 fotoğraf\n'
+                      '• Aylık: 499 TL\n'
+                      '• Sofrasofra hizmet bedeli: %2 KDV dahil\n'
+                      '• PAYTR İşlem Maliyeti: %1,99\n'
+                      '• 12 galeri fotoğrafı\n'
                       '• Premium vitrin önceliği\n'
                       '• Ana sayfa / mahalle vitrini adaylığı\n'
-                      '• Hikâye, galeri ve imza ürün sunumu',
+                      '• Hikâye, galeri ve ürün sunumu',
                       style: TextStyle(
                         color: Colors.white70,
                         height: 1.45,
@@ -993,6 +995,7 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
                         fontWeight: FontWeight.w600,
                       ),
                     ),
+                    SizedBox(height: 16),
                   ],
                 ),
               ),
@@ -1370,6 +1373,7 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
             images: images,
             selectedIndex: safeSelectedIndex,
             canManageMedia: _canManageMedia,
+            showSalesActions: true,
             productId: (widget.productId ?? '').trim(),
             sellerId: (widget.sellerId ?? '').trim(),
             dukkanAdi: widget.dukkanAdi,

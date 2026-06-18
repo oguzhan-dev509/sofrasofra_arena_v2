@@ -80,11 +80,11 @@ class _SefItibarSayfasiState extends State<SefItibarSayfasi> {
 
         switch (rawType) {
           case 'premium':
-            _maxGalleryPhoto = 40;
+            _maxGalleryPhoto = 24;
             _maxVideoLink = 3;
             break;
           case 'pro':
-            _maxGalleryPhoto = 15;
+            _maxGalleryPhoto = 12;
             _maxVideoLink = 1;
             break;
           default:

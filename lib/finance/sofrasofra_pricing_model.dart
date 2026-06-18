@@ -34,11 +34,11 @@ class SofrasofraPricingModel {
       case UserType.ustaSef:
         switch (plan) {
           case PlanType.free:
-            return 0.10;
+            return 0.11;
           case PlanType.pro:
-            return 0.06;
+            return 0.07;
           case PlanType.premium:
-            return 0.03;
+            return 0.04;
           default:
             return 0.0;
         }

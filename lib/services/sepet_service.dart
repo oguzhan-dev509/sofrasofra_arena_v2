@@ -181,8 +181,9 @@ class SepetService {
     final double safeGelAlFiyat = gelAlFiyat ?? fiyat;
     final double safeGoturFiyat = goturFiyat ?? fiyat;
 
-    final bool supportsDeliveryDeltaSplit =
-        sellerType == 'restaurant' || sellerType == 'ev_lezzetleri';
+    final bool supportsDeliveryDeltaSplit = sellerType == 'restaurant' ||
+        sellerType == 'ev_lezzetleri' ||
+        sellerType == 'chef_signature';
 
     final bool isDeliveryDeltaSplit =
         supportsDeliveryDeltaSplit && teslimatTipi == 'gotur';
@@ -217,7 +218,7 @@ class SepetService {
       'teslimatTipi': teslimatTipi,
       'deliveryIncludedInPrice': deliveryIncludedInPrice,
 
-// Restaurant courier payout split
+// Courier payout split for delivery price delta
       'baseFoodAmount': sellerBaseFoodAmount,
       'restaurantGrossFoodAmount': restaurantGrossFoodAmount,
       'deliveryDeltaAmount': deliveryDeltaAmount,

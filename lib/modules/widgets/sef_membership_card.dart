@@ -43,9 +43,9 @@ class SefMembershipCard extends StatelessWidget {
   String _upgradeSubtitle() {
     switch (membershipType.toLowerCase()) {
       case 'pro':
-        return '32 galeri fotoğrafı + 3 tanıtım video linki + eğitim videoları ücretsiz + vitrin önceliği';
+        return '24 galeri fotoğrafı + 3 tanıtım video linki + eğitim videoları ücretsiz + vitrin önceliği';
       case 'premium':
-        return 'En yüksek görünürlük paketi aktif';
+        return 'Premium aktif · 24 galeri fotoğrafı + 3 tanıtım video linki + vitrin önceliği';
       default:
         return '12 galeri fotoğrafı + 1 tanıtım video linki + eğitim videoları ücretsiz + daha güçlü görünürlük';
     }
@@ -224,7 +224,8 @@ void showChefPlanSheet(BuildContext context, String membershipType) {
                   'Ücretsiz',
                   [
                     'Aylık: 0 TL',
-                    'Komisyon: %10',
+                    'Komisyon: %11 KDV dahil',
+                    'PAYTR İşlem Maliyeti: %1,99',
                     '6 galeri fotoğrafı',
                     '0 tanıtım videosu',
                     'Eğitim videoları ücretsiz',
@@ -235,8 +236,9 @@ void showChefPlanSheet(BuildContext context, String membershipType) {
                 _plan(
                   'Pro',
                   [
-                    'Aylık: 249 TL',
-                    'Komisyon: %6',
+                    'Aylık: 449 TL',
+                    'Komisyon: %7 KDV dahil',
+                    'PAYTR İşlem Maliyeti: %1,99',
                     '12 galeri fotoğrafı',
                     '1 tanıtım video linki',
                     'Eğitim videoları ücretsiz',
@@ -247,9 +249,10 @@ void showChefPlanSheet(BuildContext context, String membershipType) {
                 _plan(
                   'Premium',
                   [
-                    'Aylık: 499 TL',
-                    'Komisyon: %3',
-                    '32 galeri fotoğrafı',
+                    'Aylık: 899 TL',
+                    'Komisyon: %4 KDV dahil',
+                    'PAYTR İşlem Maliyeti: %1,99',
+                    '24 galeri fotoğrafı',
                     '3 tanıtım video linki',
                     'Eğitim videoları ücretsiz',
                     'Vitrin önceliği',

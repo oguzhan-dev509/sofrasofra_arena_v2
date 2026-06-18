@@ -427,8 +427,9 @@ class _UrunEklemeSayfasiV2State extends State<UrunEklemeSayfasiV2> {
                       title: 'Ücretsiz',
                       features: const [
                         'Aylık: 0 TL',
-                        'Komisyon: %10',
-                        '3 fotoğraf',
+                        'Komisyon: %11 KDV dahil',
+                        'PAYTR İşlem Maliyeti: %1,99',
+                        '6 fotoğraf',
                         '0 video linki',
                         'Temel görünürlük',
                       ],
@@ -438,9 +439,10 @@ class _UrunEklemeSayfasiV2State extends State<UrunEklemeSayfasiV2> {
                     _planCard(
                       title: 'Pro',
                       features: const [
-                        'Aylık: 149 TL',
-                        'Komisyon: %5',
-                        '8 fotoğraf',
+                        'Aylık: 449  TL',
+                        'Komisyon: %7 KDV dahil',
+                        'PAYTR İşlem Maliyeti: %1,99',
+                        '12 fotoğraf',
                         '1 video linki',
                         'Daha güçlü görünürlük',
                       ],
@@ -450,8 +452,9 @@ class _UrunEklemeSayfasiV2State extends State<UrunEklemeSayfasiV2> {
                     _planCard(
                       title: 'Premium',
                       features: const [
-                        'Aylık: 299 TL',
-                        'Komisyon: %2',
+                        'Aylık: 899 TL',
+                        'Komisyon: %4 KDV dahil',
+                        'PAYTR İşlem Maliyeti: %1,99',
                         '24 fotoğraf',
                         '3 video linki',
                         'Mahalle vitrin önceliği',

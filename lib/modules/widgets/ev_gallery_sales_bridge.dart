@@ -273,40 +273,64 @@ class EvGallerySalesActions extends StatelessWidget {
     this.isAdmin = false,
   });
 
-  static const Color gold = Color(0xFFFFB300);
-
   double _asDouble(dynamic value) {
     if (value == null) return 0;
-    if (value is double) return value;
-    if (value is int) return value.toDouble();
     if (value is num) return value.toDouble();
-    return double.tryParse(value.toString().replaceAll(',', '.')) ?? 0;
-  }
 
-  String _priceText(double value) {
-    if (value <= 0) return '—';
-    return '${value.toStringAsFixed(0)} ₺';
+    final raw = value.toString().trim().replaceAll(',', '.');
+    return double.tryParse(raw) ?? 0;
   }
 
   Widget _priceChip({
     required String label,
     required double price,
   }) {
+    if (price <= 0) {
+      return const SizedBox.shrink();
+    }
+
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
       decoration: BoxDecoration(
-        color: Colors.black.withValues(alpha: 0.42),
+        color: const Color(0xFF111111),
         borderRadius: BorderRadius.circular(999),
         border: Border.all(
-          color: gold.withValues(alpha: 0.45),
+          color: const Color(0xFFFFB300).withValues(alpha: 0.75),
         ),
       ),
       child: Text(
-        '$label ${_priceText(price)}',
+        '$label ${price.toStringAsFixed(0)} ₺',
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        softWrap: false,
         style: const TextStyle(
           color: Colors.white,
-          fontSize: 10,
-          fontWeight: FontWeight.w800,
+          fontSize: 10.5,
+          fontWeight: FontWeight.w900,
+          height: 1,
+        ),
+      ),
+    );
+  }
+
+  Widget _smallGalleryIconButton({
+    required String tooltip,
+    required IconData icon,
+    required VoidCallback? onTap,
+  }) {
+    return Tooltip(
+      message: tooltip,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(999),
+        child: SizedBox(
+          width: 28,
+          height: 28,
+          child: Icon(
+            icon,
+            color: onTap == null ? Colors.white38 : Colors.white,
+            size: 21,
+          ),
         ),
       ),
     );
@@ -316,14 +340,12 @@ class EvGallerySalesActions extends StatelessWidget {
     required BuildContext context,
     required double gelAlFinalPrice,
     required double? goturFinalPrice,
-  }) {
+  }) async {
     return showModalBottomSheet<Map<String, dynamic>>(
       context: context,
-      backgroundColor: const Color(0xFF151515),
+      backgroundColor: const Color(0xFF101010),
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(
-          top: Radius.circular(24),
-        ),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(22)),
       ),
       builder: (sheetContext) {
         return SafeArea(
@@ -334,11 +356,11 @@ class EvGallerySalesActions extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
-                  'Teslimat seçimi',
+                  'Teslimat seç',
                   style: TextStyle(
-                    color: gold,
-                    fontSize: 16,
+                    color: Color(0xFFFFB300),
                     fontWeight: FontWeight.w900,
+                    fontSize: 18,
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -356,13 +378,13 @@ class EvGallerySalesActions extends StatelessWidget {
                     style: const TextStyle(color: Colors.white70),
                   ),
                   onTap: () {
-                    Navigator.pop(sheetContext, {
+                    Navigator.of(sheetContext).pop({
                       'tip': 'gel_al',
                       'fiyat': gelAlFinalPrice,
                     });
                   },
                 ),
-                if (goturFinalPrice != null)
+                if (goturFinalPrice != null && goturFinalPrice > 0)
                   ListTile(
                     contentPadding: EdgeInsets.zero,
                     title: const Text(
@@ -377,7 +399,7 @@ class EvGallerySalesActions extends StatelessWidget {
                       style: const TextStyle(color: Colors.white70),
                     ),
                     onTap: () {
-                      Navigator.pop(sheetContext, {
+                      Navigator.of(sheetContext).pop({
                         'tip': 'gotur',
                         'fiyat': goturFinalPrice,
                       });
@@ -399,115 +421,83 @@ class EvGallerySalesActions extends StatelessWidget {
       return const SizedBox.shrink();
     }
 
-    return FutureBuilder<DocumentReference<Map<String, dynamic>>>(
-      future: EvGallerySalesBridge.ensureGalleryProduct(
-        ownerProductId: ownerProductId,
-        sellerId: sellerId,
-        dukkanAdi: dukkanAdi,
-        imageUrl: imageUrl,
-      ),
-      builder: (context, refSnap) {
-        if (!refSnap.hasData) {
-          return const SizedBox(
-            height: 42,
-            child: Center(
-              child: SizedBox(
-                width: 18,
-                height: 18,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  color: gold,
-                ),
-              ),
+    final ref = EvGallerySalesBridge.galleryProductRef(
+      ownerProductId: ownerProductId,
+      sellerId: sellerId,
+      dukkanAdi: dukkanAdi,
+      imageUrl: imageUrl,
+    );
+
+    return StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
+      stream: ref.snapshots(),
+      builder: (context, snapshot) {
+        final data = snapshot.data?.data() ?? <String, dynamic>{};
+
+        final gelAlFinalPrice = _asDouble(
+          data['gelAlFiyat'] ?? data['price'] ?? data['fiyat'],
+        );
+
+        final goturRaw = data['goturFiyat'];
+        final goturFinalPrice = goturRaw == null ? null : _asDouble(goturRaw);
+
+        final title = (data['ad'] ?? data['urunAdi'] ?? 'Ev Galeri Ürünü')
+            .toString()
+            .trim();
+
+        final description =
+            (data['aciklama'] ?? data['description'] ?? '').toString();
+
+        final canAddToCart = gelAlFinalPrice > 0 || (goturFinalPrice ?? 0) > 0;
+
+        return Container(
+          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 7),
+          decoration: BoxDecoration(
+            color: const Color(0xFF111111),
+            borderRadius: const BorderRadius.vertical(
+              bottom: Radius.circular(20),
             ),
-          );
-        }
-
-        final ref = refSnap.data!;
-
-        return StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
-          stream: ref.snapshots(),
-          builder: (context, snap) {
-            final data = snap.data?.data() ?? {};
-
-            final price = _asDouble(data['price'] ?? data['fiyat']);
-            final gelAlPrice = _asDouble(
-              data['gelAlFiyat'] ?? data['price'] ?? data['fiyat'],
-            );
-            final goturPrice = _asDouble(data['goturFiyat']);
-
-            final gelAlFinalPrice = gelAlPrice > 0 ? gelAlPrice : price;
-            final goturFinalPrice = goturPrice > 0 ? goturPrice : null;
-
-            final description = (data['aciklama'] ?? data['description'] ?? '')
-                .toString()
-                .trim();
-
-            final title = (data['ad'] ?? data['urunAdi'] ?? 'Ev Galeri Ürünü')
-                .toString()
-                .trim();
-
-            final canAddToCart =
-                gelAlFinalPrice > 0 || (goturFinalPrice ?? 0) > 0;
-
-            return Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 7),
-              decoration: BoxDecoration(
-                color: const Color(0xFF111111),
-                borderRadius: const BorderRadius.vertical(
-                  bottom: Radius.circular(20),
-                ),
-                border: Border.all(
-                  color: Colors.white.withValues(alpha: 0.08),
+            border: Border.all(
+              color: Colors.white.withValues(alpha: 0.08),
+            ),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              SizedBox(
+                width: double.infinity,
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.center,
+                  child: _priceChip(
+                    label: 'Gel-Al',
+                    price: gelAlFinalPrice,
+                  ),
                 ),
               ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          title.isEmpty ? 'Ev Galeri Ürünü' : title,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 11,
-                            fontWeight: FontWeight.w900,
-                          ),
-                        ),
-                        const SizedBox(height: 5),
-                        Wrap(
-                          spacing: 5,
-                          runSpacing: 4,
-                          children: [
-                            _priceChip(
-                              label: 'Gel-Al',
-                              price: gelAlFinalPrice,
-                            ),
-                            _priceChip(
-                              label: 'Götür',
-                              price: goturFinalPrice ?? 0,
-                            ),
-                          ],
-                        ),
-                      ],
+              if ((goturFinalPrice ?? 0) > 0) ...[
+                const SizedBox(height: 6),
+                SizedBox(
+                  width: double.infinity,
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.center,
+                    child: _priceChip(
+                      label: 'Götür',
+                      price: goturFinalPrice ?? 0,
                     ),
                   ),
-                  IconButton(
+                ),
+              ],
+              const SizedBox(height: 6),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  _smallGalleryIconButton(
                     tooltip: 'İncele',
-                    iconSize: 18,
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(
-                      minWidth: 30,
-                      minHeight: 30,
-                    ),
-                    icon: const Icon(
-                      Icons.visibility,
-                      color: Colors.white,
-                    ),
-                    onPressed: () {
+                    icon: Icons.visibility,
+                    onTap: () {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -530,19 +520,11 @@ class EvGallerySalesActions extends StatelessWidget {
                       );
                     },
                   ),
-                  IconButton(
+                  const SizedBox(width: 6),
+                  _smallGalleryIconButton(
                     tooltip: 'Sepete ekle',
-                    iconSize: 18,
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(
-                      minWidth: 30,
-                      minHeight: 30,
-                    ),
-                    icon: const Icon(
-                      Icons.add_shopping_cart,
-                      color: Colors.white,
-                    ),
-                    onPressed: !canAddToCart
+                    icon: Icons.add_shopping_cart,
+                    onTap: !canAddToCart
                         ? null
                         : () async {
                             try {
@@ -668,8 +650,8 @@ class EvGallerySalesActions extends StatelessWidget {
                   ),
                 ],
               ),
-            );
-          },
+            ],
+          ),
         );
       },
     );

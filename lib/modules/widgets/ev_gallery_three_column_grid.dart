@@ -7,6 +7,7 @@ class EvGalleryThreeColumnGrid extends StatelessWidget {
     required this.images,
     required this.selectedIndex,
     required this.canManageMedia,
+    this.showSalesActions = true,
     required this.productId,
     required this.sellerId,
     required this.dukkanAdi,
@@ -16,6 +17,7 @@ class EvGalleryThreeColumnGrid extends StatelessWidget {
   final List<String> images;
   final int selectedIndex;
   final bool canManageMedia;
+  final bool showSalesActions;
   final String productId;
   final String sellerId;
   final String dukkanAdi;
@@ -283,14 +285,20 @@ class EvGalleryThreeColumnGrid extends StatelessWidget {
                               ),
                             ),
                           ),
-                          const SizedBox(height: 8),
-                          EvGallerySalesActions(
-                            ownerProductId: productId,
-                            sellerId: sellerId,
-                            dukkanAdi: dukkanAdi,
-                            imageUrl: imageUrl,
-                            isAdmin: false,
-                          ),
+                          if (showSalesActions) ...[
+                            const SizedBox(height: 8),
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 6),
+                              child: EvGallerySalesActions(
+                                ownerProductId: productId,
+                                sellerId: sellerId,
+                                dukkanAdi: dukkanAdi,
+                                imageUrl: imageUrl,
+                                isAdmin: false,
+                              ),
+                            ),
+                          ],
                         ],
                       ),
                     ),
