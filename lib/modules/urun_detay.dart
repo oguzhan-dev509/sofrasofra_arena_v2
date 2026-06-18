@@ -1,4 +1,4 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+﻿import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:sofrasofra_arena_v2/modules/widgets/ev_product_gallery.dart';
@@ -948,9 +948,9 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
                     Text(
                       'Ücretsiz\n'
                       '• Aylık: 0 TL\n'
-                      '• Komisyon: %8\n'
+                      '• Sofrasofra hizmet bedeli: %8\n'
                       '• PAYTR: %1,99\n'
-                      '• 3 fotoğraf\n'
+                      '• 6 fotoğraf\n'
                       '• Temel görünürlük',
                       style: TextStyle(
                         color: Colors.white70,
@@ -962,12 +962,13 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
                     SizedBox(height: 16),
                     Text(
                       'Pro\n'
-                      '• Aylık: 149 TL\n'
-                      '• Komisyon: %5\n'
+                      '• Aylık: 299 TL\n'
+                      '• Sofrasofra hizmet bedeli: %5\n'
                       '• PAYTR: %1,99\n'
-                      '• 8 fotoğraf\n'
-                      '• 1 video linki\n'
-                      '• Daha güçlü görünürlük',
+                      '• 9 fotoğraf\n'
+                      '• Öne çıkan üretici rozeti\n'
+                      '• Ürün galeri yönetimi\n'
+                      '• Mahalle vitrininde daha güçlü görünürlük',
                       style: TextStyle(
                         color: Colors.white70,
                         height: 1.45,
@@ -978,12 +979,13 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
                     SizedBox(height: 16),
                     Text(
                       'Premium\n'
-                      '• Aylık: 299 TL\n'
-                      '• Komisyon: %2\n'
+                      '• Aylık: 599 TL\n'
+                      '• Sofrasofra hizmet bedeli: %3\n'
                       '• PAYTR: %1,99\n'
-                      '• 24 fotoğraf\n'
-                      '• 3 video linki\n'
-                      '• Mahalle vitrin önceliği',
+                      '• 12 fotoğraf\n'
+                      '• Premium vitrin önceliği\n'
+                      '• Ana sayfa / mahalle vitrini adaylığı\n'
+                      '• Hikâye, galeri ve imza ürün sunumu',
                       style: TextStyle(
                         color: Colors.white70,
                         height: 1.45,
@@ -1038,7 +1040,7 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
                   ),
                   SizedBox(height: 4),
                   Text(
-                    '8 fotoğraf + 1 video linki + daha güçlü görünürlük',
+                    '9 fotoğraf + öne çıkan üretici rozeti + daha güçlü görünürlük',
                     style: TextStyle(
                       color: Colors.white70,
                       fontSize: 12.5,
