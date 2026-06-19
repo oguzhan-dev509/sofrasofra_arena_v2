@@ -915,11 +915,6 @@ class _SefItibarSayfasiState extends State<SefItibarSayfasi> {
                           ),
                         ),
                       ),
-                      const SizedBox(height: 6),
-                      ChefGalleryPriceStrip(
-                        chefId: _chefId,
-                        imageUrl: url,
-                      ),
                       const SizedBox(height: 4),
                       SizedBox(
                         height: 64,

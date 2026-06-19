@@ -464,31 +464,35 @@ class EvGallerySalesActions extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              SizedBox(
-                width: double.infinity,
-                child: FittedBox(
-                  fit: BoxFit.scaleDown,
-                  alignment: Alignment.center,
-                  child: _priceChip(
-                    label: 'Gel-Al',
-                    price: gelAlFinalPrice,
-                  ),
+              if (gelAlFinalPrice > 0 || (goturFinalPrice ?? 0) > 0)
+                Row(
+                  children: [
+                    if (gelAlFinalPrice > 0)
+                      Expanded(
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          alignment: Alignment.center,
+                          child: _priceChip(
+                            label: 'Gel-Al',
+                            price: gelAlFinalPrice,
+                          ),
+                        ),
+                      ),
+                    if (gelAlFinalPrice > 0 && (goturFinalPrice ?? 0) > 0)
+                      const SizedBox(width: 6),
+                    if ((goturFinalPrice ?? 0) > 0)
+                      Expanded(
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          alignment: Alignment.center,
+                          child: _priceChip(
+                            label: 'Götür',
+                            price: goturFinalPrice ?? 0,
+                          ),
+                        ),
+                      ),
+                  ],
                 ),
-              ),
-              if ((goturFinalPrice ?? 0) > 0) ...[
-                const SizedBox(height: 6),
-                SizedBox(
-                  width: double.infinity,
-                  child: FittedBox(
-                    fit: BoxFit.scaleDown,
-                    alignment: Alignment.center,
-                    child: _priceChip(
-                      label: 'Götür',
-                      price: goturFinalPrice ?? 0,
-                    ),
-                  ),
-                ),
-              ],
               const SizedBox(height: 6),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,

@@ -246,6 +246,10 @@ class _SepetSayfasiState extends State<SepetSayfasi> {
 
     try {
       final totals = _buildCartTotals(docs);
+
+      final financeProductTotal = _baseFoodTotalFromCartDocs(docs);
+      final financeDeliveryFee = _deliveryDeltaTotalFromCartDocs(docs);
+
       final cartData =
           docs.isNotEmpty ? docs.first.reference.parent.parent : null;
       final cartSnap = cartData == null ? null : await cartData.get();
@@ -257,14 +261,13 @@ class _SepetSayfasiState extends State<SepetSayfasi> {
       final plan = _planFromCartData(sepetData);
 
       final finance = SofrasofraFinanceCalculator.calculate(
-        productTotal: totals.araToplam,
-        deliveryFee: totals.teslimatUcreti,
+        productTotal: financeProductTotal,
+        deliveryFee: financeDeliveryFee,
         userType: userType,
         plan: plan,
-        deliveryIncludedInPrice: totals.deliveryIncludedInPrice,
+        deliveryIncludedInPrice: false,
         feeIncludedInPrice: totals.feeIncludedInPrice,
       );
-
       debugPrint('=== FINANCE DEBUG / ORDER ===');
       debugPrint('Ara Toplam: ${totals.araToplam}');
       debugPrint('Teslimat Ücreti: ${totals.teslimatUcreti}');
@@ -416,6 +419,60 @@ class _SepetSayfasiState extends State<SepetSayfasi> {
     }
 
     return toplam;
+  }
+
+  double _baseFoodTotalFromCartDocs(
+    List<QueryDocumentSnapshot<Map<String, dynamic>>> docs,
+  ) {
+    double total = 0;
+
+    for (final doc in docs) {
+      final data = doc.data();
+
+      final quantity = _safeAdet(
+        data['adet'] ?? data['quantity'] ?? data['qty'] ?? 1,
+      );
+
+      final unitPrice = _asDouble(
+        data['fiyat'] ??
+            data['price'] ??
+            data['birimFiyat'] ??
+            data['unitPrice'] ??
+            0,
+      );
+
+      final baseFoodAmount = _asDouble(
+        data['baseFoodAmount'] ??
+            data['restaurantGrossFoodAmount'] ??
+            unitPrice,
+      );
+
+      total += baseFoodAmount * quantity;
+    }
+
+    return total;
+  }
+
+  double _deliveryDeltaTotalFromCartDocs(
+    List<QueryDocumentSnapshot<Map<String, dynamic>>> docs,
+  ) {
+    double total = 0;
+
+    for (final doc in docs) {
+      final data = doc.data();
+
+      final quantity = _safeAdet(
+        data['adet'] ?? data['quantity'] ?? data['qty'] ?? 1,
+      );
+
+      final deliveryDeltaAmount = _asDouble(
+        data['deliveryDeltaAmount'] ?? data['courierNetAmount'] ?? 0,
+      );
+
+      total += deliveryDeltaAmount * quantity;
+    }
+
+    return total;
   }
 
   double _teslimatUcretiHesapla({
@@ -787,6 +844,8 @@ class _SepetSayfasiState extends State<SepetSayfasi> {
           }
 
           final totals = _buildCartTotals(docs);
+          final financeProductTotal = _baseFoodTotalFromCartDocs(docs);
+          final financeDeliveryFee = _deliveryDeltaTotalFromCartDocs(docs);
           final sellerType = _sellerTypeFromCartDocs(docs);
           final netEarningsLabel = sellerType == 'chef_signature'
               ? 'Şef Net Hakediş'
@@ -795,13 +854,16 @@ class _SepetSayfasiState extends State<SepetSayfasi> {
           final plan = _planFromCartDocs(docs);
 
           final finance = SofrasofraFinanceCalculator.calculate(
-            productTotal: totals.araToplam,
-            deliveryFee: totals.teslimatUcreti,
+            productTotal: financeProductTotal,
+            deliveryFee: financeDeliveryFee,
             userType: userType,
             plan: plan,
-            deliveryIncludedInPrice: totals.deliveryIncludedInPrice,
+            deliveryIncludedInPrice: false,
             feeIncludedInPrice: totals.feeIncludedInPrice,
           );
+
+          debugPrint('Ürün Baz Tutarı: $financeProductTotal');
+          debugPrint('Götür / Kurye Farkı: $financeDeliveryFee');
 
           debugPrint('=== FINANCE DEBUG / SCREEN ===');
           debugPrint('Ara Toplam: ${totals.araToplam}');
@@ -814,7 +876,6 @@ class _SepetSayfasiState extends State<SepetSayfasi> {
           debugPrint('Kurye Net: ${finance.courierNetAmount}');
           debugPrint('Platform: ${finance.platformTotalRevenue}');
           debugPrint('==============================');
-
           return Column(
             children: [
               Padding(
@@ -848,7 +909,7 @@ class _SepetSayfasiState extends State<SepetSayfasi> {
                       ),
                       const Spacer(),
                       const Text(
-                        'Kapıda Ödeme',
+                        'PAYTR Güvenli Ödeme',
                         style: TextStyle(
                           color: _textMuted,
                           fontSize: 13,

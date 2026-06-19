@@ -487,6 +487,15 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
     return _effectiveGelAlPrice ?? _effectiveGoturPrice;
   }
 
+  bool get _usesDeliverySplitPricing {
+    final kategoriKey = widget.kategori.toLowerCase().trim();
+    return kategoriKey.contains('ev lezzet') ||
+        kategoriKey.contains('usta') ||
+        kategoriKey.contains('şef') ||
+        kategoriKey.contains('sef') ||
+        kategoriKey.contains('imza');
+  }
+
   String get _selectedUnitPriceText => _priceText(_selectedUnitPrice);
 
   String get _selectedDeliveryLabel {
@@ -1738,14 +1747,14 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
                             kategori: widget.kategori,
                             img: _coverImageUrl,
                             fiyat: _selectedUnitPrice!.toDouble(),
-                            gelAlFiyat: widget.kategori == 'Ev Lezzetleri'
+                            gelAlFiyat: _usesDeliverySplitPricing
                                 ? _effectiveGelAlPrice?.toDouble()
                                 : null,
-                            goturFiyat: widget.kategori == 'Ev Lezzetleri'
+                            goturFiyat: _usesDeliverySplitPricing
                                 ? (_effectiveGoturPrice ?? _effectiveGelAlPrice)
                                     ?.toDouble()
                                 : null,
-                            teslimatTipi: widget.kategori == 'Ev Lezzetleri'
+                            teslimatTipi: _usesDeliverySplitPricing
                                 ? _selectedDeliveryType
                                 : 'gel_al',
                             saticiId: (widget.sellerId ?? '').trim(),
@@ -1798,18 +1807,17 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
                                   kategori: widget.kategori,
                                   img: _coverImageUrl,
                                   fiyat: _selectedUnitPrice!.toDouble(),
-                                  gelAlFiyat: widget.kategori == 'Ev Lezzetleri'
+                                  gelAlFiyat: _usesDeliverySplitPricing
                                       ? _effectiveGelAlPrice?.toDouble()
                                       : null,
-                                  goturFiyat: widget.kategori == 'Ev Lezzetleri'
+                                  goturFiyat: _usesDeliverySplitPricing
                                       ? (_effectiveGoturPrice ??
                                               _effectiveGelAlPrice)
                                           ?.toDouble()
                                       : null,
-                                  teslimatTipi:
-                                      widget.kategori == 'Ev Lezzetleri'
-                                          ? _selectedDeliveryType
-                                          : 'gel_al',
+                                  teslimatTipi: _usesDeliverySplitPricing
+                                      ? _selectedDeliveryType
+                                      : 'gel_al',
                                   saticiId: (widget.sellerId ?? '').trim(),
                                   dukkanId: (widget.sellerId ?? '').trim(),
                                 );

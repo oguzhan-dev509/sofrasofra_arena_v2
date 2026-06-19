@@ -191,7 +191,13 @@ class SepetService {
     final double deliveryDeltaAmount = isDeliveryDeltaSplit
         ? (safeGoturFiyat - safeGelAlFiyat).clamp(0, double.infinity).toDouble()
         : 0;
-
+    debugPrint(
+      'DELIVERY SPLIT DEBUG sellerType=$sellerType kategori=$kategori '
+      'teslimatTipi=$teslimatTipi fiyat=$fiyat gelAlFiyat=$gelAlFiyat '
+      'goturFiyat=$goturFiyat safeGelAl=$safeGelAlFiyat '
+      'safeGotur=$safeGoturFiyat delta=$deliveryDeltaAmount '
+      'isSplit=$isDeliveryDeltaSplit',
+    );
     final bool courierRequired =
         isDeliveryDeltaSplit && deliveryDeltaAmount > 0;
 
@@ -293,7 +299,7 @@ class SepetService {
     String? not,
     double? lat,
     double? lng,
-    String paymentMethod = 'cash',
+    String paymentMethod = 'online',
     Map<String, dynamic>? finance,
   }) async {
     final sepetRef = _firestore.collection('sepetler').doc(_cartId);
@@ -435,6 +441,7 @@ class SepetService {
       'ilce': ilce.toLowerCase().trim(),
       'not': (not ?? '').trim(),
       'paymentMethod': paymentMethod,
+      'paymentMethodLabel': 'PAYTR Güvenli Ödeme',
       'paymentStatus': 'pending',
       'saticiId': saticiId,
       'saticiAdi': dukkanAdi,
