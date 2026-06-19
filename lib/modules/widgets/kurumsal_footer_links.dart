@@ -93,6 +93,102 @@ class KurumsalFooterLinks extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 16),
+          InkWell(
+            borderRadius: BorderRadius.circular(20),
+            onTap: () => _openPage(
+              context,
+              const RadyoMerkeziSayfasi(),
+            ),
+            child: Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 14,
+              ),
+              decoration: BoxDecoration(
+                color: _gold.withValues(alpha: 0.08),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: _gold.withValues(alpha: 0.72),
+                  width: 1.2,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: _gold.withValues(alpha: 0.08),
+                    blurRadius: 18,
+                    offset: const Offset(0, 8),
+                  ),
+                ],
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    width: 46,
+                    height: 46,
+                    decoration: BoxDecoration(
+                      color: _gold.withValues(alpha: 0.14),
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: _gold.withValues(alpha: 0.55),
+                      ),
+                    ),
+                    child: const Icon(
+                      Icons.radio_rounded,
+                      color: _gold,
+                      size: 25,
+                    ),
+                  ),
+                  const SizedBox(width: 13),
+                  const Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'SOFRASOFRA RADYO',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 15,
+                            fontWeight: FontWeight.w900,
+                            letterSpacing: 0.4,
+                          ),
+                        ),
+                        SizedBox(height: 4),
+                        Text(
+                          'Programları keşfet, dinlemeye başla.',
+                          style: TextStyle(
+                            color: Colors.white70,
+                            fontSize: 12.5,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  const Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        'Dinle',
+                        style: TextStyle(
+                          color: _gold,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
+                      SizedBox(width: 4),
+                      Icon(
+                        Icons.arrow_forward_rounded,
+                        color: _gold,
+                        size: 20,
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
           _FooterGroup(
             title: 'Platform',
             items: const [
@@ -101,7 +197,6 @@ class KurumsalFooterLinks extends StatelessWidget {
               'Restoranlar',
               'Kurye Ağı',
               'Mahalle Mutfak Ağı',
-              'Sofrasofra Radyo',
               'Blog ve Rehberler',
               'Kurumsal Site',
             ],
@@ -147,10 +242,6 @@ class KurumsalFooterLinks extends StatelessWidget {
               'Blog ve Rehberler': () => _openPage(
                     context,
                     const BlogRehberlerSayfasi(),
-                  ),
-              'Sofrasofra Radyo': () => _openPage(
-                    context,
-                    const RadyoMerkeziSayfasi(),
                   ),
               'Kurumsal Site': () => _showCorporateSiteSoon(context),
             },

@@ -70,8 +70,8 @@ class SofrasofraZirve extends StatelessWidget {
           children: [
             child ?? const SizedBox.shrink(),
             const Positioned(
-              right: 0,
-              bottom: 0,
+              right: 12,
+              bottom: 12,
               child: GlobalRadioMiniPlayer(),
             ),
           ],

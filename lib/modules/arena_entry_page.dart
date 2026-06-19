@@ -11,7 +11,7 @@ import 'dart:convert';
 import 'package:sofrasofra_arena_v2/modules/kurumsal/mahalle_mutfak_kocu_basvuru_sayfasi.dart';
 import 'package:flutter/services.dart';
 import 'package:sofrasofra_arena_v2/modules/widgets/sofrasofra_ana_modul_gecisleri_section.dart';
-import 'package:sofrasofra_arena_v2/modules/radyo/sofrasofra_radyo_bolumu.dart';
+
 import 'package:sofrasofra_arena_v2/modules/restoranlar/restoran_vitrini.dart';
 import 'package:sofrasofra_arena_v2/modules/vitrinler/ev_lezzetleri_vitrini.dart';
 import 'package:sofrasofra_arena_v2/modules/vitrinler/sef_vitrini_v2.dart';
@@ -291,11 +291,6 @@ class _ArenaEntryPageState extends State<ArenaEntryPage> {
                   const SofrasofraAnaModulGecisleriSection(),
                   const SizedBox(height: 24),
                   const _CourierFounderBanner(),
-                  const SizedBox(height: 24),
-                  const SofrasofraRadyoBolumu(
-                    maxPrograms: 4,
-                    showRefreshButton: false,
-                  ),
                   const SizedBox(height: 24),
                   Container(
                     width: double.infinity,

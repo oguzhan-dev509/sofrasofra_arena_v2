@@ -39,7 +39,20 @@ class GlobalRadioMiniPlayer extends StatelessWidget {
                   return _MobileRadioButton(
                     playing: playing,
                     hasPrograms: hasPrograms,
-                    onTap: hasPrograms ? () => radio.togglePlay() : null,
+                    onTap: () async {
+                      if (hasPrograms) {
+                        await radio.togglePlay();
+                        return;
+                      }
+
+                      if (!context.mounted) return;
+
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => const RadyoMerkeziSayfasi(),
+                        ),
+                      );
+                    },
                   );
                 }
 
@@ -47,7 +60,20 @@ class GlobalRadioMiniPlayer extends StatelessWidget {
                   title: title,
                   playing: playing,
                   hasPrograms: hasPrograms,
-                  onTogglePlay: hasPrograms ? () => radio.togglePlay() : null,
+                  onTogglePlay: () async {
+                    if (hasPrograms) {
+                      await radio.togglePlay();
+                      return;
+                    }
+
+                    if (!context.mounted) return;
+
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => const RadyoMerkeziSayfasi(),
+                      ),
+                    );
+                  },
                   onOpenRadioPage: () {
                     final navigator = Navigator.maybeOf(context);
                     if (navigator == null) return;
