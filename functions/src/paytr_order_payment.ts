@@ -158,7 +158,7 @@ export const initializePaytrOrderPayment = onCall(
       const noInstallment = "1";
       const maxInstallment = "0";
       const currency = "TL";
-      const testMode = "1";
+      const testMode = "0";
       const debugOn = "1";
       const timeoutLimit = "30";
       const lang = "tr";
@@ -297,5 +297,6 @@ export const initializePaytrOrderPayment = onCall(
     }
   }
 );
+
 
 
