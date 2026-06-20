@@ -16,6 +16,35 @@ class SepetSayfasi extends StatefulWidget {
 }
 
 class _SepetSayfasiState extends State<SepetSayfasi> {
+  bool _teslimatBilgileriAcik = true;
+
+  final _sepetScrollController = ScrollController();
+
+  final _checkoutFormKey = GlobalKey<FormState>();
+
+  final _musteriAdController = TextEditingController();
+  final _musteriTelefonController = TextEditingController();
+  final _sehirController = TextEditingController(text: 'İstanbul');
+  final _ilceController = TextEditingController();
+  final _mahalleController = TextEditingController();
+  final _acikAdresController = TextEditingController();
+  final _binaDaireController = TextEditingController();
+  final _siparisNotuController = TextEditingController();
+
+  @override
+  void dispose() {
+    _sepetScrollController.dispose();
+    _musteriAdController.dispose();
+    _musteriTelefonController.dispose();
+    _sehirController.dispose();
+    _ilceController.dispose();
+    _mahalleController.dispose();
+    _acikAdresController.dispose();
+    _binaDaireController.dispose();
+    _siparisNotuController.dispose();
+    super.dispose();
+  }
+
   String get _cartId {
     final user = FirebaseAuth.instance.currentUser;
 
@@ -240,13 +269,26 @@ class _SepetSayfasiState extends State<SepetSayfasi> {
   ) async {
     if (_siparisOlusturuluyor || docs.isEmpty) return;
 
+    final totals = _buildCartTotals(docs);
+
+    final formValid = _checkoutFormKey.currentState?.validate() ?? false;
+
+    if (!formValid) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Lütfen müşteri ve teslimat bilgilerini eksiksiz doldurun.',
+          ),
+        ),
+      );
+      return;
+    }
+
     setState(() {
       _siparisOlusturuluyor = true;
     });
 
     try {
-      final totals = _buildCartTotals(docs);
-
       final financeProductTotal = _baseFoodTotalFromCartDocs(docs);
       final financeDeliveryFee = _deliveryDeltaTotalFromCartDocs(docs);
 
@@ -282,15 +324,25 @@ class _SepetSayfasiState extends State<SepetSayfasi> {
       debugPrint('Platform: ${finance.platformTotalRevenue}');
       debugPrint('=============================');
 
+      final gelAlSiparisi = totals.gelAlSiparisi;
+
+      final teslimatAdresi = gelAlSiparisi
+          ? 'Gel-Al'
+          : [
+              _mahalleController.text.trim(),
+              _acikAdresController.text.trim(),
+              _binaDaireController.text.trim(),
+            ].where((value) => value.isNotEmpty).join(', ');
+
       final orderId = await SepetService.siparisiTamamla(
-        musteriAd: 'Mehmet',
-        musteriTelefon: '0555 555 55 55',
-        teslimatAdresi: 'Kadıköy / İstanbul',
-        sehir: 'istanbul',
-        ilce: 'kadikoy',
-        not: 'Sepet ekranından oluşturuldu',
-        lat: 40.991,
-        lng: 29.028,
+        musteriAd: _musteriAdController.text.trim(),
+        musteriTelefon: _musteriTelefonController.text.trim(),
+        teslimatAdresi: teslimatAdresi,
+        sehir: gelAlSiparisi ? '' : _sehirController.text.trim(),
+        ilce: gelAlSiparisi ? '' : _ilceController.text.trim(),
+        not: _siparisNotuController.text.trim(),
+        lat: null,
+        lng: null,
         finance: finance.toMap(),
       );
 
@@ -697,6 +749,146 @@ class _SepetSayfasiState extends State<SepetSayfasi> {
     );
   }
 
+  Widget _checkoutTextField({
+    required TextEditingController controller,
+    required String label,
+    required IconData icon,
+    bool requiredField = true,
+    TextInputType? keyboardType,
+    int maxLines = 1,
+  }) {
+    return TextFormField(
+      controller: controller,
+      keyboardType: keyboardType,
+      maxLines: maxLines,
+      style: const TextStyle(
+        color: _textPrimary,
+        fontWeight: FontWeight.w700,
+      ),
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: const TextStyle(color: _textMuted),
+        prefixIcon: Icon(icon, color: _gold),
+        filled: true,
+        fillColor: _bg,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: const BorderSide(color: _border),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: const BorderSide(color: _border),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: const BorderSide(color: _gold, width: 1.4),
+        ),
+      ),
+      validator: (value) {
+        if (!requiredField) return null;
+
+        if (value == null || value.trim().isEmpty) {
+          return '$label alanını doldurun.';
+        }
+
+        return null;
+      },
+    );
+  }
+
+  Widget _buildCheckoutForm({
+    required bool gelAlSiparisi,
+  }) {
+    return Form(
+      key: _checkoutFormKey,
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(14),
+        decoration: _cardDecoration(),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              gelAlSiparisi
+                  ? 'Sipariş İletişim Bilgileri'
+                  : 'Teslimat Bilgileri',
+              style: const TextStyle(
+                color: _textPrimary,
+                fontSize: 16,
+                fontWeight: FontWeight.w900,
+              ),
+            ),
+            const SizedBox(height: 7),
+            Text(
+              gelAlSiparisi
+                  ? 'Siparişiniz hazır olduğunda sizinle iletişime geçilebilmesi için bilgilerinizi girin.'
+                  : 'Siparişin doğru adrese ulaştırılabilmesi için bilgileri eksiksiz girin.',
+              style: const TextStyle(
+                color: _textMuted,
+                fontSize: 12.5,
+                height: 1.4,
+              ),
+            ),
+            const SizedBox(height: 14),
+            _checkoutTextField(
+              controller: _musteriAdController,
+              label: 'Ad Soyad',
+              icon: Icons.person_outline,
+            ),
+            const SizedBox(height: 12),
+            _checkoutTextField(
+              controller: _musteriTelefonController,
+              label: 'Telefon',
+              icon: Icons.phone_outlined,
+              keyboardType: TextInputType.phone,
+            ),
+            if (!gelAlSiparisi) ...[
+              const SizedBox(height: 12),
+              _checkoutTextField(
+                controller: _sehirController,
+                label: 'Şehir',
+                icon: Icons.location_city_outlined,
+              ),
+              const SizedBox(height: 12),
+              _checkoutTextField(
+                controller: _ilceController,
+                label: 'İlçe',
+                icon: Icons.map_outlined,
+              ),
+              const SizedBox(height: 12),
+              _checkoutTextField(
+                controller: _mahalleController,
+                label: 'Mahalle',
+                icon: Icons.home_work_outlined,
+              ),
+              const SizedBox(height: 12),
+              _checkoutTextField(
+                controller: _acikAdresController,
+                label: 'Açık Adres',
+                icon: Icons.location_on_outlined,
+                maxLines: 2,
+              ),
+              const SizedBox(height: 12),
+              _checkoutTextField(
+                controller: _binaDaireController,
+                label: 'Bina / Kat / Daire',
+                icon: Icons.apartment_outlined,
+              ),
+            ],
+            const SizedBox(height: 12),
+            _checkoutTextField(
+              controller: _siparisNotuController,
+              label: 'Sipariş Notu',
+              icon: Icons.notes_outlined,
+              requiredField: false,
+              maxLines: 2,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -924,8 +1116,75 @@ class _SepetSayfasiState extends State<SepetSayfasi> {
               Expanded(
                 child: ListView.builder(
                   padding: const EdgeInsets.fromLTRB(12, 4, 12, 12),
-                  itemCount: docs.length,
+                  itemCount: docs.length + 1,
                   itemBuilder: (context, index) {
+                    if (index == docs.length) {
+                      final gelAlSiparisi = totals.gelAlSiparisi;
+
+                      return Padding(
+                        padding: const EdgeInsets.only(top: 4, bottom: 14),
+                        child: Container(
+                          decoration: _cardDecoration(),
+                          child: ExpansionTile(
+                            initiallyExpanded: _teslimatBilgileriAcik,
+                            maintainState: true,
+                            onExpansionChanged: (value) {
+                              setState(() {
+                                _teslimatBilgileriAcik = value;
+                              });
+                            },
+                            tilePadding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 6,
+                            ),
+                            childrenPadding:
+                                const EdgeInsets.fromLTRB(12, 0, 12, 14),
+                            leading: Container(
+                              padding: const EdgeInsets.all(9),
+                              decoration: BoxDecoration(
+                                color: _chipBg,
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(color: _border),
+                              ),
+                              child: Icon(
+                                gelAlSiparisi
+                                    ? Icons.person_outline
+                                    : Icons.location_on_outlined,
+                                color: _gold,
+                              ),
+                            ),
+                            title: Text(
+                              gelAlSiparisi
+                                  ? 'İletişim Bilgileri'
+                                  : 'Teslimat Bilgileri',
+                              style: const TextStyle(
+                                color: _textPrimary,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w900,
+                              ),
+                            ),
+                            subtitle: Text(
+                              gelAlSiparisi
+                                  ? 'Ad ve telefon bilgilerinizi girin'
+                                  : 'Ad, telefon ve teslimat adresinizi girin',
+                              style: const TextStyle(
+                                color: _textMuted,
+                                fontSize: 12.5,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            iconColor: _gold,
+                            collapsedIconColor: _gold,
+                            children: [
+                              _buildCheckoutForm(
+                                gelAlSiparisi: gelAlSiparisi,
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    }
+
                     final item = docs[index].data();
 
                     final urunId = _readString(
@@ -1143,7 +1402,7 @@ class _SepetSayfasiState extends State<SepetSayfasi> {
                 ),
               ),
               Container(
-                padding: const EdgeInsets.fromLTRB(14, 10, 14, 18),
+                padding: const EdgeInsets.fromLTRB(14, 6, 14, 10),
                 decoration: const BoxDecoration(
                   color: _panel,
                   borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
@@ -1157,70 +1416,16 @@ class _SepetSayfasiState extends State<SepetSayfasi> {
                 ),
                 child: SafeArea(
                   top: false,
-                  minimum: const EdgeInsets.only(bottom: 34),
+                  minimum: const EdgeInsets.only(bottom: 18),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Container(
                         width: double.infinity,
-                        padding: const EdgeInsets.all(14),
+                        padding: const EdgeInsets.all(10),
                         decoration: _cardDecoration(),
                         child: Column(
-                          children: [
-                            _ozetSatiri(
-                              'Ara Toplam',
-                              _price(
-                                (totals.araToplam -
-                                        _courierNetFromCartDocs(docs))
-                                    .clamp(0, double.infinity)
-                                    .toDouble(),
-                              ),
-                              valueColor: _textPrimary,
-                            ),
-                            const SizedBox(height: 10),
-                            _ozetSatiri(
-                              'Teslimat Ücreti',
-                              _price(_courierNetFromCartDocs(docs)),
-                              valueColor: _textMuted,
-                            ),
-                            const Padding(
-                              padding: EdgeInsets.symmetric(vertical: 12),
-                              child: Divider(
-                                color: _border,
-                                height: 1,
-                              ),
-                            ),
-                            _ozetSatiri(
-                              'Sofrasofra Komisyonu (%${(finance.producerCommissionRate * 100).toStringAsFixed(0)})',
-                              _price(finance.producerCommissionAmount),
-                              valueColor: _textMuted,
-                            ),
-                            const SizedBox(height: 10),
-                            _ozetSatiri(
-                              'PAYTR İşlem Maliyeti (%1,99)',
-                              _price(finance.paymentProcessingFee),
-                              valueColor: _textMuted,
-                            ),
-                            const SizedBox(height: 10),
-                            _ozetSatiri(
-                              netEarningsLabel,
-                              _price(finance.producerNetAmount),
-                              valueColor: _textMuted,
-                            ),
-                            const Padding(
-                              padding: EdgeInsets.symmetric(vertical: 12),
-                              child: Divider(
-                                color: _border,
-                                height: 1,
-                              ),
-                            ),
-                            _ozetSatiri(
-                              'Genel Toplam',
-                              _price(finance.customerTotalPayment),
-                              isStrong: true,
-                              valueColor: _gold,
-                            ),
-                          ],
+                          children: [],
                         ),
                       ),
                       const SizedBox(height: 14),
