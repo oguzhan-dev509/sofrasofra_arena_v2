@@ -13,7 +13,7 @@ import 'package:sofrasofra_arena_v2/merchant/urun_ekleme_sayfasi.dart';
 import 'package:sofrasofra_arena_v2/modules/chef_table_reservations_page.dart';
 import 'package:sofrasofra_arena_v2/modules/sef_akademi_dersleri.dart';
 import 'package:sofrasofra_arena_v2/modules/sef_itibar_sayfasi.dart';
-
+import 'package:sofrasofra_arena_v2/modules/widgets/seller_addon_management_page.dart';
 import 'package:sofrasofra_arena_v2/dev/academy_master_runner.dart';
 import 'package:sofrasofra_arena_v2/admin/consulting_requests_admin_page.dart';
 import 'package:sofrasofra_arena_v2/modules/chef_brand_career_page.dart';
@@ -30,6 +30,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:sofrasofra_arena_v2/admin/usta_sef_yonetimi_sayfasi.dart';
 import 'package:sofrasofra_arena_v2/admin/radyo_admin_sayfasi.dart';
 import 'package:sofrasofra_arena_v2/admin/blog_admin_sayfasi.dart';
+import 'package:sofrasofra_arena_v2/modules/widgets/seller_addon_store_selector_page.dart';
 
 class GastronomiYonetimMerkezi extends StatelessWidget {
   final String? chefId;
@@ -212,16 +213,25 @@ class GastronomiYonetimMerkezi extends StatelessWidget {
     _open(context, const UreticiYonetimMerkeziSayfasi());
   }
 
-  void _openEvOrders(BuildContext context) {
-    final currentSellerId = _currentSellerId;
-    if (currentSellerId.isEmpty) {
-      _showNeedSeller(context, 'Ev Siparişleri');
+  void _openSellerAddons(BuildContext context) {
+    final currentSellerId = (sellerId ?? '').trim();
+
+    if (currentSellerId.isNotEmpty) {
+      _open(
+        context,
+        SellerAddonManagementPage(
+          sellerId: currentSellerId,
+          title: sellerName?.trim().isNotEmpty == true
+              ? '${sellerName!.trim()} Yan Ürünleri'
+              : 'Ev Lezzetleri Yan Ürünleri',
+        ),
+      );
       return;
     }
 
     _open(
       context,
-      EvOrdersSayfasi(sellerId: currentSellerId),
+      const SellerAddonStoreSelectorPage(),
     );
   }
 
@@ -259,6 +269,22 @@ class GastronomiYonetimMerkezi extends StatelessWidget {
       _PlaceholderPage(
         title: title,
         description: description,
+      ),
+    );
+  }
+
+  void _openEvOrders(BuildContext context) {
+    final currentSellerId = _currentSellerId;
+
+    if (currentSellerId.isEmpty) {
+      _showNeedSeller(context, 'Ev Siparişleri');
+      return;
+    }
+
+    _open(
+      context,
+      EvOrdersSayfasi(
+        sellerId: currentSellerId,
       ),
     );
   }
@@ -513,6 +539,13 @@ class GastronomiYonetimMerkezi extends StatelessWidget {
             'Yeni ev ürünü ekleme, fiyat ve içerik yönetimi için hızlı giriş.',
         icon: Icons.add_box_rounded,
         onTap: () => _openProductAdd(context),
+      ),
+      _DashboardItem(
+        title: 'Yan Ürünler Yönetimi',
+        subtitle:
+            'İçecek, tatlı ve ekstra ürünleri ekleyin; fiyat, stok ve görünürlük durumunu yönetin.',
+        icon: Icons.add_shopping_cart_rounded,
+        onTap: () => _openSellerAddons(context),
       ),
       _DashboardItem(
         title: 'Ev Siparişleri',

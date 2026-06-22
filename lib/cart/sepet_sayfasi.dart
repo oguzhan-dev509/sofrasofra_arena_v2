@@ -494,8 +494,8 @@ class _SepetSayfasiState extends State<SepetSayfasi> {
       );
 
       final baseFoodAmount = _asDouble(
-        data['baseFoodAmount'] ??
-            data['restaurantGrossFoodAmount'] ??
+        data['restaurantGrossFoodAmount'] ??
+            data['baseFoodAmount'] ??
             unitPrice,
       );
 

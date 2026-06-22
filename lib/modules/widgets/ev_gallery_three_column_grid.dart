@@ -11,6 +11,8 @@ class EvGalleryThreeColumnGrid extends StatelessWidget {
     required this.productId,
     required this.sellerId,
     required this.dukkanAdi,
+    this.selectedAddons = const <Map<String, dynamic>>[],
+    this.addonsTotal = 0,
     required this.onSelected,
   });
 
@@ -21,6 +23,8 @@ class EvGalleryThreeColumnGrid extends StatelessWidget {
   final String productId;
   final String sellerId;
   final String dukkanAdi;
+  final List<Map<String, dynamic>> selectedAddons;
+  final num addonsTotal;
   final ValueChanged<int> onSelected;
 
   static const Color _gold = Color(0xFFFFB300);
@@ -295,6 +299,8 @@ class EvGalleryThreeColumnGrid extends StatelessWidget {
                                 sellerId: sellerId,
                                 dukkanAdi: dukkanAdi,
                                 imageUrl: imageUrl,
+                                selectedAddons: selectedAddons,
+                                addonsTotal: addonsTotal,
                                 isAdmin: false,
                               ),
                             ),

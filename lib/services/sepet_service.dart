@@ -176,10 +176,14 @@ class SepetService {
       SetOptions(merge: true),
     );
 
-    final effectivePrice =
+    final double selectedDeliveryPrice =
         teslimatTipi == 'gotur' ? (goturFiyat ?? fiyat) : (gelAlFiyat ?? fiyat);
-    final double safeGelAlFiyat = gelAlFiyat ?? fiyat;
-    final double safeGoturFiyat = goturFiyat ?? fiyat;
+
+    final double effectivePrice =
+        addonsTotal > 0 ? fiyat : selectedDeliveryPrice;
+
+    final double safeGelAlFiyat = gelAlFiyat ?? selectedDeliveryPrice;
+    final double safeGoturFiyat = goturFiyat ?? selectedDeliveryPrice;
 
     final bool supportsDeliveryDeltaSplit = sellerType == 'restaurant' ||
         sellerType == 'ev_lezzetleri' ||
@@ -191,6 +195,15 @@ class SepetService {
     final double deliveryDeltaAmount = isDeliveryDeltaSplit
         ? (safeGoturFiyat - safeGelAlFiyat).clamp(0, double.infinity).toDouble()
         : 0;
+
+    debugPrint(
+      'EFFECTIVE PRICE DEBUG '
+      'incomingFiyat=$fiyat '
+      'selectedDeliveryPrice=$selectedDeliveryPrice '
+      'addonsTotal=$addonsTotal '
+      'effectivePrice=$effectivePrice',
+    );
+
     debugPrint(
       'DELIVERY SPLIT DEBUG sellerType=$sellerType kategori=$kategori '
       'teslimatTipi=$teslimatTipi fiyat=$fiyat gelAlFiyat=$gelAlFiyat '
@@ -198,9 +211,9 @@ class SepetService {
       'safeGotur=$safeGoturFiyat delta=$deliveryDeltaAmount '
       'isSplit=$isDeliveryDeltaSplit',
     );
+
     final bool courierRequired =
         isDeliveryDeltaSplit && deliveryDeltaAmount > 0;
-
     final double sellerBaseFoodAmount =
         isDeliveryDeltaSplit ? safeGelAlFiyat : effectivePrice;
 

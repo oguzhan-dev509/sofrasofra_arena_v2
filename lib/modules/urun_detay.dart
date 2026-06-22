@@ -14,6 +14,7 @@ import 'package:sofrasofra_arena_v2/modules/widgets/ev_gallery_sales_bridge.dart
 import 'package:sofrasofra_arena_v2/modules/fullscreen_gallery.dart';
 import 'package:sofrasofra_arena_v2/modules/widgets/urun_detay_media_admin_panel.dart';
 import 'package:sofrasofra_arena_v2/services/platform_admin_service.dart';
+import 'package:sofrasofra_arena_v2/modules/widgets/seller_addon_picker.dart';
 
 class UrunDetaySayfasi extends StatefulWidget {
   final String urunAdi;
@@ -65,6 +66,9 @@ String _liveChefNote = '';
 class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
   bool _isPlatformAdmin = false;
 
+  List<Map<String, dynamic>> _selectedAddons = <Map<String, dynamic>>[];
+  num _addonsTotal = 0;
+
   int adet = 1;
   int _selectedGalleryIndex = 0;
   bool _mediaBusy = false;
@@ -77,18 +81,13 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
 
   int _hoveredIndex = -1;
   String _selectedDeliveryType = 'gel_al';
-  Widget _priceMiniBox({
-    required String title,
-    required String price,
-  }) {
+  Widget _priceMiniBox({required String title, required String price}) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
       decoration: BoxDecoration(
         color: const Color(0xFF171717),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: _gold.withValues(alpha: 0.28),
-        ),
+        border: Border.all(color: _gold.withValues(alpha: 0.28)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -141,9 +140,9 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
     final productId = (widget.productId ?? '').trim();
 
     if (productId.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Ürün ID bulunamadı.')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Ürün ID bulunamadı.')));
       return;
     }
 
@@ -178,10 +177,7 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
               backgroundColor: const Color(0xFF111111),
               title: const Text(
                 'Günlük Durum / Üretici Notu',
-                style: TextStyle(
-                  color: _gold,
-                  fontWeight: FontWeight.w900,
-                ),
+                style: TextStyle(color: _gold, fontWeight: FontWeight.w900),
               ),
               content: SingleChildScrollView(
                 child: Column(
@@ -290,11 +286,13 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
   List<String> get _galleryImageUrls {
     return _liveImages
         .map((e) => e.toString().trim())
-        .where((e) =>
-            e.isNotEmpty &&
-            isHttpUrl(e) &&
-            !e.contains('/cover/') &&
-            !e.contains('%2Fcover%2F'))
+        .where(
+          (e) =>
+              e.isNotEmpty &&
+              isHttpUrl(e) &&
+              !e.contains('/cover/') &&
+              !e.contains('%2Fcover%2F'),
+        )
         .toSet()
         .toList();
   }
@@ -309,9 +307,7 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
     }
 
     if (_effectiveImages.isNotEmpty) {
-      result.addAll(
-        _effectiveImages.where((e) => e != cover),
-      );
+      result.addAll(_effectiveImages.where((e) => e != cover));
     }
 
     return result;
@@ -321,9 +317,9 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
     final productId = (widget.productId ?? '').trim();
 
     if (productId.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Ürün ID bulunamadı.')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Ürün ID bulunamadı.')));
       return;
     }
 
@@ -334,9 +330,7 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
     final goturController = TextEditingController(
       text: _effectiveGoturPrice?.toStringAsFixed(0) ?? '',
     );
-    final aciklamaController = TextEditingController(
-      text: '',
-    );
+    final aciklamaController = TextEditingController(text: '');
     await showDialog(
       context: context,
       builder: (dialogContext) {
@@ -344,10 +338,7 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
           backgroundColor: const Color(0xFF111111),
           title: const Text(
             'Fiyat Yönetimi',
-            style: TextStyle(
-              color: _gold,
-              fontWeight: FontWeight.w900,
-            ),
+            style: TextStyle(color: _gold, fontWeight: FontWeight.w900),
           ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
@@ -496,6 +487,12 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
         kategoriKey.contains('imza');
   }
 
+  bool get _isEvLezzetleri {
+    final kategoriKey = widget.kategori.toLowerCase().trim();
+
+    return kategoriKey.contains('ev lezzet');
+  }
+
   String get _selectedUnitPriceText => _priceText(_selectedUnitPrice);
 
   String get _selectedDeliveryLabel {
@@ -532,11 +529,13 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
   List<String> get _galleryOnlyImages {
     return _effectiveImages
         .map((e) => e.toString().trim())
-        .where((e) =>
-            e.isNotEmpty &&
-            isHttpUrl(e) &&
-            !e.contains('/cover/') &&
-            !e.contains('%2Fcover%2F'))
+        .where(
+          (e) =>
+              e.isNotEmpty &&
+              isHttpUrl(e) &&
+              !e.contains('/cover/') &&
+              !e.contains('%2Fcover%2F'),
+        )
         .toSet()
         .toList();
   }
@@ -571,21 +570,16 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
 
     try {
       final uri = Uri.parse(url);
-      final opened = await launchUrl(
-        uri,
-        mode: LaunchMode.externalApplication,
-      );
+      final opened = await launchUrl(uri, mode: LaunchMode.externalApplication);
 
       if (!opened) {
         throw 'Açılamadı';
       }
     } catch (_) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('YouTube linki açılamadı'),
-        ),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('YouTube linki açılamadı')));
     }
   }
 
@@ -599,9 +593,9 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
 
     if (productId.isEmpty) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('productId eksik.')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('productId eksik.')));
       return;
     }
 
@@ -617,13 +611,10 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
         bytes: bytes,
       );
 
-      await FirebaseFirestore.instance
-          .collection('urunler')
-          .doc(productId)
-          .set({
-        'img': url.trim(),
-        'updatedAt': FieldValue.serverTimestamp(),
-      }, SetOptions(merge: true));
+      await FirebaseFirestore.instance.collection('urunler').doc(productId).set(
+        {'img': url.trim(), 'updatedAt': FieldValue.serverTimestamp()},
+        SetOptions(merge: true),
+      );
 
       if (!mounted) return;
 
@@ -637,9 +628,9 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
       );
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Kapak güncellenemedi: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Kapak güncellenemedi: $e')));
     } finally {
       if (mounted) {
         setState(() => _mediaBusy = false);
@@ -654,9 +645,9 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
 
     if (productId.isEmpty) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('productId eksik.')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('productId eksik.')));
       return;
     }
 
@@ -665,13 +656,10 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
     try {
       final oldCoverUrl = _liveFallbackImage.trim();
 
-      await FirebaseFirestore.instance
-          .collection('urunler')
-          .doc(productId)
-          .set({
-        'img': '',
-        'updatedAt': FieldValue.serverTimestamp(),
-      }, SetOptions(merge: true));
+      await FirebaseFirestore.instance.collection('urunler').doc(productId).set(
+        {'img': '', 'updatedAt': FieldValue.serverTimestamp()},
+        SetOptions(merge: true),
+      );
 
       await EvGalleryManager.deleteStorageByUrl(oldCoverUrl);
 
@@ -682,14 +670,14 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
         _selectedGalleryIndex = 0;
       });
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Kapak görseli silindi.')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Kapak görseli silindi.')));
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Kapak silinemedi: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Kapak silinemedi: $e')));
     } finally {
       if (mounted) {
         setState(() => _mediaBusy = false);
@@ -747,9 +735,9 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
       );
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Fotoğraf eklenemedi: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Fotoğraf eklenemedi: $e')));
     } finally {
       if (mounted) {
         setState(() => _mediaBusy = false);
@@ -792,14 +780,14 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
         _selectedGalleryIndex = 0;
       });
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Görsel silindi.')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Görsel silindi.')));
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Görsel silinemedi: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Görsel silinemedi: $e')));
     } finally {
       if (mounted) {
         setState(() => _mediaBusy = false);
@@ -845,9 +833,9 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
       );
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Kapak güncellenemedi: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Kapak güncellenemedi: $e')));
     } finally {
       if (mounted) {
         setState(() => _mediaBusy = false);
@@ -891,8 +879,9 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
                 );
 
                 _liveFallbackImage = liveFallback;
-                _liveGelAlFiyat =
-                    _parsePrice(liveData['gelAlFiyat'] ?? liveData['fiyat']);
+                _liveGelAlFiyat = _parsePrice(
+                  liveData['gelAlFiyat'] ?? liveData['fiyat'],
+                );
                 _liveGoturFiyat = _parsePrice(liveData['goturFiyat']);
 
                 if (_effectiveImages.isEmpty) {
@@ -1019,9 +1008,7 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
         decoration: BoxDecoration(
           color: const Color(0xFF111111),
           borderRadius: BorderRadius.circular(18),
-          border: Border.all(
-            color: _gold.withValues(alpha: 0.34),
-          ),
+          border: Border.all(color: _gold.withValues(alpha: 0.34)),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.20),
@@ -1032,11 +1019,7 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
         ),
         child: const Row(
           children: [
-            Icon(
-              Icons.trending_up_rounded,
-              color: _gold,
-              size: 22,
-            ),
+            Icon(Icons.trending_up_rounded, color: _gold, size: 22),
             SizedBox(width: 12),
             Expanded(
               child: Column(
@@ -1063,11 +1046,7 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
                 ],
               ),
             ),
-            Icon(
-              Icons.keyboard_arrow_up_rounded,
-              color: _gold,
-              size: 22,
-            ),
+            Icon(Icons.keyboard_arrow_up_rounded, color: _gold, size: 22),
           ],
         ),
       ),
@@ -1082,18 +1061,12 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
           backgroundColor: const Color(0xFF111111),
           title: const Text(
             'Sepetinde başka bir mutfak var',
-            style: TextStyle(
-              color: _gold,
-              fontWeight: FontWeight.w900,
-            ),
+            style: TextStyle(color: _gold, fontWeight: FontWeight.w900),
           ),
           content: const Text(
             'Aynı anda yalnızca tek mutfaktan sipariş verebilirsin.\n\n'
             'Devam etmek için mevcut sepeti temizleyelim mi?',
-            style: TextStyle(
-              color: Colors.white70,
-              height: 1.45,
-            ),
+            style: TextStyle(color: Colors.white70, height: 1.45),
           ),
           actions: [
             TextButton(
@@ -1149,18 +1122,12 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
           backgroundColor: const Color(0xFF111111),
           title: const Text(
             'Sepetinde başka bir mutfak var',
-            style: TextStyle(
-              color: _gold,
-              fontWeight: FontWeight.w900,
-            ),
+            style: TextStyle(color: _gold, fontWeight: FontWeight.w900),
           ),
           content: const Text(
             'Aynı anda yalnızca tek mutfaktan sipariş verebilirsin. '
             'Devam etmek için mevcut sepeti temizleyelim mi?',
-            style: TextStyle(
-              color: Colors.white70,
-              height: 1.45,
-            ),
+            style: TextStyle(color: Colors.white70, height: 1.45),
           ),
           actions: [
             TextButton(
@@ -1200,10 +1167,7 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
             background: Stack(
               fit: StackFit.expand,
               children: [
-                Container(
-                  color: Colors.black,
-                  child: _buildHeroImage(),
-                ),
+                Container(color: Colors.black, child: _buildHeroImage()),
                 Container(
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
@@ -1226,9 +1190,7 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
           child: Container(
             decoration: const BoxDecoration(
               color: _bg,
-              borderRadius: BorderRadius.vertical(
-                top: Radius.circular(28),
-              ),
+              borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
             ),
             child: Padding(
               padding: const EdgeInsets.fromLTRB(20, 18, 20, 140),
@@ -1302,6 +1264,34 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
                   ],
                   _buildQuantityCard(),
                   const SizedBox(height: 18),
+                  if (_isEvLezzetleri) ...[
+                    Builder(
+                      builder: (context) {
+                        debugPrint(
+                          'EV ADDON DEBUG kategori=${widget.kategori} '
+                          'sellerId=${widget.sellerId} '
+                          'isEv=$_isEvLezzetleri',
+                        );
+
+                        return SellerAddonPicker(
+                          sellerId: (widget.sellerId ?? '').trim(),
+                          onSelectionChanged: (addons, total) {
+                            debugPrint(
+                              'EV ADDON STATE DEBUG '
+                              'addons=${addons.length} '
+                              'total=$total '
+                              'data=$addons',
+                            );
+
+                            setState(() {
+                              _selectedAddons = addons;
+                              _addonsTotal = total;
+                            });
+                          },
+                        );
+                      },
+                    ),
+                  ],
                   _buildDescriptionCard(),
                   const SizedBox(height: 18),
                   ProductReviewsSection(
@@ -1386,6 +1376,8 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
             productId: (widget.productId ?? '').trim(),
             sellerId: (widget.sellerId ?? '').trim(),
             dukkanAdi: widget.dukkanAdi,
+            selectedAddons: _selectedAddons,
+            addonsTotal: _addonsTotal,
             onSelected: (index) {
               setState(() {
                 _selectedGalleryIndex = index;
@@ -1653,11 +1645,7 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
           borderRadius: BorderRadius.circular(14),
           border: Border.all(color: _border),
         ),
-        child: Icon(
-          icon,
-          color: _gold,
-          size: 20,
-        ),
+        child: Icon(icon, color: _gold, size: 20),
       ),
     );
   }
@@ -1668,9 +1656,7 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
       decoration: const BoxDecoration(
         color: Color(0xFF0E0E0E),
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-        border: Border(
-          top: BorderSide(color: _border),
-        ),
+        border: Border(top: BorderSide(color: _border)),
         boxShadow: [
           BoxShadow(
             color: Color(0x66000000),
@@ -1718,8 +1704,9 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
                         if (_selectedUnitPrice == null) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
-                              content:
-                                  Text('Bu ürün için fiyat tanımlı değil.'),
+                              content: Text(
+                                'Bu ürün için fiyat tanımlı değil.',
+                              ),
                               backgroundColor: Colors.redAccent,
                             ),
                           );
@@ -1732,7 +1719,8 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
                               content: Text(
-                                  'Ürün ID bulunamadı. Sepete eklenemedi.'),
+                                'Ürün ID bulunamadı. Sepete eklenemedi.',
+                              ),
                               backgroundColor: Colors.redAccent,
                             ),
                           );
@@ -1776,7 +1764,8 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
                             ),
                           );
                           await Future<void>.delayed(
-                              const Duration(milliseconds: 650));
+                            const Duration(milliseconds: 650),
+                          );
 
                           if (!mounted) return;
 
@@ -1984,11 +1973,7 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
             borderRadius: BorderRadius.circular(13),
             border: Border.all(color: _border),
           ),
-          child: Icon(
-            icon,
-            color: _gold,
-            size: 18,
-          ),
+          child: Icon(icon, color: _gold, size: 18),
         ),
         const SizedBox(width: 12),
         Expanded(

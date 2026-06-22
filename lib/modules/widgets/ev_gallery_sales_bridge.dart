@@ -262,6 +262,8 @@ class EvGallerySalesActions extends StatelessWidget {
   final String sellerId;
   final String dukkanAdi;
   final String imageUrl;
+  final List<Map<String, dynamic>> selectedAddons;
+  final num addonsTotal;
   final bool isAdmin;
 
   const EvGallerySalesActions({
@@ -270,6 +272,8 @@ class EvGallerySalesActions extends StatelessWidget {
     required this.sellerId,
     required this.dukkanAdi,
     required this.imageUrl,
+    this.selectedAddons = const <Map<String, dynamic>>[],
+    this.addonsTotal = 0,
     this.isAdmin = false,
   });
 
@@ -557,27 +561,58 @@ class EvGallerySalesActions extends StatelessWidget {
                                 return;
                               }
 
+                              final safeAddonsTotal = addonsTotal > 0
+                                  ? addonsTotal.toDouble()
+                                  : 0.0;
+
+                              final cartPrice = selectedPrice + safeAddonsTotal;
+
+                              final addonSignature = selectedAddons.isEmpty
+                                  ? 'no_addons'
+                                  : selectedAddons.map((addon) {
+                                      final addonId = (addon['addonId'] ?? '')
+                                          .toString()
+                                          .trim();
+                                      final quantity = addon['quantity'] ?? 0;
+
+                                      return '${addonId}_$quantity';
+                                    }).join('_');
+
+                              debugPrint(
+                                'EV ADDON CART DEBUG '
+                                'selectedPrice=$selectedPrice '
+                                'addonsTotal=$safeAddonsTotal '
+                                'cartPrice=$cartPrice '
+                                'addons=${selectedAddons.length} '
+                                'signature=$addonSignature',
+                              );
+
                               await SepetService.sepeteEkle(
-                                urunId: '${ref.id}_$selectedTip',
+                                urunId:
+                                    '${ref.id}_${selectedTip}_$addonSignature',
                                 urunAdi:
                                     title.isEmpty ? 'Ev Galeri Ürünü' : title,
                                 dukkanAdi: dukkanAdi,
                                 kategori: 'Ev Lezzetleri',
                                 img: imageUrl,
-                                fiyat: selectedPrice,
+
+                                // Müşterinin ödeyeceği ana ürün + yan ürün toplamı.
+                                fiyat: cartPrice,
+
+                                // Gel-Al/Götür temel fiyatlarını değiştirmiyoruz.
+                                // Kurye farkının doğru kalması için yan ürün yalnızca addonsTotal ile taşınır.
                                 gelAlFiyat: gelAlFinalPrice,
                                 goturFiyat: goturFinalPrice,
                                 teslimatTipi: selectedTip,
 
-                                // Ev Galeri’de görünen fiyat nihai müşteri fiyatıdır.
-                                // Sepet/ödeme tekrar teslimat veya işlem ücreti bindirmemeli.
                                 deliveryIncludedInPrice: true,
                                 feeIncludedInPrice: true,
 
                                 saticiId: sellerId,
                                 dukkanId: sellerId,
+                                selectedAddons: selectedAddons,
+                                addonsTotal: safeAddonsTotal,
                               );
-
                               if (!context.mounted) return;
 
                               ScaffoldMessenger.of(context).showSnackBar(
