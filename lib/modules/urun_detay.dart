@@ -15,6 +15,7 @@ import 'package:sofrasofra_arena_v2/modules/fullscreen_gallery.dart';
 import 'package:sofrasofra_arena_v2/modules/widgets/urun_detay_media_admin_panel.dart';
 import 'package:sofrasofra_arena_v2/services/platform_admin_service.dart';
 import 'package:sofrasofra_arena_v2/modules/widgets/seller_addon_picker.dart';
+import 'package:sofrasofra_arena_v2/merchant/ev_fisler_sayfasi.dart';
 
 class UrunDetaySayfasi extends StatefulWidget {
   final String urunAdi;
@@ -65,7 +66,7 @@ String _liveChefNote = '';
 
 class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
   bool _isPlatformAdmin = false;
-
+  bool _canViewSellerReceipts = false;
   List<Map<String, dynamic>> _selectedAddons = <Map<String, dynamic>>[];
   num _addonsTotal = 0;
 
@@ -552,6 +553,7 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
     super.initState();
 
     _loadPlatformAdminRole();
+    _loadSellerReceiptAccess();
 
     _liveImages = EvGalleryManager.normalizeImages(
       images: widget.urunGorseller,
@@ -561,6 +563,72 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
 
     if (!_hasGelAlPrice && _hasGoturPrice) {
       _selectedDeliveryType = 'gotur';
+    }
+  }
+
+  Future<void> _loadSellerReceiptAccess() async {
+    final uid = (FirebaseAuth.instance.currentUser?.uid ?? '').trim();
+    final operationalSellerId = (widget.sellerId ?? '').trim();
+
+    if (uid.isEmpty || operationalSellerId.isEmpty) {
+      if (!mounted) return;
+
+      setState(() {
+        _canViewSellerReceipts = false;
+      });
+      return;
+    }
+
+    try {
+      final isPlatformAdmin =
+          await PlatformAdminService.isCurrentUserPlatformAdmin();
+
+      bool isSellerOwner = false;
+
+      final sellerDoc =
+          await FirebaseFirestore.instance.collection('sellers').doc(uid).get();
+
+      if (sellerDoc.exists) {
+        final data = sellerDoc.data() ?? <String, dynamic>{};
+
+        final ownerUid =
+            (data['ownerUid'] ?? data['userId'] ?? '').toString().trim();
+
+        final resolvedSellerId = (data['dukkanId'] ??
+                data['operationalSellerId'] ??
+                data['sellerId'] ??
+                sellerDoc.id)
+            .toString()
+            .trim();
+
+        isSellerOwner =
+            ownerUid == uid && resolvedSellerId == operationalSellerId;
+      }
+
+      if (!mounted) return;
+
+      setState(() {
+        _canViewSellerReceipts = isPlatformAdmin || isSellerOwner;
+      });
+
+      debugPrint(
+        'EV RECEIPT ACCESS uid=$uid '
+        'sellerId=$operationalSellerId '
+        'owner=$isSellerOwner '
+        'admin=$isPlatformAdmin '
+        'allowed=$_canViewSellerReceipts',
+      );
+    } catch (error) {
+      debugPrint(
+        'EV RECEIPT ACCESS ERROR '
+        'uid=$uid sellerId=$operationalSellerId error=$error',
+      );
+
+      if (!mounted) return;
+
+      setState(() {
+        _canViewSellerReceipts = false;
+      });
     }
   }
 
@@ -1531,6 +1599,45 @@ class _UrunDetaySayfasiState extends State<UrunDetaySayfasi> {
               widget.konum.trim().isNotEmpty)
             const SizedBox(height: 14),
           _infoRow(Icons.star_rounded, 'Puan', '4.9 • 120+ değerlendirme'),
+          if (_canViewSellerReceipts &&
+              (widget.sellerId ?? '').trim().isNotEmpty) ...[
+            const SizedBox(height: 18),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                onPressed: () {
+                  final sellerId = (widget.sellerId ?? '').trim();
+
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => EvFislerSayfasi(
+                        sellerId: sellerId,
+                        sellerName: widget.dukkanAdi.trim().isEmpty
+                            ? 'Ev Lezzetleri'
+                            : widget.dukkanAdi.trim(),
+                      ),
+                    ),
+                  );
+                },
+                icon: const Icon(Icons.receipt_long_outlined),
+                label: const Text('Siparişlerim / Fişlerim'),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: _gold,
+                  side: BorderSide(
+                    color: _gold.withValues(alpha: 0.75),
+                  ),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 18,
+                    vertical: 15,
+                  ),
+                  textStyle: const TextStyle(
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+              ),
+            ),
+          ],
         ],
       ),
     );

@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import '../admin/admin_paneli_sayfasi.dart';
@@ -14,6 +16,7 @@ import 'package:sofrasofra_arena_v2/modules/widgets/ev_membership_card.dart';
 import 'package:sofrasofra_arena_v2/courier/kurye_mobil_paneli.dart';
 import 'package:sofrasofra_arena_v2/modules/restoranlar/restoran_yonetim_paneli.dart';
 import 'package:sofrasofra_arena_v2/modules/restoranlar/restoranlarim_sayfasi.dart';
+import 'ev_fisler_sayfasi.dart';
 
 class UreticiYonetimMerkeziSayfasi extends StatelessWidget {
   const UreticiYonetimMerkeziSayfasi({super.key});
@@ -29,7 +32,39 @@ class UreticiYonetimMerkeziSayfasi extends StatelessWidget {
   // ignore: unused_field
   static const String _demoOrderId = 'demo-order-id';
   // ignore: unused_field
-  static const String _sellerId = 'RhkyTCD5TgWJFdEzP50mvCOrz5a2';
+  static const String _sellerId = 'zeynep_ev_lezzetleri';
+  Future<String> _resolveOperationalSellerId() async {
+    final uid = FirebaseAuth.instance.currentUser?.uid.trim() ?? '';
+
+    if (uid.isEmpty) {
+      return _sellerId;
+    }
+
+    try {
+      final sellerDoc =
+          await FirebaseFirestore.instance.collection('sellers').doc(uid).get();
+
+      final data = sellerDoc.data() ?? <String, dynamic>{};
+
+      final resolvedSellerId = (data['dukkanId'] ??
+              data['operationalSellerId'] ??
+              data['sellerId'] ??
+              '')
+          .toString()
+          .trim();
+
+      if (resolvedSellerId.isNotEmpty) {
+        return resolvedSellerId;
+      }
+    } catch (error) {
+      debugPrint(
+        'ÜRETİCİ SELLER ID ÇÖZÜMLEME HATASI uid=$uid error=$error',
+      );
+    }
+
+    return _sellerId;
+  }
+
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
@@ -204,11 +239,20 @@ class UreticiYonetimMerkeziSayfasi extends StatelessWidget {
                     'Ev Siparişleri',
                     'Teslimat Ayarları',
                   ],
-                  onTap: () {
+                  onTap: () async {
+                    final resolvedSellerId =
+                        await _resolveOperationalSellerId();
+
+                    if (!context.mounted) {
+                      return;
+                    }
+
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (_) => const SiparisTeslimatMerkeziSayfasi(),
+                        builder: (_) => SiparisTeslimatMerkeziSayfasi(
+                          sellerId: resolvedSellerId,
+                        ),
                       ),
                     );
                   },
@@ -348,14 +392,20 @@ class UreticiPanelleriSayfasi extends StatelessWidget {
 }
 
 class SiparisTeslimatMerkeziSayfasi extends StatelessWidget {
-  const SiparisTeslimatMerkeziSayfasi({super.key});
+  final String sellerId;
+
+  const SiparisTeslimatMerkeziSayfasi({
+    super.key,
+    required this.sellerId,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return const _PanelShell(
+    return _PanelShell(
+      sellerId: sellerId,
       title: 'SİPARİŞ & TESLİMAT',
       subtitle: 'Sipariş ve teslimat operasyonu',
-      cards: [
+      cards: const [
         _PanelItemData(
           title: 'Satıcı Sipariş Paneli',
           subtitle: 'Onay, red, hazırlık ve sipariş yönetimi.',
@@ -510,11 +560,13 @@ class _PanelShell extends StatelessWidget {
   final String title;
   final String subtitle;
   final List<_PanelItemData> cards;
+  final String sellerId;
 
   const _PanelShell({
     required this.title,
     required this.subtitle,
     required this.cards,
+    this.sellerId = '',
   });
 
   static const Color _bg = Color(0xFF090909);
@@ -524,7 +576,7 @@ class _PanelShell extends StatelessWidget {
   // ignore: unused_field
   static const String _chefId = 'RhkyTCD5TgWJFdEzP50mvCOrz5a2';
   static const String _chefName = 'Feride Lokman';
-  static const String _sellerId = 'RhkyTCD5TgWJFdEzP50mvCOrz5a2';
+  static const String _sellerId = 'zeynep_ev_lezzetleri';
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -599,11 +651,16 @@ class _PanelShell extends StatelessWidget {
                     break;
 
                   case _PanelPageType.evOrders:
+                    final effectiveSellerId = sellerId.trim().isNotEmpty
+                        ? sellerId.trim()
+                        : _sellerId;
+
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (_) => const EvOrdersSayfasi(
-                          sellerId: _sellerId,
+                        builder: (_) => EvFislerSayfasi(
+                          sellerId: effectiveSellerId,
+                          sellerName: 'Zeynep Ev Lezzetleri',
                         ),
                       ),
                     );
