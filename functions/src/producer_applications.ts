@@ -19,9 +19,321 @@ type EvApplicationPayload = {
   legalAcceptedTexts?: unknown[];
 };
 
+type ProfessionalApplicationPayload = {
+  isletmeTipi?: string;
+  professionalStatus?: string;
+  requiresTaxCertificate?: boolean;
+  isletmeAdi?: string;
+  yetkiliKisi?: string;
+  telefon?: string;
+  email?: string;
+  sehir?: string;
+  ilce?: string;
+  vergiNotu?: string;
+  tcknVkn?: string;
+  iban?: string;
+  aciklama?: string;
+  legalAccepted?: boolean;
+  legalAcceptedAtClient?: string;
+  legalAcceptedVersion?: string;
+  legalAcceptedTexts?: unknown[];
+};
+
+type FounderCategory = "ev_lezzetleri" | "usta_sef" | "restoran";
+
+type RemainingField = "evKalan" | "sefKalan" | "restoranKalan";
+
+type FounderAllocationResult = {
+  isFounder: boolean;
+  founderCategory: FounderCategory | null;
+  founderSequence: number | null;
+  founderExpiresAt: admin.firestore.Timestamp | null;
+  remaining: number;
+};
+
+const FOUNDER_CAMPAIGN_VERSION = "founder_100_2026_v1";
+const FOUNDER_LIMIT = 100;
+const PAYTR_PAYMENT_FEE_RATE = 0.0199;
+
 function cleanString(value: unknown): string {
   if (typeof value !== "string") return "";
   return value.trim();
+}
+
+function founderExpiryFrom(
+  grantedAt: admin.firestore.Timestamp
+): admin.firestore.Timestamp {
+  const expiryDate = grantedAt.toDate();
+
+  expiryDate.setUTCFullYear(expiryDate.getUTCFullYear() + 1);
+
+  return admin.firestore.Timestamp.fromDate(expiryDate);
+}
+
+function isExistingFounderAllocation(
+  applicationData: FirebaseFirestore.DocumentData | undefined,
+  founderCategory: FounderCategory
+): boolean {
+  if (!applicationData) return false;
+
+  return (
+    applicationData.isFounder === true &&
+    applicationData.founderCategory === founderCategory &&
+    applicationData.founderCampaignVersion === FOUNDER_CAMPAIGN_VERSION
+  );
+}
+
+function founderFields({
+  founderCategory,
+  sequence,
+  grantedAt,
+  expiresAt,
+}: {
+  founderCategory: FounderCategory;
+  sequence: number;
+  grantedAt: admin.firestore.Timestamp;
+  expiresAt: admin.firestore.Timestamp;
+}): Record<string, unknown> {
+  return {
+    isFounder: true,
+    founderCategory,
+    founderSequence: sequence,
+    founderGrantedAt: grantedAt,
+    founderExpiresAt: expiresAt,
+    founderCampaignVersion: FOUNDER_CAMPAIGN_VERSION,
+
+    plan: "founding",
+    planType: "founding",
+    membershipType: "founding",
+    packageType: "founding",
+    membershipStatus: "active",
+
+    membershipFeeExempt: true,
+    membershipFeeExemptUntil: expiresAt,
+
+    commissionExempt: true,
+    commissionExemptUntil: expiresAt,
+    sofrasofraCommissionRate: 0,
+    sofrasofraCommissionLabel: "%0 — Kurucu Üye Avantajı",
+
+    paymentProvider: "paytr",
+    paymentFeeRate: PAYTR_PAYMENT_FEE_RATE,
+    paymentFeeLabel: "%1,99 PAYTR İşlem Maliyeti",
+
+    founderBenefitStatus: "active",
+  };
+}
+
+function nonFounderFields(founderCategory: string): Record<string, unknown> {
+  return {
+    isFounder: false,
+    founderCategory,
+    founderSequence: null,
+    founderGrantedAt: null,
+    founderExpiresAt: null,
+    founderCampaignVersion: FOUNDER_CAMPAIGN_VERSION,
+
+    plan: "free",
+    planType: "free",
+    membershipType: "free",
+    packageType: "free",
+    membershipStatus: "active",
+
+    membershipFeeExempt: false,
+    membershipFeeExemptUntil: null,
+
+    commissionExempt: false,
+    commissionExemptUntil: null,
+    sofrasofraCommissionRate: null,
+    sofrasofraCommissionLabel: null,
+
+    paymentProvider: "paytr",
+    paymentFeeRate: PAYTR_PAYMENT_FEE_RATE,
+    paymentFeeLabel: "%1,99 PAYTR İşlem Maliyeti",
+
+    founderBenefitStatus: "not_eligible",
+  };
+}
+
+async function saveApplicationWithFounderAllocation({
+  applicationRef,
+  campaignRef,
+  remainingField,
+  founderCategory,
+  applicationData,
+}: {
+  applicationRef: admin.firestore.DocumentReference;
+  campaignRef: admin.firestore.DocumentReference;
+  remainingField: RemainingField;
+  founderCategory: FounderCategory;
+  applicationData: Record<string, unknown>;
+}): Promise<FounderAllocationResult> {
+  return admin.firestore().runTransaction(async (transaction) => {
+    const applicationSnap = await transaction.get(applicationRef);
+    const campaignSnap = await transaction.get(campaignRef);
+
+    const existingApplicationData = applicationSnap.data();
+
+    const alreadyAllocated = isExistingFounderAllocation(
+      existingApplicationData,
+      founderCategory
+    );
+
+    const campaignData = campaignSnap.data() || {};
+    const rawRemaining = campaignData[remainingField];
+
+    const currentRemaining =
+      typeof rawRemaining === "number"
+        ? Math.max(Math.min(Math.floor(rawRemaining), FOUNDER_LIMIT), 0)
+        : FOUNDER_LIMIT;
+
+    const now = admin.firestore.Timestamp.now();
+
+    if (alreadyAllocated) {
+      const existingSequence =
+        typeof existingApplicationData?.founderSequence === "number"
+          ? existingApplicationData.founderSequence
+          : null;
+
+      const existingExpiryValue =
+        existingApplicationData?.founderExpiresAt;
+
+      const existingExpiry =
+        existingExpiryValue instanceof admin.firestore.Timestamp
+          ? existingExpiryValue
+          : null;
+
+      transaction.set(
+        applicationRef,
+        {
+          ...applicationData,
+          updatedAt: now,
+        },
+        { merge: true }
+      );
+
+      return {
+        isFounder: true,
+        founderCategory,
+        founderSequence: existingSequence,
+        founderExpiresAt: existingExpiry,
+        remaining: currentRemaining,
+      };
+    }
+
+    if (currentRemaining > 0) {
+      const sequence = FOUNDER_LIMIT - currentRemaining + 1;
+      const expiresAt = founderExpiryFrom(now);
+      const nextRemaining = Math.max(currentRemaining - 1, 0);
+
+      transaction.set(
+        applicationRef,
+        {
+          ...applicationData,
+          ...founderFields({
+            founderCategory,
+            sequence,
+            grantedAt: now,
+            expiresAt,
+          }),
+          createdAt: applicationSnap.exists
+            ? existingApplicationData?.createdAt ?? now
+            : now,
+          updatedAt: now,
+        },
+        { merge: true }
+      );
+
+      transaction.set(
+        campaignRef,
+        {
+          [remainingField]: nextRemaining,
+          [`${remainingField}LastAllocatedSequence`]: sequence,
+          founderCampaignVersion: FOUNDER_CAMPAIGN_VERSION,
+          updatedAt: now,
+        },
+        { merge: true }
+      );
+
+      return {
+        isFounder: true,
+        founderCategory,
+        founderSequence: sequence,
+        founderExpiresAt: expiresAt,
+        remaining: nextRemaining,
+      };
+    }
+
+    transaction.set(
+      applicationRef,
+      {
+        ...applicationData,
+        ...nonFounderFields(founderCategory),
+        createdAt: applicationSnap.exists
+          ? existingApplicationData?.createdAt ?? now
+          : now,
+        updatedAt: now,
+      },
+      { merge: true }
+    );
+
+    if (!campaignSnap.exists) {
+      transaction.set(
+        campaignRef,
+        {
+          [remainingField]: 0,
+          founderCampaignVersion: FOUNDER_CAMPAIGN_VERSION,
+          updatedAt: now,
+        },
+        { merge: true }
+      );
+    }
+
+    return {
+      isFounder: false,
+      founderCategory,
+      founderSequence: null,
+      founderExpiresAt: null,
+      remaining: 0,
+    };
+  });
+}
+
+async function saveApplicationWithoutFounderAllocation({
+  applicationRef,
+  applicationData,
+  founderCategory,
+}: {
+  applicationRef: admin.firestore.DocumentReference;
+  applicationData: Record<string, unknown>;
+  founderCategory: string;
+}): Promise<FounderAllocationResult> {
+  return admin.firestore().runTransaction(async (transaction) => {
+    const applicationSnap = await transaction.get(applicationRef);
+    const existingApplicationData = applicationSnap.data();
+    const now = admin.firestore.Timestamp.now();
+
+    transaction.set(
+      applicationRef,
+      {
+        ...applicationData,
+        ...nonFounderFields(founderCategory),
+        createdAt: applicationSnap.exists
+          ? existingApplicationData?.createdAt ?? now
+          : now,
+        updatedAt: now,
+      },
+      { merge: true }
+    );
+
+    return {
+      isFounder: false,
+      founderCategory: null,
+      founderSequence: null,
+      founderExpiresAt: null,
+      remaining: 0,
+    };
+  });
 }
 
 export const submitEvLezzetleriApplication = onCall(
@@ -62,18 +374,27 @@ export const submitEvLezzetleriApplication = onCall(
     }
 
     const legalAcceptedTexts = Array.isArray(data.legalAcceptedTexts)
-      ? data.legalAcceptedTexts.map((item) => cleanString(item)).filter(Boolean)
+      ? data.legalAcceptedTexts
+          .map((item) => cleanString(item))
+          .filter(Boolean)
       : [];
-
-    const now = admin.firestore.FieldValue.serverTimestamp();
 
     const applicationRef = admin
       .firestore()
       .collection("producer_applications")
       .doc(uid);
 
-    await applicationRef.set(
-      {
+    const campaignRef = admin
+      .firestore()
+      .collection("campaignSettings")
+      .doc("main");
+
+    const allocation = await saveApplicationWithFounderAllocation({
+      applicationRef,
+      campaignRef,
+      remainingField: "evKalan",
+      founderCategory: "ev_lezzetleri",
+      applicationData: {
         userId: uid,
         type: "ev_lezzetleri",
         status: "submitted",
@@ -89,83 +410,35 @@ export const submitEvLezzetleriApplication = onCall(
         vergiDairesi: cleanString(data.vergiDairesi),
         faturaAdresi: cleanString(data.faturaAdresi),
         faturaEposta: cleanString(data.faturaEposta),
-        iban: cleanString(data.iban),
+        iban: cleanString(data.iban).replace(/\s/g, "").toUpperCase(),
 
         legalAccepted: true,
-        legalAcceptedAt: now,
+        legalAcceptedAt: admin.firestore.Timestamp.now(),
         legalAcceptedAtClient: cleanString(data.legalAcceptedAtClient),
-        legalAcceptedVersion: cleanString(data.legalAcceptedVersion) || "v1.0",
+        legalAcceptedVersion:
+          cleanString(data.legalAcceptedVersion) || "v1.0",
         legalAcceptedTexts,
 
         source: "ev_lezzetleri_basvuru_formu",
-        updatedAt: now,
-        createdAt: now,
       },
-      { merge: true }
-    );
-
-    const campaignRef = admin
-      .firestore()
-      .collection("campaignSettings")
-      .doc("main");
-
-    await admin.firestore().runTransaction(async (transaction) => {
-      const campaignSnap = await transaction.get(campaignRef);
-
-      if (!campaignSnap.exists) {
-        transaction.set(
-          campaignRef,
-          {
-            evKalan: 99,
-            updatedAt: now,
-          },
-          { merge: true }
-        );
-        return;
-      }
-
-      const campaignData = campaignSnap.data() || {};
-      const currentEvKalan =
-        typeof campaignData.evKalan === "number" ? campaignData.evKalan : 0;
-
-      const nextEvKalan = Math.max(currentEvKalan - 1, 0);
-
-      transaction.set(
-        campaignRef,
-        {
-          evKalan: nextEvKalan,
-          updatedAt: now,
-        },
-        { merge: true }
-      );
     });
 
     return {
       success: true,
       applicationPath: `producer_applications/${uid}`,
+      founderBenefit: {
+        isFounder: allocation.isFounder,
+        founderCategory: allocation.founderCategory,
+        founderSequence: allocation.founderSequence,
+        founderExpiresAt:
+          allocation.founderExpiresAt?.toDate().toISOString() ?? null,
+        remaining: allocation.remaining,
+        sofrasofraCommissionRate: allocation.isFounder ? 0 : null,
+        paytrPaymentFeeRate: PAYTR_PAYMENT_FEE_RATE,
+      },
     };
   }
 );
-
-type ProfessionalApplicationPayload = {
-  isletmeTipi?: string;
-  professionalStatus?: string;
-  requiresTaxCertificate?: boolean;
-  isletmeAdi?: string;
-  yetkiliKisi?: string;
-  telefon?: string;
-  email?: string;
-  sehir?: string;
-  ilce?: string;
-  vergiNotu?: string;
-  tcknVkn?: string;
-  iban?: string;
-  aciklama?: string;
-  legalAccepted?: boolean;
-  legalAcceptedAtClient?: string;
-  legalAcceptedVersion?: string;
-  legalAcceptedTexts?: unknown[];
-};
 
 export const submitProfessionalApplication = onCall(
   {
@@ -184,6 +457,7 @@ export const submitProfessionalApplication = onCall(
     const data = request.data as ProfessionalApplicationPayload;
 
     const isletmeTipi = cleanString(data.isletmeTipi) || "usta_sef";
+
     const professionalStatus =
       cleanString(data.professionalStatus) || "individual_chef";
 
@@ -215,91 +489,92 @@ export const submitProfessionalApplication = onCall(
     }
 
     const legalAcceptedTexts = Array.isArray(data.legalAcceptedTexts)
-      ? data.legalAcceptedTexts.map((item) => cleanString(item)).filter(Boolean)
+      ? data.legalAcceptedTexts
+          .map((item) => cleanString(item))
+          .filter(Boolean)
       : [];
-
-    const now = admin.firestore.FieldValue.serverTimestamp();
 
     const applicationRef = admin
       .firestore()
       .collection("producer_applications")
       .doc(uid);
 
-    await applicationRef.set(
-      {
-        userId: uid,
-        type: "profesyonel_isletme",
-        status: "submitted",
-        aiReviewStatus: "not_started",
-        riskLevel: "unknown",
-
-        isletmeTipi,
-        professionalStatus,
-        requiresTaxCertificate,
-        isletmeAdi,
-        yetkiliKisi,
-        telefon,
-        email,
-        sehir,
-        ilce,
-
-        vergiNotu: cleanString(data.vergiNotu),
-        tcknVkn: cleanString(data.tcknVkn),
-        iban: cleanString(data.iban).replace(/\s/g, "").toUpperCase(),
-        aciklama: cleanString(data.aciklama),
-
-        legalAccepted: true,
-        legalAcceptedAt: now,
-        legalAcceptedAtClient: cleanString(data.legalAcceptedAtClient),
-        legalAcceptedVersion: cleanString(data.legalAcceptedVersion) || "v1.0",
-        legalAcceptedTexts,
-
-        source: "profesyonel_isletme_basvuru_formu",
-        updatedAt: now,
-        createdAt: now,
-      },
-      { merge: true }
-    );
-
     const campaignRef = admin
       .firestore()
       .collection("campaignSettings")
       .doc("main");
 
-    await admin.firestore().runTransaction(async (transaction) => {
-      const campaignSnap = await transaction.get(campaignRef);
+    const professionalApplicationData: Record<string, unknown> = {
+      userId: uid,
+      type: "profesyonel_isletme",
+      status: "submitted",
+      aiReviewStatus: "not_started",
+      riskLevel: "unknown",
 
-      if (!campaignSnap.exists) {
-        transaction.set(
-          campaignRef,
-          {
-            sefKalan: 99,
-            updatedAt: now,
-          },
-          { merge: true }
-        );
-        return;
-      }
+      isletmeTipi,
+      professionalStatus,
+      requiresTaxCertificate,
+      isletmeAdi,
+      yetkiliKisi,
+      telefon,
+      email,
+      sehir,
+      ilce,
 
-      const campaignData = campaignSnap.data() || {};
-      const currentSefKalan =
-        typeof campaignData.sefKalan === "number" ? campaignData.sefKalan : 0;
+      vergiNotu: cleanString(data.vergiNotu),
+      tcknVkn: cleanString(data.tcknVkn),
+      iban: cleanString(data.iban).replace(/\s/g, "").toUpperCase(),
+      aciklama: cleanString(data.aciklama),
 
-      const nextSefKalan = Math.max(currentSefKalan - 1, 0);
+      legalAccepted: true,
+      legalAcceptedAt: admin.firestore.Timestamp.now(),
+      legalAcceptedAtClient: cleanString(data.legalAcceptedAtClient),
+      legalAcceptedVersion:
+        cleanString(data.legalAcceptedVersion) || "v1.0",
+      legalAcceptedTexts,
 
-      transaction.set(
+      source: "profesyonel_isletme_basvuru_formu",
+    };
+
+    let allocation: FounderAllocationResult;
+
+    if (isletmeTipi === "restoran") {
+      allocation = await saveApplicationWithFounderAllocation({
+        applicationRef,
         campaignRef,
-        {
-          sefKalan: nextSefKalan,
-          updatedAt: now,
-        },
-        { merge: true }
-      );
-    });
+        remainingField: "restoranKalan",
+        founderCategory: "restoran",
+        applicationData: professionalApplicationData,
+      });
+    } else if (isletmeTipi === "usta_sef") {
+      allocation = await saveApplicationWithFounderAllocation({
+        applicationRef,
+        campaignRef,
+        remainingField: "sefKalan",
+        founderCategory: "usta_sef",
+        applicationData: professionalApplicationData,
+      });
+    } else {
+      allocation = await saveApplicationWithoutFounderAllocation({
+        applicationRef,
+        applicationData: professionalApplicationData,
+        founderCategory: isletmeTipi || "profesyonel_isletme",
+      });
+    }
 
     return {
       success: true,
       applicationPath: `producer_applications/${uid}`,
+      founderBenefit: {
+        isFounder: allocation.isFounder,
+        founderCategory: allocation.founderCategory,
+        founderSequence: allocation.founderSequence,
+        founderExpiresAt:
+          allocation.founderExpiresAt?.toDate().toISOString() ?? null,
+        remaining: allocation.remaining,
+        sofrasofraCommissionRate: allocation.isFounder ? 0 : null,
+        paytrPaymentFeeRate: PAYTR_PAYMENT_FEE_RATE,
+      },
     };
   }
 );

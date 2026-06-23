@@ -49,6 +49,18 @@ class MembershipPlanService {
     badgeType: 'none',
   );
 
+  static const MembershipPlan founding = MembershipPlan(
+    type: 'founding',
+    maxPhotoCount: 3,
+    maxVideoCount: 0,
+    canUseYoutube: false,
+    canBeFeatured: false,
+    canJoinMainShowcase: false,
+    featuredScope: 'none',
+    priorityScore: 10,
+    badgeType: 'founding',
+  );
+
   static const MembershipPlan pro = MembershipPlan(
     type: 'pro',
     maxPhotoCount: 8,
@@ -75,6 +87,9 @@ class MembershipPlanService {
 
   static MembershipPlan fromType(String? type) {
     switch ((type ?? 'free').toLowerCase().trim()) {
+      case 'founding':
+      case 'kurucu':
+        return founding;
       case 'pro':
         return pro;
       case 'premium':
@@ -84,13 +99,23 @@ class MembershipPlanService {
     }
   }
 
-  static MembershipPlan fromSellerData(Map<String, dynamic>? sellerData) {
-    final type = (sellerData?['membershipType'] ?? 'free').toString();
+  static MembershipPlan fromSellerData(
+    Map<String, dynamic>? sellerData,
+  ) {
+    final type = (sellerData?['membershipType'] ??
+            sellerData?['packageType'] ??
+            sellerData?['plan'] ??
+            'free')
+        .toString();
+
     return fromType(type);
   }
 
-  static Map<String, dynamic> buildSellerPlanFields(String? membershipType) {
+  static Map<String, dynamic> buildSellerPlanFields(
+    String? membershipType,
+  ) {
     final plan = fromType(membershipType);
+
     return {
       ...plan.toMap(),
       'membershipStatus': 'active',
@@ -115,6 +140,8 @@ class MembershipPlanService {
 
   static String badgeLabel(String? badgeType) {
     switch ((badgeType ?? 'none').toLowerCase().trim()) {
+      case 'founding':
+        return 'Kurucu Üye';
       case 'trusted':
         return 'Güvenilir Mutfak';
       case 'premium':
@@ -126,6 +153,9 @@ class MembershipPlanService {
 
   static String planDisplayName(String? membershipType) {
     switch ((membershipType ?? 'free').toLowerCase().trim()) {
+      case 'founding':
+      case 'kurucu':
+        return 'Kurucu Üye';
       case 'pro':
         return 'Pro';
       case 'premium':

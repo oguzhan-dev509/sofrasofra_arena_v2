@@ -18,6 +18,79 @@ class SepetService {
   }
 
   static const int _defaultMaxRetryCount = 5;
+  static Future<Map<String, dynamic>> _loadSellerFinanceData({
+    required String sellerId,
+    required String sellerType,
+  }) async {
+    if (sellerType == 'restaurant') {
+      final restaurantSnap =
+          await _firestore.collection('restaurants').doc(sellerId).get();
+
+      if (restaurantSnap.exists) {
+        return restaurantSnap.data() ?? <String, dynamic>{};
+      }
+    }
+
+    final sellerSnap =
+        await _firestore.collection('sellers').doc(sellerId).get();
+
+    if (sellerSnap.exists) {
+      return sellerSnap.data() ?? <String, dynamic>{};
+    }
+
+    return <String, dynamic>{};
+  }
+
+  static bool _isFutureTimestamp(dynamic value) {
+    if (value is Timestamp) {
+      return value.toDate().isAfter(DateTime.now());
+    }
+
+    if (value is DateTime) {
+      return value.isAfter(DateTime.now());
+    }
+
+    if (value is String) {
+      final parsed = DateTime.tryParse(value);
+      return parsed != null && parsed.isAfter(DateTime.now());
+    }
+
+    return false;
+  }
+
+  static bool _isFounderBenefitActive(Map<String, dynamic> sellerData) {
+    final isFounder = sellerData['isFounder'] == true;
+    final commissionExempt = sellerData['commissionExempt'] == true;
+
+    final expiresAt =
+        sellerData['commissionExemptUntil'] ?? sellerData['founderExpiresAt'];
+
+    return isFounder && commissionExempt && _isFutureTimestamp(expiresAt);
+  }
+
+  static String _effectiveMembershipPlan(
+    Map<String, dynamic> sellerData,
+  ) {
+    if (_isFounderBenefitActive(sellerData)) {
+      return 'founding';
+    }
+
+    final rawPlan = (sellerData['membershipType'] ??
+            sellerData['packageType'] ??
+            sellerData['plan'] ??
+            'free')
+        .toString()
+        .trim()
+        .toLowerCase();
+
+    switch (rawPlan) {
+      case 'pro':
+      case 'premium':
+        return rawPlan;
+      default:
+        return 'free';
+    }
+  }
 
   static Future<void> sepeteEkle({
     required String urunId,
@@ -48,16 +121,6 @@ class SepetService {
       saticiId ?? dukkanId ?? dukkanAdi,
     );
 
-    final sellerSnap =
-        await _firestore.collection('sellers').doc(finalSaticiId).get();
-
-    final sellerData = sellerSnap.data() ?? {};
-
-    final String rawSellerType =
-        (sellerTypeOverride != null && sellerTypeOverride.trim().isNotEmpty)
-            ? sellerTypeOverride.trim()
-            : (sellerData['sellerType'] ?? '').toString().trim();
-
     final String kategoriKey = kategori.toLowerCase().trim();
     final String dukkanKey = dukkanAdi.toLowerCase().trim();
 
@@ -69,10 +132,27 @@ class SepetService {
         dukkanKey.contains('sef') ||
         dukkanKey.contains('imza');
 
+    final String preliminarySellerType =
+        sellerTypeOverride != null && sellerTypeOverride.trim().isNotEmpty
+            ? sellerTypeOverride.trim()
+            : (looksLikeChefSignature ? 'chef_signature' : 'ev_lezzetleri');
+
+    final sellerData = await _loadSellerFinanceData(
+      sellerId: finalSaticiId,
+      sellerType: preliminarySellerType,
+    );
+
+    final String rawSellerType = (sellerTypeOverride != null &&
+            sellerTypeOverride.trim().isNotEmpty)
+        ? sellerTypeOverride.trim()
+        : (sellerData['sellerType'] ?? preliminarySellerType).toString().trim();
+
     final String sellerType = rawSellerType.isNotEmpty
         ? rawSellerType
         : (looksLikeChefSignature ? 'chef_signature' : 'ev_lezzetleri');
+    final bool founderBenefitActive = _isFounderBenefitActive(sellerData);
 
+    final String effectivePlan = _effectiveMembershipPlan(sellerData);
     final String paymentChannel = switch (sellerType) {
       'restaurant' => 'restaurant_order',
       'chef_signature' => 'chef_signature_order',
@@ -162,6 +242,19 @@ class SepetService {
         'dukkanAd': dukkanAdi,
         'saticiId': finalSaticiId,
         'sellerType': sellerType,
+        'plan': effectivePlan,
+        'planType': effectivePlan,
+        'membershipType': effectivePlan,
+        'packageType': effectivePlan,
+        'isFounder': sellerData['isFounder'] == true,
+        'founderBenefitApplied': founderBenefitActive,
+        'founderSequence': sellerData['founderSequence'],
+        'founderGrantedAt': sellerData['founderGrantedAt'],
+        'founderExpiresAt': sellerData['founderExpiresAt'],
+        'commissionExempt': sellerData['commissionExempt'] == true,
+        'commissionExemptUntil': sellerData['commissionExemptUntil'],
+        'membershipFeeExempt': sellerData['membershipFeeExempt'] == true,
+        'membershipFeeExemptUntil': sellerData['membershipFeeExemptUntil'],
         'paymentChannel': paymentChannel,
         'iyzicoCategory': iyzicoCategory,
         'orderSource': orderSource,
@@ -249,6 +342,17 @@ class SepetService {
       'feeIncludedInPrice': feeIncludedInPrice,
       'adet': 1,
       'saticiId': finalSaticiId,
+      'sellerType': sellerType,
+      'plan': effectivePlan,
+      'planType': effectivePlan,
+      'membershipType': effectivePlan,
+      'packageType': effectivePlan,
+      'isFounder': sellerData['isFounder'] == true,
+      'founderBenefitApplied': founderBenefitActive,
+      'founderSequence': sellerData['founderSequence'],
+      'founderExpiresAt': sellerData['founderExpiresAt'],
+      'commissionExempt': sellerData['commissionExempt'] == true,
+      'commissionExemptUntil': sellerData['commissionExemptUntil'],
       'addedAt': FieldValue.serverTimestamp(),
     };
 
@@ -295,11 +399,26 @@ class SepetService {
         'saticiId': null,
         'dukkanId': null,
         'dukkanAd': null,
+
+        // Kurucu üyelik ve finans planı temizliği
+        'plan': null,
+        'planType': null,
+        'membershipType': null,
+        'packageType': null,
+        'isFounder': null,
+        'founderBenefitApplied': null,
+        'founderSequence': null,
+        'founderGrantedAt': null,
+        'founderExpiresAt': null,
+        'commissionExempt': null,
+        'commissionExemptUntil': null,
+        'membershipFeeExempt': null,
+        'membershipFeeExemptUntil': null,
+
         'updatedAt': FieldValue.serverTimestamp(),
       },
       SetOptions(merge: true),
     );
-
     await batch.commit();
   }
 

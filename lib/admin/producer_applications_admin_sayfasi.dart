@@ -90,6 +90,56 @@ class ProducerApplicationsAdminSayfasi extends StatelessWidget {
     return text.isEmpty ? '-' : text;
   }
 
+  String _stringValue(
+    Map<String, dynamic> data,
+    String key, {
+    String fallback = '',
+  }) {
+    final value = data[key]?.toString().trim() ?? '';
+    return value.isEmpty ? fallback : value;
+  }
+
+  Map<String, dynamic> _founderEntitlementFields(
+    Map<String, dynamic> applicationData,
+  ) {
+    final isFounder = applicationData['isFounder'] == true;
+
+    final effectivePlan = isFounder
+        ? 'founding'
+        : _stringValue(
+            applicationData,
+            'membershipType',
+            fallback: 'free',
+          );
+
+    return <String, dynamic>{
+      'isFounder': isFounder,
+      'founderCategory': applicationData['founderCategory'],
+      'founderSequence': applicationData['founderSequence'],
+      'founderGrantedAt': applicationData['founderGrantedAt'],
+      'founderExpiresAt': applicationData['founderExpiresAt'],
+      'founderCampaignVersion':
+          applicationData['founderCampaignVersion'] ?? 'founder_100_2026_v1',
+      'founderBenefitStatus': applicationData['founderBenefitStatus'] ??
+          (isFounder ? 'active' : 'not_eligible'),
+      'plan': effectivePlan,
+      'planType': effectivePlan,
+      'membershipType': effectivePlan,
+      'packageType': effectivePlan,
+      'membershipStatus': applicationData['membershipStatus'] ?? 'active',
+      'membershipFeeExempt': applicationData['membershipFeeExempt'] == true,
+      'membershipFeeExemptUntil': applicationData['membershipFeeExemptUntil'],
+      'commissionExempt': applicationData['commissionExempt'] == true,
+      'commissionExemptUntil': applicationData['commissionExemptUntil'],
+      'sofrasofraCommissionRate': applicationData['sofrasofraCommissionRate'],
+      'sofrasofraCommissionLabel': applicationData['sofrasofraCommissionLabel'],
+      'paymentProvider': applicationData['paymentProvider'] ?? 'paytr',
+      'paymentFeeRate': applicationData['paymentFeeRate'] ?? 0.0199,
+      'paymentFeeLabel':
+          applicationData['paymentFeeLabel'] ?? '%1,99 PAYTR İşlem Maliyeti',
+    };
+  }
+
   Future<void> _updateStatus({
     required BuildContext context,
     required String docId,
@@ -111,46 +161,167 @@ class ProducerApplicationsAdminSayfasi extends StatelessWidget {
         'reviewedAt': FieldValue.serverTimestamp(),
       };
 
-      final type = applicationData['type']?.toString().trim() ?? '';
-      final isletmeTipi =
-          applicationData['isletmeTipi']?.toString().trim() ?? '';
-      final userId = applicationData['userId']?.toString().trim() ?? '';
+      final type = _stringValue(applicationData, 'type');
+      final isletmeTipi = _stringValue(applicationData, 'isletmeTipi');
+      final userId = _stringValue(applicationData, 'userId');
       final ownerUid = userId.isNotEmpty ? userId : docId;
+
+      final shouldCreateEvSeller =
+          status == 'approved' && type == 'ev_lezzetleri';
+
+      final shouldCreateChefSeller = status == 'approved' &&
+          type == 'profesyonel_isletme' &&
+          isletmeTipi == 'usta_sef';
 
       final shouldCreateRestaurant = status == 'approved' &&
           type == 'profesyonel_isletme' &&
           isletmeTipi == 'restoran';
+
+      final founderFields = _founderEntitlementFields(applicationData);
+
+      if (shouldCreateEvSeller) {
+        final sellerRef = firestore.collection('sellers').doc(ownerUid);
+
+        final sellerName = _stringValue(
+          applicationData,
+          'mutfakAdi',
+          fallback: _stringValue(
+            applicationData,
+            'adSoyad',
+            fallback: 'Ev Lezzetleri',
+          ),
+        );
+
+        batch.set(
+          sellerRef,
+          <String, dynamic>{
+            'ownerUid': ownerUid,
+            'userId': ownerUid,
+            'applicationId': docId,
+            'sellerType': 'ev_lezzetleri',
+            'type': 'ev_lezzetleri',
+            'category': 'Ev Lezzetleri',
+            'name': sellerName,
+            'title': sellerName,
+            'storeName': sellerName,
+            'mutfakAdi': sellerName,
+            'ownerName': _stringValue(applicationData, 'adSoyad'),
+            'phone': _stringValue(applicationData, 'telefon'),
+            'city': _stringValue(applicationData, 'sehir'),
+            'district': _stringValue(applicationData, 'ilce'),
+            'description': _stringValue(applicationData, 'urunBilgisi'),
+            'iban': _stringValue(applicationData, 'iban'),
+            'isActive': true,
+            'isApproved': true,
+            'approvalStatus': 'approved',
+            'approvedAt': FieldValue.serverTimestamp(),
+            ...founderFields,
+            'createdAt': FieldValue.serverTimestamp(),
+            'updatedAt': FieldValue.serverTimestamp(),
+          },
+          SetOptions(merge: true),
+        );
+
+        applicationUpdate['sellerId'] = ownerUid;
+        applicationUpdate['sellerType'] = 'ev_lezzetleri';
+        applicationUpdate['sellerCreatedAt'] = FieldValue.serverTimestamp();
+      }
+
+      if (shouldCreateChefSeller) {
+        final sellerRef = firestore.collection('sellers').doc(ownerUid);
+
+        final sellerName = _stringValue(
+          applicationData,
+          'isletmeAdi',
+          fallback: _stringValue(
+            applicationData,
+            'yetkiliKisi',
+            fallback: 'Usta Şef',
+          ),
+        );
+
+        batch.set(
+          sellerRef,
+          <String, dynamic>{
+            'ownerUid': ownerUid,
+            'userId': ownerUid,
+            'applicationId': docId,
+            'sellerType': 'chef_signature',
+            'type': 'usta_sef',
+            'category': 'Usta Şefler',
+            'isletmeTipi': 'usta_sef',
+            'name': sellerName,
+            'title': sellerName,
+            'storeName': sellerName,
+            'isletmeAdi': sellerName,
+            'ownerName': _stringValue(applicationData, 'yetkiliKisi'),
+            'phone': _stringValue(applicationData, 'telefon'),
+            'email': _stringValue(applicationData, 'email'),
+            'city': _stringValue(applicationData, 'sehir'),
+            'district': _stringValue(applicationData, 'ilce'),
+            'description': _stringValue(applicationData, 'aciklama'),
+            'iban': _stringValue(applicationData, 'iban'),
+            'professionalStatus': applicationData['professionalStatus'],
+            'requiresTaxCertificate': applicationData['requiresTaxCertificate'],
+            'isActive': true,
+            'isApproved': true,
+            'approvalStatus': 'approved',
+            'approvedAt': FieldValue.serverTimestamp(),
+            ...founderFields,
+            'createdAt': FieldValue.serverTimestamp(),
+            'updatedAt': FieldValue.serverTimestamp(),
+          },
+          SetOptions(merge: true),
+        );
+
+        applicationUpdate['sellerId'] = ownerUid;
+        applicationUpdate['sellerType'] = 'chef_signature';
+        applicationUpdate['sellerCreatedAt'] = FieldValue.serverTimestamp();
+      }
 
       if (shouldCreateRestaurant) {
         final restaurantId = ownerUid;
         final restaurantRef =
             firestore.collection('restaurants').doc(restaurantId);
 
-        final restaurantName =
-            applicationData['isletmeAdi']?.toString().trim().isNotEmpty == true
-                ? applicationData['isletmeAdi'].toString().trim()
-                : 'Restoran';
+        final restaurantName = _stringValue(
+          applicationData,
+          'isletmeAdi',
+          fallback: 'Restoran',
+        );
 
         batch.set(
           restaurantRef,
-          {
+          <String, dynamic>{
             'ownerUid': ownerUid,
+            'userId': ownerUid,
             'applicationId': docId,
+            'sellerType': 'restaurant',
+            'type': 'restaurant',
+            'category': 'Restoran',
+            'isletmeTipi': 'restoran',
             'name': restaurantName,
             'restaurantName': restaurantName,
             'title': restaurantName,
-            'phone': applicationData['telefon']?.toString().trim() ?? '',
-            'email': applicationData['email']?.toString().trim() ?? '',
-            'city': applicationData['sehir']?.toString().trim() ?? '',
-            'district': applicationData['ilce']?.toString().trim() ?? '',
-            'description': applicationData['aciklama']?.toString().trim() ?? '',
-            'category': 'Restoran',
+            'ownerName': _stringValue(applicationData, 'yetkiliKisi'),
+            'phone': _stringValue(applicationData, 'telefon'),
+            'email': _stringValue(applicationData, 'email'),
+            'city': _stringValue(applicationData, 'sehir'),
+            'district': _stringValue(applicationData, 'ilce'),
+            'description': _stringValue(applicationData, 'aciklama'),
+            'iban': _stringValue(applicationData, 'iban'),
+            'professionalStatus': applicationData['professionalStatus'],
+            'requiresTaxCertificate': applicationData['requiresTaxCertificate'],
             'cuisine': '',
             'isOpen': false,
             'isActive': true,
+            'isApproved': true,
+            'approvalStatus': 'approved',
             'isLaunchReady': false,
             'supportsGelAl': true,
             'supportsGotur': true,
+            'approvedAt': FieldValue.serverTimestamp(),
+            ...founderFields,
             'createdAt': FieldValue.serverTimestamp(),
             'updatedAt': FieldValue.serverTimestamp(),
           },
@@ -158,6 +329,7 @@ class ProducerApplicationsAdminSayfasi extends StatelessWidget {
         );
 
         applicationUpdate['restaurantId'] = restaurantId;
+        applicationUpdate['sellerType'] = 'restaurant';
         applicationUpdate['restaurantCreatedAt'] = FieldValue.serverTimestamp();
       }
 
@@ -166,15 +338,25 @@ class ProducerApplicationsAdminSayfasi extends StatelessWidget {
 
       if (!context.mounted) return;
 
+      String successMessage;
+
+      if (shouldCreateRestaurant) {
+        successMessage = 'Başvuru onaylandı ve restoran hesabı oluşturuldu.';
+      } else if (shouldCreateEvSeller) {
+        successMessage =
+            'Başvuru onaylandı ve Ev Lezzetleri satıcı hesabı oluşturuldu.';
+      } else if (shouldCreateChefSeller) {
+        successMessage =
+            'Başvuru onaylandı ve Usta Şef satıcı hesabı oluşturuldu.';
+      } else if (status == 'approved') {
+        successMessage = 'Başvuru onaylandı.';
+      } else {
+        successMessage = 'Başvuru reddedildi.';
+      }
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-            shouldCreateRestaurant
-                ? 'Başvuru onaylandı ve restoran hesabı oluşturuldu.'
-                : status == 'approved'
-                    ? 'Başvuru onaylandı.'
-                    : 'Başvuru reddedildi.',
-          ),
+          content: Text(successMessage),
           backgroundColor:
               status == 'approved' ? Colors.green : Colors.redAccent,
         ),
@@ -380,21 +562,40 @@ class ProducerApplicationsAdminSayfasi extends StatelessWidget {
                           'Konum',
                           '$city ${district.isNotEmpty ? '/ $district' : ''}',
                         ),
-                      _info('Başvuru Türü', _typeLabel(type)),
+                      _info(
+                        'Başvuru Türü',
+                        _typeLabel(type),
+                      ),
                       if (type == 'profesyonel_isletme') ...[
-                        _info('İşletme Tipi', _businessTypeLabel(isletmeTipi)),
+                        _info(
+                          'İşletme Tipi',
+                          _businessTypeLabel(isletmeTipi),
+                        ),
                         _info(
                           'Çalışma / Fatura Durumu',
-                          _professionalStatusLabel(professionalStatus),
+                          _professionalStatusLabel(
+                            professionalStatus,
+                          ),
                         ),
                         _info(
                           'Vergi Levhası Gerekli mi?',
-                          _yesNo(requiresTaxCertificate),
+                          _yesNo(
+                            requiresTaxCertificate,
+                          ),
                         ),
-                        _info('T.C. Kimlik / Vergi No', _clean(tcknVkn)),
+                        _info(
+                          'T.C. Kimlik / Vergi No',
+                          _clean(tcknVkn),
+                        ),
                         _info('IBAN', _clean(iban)),
-                        _info('Vergi / Belge Notu', _clean(vergiNotu)),
-                        _info('Açıklama', _clean(aciklama)),
+                        _info(
+                          'Vergi / Belge Notu',
+                          _clean(vergiNotu),
+                        ),
+                        _info(
+                          'Açıklama',
+                          _clean(aciklama),
+                        ),
                       ],
                       if (type == 'ev_lezzetleri') ...[
                         _info(
@@ -402,7 +603,10 @@ class ProducerApplicationsAdminSayfasi extends StatelessWidget {
                           _clean(tcKimlikVergiNo),
                         ),
                         _info('IBAN', _clean(iban)),
-                        _info('Fatura Bilgileri', _clean(billingInfo)),
+                        _info(
+                          'Fatura Bilgileri',
+                          _clean(billingInfo),
+                        ),
                       ],
                       const SizedBox(height: 12),
                       if (note.isNotEmpty) _info('Not', note),
@@ -421,7 +625,9 @@ class ProducerApplicationsAdminSayfasi extends StatelessWidget {
                                         applicationData: data,
                                       );
                                     },
-                              icon: const Icon(Icons.check_rounded),
+                              icon: const Icon(
+                                Icons.check_rounded,
+                              ),
                               label: const Text('Onayla'),
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.greenAccent,
@@ -430,7 +636,9 @@ class ProducerApplicationsAdminSayfasi extends StatelessWidget {
                                     Colors.greenAccent.withOpacity(0.25),
                                 disabledForegroundColor: Colors.black45,
                                 shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(14),
+                                  borderRadius: BorderRadius.circular(
+                                    14,
+                                  ),
                                 ),
                               ),
                             ),
@@ -448,7 +656,9 @@ class ProducerApplicationsAdminSayfasi extends StatelessWidget {
                                         applicationData: data,
                                       );
                                     },
-                              icon: const Icon(Icons.close_rounded),
+                              icon: const Icon(
+                                Icons.close_rounded,
+                              ),
                               label: const Text('Reddet'),
                               style: OutlinedButton.styleFrom(
                                 foregroundColor: Colors.redAccent,
@@ -458,7 +668,9 @@ class ProducerApplicationsAdminSayfasi extends StatelessWidget {
                                 disabledForegroundColor:
                                     Colors.redAccent.withOpacity(0.35),
                                 shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(14),
+                                  borderRadius: BorderRadius.circular(
+                                    14,
+                                  ),
                                 ),
                               ),
                             ),
