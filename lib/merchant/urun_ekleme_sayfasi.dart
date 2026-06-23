@@ -65,7 +65,6 @@ class _UrunEklemeSayfasiState extends State<UrunEklemeSayfasi> {
     "Tarhana",
     "Ev Yapımı Kuru Gıda",
     "Reçel & Marmelat",
-    "Turşu",
     "Kuru Bakliyat Hazırlıkları",
     "Hamur Ürünleri / Dondurulmuş Mantı",
   ];

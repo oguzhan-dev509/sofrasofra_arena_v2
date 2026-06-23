@@ -44,7 +44,6 @@ class _EvLezzetleriVitriniState extends State<EvLezzetleriVitrini> {
     'Tarhana',
     'Ev Yapımı Kuru Gıda',
     'Reçel & Marmelat',
-    'Turşu',
     'Kuru Bakliyat Hazırlıkları',
     'Hamur Ürünleri / Dondurulmuş Mantı',
   ];
@@ -214,7 +213,7 @@ class _EvLezzetleriVitriniState extends State<EvLezzetleriVitrini> {
     }
 
     if (raw.contains('tursu') || raw.contains('turşu')) {
-      return 'Turşu';
+      return 'Turşu & Diğerleri';
     }
 
     if (raw.contains('bakliyat') ||
