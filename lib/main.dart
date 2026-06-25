@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 
@@ -7,6 +8,7 @@ import 'package:sofrasofra_arena_v2/modules/widgets/global_radio_mini_player.dar
 import 'package:sofrasofra_arena_v2/services/sofrasofra_radio_service.dart';
 import 'package:sofrasofra_arena_v2/services/app_auth_service.dart';
 import 'package:sofrasofra_arena_v2/modules/orders/order_success_page.dart';
+import 'package:sofrasofra_arena_v2/services/app_install_tracking_service.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -15,7 +17,9 @@ Future<void> main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
   await AppAuthService.ensureGuestSession();
-
+  unawaited(
+    AppInstallTrackingService.start(),
+  );
   debugPrint(
     'AUTH READY uid=${AppAuthService.currentUid} anonymous=${AppAuthService.isAnonymous}',
   );

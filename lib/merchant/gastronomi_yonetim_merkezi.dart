@@ -18,7 +18,7 @@ import 'package:sofrasofra_arena_v2/dev/academy_master_runner.dart';
 import 'package:sofrasofra_arena_v2/admin/consulting_requests_admin_page.dart';
 import 'package:sofrasofra_arena_v2/modules/chef_brand_career_page.dart';
 import 'package:sofrasofra_arena_v2/modules/workshop_requests_admin_page.dart';
-
+import 'package:sofrasofra_arena_v2/admin/app_install_analytics_page.dart';
 import 'package:sofrasofra_arena_v2/admin/producer_applications_admin_sayfasi.dart';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -576,6 +576,20 @@ class GastronomiYonetimMerkezi extends StatelessWidget {
     ];
 
     final kuryeCards = <_DashboardItem>[
+      _DashboardItem(
+        title: 'Uygulama Kullanım Analizi',
+        subtitle:
+            'Telefon, bilgisayar, kurulum ve aktif cihaz sayılarını takip et.',
+        icon: Icons.insights_rounded,
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => const AppInstallAnalyticsPage(),
+            ),
+          );
+        },
+      ),
       _DashboardItem(
         title: 'Kurye Başvuruları',
         subtitle: 'Başvuru havuzu, inceleme, onay ve red süreçlerini yönetin.',

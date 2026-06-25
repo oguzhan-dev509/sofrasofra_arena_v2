@@ -238,6 +238,32 @@ function restaurantOwnerCanUpdate() {
     allow read, write: if signedIn();
   }
 }
+match /appInstallations/{installId} {
+  allow create: if signedIn()
+    && request.resource.data.installId == installId
+    && request.resource.data.userUid == request.auth.uid;
+
+  allow get: if signedIn()
+    && (
+      isPlatformAdmin()
+      || resource.data.userUid == request.auth.uid
+    );
+
+  allow list: if isPlatformAdmin();
+
+  allow update: if signedIn()
+    && (
+      isPlatformAdmin()
+      || (
+        resource.data.userUid == request.auth.uid
+        && request.resource.data.userUid == request.auth.uid
+        && request.resource.data.installId == installId
+        && request.resource.data.installId == resource.data.installId
+      )
+    );
+
+  allow delete: if isPlatformAdmin();
+}
 match /producer_applications/{applicationId} {
   allow read: if signedIn();
   allow create: if signedIn();

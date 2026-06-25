@@ -19,6 +19,37 @@
   <link rel="manifest" href="manifest.json">
 </head>
 <body>
+<script>
+  (function () {
+    const installedKey = 'sofrasofra_pwa_installed_v1';
+    const installedAtKey = 'sofrasofra_pwa_installed_at_v1';
+
+    const isStandalone =
+      window.matchMedia('(display-mode: standalone)').matches ||
+      window.navigator.standalone === true;
+
+    if (isStandalone) {
+      localStorage.setItem(installedKey, 'true');
+
+      if (!localStorage.getItem(installedAtKey)) {
+        localStorage.setItem(
+          installedAtKey,
+          new Date().toISOString()
+        );
+      }
+    }
+
+    window.addEventListener('appinstalled', function () {
+      localStorage.setItem(installedKey, 'true');
+      localStorage.setItem(
+        installedAtKey,
+        new Date().toISOString()
+      );
+
+      console.log('SOFRASOFRA PWA INSTALL DETECTED');
+    });
+  })();
+</script>
   <script src="flutter_bootstrap.js" async></script>
 </body>
 </html>
