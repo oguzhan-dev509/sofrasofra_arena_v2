@@ -175,7 +175,7 @@ class ProducerApplicationsAdminSayfasi extends StatelessWidget {
 
       final shouldCreateRestaurant = status == 'approved' &&
           type == 'profesyonel_isletme' &&
-          isletmeTipi == 'restoran';
+          const {'restoran', 'kafe', 'catering'}.contains(isletmeTipi);
 
       final founderFields = _founderEntitlementFields(applicationData);
 
@@ -280,6 +280,17 @@ class ProducerApplicationsAdminSayfasi extends StatelessWidget {
       }
 
       if (shouldCreateRestaurant) {
+        final businessCategory = switch (isletmeTipi) {
+          'kafe' => 'Kafe',
+          'catering' => 'Catering',
+          _ => 'Restoran',
+        };
+
+        final businessFallbackName = switch (isletmeTipi) {
+          'kafe' => 'Kafe',
+          'catering' => 'Catering İşletmesi',
+          _ => 'Restoran',
+        };
         final restaurantId = ownerUid;
         final restaurantRef =
             firestore.collection('restaurants').doc(restaurantId);
@@ -287,7 +298,7 @@ class ProducerApplicationsAdminSayfasi extends StatelessWidget {
         final restaurantName = _stringValue(
           applicationData,
           'isletmeAdi',
-          fallback: 'Restoran',
+          fallback: businessFallbackName,
         );
 
         batch.set(
@@ -298,8 +309,9 @@ class ProducerApplicationsAdminSayfasi extends StatelessWidget {
             'applicationId': docId,
             'sellerType': 'restaurant',
             'type': 'restaurant',
-            'category': 'Restoran',
-            'isletmeTipi': 'restoran',
+            'category': businessCategory,
+            'isletmeTipi': isletmeTipi,
+            'businessType': isletmeTipi,
             'name': restaurantName,
             'restaurantName': restaurantName,
             'title': restaurantName,
@@ -330,6 +342,8 @@ class ProducerApplicationsAdminSayfasi extends StatelessWidget {
 
         applicationUpdate['restaurantId'] = restaurantId;
         applicationUpdate['sellerType'] = 'restaurant';
+        applicationUpdate['businessType'] = isletmeTipi;
+        applicationUpdate['businessCategory'] = businessCategory;
         applicationUpdate['restaurantCreatedAt'] = FieldValue.serverTimestamp();
       }
 
@@ -341,7 +355,14 @@ class ProducerApplicationsAdminSayfasi extends StatelessWidget {
       String successMessage;
 
       if (shouldCreateRestaurant) {
-        successMessage = 'Başvuru onaylandı ve restoran hesabı oluşturuldu.';
+        final createdAccountLabel = switch (isletmeTipi) {
+          'kafe' => 'kafe hesabı',
+          'catering' => 'catering hesabı',
+          _ => 'restoran hesabı',
+        };
+
+        successMessage =
+            'Başvuru onaylandı ve $createdAccountLabel oluşturuldu.';
       } else if (shouldCreateEvSeller) {
         successMessage =
             'Başvuru onaylandı ve Ev Lezzetleri satıcı hesabı oluşturuldu.';
