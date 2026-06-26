@@ -286,111 +286,208 @@ class _ArenaEntryPageState extends State<ArenaEntryPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SofrasofraPazaryeriVitrini(),
+                  const SizedBox(height: 16),
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF151515),
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(
+                        color: _gold.withValues(alpha: 0.22),
+                      ),
+                    ),
+                    child: Wrap(
+                      spacing: 10,
+                      runSpacing: 10,
+                      children: [
+                        OutlinedButton.icon(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => EvLezzetleriVitrini(
+                                  city: _selectedCity ?? 'İstanbul',
+                                  district: _selectedDistrict ?? 'Güngören',
+                                ),
+                              ),
+                            );
+                          },
+                          icon: const Icon(Icons.home_rounded),
+                          label: const Text('Ev Lezzetleri'),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: _gold,
+                            side: BorderSide(
+                              color: _gold.withValues(alpha: 0.55),
+                            ),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 18,
+                              vertical: 14,
+                            ),
+                          ),
+                        ),
+                        OutlinedButton.icon(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => const SefVitriniV2(),
+                              ),
+                            );
+                          },
+                          icon: const Icon(Icons.workspace_premium_rounded),
+                          label: const Text('Usta Şefler'),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: _gold,
+                            side: BorderSide(
+                              color: _gold.withValues(alpha: 0.55),
+                            ),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 18,
+                              vertical: 14,
+                            ),
+                          ),
+                        ),
+                        OutlinedButton.icon(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => const PremiumRestoranVitrini(),
+                              ),
+                            );
+                          },
+                          icon: const Icon(Icons.restaurant_rounded),
+                          label: const Text('Restoranlar'),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: _gold,
+                            side: BorderSide(
+                              color: _gold.withValues(alpha: 0.55),
+                            ),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 18,
+                              vertical: 14,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                   const SizedBox(height: 24),
                   const _CourierFounderBanner(),
                   const SizedBox(height: 24),
                   Container(
                     width: double.infinity,
-                    padding: const EdgeInsets.all(24),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 18,
+                      vertical: 14,
+                    ),
                     decoration: BoxDecoration(
                       color: _panel,
-                      borderRadius: BorderRadius.circular(24),
+                      borderRadius: BorderRadius.circular(18),
                       border: Border.all(
-                        color: _gold,
-                        width: 1.4,
+                        color: _gold.withValues(alpha: 0.45),
                       ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: _gold.withValues(alpha: 0.08),
-                          blurRadius: 18,
-                          spreadRadius: 1,
-                        ),
-                      ],
                     ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Row(
+                    child: LayoutBuilder(
+                      builder: (context, constraints) {
+                        final isNarrow = constraints.maxWidth < 700;
+
+                        final information = Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Icon(
+                            const Icon(
                               Icons.groups_rounded,
                               color: _gold,
                               size: 24,
                             ),
-                            SizedBox(width: 10),
+                            const SizedBox(width: 12),
                             Expanded(
-                              child: Text(
-                                'MAHALLE MUTFAK KOÇU OL',
-                                style: TextStyle(
-                                  color: _gold,
-                                  fontWeight: FontWeight.w900,
-                                  fontSize: 17,
-                                  letterSpacing: 0.5,
-                                ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: const [
+                                  Text(
+                                    'Mahalle Mutfak Koçu Ol',
+                                    style: TextStyle(
+                                      color: _gold,
+                                      fontSize: 17,
+                                      fontWeight: FontWeight.w900,
+                                    ),
+                                  ),
+                                  SizedBox(height: 4),
+                                  Text(
+                                    'Mahallendeki üretici, şef ve restoranları Sofrasofra’ya kazandır.',
+                                    style: TextStyle(
+                                      color: Colors.white70,
+                                      fontSize: 13.5,
+                                      height: 1.3,
+                                    ),
+                                  ),
+                                  SizedBox(height: 5),
+                                  Text(
+                                    'Onaylı başvuru 100 TL • İlk satış +250 TL',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 12.5,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                           ],
-                        ),
-                        const SizedBox(height: 14),
-                        const Text(
-                          'Ev Lezzetleri üreticilerini, Usta Şefleri ve mahalle restoranlarını Sofrasofra’ya kazandır.',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                            height: 1.35,
-                            fontWeight: FontWeight.w800,
+                        );
+
+                        final button = ElevatedButton.icon(
+                          onPressed: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (_) =>
+                                    const MahalleMutfakKocuBasvuruSayfasi(),
+                              ),
+                            );
+                          },
+                          icon: const Icon(
+                            Icons.arrow_forward_rounded,
+                            size: 18,
                           ),
-                        ),
-                        const SizedBox(height: 16),
-                        Wrap(
-                          spacing: 10,
-                          runSpacing: 10,
+                          label: const Text('Başvur'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: _gold,
+                            foregroundColor: Colors.black,
+                            elevation: 0,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 18,
+                              vertical: 13,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(14),
+                            ),
+                            textStyle: const TextStyle(
+                              fontWeight: FontWeight.w900,
+                            ),
+                          ),
+                        );
+
+                        if (isNarrow) {
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              information,
+                              const SizedBox(height: 12),
+                              button,
+                            ],
+                          );
+                        }
+
+                        return Row(
                           children: [
-                            _CoachRewardBadge(
-                              icon: Icons.verified_rounded,
-                              text: 'Onaylı başvuru: 100 TL',
-                            ),
-                            _CoachRewardBadge(
-                              icon: Icons.shopping_bag_rounded,
-                              text: 'İlk satış: +250 TL',
-                            ),
-                            _CoachRewardBadge(
-                              icon: Icons.workspace_premium_rounded,
-                              text: 'Aylık bonus ve ilçe liderliği',
-                            ),
+                            Expanded(child: information),
+                            const SizedBox(width: 18),
+                            button,
                           ],
-                        ),
-                        const SizedBox(height: 20),
-                        SizedBox(
-                          width: double.infinity,
-                          child: ElevatedButton.icon(
-                            onPressed: () {
-                              Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (_) =>
-                                      const MahalleMutfakKocuBasvuruSayfasi(),
-                                ),
-                              );
-                            },
-                            icon: const Icon(Icons.arrow_forward_rounded),
-                            label: const Text(
-                              'HEMEN BAŞVUR',
-                              style: TextStyle(
-                                fontWeight: FontWeight.w900,
-                                letterSpacing: 0.4,
-                              ),
-                            ),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: _gold,
-                              foregroundColor: Colors.black,
-                              padding: const EdgeInsets.symmetric(vertical: 16),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(15),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
+                        );
+                      },
                     ),
                   ),
                   const SizedBox(height: 24),
