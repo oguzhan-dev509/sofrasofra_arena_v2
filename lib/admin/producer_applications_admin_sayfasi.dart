@@ -346,8 +346,47 @@ class ProducerApplicationsAdminSayfasi extends StatelessWidget {
         applicationUpdate['businessCategory'] = businessCategory;
         applicationUpdate['restaurantCreatedAt'] = FieldValue.serverTimestamp();
       }
+      final isApproved = status == 'approved';
+
+      final notificationRef =
+          firestore.collection('user_notifications').doc('${docId}_$status');
+
+      final applicationLabel = switch (type) {
+        'ev_lezzetleri' => 'Ev Lezzetleri',
+        'profesyonel_isletme' => switch (isletmeTipi) {
+            'usta_sef' => 'Usta Şef',
+            'restoran' => 'Restoran',
+            'kafe' => 'Kafe',
+            'catering' => 'Catering',
+            _ => 'Profesyonel İşletme',
+          },
+        _ => 'Sofrasofra',
+      };
+
+      batch.set(
+        notificationRef,
+        <String, dynamic>{
+          'userId': ownerUid,
+          'title': isApproved
+              ? 'Başvurunuz onaylandı'
+              : 'Başvurunuz değerlendirildi',
+          'message': isApproved
+              ? '$applicationLabel başvurunuz onaylandı. Yönetim paneliniz kullanıma hazır.'
+              : '$applicationLabel başvurunuz şu aşamada onaylanmadı. Ayrıntılı bilgi için Sofrasofra ile iletişime geçebilirsiniz.',
+          'type': isApproved ? 'application_approved' : 'application_rejected',
+          'applicationId': docId,
+          'applicationType': type,
+          'businessType': isletmeTipi,
+          'isRead': false,
+          'createdAt': FieldValue.serverTimestamp(),
+          'updatedAt': FieldValue.serverTimestamp(),
+          'readAt': null,
+        },
+        SetOptions(merge: true),
+      );
 
       batch.update(applicationRef, applicationUpdate);
+
       await batch.commit();
 
       if (!context.mounted) return;

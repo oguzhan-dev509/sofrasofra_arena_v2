@@ -49,6 +49,19 @@ class BasvurularimSayfasi extends StatelessWidget {
     }
   }
 
+  String _statusMessage(String? status) {
+    switch (status) {
+      case 'approved':
+        return 'Başvurunuz onaylandı. Yönetim paneliniz kullanıma hazır.';
+      case 'rejected':
+        return 'Başvurunuz şu aşamada onaylanmadı. Ayrıntılı bilgi için Sofrasofra ile iletişime geçebilirsiniz.';
+      case 'draft':
+        return 'Başvurunuz henüz tamamlanmamış taslak durumundadır.';
+      default:
+        return 'Başvurunuz inceleme sürecindedir. Onay sonrası ilgili paneliniz açılacaktır.';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final user = FirebaseAuth.instance.currentUser;
@@ -206,8 +219,8 @@ class BasvurularimSayfasi extends StatelessWidget {
                               ),
                             ],
                             const SizedBox(height: 12),
-                            const Text(
-                              'Başvurunuz inceleme sürecindedir. Onay sonrası ilgili paneliniz açılacaktır.',
+                            Text(
+                              _statusMessage(status),
                               style: TextStyle(
                                 color: Colors.white54,
                                 fontSize: 12.5,

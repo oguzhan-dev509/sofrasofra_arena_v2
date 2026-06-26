@@ -276,6 +276,31 @@ match /producer_applications/{applicationId} {
 
   allow update, delete: if isPlatformAdmin();
 }
+match /user_notifications/{notificationId} {
+  // Kullanıcı yalnızca kendisine ait bildirimleri okuyabilir.
+  allow read: if signedIn()
+    && resource.data.userId == request.auth.uid;
+
+  // Bildirim yalnızca platform yöneticisi tarafından oluşturulabilir.
+  allow create: if isPlatformAdmin()
+    && request.resource.data.userId is string
+    && request.resource.data.userId.size() > 0;
+
+  // Kullanıcı yalnızca okundu bilgilerini değiştirebilir.
+  allow update: if signedIn()
+    && resource.data.userId == request.auth.uid
+    && request.resource.data.userId == resource.data.userId
+    && request.resource.data
+      .diff(resource.data)
+      .affectedKeys()
+      .hasOnly([
+        'isRead',
+        'readAt',
+        'updatedAt'
+      ]);
+
+  allow delete: if isPlatformAdmin();
+}
 match /restaurants/{restaurantId} {
   allow read: if true;
 
