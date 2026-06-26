@@ -265,8 +265,15 @@ match /appInstallations/{installId} {
   allow delete: if isPlatformAdmin();
 }
 match /producer_applications/{applicationId} {
-  allow read: if signedIn();
-  allow create: if signedIn();
+  allow read: if isPlatformAdmin()
+    || (
+      signedIn()
+      && resource.data.userId == request.auth.uid
+    );
+
+  // Başvurular uygulamadan doğrudan değil, Cloud Function üzerinden yazılıyor.
+  allow create: if false;
+
   allow update, delete: if isPlatformAdmin();
 }
 match /restaurants/{restaurantId} {
