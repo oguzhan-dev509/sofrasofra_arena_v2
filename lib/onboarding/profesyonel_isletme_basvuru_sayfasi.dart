@@ -38,10 +38,7 @@ class _ProfesyonelIsletmeBasvuruSayfasiState
   String _professionalStatus = 'individual_chef';
   bool _saving = false;
   bool _legalAccepted = false;
-  bool get _requiresTaxCertificate {
-    return _professionalStatus == 'business_owner' ||
-        _professionalStatus == 'corporate_catering';
-  }
+  bool get _requiresTaxCertificate => true;
 
   @override
   void dispose() {
@@ -62,7 +59,13 @@ class _ProfesyonelIsletmeBasvuruSayfasiState
     if (_saving) return;
 
     final valid = _formKey.currentState?.validate() ?? false;
-    if (!valid) return;
+    if (!valid) {
+      _showSnack(
+        'Lütfen zorunlu alanları eksiksiz ve geçerli biçimde doldurun.',
+        isError: true,
+      );
+      return;
+    }
 
     if (!_legalAccepted) {
       _showSnack(
@@ -164,6 +167,20 @@ class _ProfesyonelIsletmeBasvuruSayfasiState
     return null;
   }
 
+  String? _tcknVknValidator(String? value) {
+    final text = value?.replaceAll(RegExp(r'\D'), '') ?? '';
+
+    if (text.isEmpty) {
+      return 'T.C. kimlik veya vergi numarası zorunludur.';
+    }
+
+    if (text.length != 10 && text.length != 11) {
+      return '10 haneli vergi numarası veya 11 haneli T.C. kimlik numarası girin.';
+    }
+
+    return null;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -254,11 +271,12 @@ class _ProfesyonelIsletmeBasvuruSayfasiState
                       ),
                       _field(
                         controller: _vergiNotuCtrl,
-                        label: 'Vergi Levhası / Belge Notu',
+                        label: 'Vergi Levhası / Belge Bilgisi',
                         hint:
                             'Örn: Vergi levham hazır, belgeyi panelden yükleyeceğim',
                         icon: Icons.verified_rounded,
                         maxLines: 3,
+                        validator: _required,
                       ),
                       _field(
                         controller: _ibanCtrl,
@@ -272,8 +290,10 @@ class _ProfesyonelIsletmeBasvuruSayfasiState
                         controller: _tcknVknCtrl,
                         label: 'T.C. Kimlik / Vergi No',
                         hint:
-                            'Bireysel şefler T.C. kimlik numarası, işletmeler vergi numarası girebilir.',
+                            '10 haneli vergi numarası veya 11 haneli T.C. kimlik numarası',
                         icon: Icons.badge_rounded,
+                        keyboardType: TextInputType.number,
+                        validator: _tcknVknValidator,
                       ),
                       _field(
                         controller: _aciklamaCtrl,
@@ -380,7 +400,7 @@ class _ProfesyonelIsletmeBasvuruSayfasiState
         ),
         const SizedBox(height: 8),
         const Text(
-          'Şefler için vergi levhası her zaman zorunlu değildir. Durumunuzu seçin; ekibimiz başvurunuzu buna göre değerlendirir.',
+          'Usta Şef, restoran, kafe ve catering başvurularında vergi levhası veya geçerli vergi mükellefiyeti bilgisi zorunludur.',
           style: TextStyle(
             color: Colors.white54,
             fontSize: 12.5,
@@ -441,10 +461,8 @@ class _ProfesyonelIsletmeBasvuruSayfasiState
               ),
               const SizedBox(width: 10),
               Expanded(
-                child: Text(
-                  _requiresTaxCertificate
-                      ? 'Bu başvuru türünde işletme / vergi bilgileri incelemede öncelikli değerlendirilir.'
-                      : 'Bu başvuru türünde vergi levhası zorunlu tutulmaz. Kimlik, IBAN ve çalışma durumu ayrıca değerlendirilir.',
+                child: const Text(
+                  'Bu başvuru türünde vergi levhası veya geçerli vergi mükellefiyeti bilgisi zorunludur. Başvuru; kimlik, yetki, IBAN ve işletme bilgileriyle birlikte değerlendirilir.',
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 14.5,
