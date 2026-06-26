@@ -70,12 +70,6 @@ class _SofrasofraPazaryeriVitriniState
                       isMobile: isMobile,
                       searchQuery: _searchQuery,
                     ),
-                    const _MarketTitle(),
-                    const SizedBox(height: 18),
-                    _LiveShowcaseSections(
-                      isMobile: isMobile,
-                      searchQuery: _searchQuery,
-                    ),
                   ],
                 ),
               ),
@@ -277,8 +271,6 @@ class _HeroShowcase extends StatelessWidget {
             searchQuery: searchQuery,
             onChanged: onSearchChanged,
           ),
-          const SizedBox(height: 14),
-          const _CategoryChips(),
         ],
       ),
     );
