@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+
 import 'package:sofrasofra_arena_v2/modules/widgets/campaign_counter_panel.dart';
 import 'package:sofrasofra_arena_v2/modules/widgets/sofrasofra_pazaryeri_vitrini.dart';
 import 'package:sofrasofra_arena_v2/modules/auth/satici_admin_giris_sayfasi.dart';
 import 'package:sofrasofra_arena_v2/modules/widgets/kurumsal_footer_links.dart';
 import 'package:sofrasofra_arena_v2/modules/widgets/kurumsal_site_card.dart';
 import 'package:sofrasofra_arena_v2/onboarding/onayli_panel_yonlendirici.dart';
-import 'package:sofrasofra_arena_v2/onboarding/basvurularim_sayfasi.dart';
+
 import 'dart:convert';
 import 'package:sofrasofra_arena_v2/modules/kurumsal/mahalle_mutfak_kocu_basvuru_sayfasi.dart';
 import 'package:flutter/services.dart';
@@ -515,39 +515,6 @@ class _ArenaEntryPageState extends State<ArenaEntryPage> {
                                     ),
                                     child: const Text('Üretici Girişi'),
                                   ),
-                                  StreamBuilder<User?>(
-                                    stream: FirebaseAuth.instance
-                                        .authStateChanges(),
-                                    builder: (context, snapshot) {
-                                      final user = snapshot.data;
-
-                                      if (user == null || user.isAnonymous) {
-                                        return const SizedBox.shrink();
-                                      }
-
-                                      return OutlinedButton.icon(
-                                        onPressed: () {
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (_) =>
-                                                  const BasvurularimSayfasi(),
-                                            ),
-                                          );
-                                        },
-                                        icon: const Icon(
-                                            Icons.assignment_rounded),
-                                        label: const Text('Başvurularım'),
-                                        style: OutlinedButton.styleFrom(
-                                          foregroundColor: Colors.white,
-                                          side: BorderSide(
-                                            color: Colors.white
-                                                .withValues(alpha: 0.35),
-                                          ),
-                                        ),
-                                      );
-                                    },
-                                  ),
                                   const SizedBox(height: 10),
                                   OutlinedButton(
                                     onPressed: () {
@@ -609,27 +576,6 @@ class _ArenaEntryPageState extends State<ArenaEntryPage> {
                                       foregroundColor: Colors.black,
                                     ),
                                     child: const Text('Üretici Girişi'),
-                                  ),
-                                  const SizedBox(width: 12),
-                                  OutlinedButton.icon(
-                                    onPressed: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (_) =>
-                                              const BasvurularimSayfasi(),
-                                        ),
-                                      );
-                                    },
-                                    icon: const Icon(Icons.assignment_rounded),
-                                    label: const Text('Başvurularım'),
-                                    style: OutlinedButton.styleFrom(
-                                      foregroundColor: Colors.white,
-                                      side: BorderSide(
-                                        color: Colors.white
-                                            .withValues(alpha: 0.35),
-                                      ),
-                                    ),
                                   ),
                                   const SizedBox(width: 12),
                                   OutlinedButton(
