@@ -328,6 +328,353 @@ class _MusteriSiparisTakipSayfasiState
     );
   }
 
+  Future<List<Map<String, dynamic>>> _loadBuyerReceiptItems(
+    String orderId,
+  ) async {
+    final sellerOrdersSnapshot = await FirebaseFirestore.instance
+        .collection('sellerOrders')
+        .where('orderId', isEqualTo: orderId)
+        .get();
+
+    final receiptItems = <Map<String, dynamic>>[];
+
+    for (final sellerOrderDoc in sellerOrdersSnapshot.docs) {
+      final sellerOrderData = sellerOrderDoc.data();
+
+      final sellerName = _safeString(
+        sellerOrderData['sellerName'] ??
+            sellerOrderData['dukkanAdi'] ??
+            sellerOrderData['saticiAdi'] ??
+            sellerOrderData['saticiId'],
+      );
+
+      final itemsSnapshot =
+          await sellerOrderDoc.reference.collection('items').get();
+
+      for (final itemDoc in itemsSnapshot.docs) {
+        final item = itemDoc.data();
+
+        final quantity = _asInt(
+          item['adet'] ?? item['quantity'] ?? item['qty'],
+        );
+
+        receiptItems.add({
+          'urunAdi': _safeString(
+            item['urunAdi'] ?? item['ad'] ?? item['name'],
+            fallback: 'Ürün',
+          ),
+          'adet': quantity <= 0 ? 1 : quantity,
+          'fiyat': _asDouble(
+            item['fiyat'] ??
+                item['birimFiyat'] ??
+                item['unitPrice'] ??
+                item['price'],
+          ),
+          'satici': sellerName,
+        });
+      }
+    }
+
+    return receiptItems;
+  }
+
+  Widget _buyerReceiptRow(
+    String label,
+    String value, {
+    bool highlight = false,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 5),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 125,
+            child: Text(
+              label,
+              style: const TextStyle(
+                color: Colors.white60,
+                fontSize: 12.5,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              value,
+              textAlign: TextAlign.right,
+              style: TextStyle(
+                color: highlight ? const Color(0xFFFFB300) : Colors.white,
+                fontSize: highlight ? 15 : 13,
+                fontWeight: highlight ? FontWeight.w900 : FontWeight.w600,
+                height: 1.35,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showBuyerReceipt(
+    BuildContext context,
+    QueryDocumentSnapshot<Map<String, dynamic>> siparisDoc,
+  ) {
+    final data = siparisDoc.data();
+
+    final siparisNo = _safeString(
+      data['siparisNo'],
+      fallback: siparisDoc.id,
+    );
+
+    final musteriAd = _safeString(
+      data['musteriAd'] ?? data['customerName'],
+      fallback: 'Belirtilmedi',
+    );
+
+    final telefon = _extractTelefon(data);
+    final adres = _extractAdres(data);
+    final teslimatTipi = _extractTeslimatTipi(data);
+    final odemeYontemi = _extractOdemeYontemi(data);
+
+    final paymentStatus = _safeString(
+      data['paymentStatus'],
+      fallback: 'Bekleniyor',
+    );
+
+    final status = _normalizeStatus(
+      data['status'] ?? data['durum'],
+    );
+
+    final toplamTutar = _asDouble(
+      data['genelToplam'] ?? data['toplamTutar'] ?? data['total'],
+    );
+
+    final itemsFuture = _loadBuyerReceiptItems(siparisDoc.id);
+
+    showDialog<void>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          backgroundColor: const Color(0xFF151515),
+          surfaceTintColor: Colors.transparent,
+          insetPadding: const EdgeInsets.symmetric(
+            horizontal: 18,
+            vertical: 24,
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(22),
+            side: const BorderSide(
+              color: Color(0x55FFB300),
+            ),
+          ),
+          title: const Row(
+            children: [
+              Icon(
+                Icons.receipt_long_outlined,
+                color: Color(0xFFFFB300),
+              ),
+              SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  'Alıcı Fişi',
+                  style: TextStyle(
+                    color: Color(0xFFFFB300),
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          content: ConstrainedBox(
+            constraints: const BoxConstraints(
+              maxWidth: 560,
+              maxHeight: 650,
+            ),
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buyerReceiptRow(
+                    'Sipariş No',
+                    siparisNo,
+                    highlight: true,
+                  ),
+                  _buyerReceiptRow(
+                    'Tarih',
+                    _siparisTarihi(data['createdAt']),
+                  ),
+                  _buyerReceiptRow('Alıcı', musteriAd),
+                  _buyerReceiptRow('Telefon', telefon),
+                  _buyerReceiptRow('Adres', adres),
+                  _buyerReceiptRow('Teslimat', teslimatTipi),
+                  _buyerReceiptRow('Ödeme', odemeYontemi),
+                  _buyerReceiptRow('Ödeme Durumu', paymentStatus),
+                  _buyerReceiptRow(
+                    'Sipariş Durumu',
+                    _statusText(status),
+                  ),
+                  const Divider(
+                    color: Color(0x33FFFFFF),
+                    height: 26,
+                  ),
+                  const Text(
+                    'ÜRÜNLER',
+                    style: TextStyle(
+                      color: Color(0xFFFFB300),
+                      fontSize: 12,
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: 0.8,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  FutureBuilder<List<Map<String, dynamic>>>(
+                    future: itemsFuture,
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 18),
+                          child: Center(
+                            child: CircularProgressIndicator(
+                              color: Color(0xFFFFB300),
+                            ),
+                          ),
+                        );
+                      }
+
+                      if (snapshot.hasError) {
+                        return Text(
+                          'Ürün bilgileri yüklenemedi: ${snapshot.error}',
+                          style: const TextStyle(
+                            color: Colors.redAccent,
+                            fontSize: 12.5,
+                          ),
+                        );
+                      }
+
+                      final items = snapshot.data ?? [];
+
+                      if (items.isEmpty) {
+                        return const Text(
+                          'Bu sipariş için ürün kaydı bulunamadı.',
+                          style: TextStyle(
+                            color: Colors.white60,
+                            fontSize: 13,
+                          ),
+                        );
+                      }
+
+                      return Column(
+                        children: items.map((item) {
+                          final quantity = item['adet'] as int;
+                          final unitPrice = item['fiyat'] as double;
+                          final lineTotal = unitPrice * quantity;
+
+                          final seller = _safeString(item['satici']);
+
+                          return Container(
+                            margin: const EdgeInsets.only(bottom: 8),
+                            padding: const EdgeInsets.all(11),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF202020),
+                              borderRadius: BorderRadius.circular(13),
+                              border: Border.all(
+                                color: const Color(0x18FFFFFF),
+                              ),
+                            ),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        item['urunAdi'].toString(),
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 13.5,
+                                          fontWeight: FontWeight.w800,
+                                        ),
+                                      ),
+                                      if (seller.isNotEmpty) ...[
+                                        const SizedBox(height: 3),
+                                        Text(
+                                          seller,
+                                          style: const TextStyle(
+                                            color: Colors.white54,
+                                            fontSize: 11.5,
+                                          ),
+                                        ),
+                                      ],
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        '$quantity × ${_price(unitPrice)}',
+                                        style: const TextStyle(
+                                          color: Colors.white60,
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(width: 10),
+                                Text(
+                                  _price(lineTotal),
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 13.5,
+                                    fontWeight: FontWeight.w900,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        }).toList(),
+                      );
+                    },
+                  ),
+                  const Divider(
+                    color: Color(0x33FFFFFF),
+                    height: 26,
+                  ),
+                  _buyerReceiptRow(
+                    'Genel Toplam',
+                    _price(toplamTutar),
+                    highlight: true,
+                  ),
+                  const SizedBox(height: 8),
+                  const Text(
+                    'Bu ekran sipariş bilgilendirme fişidir. Mali belge veya e-Fatura yerine geçmez.',
+                    style: TextStyle(
+                      color: Colors.white38,
+                      fontSize: 10.5,
+                      height: 1.4,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          actions: [
+            TextButton.icon(
+              onPressed: () {
+                Navigator.of(dialogContext).pop();
+              },
+              icon: const Icon(Icons.close_rounded),
+              label: const Text('Kapat'),
+              style: TextButton.styleFrom(
+                foregroundColor: const Color(0xFFFFB300),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   Widget _buildSiparisKart(
     BuildContext context,
     QueryDocumentSnapshot<Map<String, dynamic>> siparisDoc,
@@ -636,7 +983,10 @@ class _MusteriSiparisTakipSayfasiState
                           saticiData['altToplam'] ??
                           saticiData['subtotal'],
                     );
-
+                    final teslimatFarki = _asDouble(
+                      saticiData['deliveryDeltaAmount'] ??
+                          saticiData['teslimatUcreti'],
+                    );
                     return Container(
                       margin: const EdgeInsets.only(bottom: 12),
                       padding: const EdgeInsets.all(12),
@@ -858,7 +1208,7 @@ class _MusteriSiparisTakipSayfasiState
                                   Row(
                                     children: [
                                       const Text(
-                                        'Satıcı Alt Toplamı',
+                                        'Yemek Baz Tutarı',
                                         style: TextStyle(
                                           color: Colors.white70,
                                           fontSize: 13,
@@ -875,6 +1225,29 @@ class _MusteriSiparisTakipSayfasiState
                                       ),
                                     ],
                                   ),
+                                  if (teslimatFarki > 0) ...[
+                                    const SizedBox(height: 8),
+                                    Row(
+                                      children: [
+                                        const Text(
+                                          'Teslimat / Kurye Farkı',
+                                          style: TextStyle(
+                                            color: Colors.white70,
+                                            fontSize: 13,
+                                          ),
+                                        ),
+                                        const Spacer(),
+                                        Text(
+                                          _price(teslimatFarki),
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 14,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
                                 ],
                               );
                             },
@@ -930,6 +1303,33 @@ class _MusteriSiparisTakipSayfasiState
                     ),
                   ),
                 ],
+              ),
+            ),
+            const SizedBox(height: 12),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                onPressed: () {
+                  _showBuyerReceipt(
+                    context,
+                    siparisDoc,
+                  );
+                },
+                icon: const Icon(Icons.receipt_long_outlined),
+                label: const Text('Fişi Gör'),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: const Color(0xFFFFB300),
+                  side: const BorderSide(
+                    color: Color(0x99FFB300),
+                  ),
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  textStyle: const TextStyle(
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
               ),
             ),
           ],
@@ -1098,7 +1498,12 @@ class _MusteriSiparisTakipSayfasiState
           }
 
           return ListView.builder(
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.fromLTRB(
+              12,
+              12,
+              12,
+              110,
+            ),
             itemCount: docs.length,
             itemBuilder: (context, index) {
               return _buildSiparisKart(context, docs[index]);
