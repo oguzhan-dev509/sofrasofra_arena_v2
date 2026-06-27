@@ -5,10 +5,10 @@ import 'package:sofrasofra_arena_v2/cart/sepet_sayfasi.dart';
 import 'package:sofrasofra_arena_v2/modules/kurye_basvuru_formu.dart';
 import '../../orders/musteri_siparis_takip_sayfasi.dart';
 import 'package:sofrasofra_arena_v2/modules/urun_detay.dart';
-
+import 'package:sofrasofra_arena_v2/controllers/favorite_controller.dart';
 import 'package:sofrasofra_arena_v2/modules/widgets/ev_lezzetleri_cards.dart';
 import 'package:sofrasofra_arena_v2/services/sepet_service.dart';
-
+import 'package:sofrasofra_arena_v2/modules/favorilerim_sayfasi.dart';
 import 'package:sofrasofra_arena_v2/modules/widgets/sepet_badge.dart';
 import 'package:sofrasofra_arena_v2/onboarding/uretici_basvuru_secim_sayfasi.dart';
 import 'package:sofrasofra_arena_v2/modules/widgets/mahalle_mutfaklari_single_vitrin_section.dart';
@@ -35,6 +35,7 @@ class _EvLezzetleriVitriniState extends State<EvLezzetleriVitrini> {
   String _foodSearchQuery = '';
 
   final TextEditingController _foodSearchController = TextEditingController();
+  final FavoriteController _favoriteController = FavoriteController();
   final List<String> _categories = const [
     'Tümü',
     'Ev Yemekleri',
@@ -52,6 +53,7 @@ class _EvLezzetleriVitriniState extends State<EvLezzetleriVitrini> {
   @override
   void dispose() {
     _foodSearchController.dispose();
+    _favoriteController.dispose();
     super.dispose();
   }
 
@@ -835,6 +837,21 @@ class _EvLezzetleriVitriniState extends State<EvLezzetleriVitrini> {
         iconTheme: const IconThemeData(color: _gold),
         actions: [
           IconButton(
+            tooltip: 'Favorilerim',
+            icon: const Icon(
+              Icons.favorite_rounded,
+              color: Color(0xFFFF3B5C),
+            ),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const FavorilerimSayfasi(),
+                ),
+              );
+            },
+          ),
+          IconButton(
             icon: const SepetBadge(),
             tooltip: 'Sepetim',
             color: _gold,
@@ -1040,6 +1057,7 @@ class _EvLezzetleriVitriniState extends State<EvLezzetleriVitrini> {
                           const SizedBox(height: 22),
                           MahalleMutfaklariSingleVitrinSection(
                             docs: categoryDocs,
+                            favoriteController: _favoriteController,
                             selectedCategory: _selectedCategory,
                             isMobile: isMobile,
                             crossAxisCount: crossAxisCount,

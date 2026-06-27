@@ -1,29 +1,33 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:sofrasofra_arena_v2/controllers/favorite_controller.dart';
+import 'package:sofrasofra_arena_v2/modules/widgets/favorite_product_button.dart';
 
 class MahalleMutfaklariSingleVitrinSection extends StatelessWidget {
   final List<QueryDocumentSnapshot<Map<String, dynamic>>> docs;
+  final FavoriteController favoriteController;
   final String selectedCategory;
   final bool isMobile;
   final int crossAxisCount;
-  final void Function(QueryDocumentSnapshot<Map<String, dynamic>> doc)
-      onOpenDetail;
-  final void Function(QueryDocumentSnapshot<Map<String, dynamic>> doc)?
-      onAddToCart;
+
+  final void Function(
+    QueryDocumentSnapshot<Map<String, dynamic>> doc,
+  ) onOpenDetail;
+
+  final void Function(
+    QueryDocumentSnapshot<Map<String, dynamic>> doc,
+  )? onAddToCart;
 
   const MahalleMutfaklariSingleVitrinSection({
     super.key,
     required this.docs,
+    required this.favoriteController,
     required this.selectedCategory,
     required this.isMobile,
     required this.crossAxisCount,
     required this.onOpenDetail,
     this.onAddToCart,
   });
-
-  static const Color _gold = Color(0xFFFFB300);
-  static const Color _card = Color(0xFF171717);
-  static const Color _border = Color(0x22FFB300);
 
   static String _normalizeText(dynamic value) {
     return (value ?? '')
@@ -109,7 +113,9 @@ class MahalleMutfaklariSingleVitrinSection extends StatelessWidget {
               ? ownerKey
               : '';
 
-      if (sellerKey.isEmpty) continue;
+      if (sellerKey.isEmpty) {
+        continue;
+      }
 
       unique.putIfAbsent(sellerKey, () => doc);
     }
@@ -156,7 +162,9 @@ class MahalleMutfaklariSingleVitrinSection extends StatelessWidget {
             final data = doc.data();
 
             return _SingleKitchenCard(
+              documentId: doc.id,
               data: data,
+              favoriteController: favoriteController,
               onTap: () => onOpenDetail(doc),
               onAddToCart: onAddToCart == null ? null : () => onAddToCart!(doc),
             );
@@ -168,12 +176,16 @@ class MahalleMutfaklariSingleVitrinSection extends StatelessWidget {
 }
 
 class _SingleKitchenCard extends StatelessWidget {
+  final String documentId;
   final Map<String, dynamic> data;
+  final FavoriteController favoriteController;
   final VoidCallback onTap;
   final VoidCallback? onAddToCart;
 
   const _SingleKitchenCard({
+    required this.documentId,
     required this.data,
+    required this.favoriteController,
     required this.onTap,
     this.onAddToCart,
   });
@@ -196,14 +208,43 @@ class _SingleKitchenCard extends StatelessWidget {
           data['resim'],
     );
 
-    if (direct.isNotEmpty) return direct;
+    if (direct.isNotEmpty) {
+      return direct;
+    }
 
     final images = data['images'];
+
     if (images is List && images.isNotEmpty) {
       return _safeText(images.first);
     }
 
     return '';
+  }
+
+  String _sellerId() {
+    return _safeText(
+      data['sellerId'] ??
+          data['saticiId'] ??
+          data['dukkanId'] ??
+          data['ownerId'] ??
+          data['ownerUid'] ??
+          data['userId'] ??
+          data['applicationId'],
+    );
+  }
+
+  void _showFavoriteMessage(
+    BuildContext context, {
+    required String message,
+  }) {
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: Text(message),
+          duration: const Duration(seconds: 2),
+        ),
+      );
   }
 
   @override
@@ -217,11 +258,20 @@ class _SingleKitchenCard extends StatelessWidget {
     );
 
     final category = _safeText(
-      data['kategori'] ?? data['category'] ?? 'Ev Lezzetleri',
+      data['kategori'] ??
+          data['category'] ??
+          data['categoryLabel'] ??
+          'Ev Lezzetleri',
     );
 
-    final district = _safeText(data['ilce'] ?? data['ilçe']);
-    final city = _safeText(data['sehir'] ?? data['şehir']);
+    final district = _safeText(
+      data['ilce'] ?? data['ilçe'],
+    );
+
+    final city = _safeText(
+      data['sehir'] ?? data['şehir'],
+    );
+
     final location = [
       if (district.isNotEmpty) district,
       if (city.isNotEmpty) city,
@@ -236,7 +286,9 @@ class _SingleKitchenCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: _card,
           borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: const Color(0x22FFB300)),
+          border: Border.all(
+            color: const Color(0x22FFB300),
+          ),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.24),
@@ -250,15 +302,19 @@ class _SingleKitchenCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Expanded(
-              child: img.isEmpty
-                  ? const Center(
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  if (img.isEmpty)
+                    const Center(
                       child: Icon(
                         Icons.storefront_outlined,
                         color: Colors.white38,
                         size: 42,
                       ),
                     )
-                  : Image.network(
+                  else
+                    Image.network(
                       img,
                       width: double.infinity,
                       fit: BoxFit.cover,
@@ -272,6 +328,44 @@ class _SingleKitchenCard extends StatelessWidget {
                         );
                       },
                     ),
+                  Positioned(
+                    top: 10,
+                    right: 10,
+                    child: FavoriteProductButton(
+                      controller: favoriteController,
+                      productId: documentId,
+                      sellerId: _sellerId(),
+                      sellerType: 'ev_lezzetleri_mutfak',
+                      productName: name.isEmpty ? 'Mahalle Mutfağı' : name,
+                      sellerName: name.isEmpty ? 'Mahalle Mutfağı' : name,
+                      imageUrl: img,
+                      price: 0,
+                      category: category.isEmpty ? 'Ev Lezzetleri' : category,
+                      size: 40,
+                      onChanged: (isFavorite) {
+                        final safeName =
+                            name.isEmpty ? 'Mahalle Mutfağı' : name;
+
+                        final message = isFavorite
+                            ? '$safeName favorilere eklendi.'
+                            : '$safeName favorilerden çıkarıldı.';
+
+                        _showFavoriteMessage(
+                          context,
+                          message: message,
+                        );
+                      },
+                      onError: (_) {
+                        _showFavoriteMessage(
+                          context,
+                          message:
+                              'Favori işlemi tamamlanamadı. Lütfen tekrar deneyin.',
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
             ),
             Padding(
               padding: const EdgeInsets.fromLTRB(14, 12, 14, 14),
@@ -395,8 +489,8 @@ class _EmptySingleVitrin extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: const [
+    return const Column(
+      children: [
         Icon(
           Icons.search_off_rounded,
           color: Colors.white38,
