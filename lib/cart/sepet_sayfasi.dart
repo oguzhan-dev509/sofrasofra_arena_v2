@@ -30,6 +30,117 @@ class _SepetSayfasiState extends State<SepetSayfasi> {
   final _acikAdresController = TextEditingController();
   final _binaDaireController = TextEditingController();
   final _siparisNotuController = TextEditingController();
+  @override
+  void initState() {
+    super.initState();
+    _teslimatProfiliniYukle();
+  }
+
+  Future<void> _teslimatProfiliniYukle() async {
+    final user = FirebaseAuth.instance.currentUser;
+
+    if (user == null || user.uid.isEmpty) {
+      return;
+    }
+
+    try {
+      final snapshot = await FirebaseFirestore.instance
+          .collection('customer_delivery_profiles')
+          .doc(user.uid)
+          .get();
+
+      final data = snapshot.data();
+
+      if (!snapshot.exists || data == null || !mounted) {
+        return;
+      }
+
+      _setControllerIfEmpty(
+        _musteriAdController,
+        data['musteriAd'],
+      );
+      _setControllerIfEmpty(
+        _musteriTelefonController,
+        data['musteriTelefon'],
+      );
+      _setControllerIfEmpty(
+        _sehirController,
+        data['sehir'],
+        replaceDefaultIstanbul: true,
+      );
+      _setControllerIfEmpty(
+        _ilceController,
+        data['ilce'],
+      );
+      _setControllerIfEmpty(
+        _mahalleController,
+        data['mahalle'],
+      );
+      _setControllerIfEmpty(
+        _acikAdresController,
+        data['acikAdres'],
+      );
+      _setControllerIfEmpty(
+        _binaDaireController,
+        data['binaDaire'],
+      );
+
+      setState(() {});
+    } catch (e) {
+      debugPrint('TESLİMAT PROFİLİ YÜKLEME HATASI: $e');
+    }
+  }
+
+  void _setControllerIfEmpty(
+    TextEditingController controller,
+    dynamic value, {
+    bool replaceDefaultIstanbul = false,
+  }) {
+    final text = value?.toString().trim() ?? '';
+
+    if (text.isEmpty) {
+      return;
+    }
+
+    final currentText = controller.text.trim();
+
+    final canReplace = currentText.isEmpty ||
+        (replaceDefaultIstanbul && currentText.toLowerCase() == 'istanbul');
+
+    if (canReplace) {
+      controller.text = text;
+    }
+  }
+
+  Future<void> _teslimatProfiliniKaydet() async {
+    final user = FirebaseAuth.instance.currentUser;
+
+    if (user == null || user.uid.isEmpty) {
+      return;
+    }
+
+    try {
+      await FirebaseFirestore.instance
+          .collection('customer_delivery_profiles')
+          .doc(user.uid)
+          .set({
+        'userId': user.uid,
+        'musteriAd': _musteriAdController.text.trim(),
+        'musteriTelefon': _musteriTelefonController.text.trim(),
+        'sehir': _sehirController.text.trim(),
+        'ilce': _ilceController.text.trim(),
+        'mahalle': _mahalleController.text.trim(),
+        'acikAdres': _acikAdresController.text.trim(),
+        'binaDaire': _binaDaireController.text.trim(),
+        'updatedAt': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
+
+      debugPrint('TESLİMAT PROFİLİ KAYDEDİLDİ uid=${user.uid}');
+    } catch (e) {
+      // Profil kaydı başarısız olsa bile sipariş ve ödeme akışı devam eder.
+      debugPrint('TESLİMAT PROFİLİ KAYDETME HATASI: $e');
+    }
+  }
 
   @override
   void dispose() {
@@ -283,6 +394,10 @@ class _SepetSayfasiState extends State<SepetSayfasi> {
       );
       return;
     }
+
+    await _teslimatProfiliniKaydet();
+
+    if (!mounted) return;
 
     setState(() {
       _siparisOlusturuluyor = true;
