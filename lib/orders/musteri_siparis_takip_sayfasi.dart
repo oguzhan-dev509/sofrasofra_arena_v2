@@ -17,10 +17,15 @@ class _MusteriSiparisTakipSayfasiState
   String? get userId => FirebaseAuth.instance.currentUser?.uid;
 
   Stream<QuerySnapshot<Map<String, dynamic>>> _siparislerStream() {
+    final uid = userId;
+
+    if (uid == null || uid.isEmpty) {
+      return const Stream<QuerySnapshot<Map<String, dynamic>>>.empty();
+    }
+
     return FirebaseFirestore.instance
         .collection('orders')
-        .orderBy('createdAt', descending: true)
-        .limit(20)
+        .where('userId', isEqualTo: uid)
         .snapshots();
   }
 
@@ -1027,7 +1032,24 @@ class _MusteriSiparisTakipSayfasiState
             );
           }
 
-          final docs = snapshot.data?.docs ?? [];
+          final docs = [
+            ...?snapshot.data?.docs,
+          ];
+
+          docs.sort((a, b) {
+            final aCreatedAt = a.data()['createdAt'];
+            final bCreatedAt = b.data()['createdAt'];
+
+            final aDate = aCreatedAt is Timestamp
+                ? aCreatedAt.toDate()
+                : DateTime.fromMillisecondsSinceEpoch(0);
+
+            final bDate = bCreatedAt is Timestamp
+                ? bCreatedAt.toDate()
+                : DateTime.fromMillisecondsSinceEpoch(0);
+
+            return bDate.compareTo(aDate);
+          });
 
           if (docs.isEmpty) {
             return Center(
