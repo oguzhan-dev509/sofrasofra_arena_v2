@@ -1102,175 +1102,29 @@ class _HeroSection extends StatelessWidget {
   });
 
   static const Color _gold = Color(0xFFFFB300);
-  static const Color _panel = Color(0xFF1A1A1A);
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.all(isMobile ? 18 : 24),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(28),
-        gradient: const LinearGradient(
-          colors: [
-            Color(0xFF1A1A1A),
-            Color(0xFF222222),
-            Color(0xFF151515),
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        border: Border.all(color: _gold.withValues(alpha: 0.35)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.28),
-            blurRadius: 24,
-            offset: const Offset(0, 12),
-          ),
-        ],
+      width: double.infinity,
+      padding: EdgeInsets.symmetric(
+        horizontal: isMobile ? 18 : 24,
+        vertical: isMobile ? 16 : 20,
       ),
-      child: isMobile
-          ? Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _HeroTextBlock(
-                  city: city,
-                  district: district,
-                ),
-                const SizedBox(height: 18),
-                Wrap(
-                  spacing: 10,
-                  runSpacing: 10,
-                  children: const [
-                    _HeroTag(text: 'Günlük Hazırlanır'),
-                    _HeroTag(text: 'Ev Yapımı'),
-                    _HeroTag(text: 'Mahalleden Teslim'),
-                    _HeroTag(text: 'Sıcak Lezzetler'),
-                  ],
-                ),
-              ],
-            )
-          : Row(
-              children: [
-                Expanded(
-                  flex: 6,
-                  child: _HeroTextBlock(
-                    city: city,
-                    district: district,
-                  ),
-                ),
-                const SizedBox(width: 18),
-                Expanded(
-                  flex: 5,
-                  child: Container(
-                    height: 270,
-                    decoration: BoxDecoration(
-                      color: _panel,
-                      borderRadius: BorderRadius.circular(24),
-                      border: Border.all(color: Colors.white10),
-                    ),
-                    padding: const EdgeInsets.all(18),
-                    child: const Wrap(
-                      spacing: 10,
-                      runSpacing: 10,
-                      children: [
-                        _HeroTag(text: 'Günlük Hazırlanır'),
-                        _HeroTag(text: 'Ev Yapımı'),
-                        _HeroTag(text: 'Mahalleden Teslim'),
-                        _HeroTag(text: 'Katkısız Seçenekler'),
-                        _HeroTag(text: 'Tatlı & Kahvaltılık'),
-                        _HeroTag(text: 'Sıcak Tencere Yemekleri'),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-    );
-  }
-}
-
-class _HeroTextBlock extends StatelessWidget {
-  final String city;
-  final String district;
-
-  const _HeroTextBlock({
-    required this.city,
-    required this.district,
-  });
-
-  static const Color _gold = Color(0xFFFFB300);
-  static const Color _softGold = Color(0xFFFFE0A3);
-
-  @override
-  Widget build(BuildContext context) {
-    final hasCity = city.trim().isNotEmpty;
-    final hasDistrict =
-        district.trim().isNotEmpty && district.trim().toLowerCase() != 'tümü';
-
-    final areaText = hasCity
-        ? (hasDistrict ? '$district / $city bölgesinde' : '$city bölgesinde')
-        : 'bulunduğun bölgede';
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Ev Lezzetleri',
-          style: TextStyle(
-            color: _gold,
-            fontSize: 30,
-            fontWeight: FontWeight.w900,
-            height: 1.05,
-          ),
-        ),
-        const SizedBox(height: 10),
-        Text(
-          '$areaText ev yapımı günlük lezzetleri, güven veren üreticilerden keşfet.',
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 15,
-            height: 1.55,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-        const SizedBox(height: 12),
-        Text(
-          hasCity
-              ? 'Gerçek üreticiler • ev yapımı lezzetler • $areaText premium vitrin'
-              : 'Gerçek üreticiler • ev yapımı lezzetler • premium vitrin',
-          style: const TextStyle(
-            color: _softGold,
-            fontSize: 13,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _HeroTag extends StatelessWidget {
-  final String text;
-
-  const _HeroTag({required this.text});
-
-  static const Color _gold = Color(0xFFFFB300);
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 10),
       decoration: BoxDecoration(
-        color: _gold.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: _gold.withValues(alpha: 0.4)),
+        color: const Color(0xFF171717),
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(
+          color: _gold.withValues(alpha: 0.35),
+        ),
       ),
       child: Text(
-        text,
-        style: const TextStyle(
+        'Ev Lezzetleri',
+        style: TextStyle(
           color: _gold,
-          fontWeight: FontWeight.w700,
-          fontSize: 12,
+          fontSize: isMobile ? 28 : 34,
+          fontWeight: FontWeight.w900,
+          height: 1.05,
         ),
       ),
     );
