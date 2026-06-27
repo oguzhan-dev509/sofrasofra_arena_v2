@@ -32,7 +32,9 @@ class _EvLezzetleriVitriniState extends State<EvLezzetleriVitrini> {
   static const Color _gold = Color(0xFFFFB300);
 
   String _selectedCategory = 'Tümü';
+  String _foodSearchQuery = '';
 
+  final TextEditingController _foodSearchController = TextEditingController();
   final List<String> _categories = const [
     'Tümü',
     'Ev Yemekleri',
@@ -47,6 +49,23 @@ class _EvLezzetleriVitriniState extends State<EvLezzetleriVitrini> {
     'Kuru Bakliyat Hazırlıkları',
     'Hamur Ürünleri / Dondurulmuş Mantı',
   ];
+  @override
+  void dispose() {
+    _foodSearchController.dispose();
+    super.dispose();
+  }
+
+  void _applyFoodSearch() {
+    final value = _foodSearchController.text.trim();
+
+    if (value == _foodSearchQuery) {
+      return;
+    }
+
+    setState(() {
+      _foodSearchQuery = value;
+    });
+  }
 
   Query<Map<String, dynamic>> _query() {
     return FirebaseFirestore.instance
@@ -291,6 +310,41 @@ class _EvLezzetleriVitriniState extends State<EvLezzetleriVitrini> {
 
   bool _isBugunPisiyor(Map<String, dynamic> data) {
     return data['bugunPisiyor'] == true;
+  }
+
+  bool _matchesFoodSearch(Map<String, dynamic> data) {
+    final query = _normalizeText(_foodSearchQuery);
+
+    if (query.isEmpty) {
+      return true;
+    }
+
+    final searchableText = _normalizeText(
+      [
+        data['ad'],
+        data['urunAdi'],
+        data['yemekAdi'],
+        data['baslik'],
+        data['title'],
+        data['aciklama'],
+        data['description'],
+        data['kategori'],
+        data['altKategori'],
+        data['category'],
+        data['categoryLabel'],
+        data['productCategory'],
+        data['urunKategori'],
+        data['dukkan'],
+        data['dukkanAdi'],
+        data['satici'],
+        _mapCategory(data),
+      ].where((value) => _safeText(value).isNotEmpty).join(' '),
+    );
+
+    final queryWords =
+        query.split(' ').where((word) => word.trim().isNotEmpty).toList();
+
+    return queryWords.every(searchableText.contains);
   }
 
   List<QueryDocumentSnapshot<Map<String, dynamic>>> _sortByScore(
@@ -849,9 +903,11 @@ class _EvLezzetleriVitriniState extends State<EvLezzetleriVitrini> {
             return _isValidProduct(data) && _matchesLocation(data);
           }).toList();
 
-          final categoryDocs = validDocs
-              .where((doc) => _matchesSelectedCategory(doc.data()))
-              .toList();
+          final categoryDocs = validDocs.where((doc) {
+            final data = doc.data();
+
+            return _matchesSelectedCategory(data) && _matchesFoodSearch(data);
+          }).toList();
 
           final sellerDocs = _uniqueSellerDocs(categoryDocs);
           final sellerValidDocs = _uniqueSellerDocs(validDocs);
@@ -963,7 +1019,24 @@ class _EvLezzetleriVitriniState extends State<EvLezzetleriVitrini> {
                             },
                           ),
                           const SizedBox(height: 22),
-                          _AgentIdeaCard(isMobile: isMobile),
+                          _AgentIdeaCard(
+                            isMobile: isMobile,
+                            controller: _foodSearchController,
+                            query: _foodSearchQuery,
+                            resultCount: categoryDocs.length,
+                            onSearch: _applyFoodSearch,
+                            onClear: () {
+                              _foodSearchController.clear();
+
+                              if (_foodSearchQuery.isEmpty) {
+                                return;
+                              }
+
+                              setState(() {
+                                _foodSearchQuery = '';
+                              });
+                            },
+                          ),
                           const SizedBox(height: 22),
                           MahalleMutfaklariSingleVitrinSection(
                             docs: categoryDocs,
@@ -1226,58 +1299,185 @@ class _SectionTitle extends StatelessWidget {
 
 class _AgentIdeaCard extends StatelessWidget {
   final bool isMobile;
+  final TextEditingController controller;
+  final String query;
+  final int resultCount;
+  final VoidCallback onSearch;
+  final VoidCallback onClear;
 
-  const _AgentIdeaCard({required this.isMobile});
+  const _AgentIdeaCard({
+    required this.isMobile,
+    required this.controller,
+    required this.query,
+    required this.resultCount,
+    required this.onSearch,
+    required this.onClear,
+  });
 
   static const Color _gold = Color(0xFFFFB300);
 
   @override
   Widget build(BuildContext context) {
+    final hasQuery = query.trim().isNotEmpty;
+
     return Container(
       padding: EdgeInsets.all(isMobile ? 16 : 18),
       decoration: BoxDecoration(
         color: const Color(0xFF181818),
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: Colors.white10),
+        border: Border.all(
+          color: hasQuery ? _gold.withValues(alpha: 0.55) : Colors.white10,
+        ),
       ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: 42,
-            height: 42,
-            decoration: BoxDecoration(
-              color: _gold.withValues(alpha: 0.14),
-              borderRadius: BorderRadius.circular(14),
-            ),
-            child: const Icon(Icons.auto_awesome, color: _gold),
-          ),
-          const SizedBox(width: 12),
-          const Expanded(
-            child: Column(
+      child: isMobile
+          ? Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'Bugün ne yemeliyim?',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w800,
-                    fontSize: 15,
-                  ),
+                _buildTitle(),
+                const SizedBox(height: 14),
+                _buildSearchField(),
+                if (hasQuery) ...[
+                  const SizedBox(height: 10),
+                  _buildResultText(),
+                ],
+              ],
+            )
+          : Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Expanded(
+                  flex: 4,
+                  child: _buildTitle(),
                 ),
-                SizedBox(height: 6),
-                Text(
-                  'Bu alan ileride müşteri ajanı için hazırlandı. Bütçene, konumuna ve damak zevkine göre ev lezzeti önerecek.',
-                  style: TextStyle(
-                    color: Colors.white70,
-                    fontSize: 12.5,
-                    height: 1.45,
+                const SizedBox(width: 18),
+                Expanded(
+                  flex: 6,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildSearchField(),
+                      if (hasQuery) ...[
+                        const SizedBox(height: 8),
+                        _buildResultText(),
+                      ],
+                    ],
                   ),
                 ),
               ],
             ),
+    );
+  }
+
+  Widget _buildTitle() {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          width: 46,
+          height: 46,
+          decoration: BoxDecoration(
+            color: _gold.withValues(alpha: 0.14),
+            borderRadius: BorderRadius.circular(14),
           ),
-        ],
+          child: const Icon(
+            Icons.auto_awesome,
+            color: _gold,
+            size: 26,
+          ),
+        ),
+        const SizedBox(width: 12),
+        const Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Bugün ne yemeliyim?',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w800,
+                  fontSize: 17,
+                ),
+              ),
+              SizedBox(height: 5),
+              Text(
+                'İstediğin yemeği, ürünü veya lezzeti yaz.',
+                style: TextStyle(
+                  color: Colors.white70,
+                  fontSize: 12.5,
+                  height: 1.4,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSearchField() {
+    return TextField(
+      controller: controller,
+      onSubmitted: (_) {
+        onSearch();
+      },
+      textInputAction: TextInputAction.search,
+      style: const TextStyle(
+        color: Colors.white,
+        fontSize: 15,
+        fontWeight: FontWeight.w600,
+      ),
+      decoration: InputDecoration(
+        hintText: 'Örnek: mantı, börek, tatlı, tarhana...',
+        hintStyle: const TextStyle(
+          color: Colors.white38,
+          fontSize: 13.5,
+        ),
+        prefixIcon: const Icon(
+          Icons.search_rounded,
+          color: _gold,
+        ),
+        suffixIcon: IconButton(
+          tooltip: 'Ara',
+          onPressed: onSearch,
+          icon: const Icon(
+            Icons.arrow_forward_rounded,
+            color: _gold,
+          ),
+        ),
+        filled: true,
+        fillColor: const Color(0xFF101010),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 16,
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide(
+            color: Colors.white.withValues(alpha: 0.12),
+          ),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: const BorderSide(
+            color: _gold,
+            width: 1.5,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildResultText() {
+    final text = resultCount == 0
+        ? 'Bu aramaya uygun ürün bulunamadı.'
+        : '$resultCount uygun ürün bulundu.';
+
+    return Text(
+      text,
+      style: TextStyle(
+        color: resultCount == 0 ? Colors.orangeAccent : _gold,
+        fontSize: 12.5,
+        fontWeight: FontWeight.w700,
       ),
     );
   }
