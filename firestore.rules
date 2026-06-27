@@ -292,6 +292,24 @@ match /producer_applications/{applicationId} {
 
   allow update, delete: if isPlatformAdmin();
 }
+match /neighborhood_coach_applications/{applicationId} {
+  // Anonim veya kayıtlı kullanıcı yalnızca bekleyen,
+  // hukuki onay verilmiş gerçek bir Mahalle Koçu başvurusu oluşturabilir.
+  allow create: if signedIn()
+    && request.resource.data.applicationType == 'neighborhood_coach'
+    && request.resource.data.status == 'pending'
+    && request.resource.data.legalAccepted == true
+    && request.resource.data.fullName is string
+    && request.resource.data.fullName.size() > 1
+    && request.resource.data.phone is string
+    && request.resource.data.phone.size() > 5;
+
+  // Başvuruları ve IBAN gibi kişisel verileri yalnızca platform yöneticisi okuyabilir.
+  allow read: if isPlatformAdmin();
+
+  // Onay, ret ve inceleme işlemleri yalnızca platform yöneticisine açıktır.
+  allow update, delete: if isPlatformAdmin();
+}
 match /user_notifications/{notificationId} {
   // Kullanıcı yalnızca kendisine ait bildirimleri okuyabilir.
   allow read: if signedIn()
