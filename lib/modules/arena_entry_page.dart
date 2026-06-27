@@ -313,16 +313,30 @@ class _ArenaEntryPageState extends State<ArenaEntryPage> {
                               ),
                             );
                           },
-                          icon: const Icon(Icons.home_rounded),
-                          label: const Text('Ev Lezzetleri'),
+                          icon: const Icon(
+                            Icons.home_rounded,
+                            size: 28,
+                          ),
+                          label: const Text(
+                            'Ev Lezzetleri',
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
                           style: OutlinedButton.styleFrom(
                             foregroundColor: _gold,
+                            minimumSize: const Size(0, 68),
                             side: BorderSide(
-                              color: _gold.withValues(alpha: 0.55),
+                              color: _gold.withValues(alpha: 0.75),
+                              width: 1.8,
                             ),
                             padding: const EdgeInsets.symmetric(
-                              horizontal: 18,
-                              vertical: 14,
+                              horizontal: 28,
+                              vertical: 18,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(34),
                             ),
                           ),
                         ),
@@ -335,16 +349,30 @@ class _ArenaEntryPageState extends State<ArenaEntryPage> {
                               ),
                             );
                           },
-                          icon: const Icon(Icons.workspace_premium_rounded),
-                          label: const Text('Usta Şefler'),
+                          icon: const Icon(
+                            Icons.workspace_premium_rounded,
+                            size: 28,
+                          ),
+                          label: const Text(
+                            'Usta Şefler',
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
                           style: OutlinedButton.styleFrom(
                             foregroundColor: _gold,
+                            minimumSize: const Size(0, 68),
                             side: BorderSide(
-                              color: _gold.withValues(alpha: 0.55),
+                              color: _gold.withValues(alpha: 0.75),
+                              width: 1.8,
                             ),
                             padding: const EdgeInsets.symmetric(
-                              horizontal: 18,
-                              vertical: 14,
+                              horizontal: 28,
+                              vertical: 18,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(34),
                             ),
                           ),
                         ),
@@ -357,16 +385,30 @@ class _ArenaEntryPageState extends State<ArenaEntryPage> {
                               ),
                             );
                           },
-                          icon: const Icon(Icons.restaurant_rounded),
-                          label: const Text('Restoranlar'),
+                          icon: const Icon(
+                            Icons.restaurant_rounded,
+                            size: 28,
+                          ),
+                          label: const Text(
+                            'Restoranlar',
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
                           style: OutlinedButton.styleFrom(
                             foregroundColor: _gold,
+                            minimumSize: const Size(0, 68),
                             side: BorderSide(
-                              color: _gold.withValues(alpha: 0.55),
+                              color: _gold.withValues(alpha: 0.75),
+                              width: 1.8,
                             ),
                             padding: const EdgeInsets.symmetric(
-                              horizontal: 18,
-                              vertical: 14,
+                              horizontal: 28,
+                              vertical: 18,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(34),
                             ),
                           ),
                         ),

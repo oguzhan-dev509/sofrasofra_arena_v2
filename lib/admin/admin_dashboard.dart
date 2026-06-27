@@ -8,6 +8,7 @@ import 'satici_onay_merkezi.dart';
 import 'siparis_yonetimi.dart';
 import 'kurye_basvurulari.dart';
 import '../orders/musteri_canli_takip_sayfasi.dart';
+import 'package:sofrasofra_arena_v2/admin/mahalle_kocu_basvurulari_admin_sayfasi.dart';
 
 class AdminDashboard extends StatelessWidget {
   const AdminDashboard({super.key});
@@ -117,6 +118,8 @@ class AdminDashboard extends StatelessWidget {
             hedef: const KuryeBasvurulariSayfasi(),
           ),
           const SizedBox(height: 12),
+          _mahalleKocuBasvurulariKarti(context),
+          const SizedBox(height: 12),
           const _YakindaKart(
             icon: Icons.psychology_alt,
             baslik: 'AI Denetim Merkezi',
@@ -125,6 +128,126 @@ class AdminDashboard extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _mahalleKocuBasvurulariKarti(BuildContext context) {
+    return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+      stream: FirebaseFirestore.instance
+          .collection('neighborhood_coach_applications')
+          .where('status', isEqualTo: 'pending')
+          .snapshots(),
+      builder: (context, snapshot) {
+        final pendingCount = snapshot.data?.docs.length ?? 0;
+
+        return InkWell(
+          borderRadius: BorderRadius.circular(18),
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => const MahalleKocuBasvurulariAdminSayfasi(),
+              ),
+            );
+          },
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: const Color(0xFF111111),
+              borderRadius: BorderRadius.circular(18),
+              border: Border.all(
+                color: const Color(0x33FFB300),
+              ),
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  width: 46,
+                  height: 46,
+                  decoration: BoxDecoration(
+                    color: const Color(0x22FFB300),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(
+                    Icons.groups_rounded,
+                    color: Color(0xFFFFB300),
+                  ),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Mahalle Koçu Başvuruları',
+                        style: TextStyle(
+                          color: Color(0xFFFFB300),
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      const Text(
+                        'Mahalle Mutfak Koçu başvurularını incele, onayla ve reddet.',
+                        style: TextStyle(
+                          color: Colors.white70,
+                          fontSize: 12.5,
+                          height: 1.4,
+                        ),
+                      ),
+                      if (snapshot.hasError) ...[
+                        const SizedBox(height: 8),
+                        const Text(
+                          'Bekleyen başvuru sayısı okunamadı.',
+                          style: TextStyle(
+                            color: Colors.redAccent,
+                            fontSize: 11.5,
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 8),
+                if (snapshot.connectionState == ConnectionState.waiting)
+                  const SizedBox(
+                    width: 22,
+                    height: 22,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: Color(0xFFFFB300),
+                    ),
+                  )
+                else if (pendingCount > 0)
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 9,
+                      vertical: 6,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.redAccent,
+                      borderRadius: BorderRadius.circular(999),
+                    ),
+                    child: Text(
+                      '$pendingCount',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
+                  )
+                else
+                  const Icon(
+                    Icons.chevron_right_rounded,
+                    color: Colors.white38,
+                  ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 

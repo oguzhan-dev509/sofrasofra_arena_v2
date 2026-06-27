@@ -20,7 +20,7 @@ import 'package:sofrasofra_arena_v2/modules/chef_brand_career_page.dart';
 import 'package:sofrasofra_arena_v2/modules/workshop_requests_admin_page.dart';
 import 'package:sofrasofra_arena_v2/admin/app_install_analytics_page.dart';
 import 'package:sofrasofra_arena_v2/admin/producer_applications_admin_sayfasi.dart';
-
+import 'package:sofrasofra_arena_v2/admin/mahalle_kocu_basvurulari_admin_sayfasi.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:sofrasofra_arena_v2/admin/abone_admin_sayfasi.dart';
 import 'package:sofrasofra_arena_v2/admin/mahalle_mutfagi_admin_sayfasi.dart';
@@ -522,6 +522,20 @@ class GastronomiYonetimMerkezi extends StatelessWidget {
             context,
             MaterialPageRoute(
               builder: (_) => const ProducerApplicationsAdminSayfasi(),
+            ),
+          );
+        },
+      ),
+      _DashboardItem(
+        title: 'Mahalle Koçu Başvuruları',
+        subtitle:
+            'Mahalle Mutfak Koçu başvurularını incele, onayla veya gerekçeli olarak reddet.',
+        icon: Icons.groups_rounded,
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => const MahalleKocuBasvurulariAdminSayfasi(),
             ),
           );
         },
@@ -1215,6 +1229,43 @@ class _DashboardCard extends StatelessWidget {
                     final count = snapshot.data?.docs.length ?? 0;
 
                     if (count == 0) return const SizedBox();
+
+                    return Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.redAccent,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Text(
+                        '$count',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            if (item.title == 'Mahalle Koçu Başvuruları')
+              Positioned(
+                top: 10,
+                right: 10,
+                child: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+                  stream: FirebaseFirestore.instance
+                      .collection('neighborhood_coach_applications')
+                      .where('status', isEqualTo: 'pending')
+                      .snapshots(),
+                  builder: (context, snapshot) {
+                    final count = snapshot.data?.docs.length ?? 0;
+
+                    if (count == 0) {
+                      return const SizedBox.shrink();
+                    }
 
                     return Container(
                       padding: const EdgeInsets.symmetric(
