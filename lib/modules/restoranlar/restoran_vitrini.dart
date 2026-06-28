@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:sofrasofra_arena_v2/controllers/favorite_controller.dart';
+import 'package:sofrasofra_arena_v2/modules/favorilerim_sayfasi.dart';
 import 'package:sofrasofra_arena_v2/services/restoran_service.dart';
 
 import 'models/restoran_model.dart';
@@ -32,7 +34,7 @@ class _PremiumRestoranVitriniState extends State<PremiumRestoranVitrini> {
   ];
 
   final TextEditingController _searchController = TextEditingController();
-
+  final FavoriteController _favoriteController = FavoriteController();
   String _searchQuery = '';
   String _selectedCategory = 'Tümü';
   bool _gelAlOnly = false;
@@ -43,6 +45,7 @@ class _PremiumRestoranVitriniState extends State<PremiumRestoranVitrini> {
   @override
   void dispose() {
     _searchController.dispose();
+    _favoriteController.dispose();
     super.dispose();
   }
 
@@ -62,6 +65,22 @@ class _PremiumRestoranVitriniState extends State<PremiumRestoranVitrini> {
             letterSpacing: 2,
           ),
         ),
+        actions: [
+          IconButton(
+            tooltip: 'Favorilerim',
+            icon: const Icon(
+              Icons.favorite_rounded,
+              color: Color(0xFFFF3B5C),
+            ),
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => const FavorilerimSayfasi(),
+                ),
+              );
+            },
+          ),
+        ],
       ),
       body: StreamBuilder<List<RestoranModel>>(
         stream: RestoranService.streamRestaurantsForShowcase(),
@@ -508,6 +527,8 @@ class _PremiumRestoranVitriniState extends State<PremiumRestoranVitrini> {
                         return SizedBox(
                           width: cardWidth,
                           child: RestoranPremiumCard(
+                            restaurantId: restaurant.id,
+                            favoriteController: _favoriteController,
                             name: restaurant.name,
                             description: restaurant.description,
                             imageUrl: restaurant.imageUrl,

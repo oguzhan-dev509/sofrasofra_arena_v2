@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:sofrasofra_arena_v2/controllers/favorite_controller.dart';
+import 'package:sofrasofra_arena_v2/modules/widgets/favorite_product_button.dart';
+
 import 'restoran_status_badge.dart';
 
 class RestoranPremiumCard extends StatelessWidget {
   const RestoranPremiumCard({
     super.key,
+    required this.restaurantId,
+    required this.favoriteController,
     required this.imageUrl,
     required this.name,
     required this.description,
@@ -16,7 +21,8 @@ class RestoranPremiumCard extends StatelessWidget {
     required this.isOpen,
     required this.onTap,
   });
-
+  final String restaurantId;
+  final FavoriteController favoriteController;
   final String name;
   final String description;
   final String imageUrl;
@@ -113,6 +119,47 @@ class RestoranPremiumCard extends StatelessWidget {
                           Colors.black.withValues(alpha: 0.72),
                         ],
                       ),
+                    ),
+                  ),
+                  Positioned(
+                    top: 12,
+                    right: 12,
+                    child: FavoriteProductButton(
+                      controller: favoriteController,
+                      productId: restaurantId,
+                      sellerId: restaurantId,
+                      sellerType: 'restaurant',
+                      productName: name,
+                      sellerName: name,
+                      imageUrl: imageUrl,
+                      price: 0,
+                      category: cuisine.trim().isEmpty ? 'Restoran' : cuisine,
+                      size: 42,
+                      onChanged: (isFavorite) {
+                        final message = isFavorite
+                            ? '$name favorilere eklendi.'
+                            : '$name favorilerden çıkarıldı.';
+
+                        ScaffoldMessenger.of(context)
+                          ..hideCurrentSnackBar()
+                          ..showSnackBar(
+                            SnackBar(
+                              content: Text(message),
+                              duration: const Duration(seconds: 2),
+                            ),
+                          );
+                      },
+                      onError: (_) {
+                        ScaffoldMessenger.of(context)
+                          ..hideCurrentSnackBar()
+                          ..showSnackBar(
+                            const SnackBar(
+                              content: Text(
+                                'Favori işlemi tamamlanamadı. Lütfen tekrar deneyin.',
+                              ),
+                            ),
+                          );
+                      },
                     ),
                   ),
                   Positioned(
