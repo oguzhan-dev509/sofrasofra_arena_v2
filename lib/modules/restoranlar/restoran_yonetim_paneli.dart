@@ -4,7 +4,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:sofrasofra_arena_v2/services/platform_admin_service.dart';
-
+import 'campaigns/pages/restaurant_campaign_management_page.dart';
 import 'models/restoran_model.dart';
 import 'restoran_detay_sayfasi.dart';
 import 'restoran_siparis_yonetimi_sayfasi.dart';
@@ -37,6 +37,20 @@ class RestoranYonetimPaneli extends StatelessWidget {
       MaterialPageRoute(
         builder: (_) => RestoranYanUrunYonetimiSayfasi(
           restaurantId: restaurantId,
+        ),
+      ),
+    );
+  }
+
+  void _openCampaignManagement({
+    required BuildContext context,
+    required String restaurantName,
+  }) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => RestaurantCampaignManagementPage(
+          restaurantId: restaurantId,
+          restaurantName: restaurantName,
         ),
       ),
     );
@@ -174,7 +188,8 @@ class RestoranYonetimPaneli extends StatelessWidget {
                             SwitchListTile.adaptive(
                               contentPadding: EdgeInsets.zero,
                               value: enabled,
-                              activeColor: _gold,
+                              activeThumbColor: _gold,
+                              activeTrackColor: _gold.withValues(alpha: 0.35),
                               title: Text(
                                 label,
                                 style: const TextStyle(
@@ -1024,7 +1039,8 @@ class RestoranYonetimPaneli extends StatelessWidget {
                     child: SwitchListTile.adaptive(
                       contentPadding: EdgeInsets.zero,
                       value: isOpen,
-                      activeColor: _gold,
+                      activeThumbColor: _gold,
+                      activeTrackColor: _gold.withValues(alpha: 0.35),
                       title: Text(
                         isOpen ? 'Restoran Açık' : 'Restoran Kapalı',
                         style: const TextStyle(
@@ -1117,6 +1133,19 @@ class RestoranYonetimPaneli extends StatelessWidget {
                         'İçecek, tatlı ve ekstra ürünleri ekleyin; fiyat, aktiflik ve stok durumunu yönetin.',
                     onTap: () {
                       _openAddonManagement(context);
+                    },
+                  ),
+                  const SizedBox(height: 12),
+                  _actionCard(
+                    icon: Icons.campaign_rounded,
+                    title: 'Mahalle Kampanyaları',
+                    subtitle:
+                        'Yüzde, sabit tutar veya Gel-Al kampanyaları oluşturun; tarih, mahalle ve kullanım limitlerini yönetin.',
+                    onTap: () {
+                      _openCampaignManagement(
+                        context: context,
+                        restaurantName: restaurant.name,
+                      );
                     },
                   ),
                   const SizedBox(height: 12),

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../modules/vitrinler/sef_vitrini.dart';
-import 'restoran_yonetim_paneli.dart';
+import '../modules/restoranlar/restoranlarim_sayfasi.dart';
 import 'teslimat_ayarlar_sayfasi.dart';
 import 'merchant_merkez.dart';
 
@@ -39,7 +39,7 @@ class MerchantDashboard extends StatelessWidget {
             context,
             "RESTORAN PANELİ",
             Icons.restaurant_menu_rounded,
-            const RestoranYonetimPaneli(),
+            const RestoranlarimSayfasi(),
           ),
           _buildCard(
             context,

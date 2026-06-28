@@ -359,7 +359,35 @@ match /restaurants/{restaurantId} {
     allow create, update, delete: if isPlatformAdmin()
       || isRestaurantOwner(restaurantId);
   }
+  match /campaigns/{campaignId} {
+    // Aktif kampanyalar ileride müşteri vitrini ve sepette okunacaktır.
+    allow read: if true;
 
+    // Kampanyayı yalnızca platform yöneticisi veya ilgili restoran sahibi oluşturabilir.
+    allow create: if isPlatformAdmin()
+      || (
+        isRestaurantOwner(restaurantId)
+        && request.resource.data.restaurantId == restaurantId
+        && request.resource.data.fundedBy == 'restaurant'
+        && request.resource.data.createdBy == request.auth.uid
+        && request.resource.data.usedCount == 0
+      );
+
+    // Restoran sahibi kampanyanın kimliğini, finansman kaynağını,
+    // oluşturucusunu ve kullanım sayacını değiştiremez.
+    allow update: if isPlatformAdmin()
+      || (
+        isRestaurantOwner(restaurantId)
+        && resource.data.restaurantId == restaurantId
+        && request.resource.data.restaurantId == resource.data.restaurantId
+        && request.resource.data.fundedBy == resource.data.fundedBy
+        && request.resource.data.createdBy == resource.data.createdBy
+        && request.resource.data.usedCount == resource.data.usedCount
+      );
+
+    // Restoran tarafı kalıcı silmez; uygulama kampanyayı arşivler.
+    allow delete: if isPlatformAdmin();
+  }
   match /reviews/{reviewId} {
     allow read: if true;
 

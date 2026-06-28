@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-
+import 'campaigns/pages/restaurant_campaign_management_page.dart';
 import '../../services/restoran_service.dart';
 import 'models/restoran_model.dart';
 import 'restoran_detay_sayfasi.dart';
@@ -726,6 +726,41 @@ class RestoranlarimSayfasi extends StatelessWidget {
                                             Icons.local_drink_rounded,
                                           ),
                                           label: const Text('Yan Ürünler'),
+                                        ),
+                                      ),
+                                      const SizedBox(height: 8),
+                                      SizedBox(
+                                        width: double.infinity,
+                                        child: OutlinedButton.icon(
+                                          onPressed: () {
+                                            Navigator.of(context).push(
+                                              MaterialPageRoute(
+                                                builder: (_) =>
+                                                    RestaurantCampaignManagementPage(
+                                                  restaurantId: restaurant.id,
+                                                  restaurantName:
+                                                      restaurant.name,
+                                                ),
+                                              ),
+                                            );
+                                          },
+                                          style: OutlinedButton.styleFrom(
+                                            foregroundColor: _gold,
+                                            side: BorderSide(
+                                              color: _gold.withValues(
+                                                alpha: 0.65,
+                                              ),
+                                            ),
+                                          ),
+                                          icon: const Icon(
+                                            Icons.campaign_rounded,
+                                          ),
+                                          label: const Text(
+                                            'Mahalle Kampanyaları',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.w800,
+                                            ),
+                                          ),
                                         ),
                                       ),
                                       if (isPlatformAdmin) ...[
